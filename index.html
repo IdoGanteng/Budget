@@ -517,7 +517,7 @@
                 const result = await response.json();
                 if (result.status === 'success') {
                     transactions = result.data;
-                    updateUI();
+                    updateUI(); // Memanggil updateUI setelah data online masuk agar grafik & tabel ter-render
                 }
             } catch (err) {
                 console.error("Gagal memuat data online:", err);
@@ -1009,6 +1009,7 @@
             }
         }
 
+        // Panggil data online saat pertama kali halaman dimuat
         fetchTransactionsFromSheet();
     </script>
 </body>
