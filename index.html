@@ -43,9 +43,24 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease; }
-        body { background-color: var(--bg-color); color: var(--text-dark); padding: 20px; font-size: 14px; line-height: 1.5; }
+        body { background-color: var(--bg-color); color: var(--text-dark); padding: 20px; font-size: 14px; line-height: 1.5; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         
-        .container { width: 100%; max-width: 1200px; margin: 0 auto; display: none; } /* Default disembunyikan sampai password benar */
+        /* Halaman Login Box */
+        #login-container {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 380px;
+            text-align: center;
+        }
+        #login-container h2 { color: var(--primary); margin-bottom: 8px; font-size: 20px; border-bottom: none; padding-bottom: 0; }
+        #login-container p { color: var(--text-gray); font-size: 12px; margin-bottom: 20px; }
+        #login-container input { margin-bottom: 12px; }
+
+        .container { width: 100%; max-width: 1200px; margin: 0 auto; display: none; } /* Default disembunyikan sampai login sukses */
 
         header { 
             display: flex; 
@@ -271,6 +286,17 @@
 </head>
 <body data-theme="light">
 
+    <!-- KOTAK FORM LOGIN -->
+    <div id="login-container">
+        <h2>🔒 Keamanan Dashboard</h2>
+        <p>Masukkan password rahasia untuk membuka data keuangan.</p>
+        <form id="login-form" onsubmit="handleLogin(event)">
+            <input type="password" id="password-input" placeholder="Masukkan Password" autocomplete="off" required>
+            <button type="submit">Masuk Dashboard</button>
+        </form>
+    </div>
+
+    <!-- KONTEN UTAMA DASHBOARD -->
     <div class="container" id="app-container">
         <header>
             <h1>💼 Sistem Manajemen Keuangan</h1>
@@ -451,14 +477,18 @@
         // ATUR PASSWORD LU DI SINI:
         const MY_PASSWORD = 'idoganteng2026';
 
-        function checkPassword() {
-            let pass = prompt("🔒 Masukkan Password Akses Dashboard Keuangan:");
-            if (pass === MY_PASSWORD) {
+        function handleLogin(e) {
+            e.preventDefault();
+            const inputPass = document.getElementById('password-input').value;
+            if (inputPass === MY_PASSWORD) {
+                // Sembunyikan login box, tampilkan body flex normal & container utama
+                document.getElementById('login-container').style.display = 'none';
+                document.body.style.display = 'block';
                 document.getElementById('app-container').style.display = 'block';
                 fetchTransactionsFromSheet();
             } else {
-                alert("❌ Password salah! Akses ditolak.");
-                location.reload();
+                alert("❌ Password salah! Coba lagi.");
+                document.getElementById('password-input').value = '';
             }
         }
 
@@ -467,7 +497,7 @@
         const currentTheme = localStorage.getItem('theme') || 'light';
         document.body.setAttribute('data-theme', currentTheme);
         const themeBtn = document.querySelector('.theme-toggle-btn');
-        if(currentTheme === 'dark') {
+        if(currentTheme === 'dark' && themeBtn) {
             themeBtn.innerText = '☀️ Mode Terang';
         }
 
@@ -476,17 +506,20 @@
             if(theme === 'light') {
                 document.body.setAttribute('data-theme', 'dark');
                 localStorage.setItem('theme', 'dark');
-                themeBtn.innerText = '☀️ Mode Terang';
+                if(themeBtn) themeBtn.innerText = '☀️ Mode Terang';
             } else {
                 document.body.setAttribute('data-theme', 'light');
                 localStorage.setItem('theme', 'light');
-                themeBtn.innerText = '🌙 Mode Gelap';
+                if(themeBtn) themeBtn.innerText = '🌙 Mode Gelap';
             }
             updateUI();
         }
 
         let goldPricePerGram = parseFloat(localStorage.getItem('goldPricePerGram')) || 1200000;
-        document.getElementById('gold-price-input').value = new Intl.NumberFormat('id-ID').format(goldPricePerGram);
+        const goldPriceEl = document.getElementById('gold-price-input');
+        if(goldPriceEl) {
+            goldPriceEl.value = new Intl.NumberFormat('id-ID').format(goldPricePerGram);
+        }
 
         function formatGoldPriceInput(el) {
             let raw = el.value.replace(/[^0-9]/g, '');
@@ -635,19 +668,21 @@
         const goldBar = document.getElementById('gold-progress-bar');
         const goldText = document.getElementById('gold-progress-text');
 
-        amountInput.addEventListener('input', function(e) {
-            const type = document.getElementById('type').value;
-            if (type !== 'tring') {
-                let rawValue = this.value.replace(/[^0-9]/g, ''); 
-                if (rawValue) {
-                    this.value = new Intl.NumberFormat('id-ID').format(rawValue);
+        if(amountInput) {
+            amountInput.addEventListener('input', function(e) {
+                const type = document.getElementById('type').value;
+                if (type !== 'tring') {
+                    let rawValue = this.value.replace(/[^0-9]/g, ''); 
+                    if (rawValue) {
+                        this.value = new Intl.NumberFormat('id-ID').format(rawValue);
+                    } else {
+                        this.value = '';
+                    }
                 } else {
-                    this.value = '';
+                    this.value = this.value.replace(/[^0-9.,]/g, '').replace(',', '.');
                 }
-            } else {
-                this.value = this.value.replace(/[^0-9.,]/g, '').replace(',', '.');
-            }
-        });
+            });
+        }
 
         function formatRp(angka) {
             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
@@ -981,46 +1016,48 @@
             updateCharts(cashBalance, totalSimpanan, totalPribadi, totalTringRupiah, totalJago, reportData.chartLabels, reportData.chartIncomeValues, reportData.chartExpenseValues);
         }
 
-        formEl.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const desc = document.getElementById('desc').value;
-            const type = document.getElementById('type').value;
-            let rawAmount = document.getElementById('amount').value;
-            
-            let amount = 0;
-            if(type === 'tring') {
-                amount = parseFloat(rawAmount.replace(',', '.')) || 0;
-            } else {
-                amount = parseInt(rawAmount.replace(/\./g, '')) || 0;
-            }
-            
-            const dateObj = new Date();
-            const dateStr = dateObj.getDate() + '/' + (dateObj.getMonth()+1) + '/' + dateObj.getFullYear();
-
-            const transaction = { 
-                id: 'id_' + Math.floor(Math.random() * 100000000), 
-                desc: desc, 
-                amount: amount, 
-                type: type, 
-                date: dateStr 
-            };
-
-            if (WEB_APP_URL !== 'URL_WEB_APP_GOOGLE_LU_DISINI') {
-                try {
-                    await fetch(WEB_APP_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({ action: 'add', ...transaction })
-                    });
-                } catch (err) {
-                    console.error("Gagal simpan ke online:", err);
+        if(formEl) {
+            formEl.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const desc = document.getElementById('desc').value;
+                const type = document.getElementById('type').value;
+                let rawAmount = document.getElementById('amount').value;
+                
+                let amount = 0;
+                if(type === 'tring') {
+                    amount = parseFloat(rawAmount.replace(',', '.')) || 0;
+                } else {
+                    amount = parseInt(rawAmount.replace(/\./g, '')) || 0;
                 }
-            }
+                
+                const dateObj = new Date();
+                const dateStr = dateObj.getDate() + '/' + (dateObj.getMonth()+1) + '/' + dateObj.getFullYear();
 
-            transactions.unshift(transaction); 
-            updateUI();
-            formEl.reset();
-            handleTypeChange();
-        });
+                const transaction = { 
+                    id: 'id_' + Math.floor(Math.random() * 100000000), 
+                    desc: desc, 
+                    amount: amount, 
+                    type: type, 
+                    date: dateStr 
+                };
+
+                if (WEB_APP_URL !== 'URL_WEB_APP_GOOGLE_LU_DISINI') {
+                    try {
+                        await fetch(WEB_APP_URL, {
+                            method: 'POST',
+                            body: JSON.stringify({ action: 'add', ...transaction })
+                        });
+                    } catch (err) {
+                        console.error("Gagal simpan ke online:", err);
+                    }
+                }
+
+                transactions.unshift(transaction); 
+                updateUI();
+                formEl.reset();
+                handleTypeChange();
+            });
+        }
 
         async function deleteTransaction(id) {
             if (confirm("Yakin mau hapus catatan ini?")) {
@@ -1047,9 +1084,6 @@
                 updateUI();
             }
         }
-
-        // Jalankan pemeriksaan password saat web pertama kali dibuka
-        checkPassword();
     </script>
 </body>
 </html>
