@@ -45,20 +45,21 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease; }
         body { background-color: var(--bg-color); color: var(--text-dark); padding: 20px; font-size: 14px; line-height: 1.5; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         
-        /* Halaman Login Box */
+        /* Halaman Login ala IG */
         #login-container {
             background: var(--card-bg);
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+            padding: 35px 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             border: 1px solid var(--border-color);
             width: 100%;
-            max-width: 380px;
+            max-width: 350px;
             text-align: center;
         }
-        #login-container h2 { color: var(--primary); margin-bottom: 8px; font-size: 20px; border-bottom: none; padding-bottom: 0; }
-        #login-container p { color: var(--text-gray); font-size: 12px; margin-bottom: 20px; }
-        #login-container input { margin-bottom: 12px; }
+        #login-container h1 { color: var(--primary); margin-bottom: 6px; font-size: 22px; font-weight: 700; border-bottom: none; padding-bottom: 0; }
+        #login-container p { color: var(--text-gray); font-size: 12px; margin-bottom: 24px; }
+        #login-container input { margin-bottom: 10px; background-color: var(--list-bg); font-size: 13px; }
+        #login-container button { margin-top: 4px; font-weight: 600; }
 
         .container { width: 100%; max-width: 1200px; margin: 0 auto; display: none; } /* Default disembunyikan sampai login sukses */
 
@@ -286,13 +287,14 @@
 </head>
 <body data-theme="light">
 
-    <!-- KOTAK FORM LOGIN -->
+    <!-- FORM LOGIN ALA INSTAGRAM -->
     <div id="login-container">
-        <h2>🔒 Keamanan Dashboard</h2>
-        <p>Masukkan password rahasia untuk membuka data keuangan.</p>
+        <h1>Keuangan Gua</h1>
+        <p>Masuk untuk mengelola keuangan pribadi</p>
         <form id="login-form" onsubmit="handleLogin(event)">
-            <input type="password" id="password-input" placeholder="Masukkan Password" autocomplete="off" required>
-            <button type="submit">Masuk Dashboard</button>
+            <input type="text" id="username-input" placeholder="Nama Pengguna (Username)" autocomplete="off" required>
+            <input type="password" id="password-input" placeholder="Kata Sandi (Password)" autocomplete="off" required>
+            <button type="submit">Masuk</button>
         </form>
     </div>
 
@@ -474,20 +476,23 @@
     </div>
 
     <script>
-        // ATUR PASSWORD LU DI SINI:
-        const MY_PASSWORD = 'idoganteng2026';
+        // ATUR USERNAME & PASSWORD LU DI SINI:
+        const CORRECT_USER = 'ido';
+        const CORRECT_PASS = 'idoganteng2026';
 
         function handleLogin(e) {
             e.preventDefault();
-            const inputPass = document.getElementById('password-input').value;
-            if (inputPass === MY_PASSWORD) {
-                // Sembunyikan login box, tampilkan body flex normal & container utama
+            const userInp = document.getElementById('username-input').value.trim();
+            const passInp = document.getElementById('password-input').value.trim();
+
+            if (userInp === CORRECT_USER && passInp === CORRECT_PASS) {
+                // Sembunyikan login container, tampilkan dashboard utama
                 document.getElementById('login-container').style.display = 'none';
                 document.body.style.display = 'block';
                 document.getElementById('app-container').style.display = 'block';
                 fetchTransactionsFromSheet();
             } else {
-                alert("❌ Password salah! Coba lagi.");
+                alert("❌ Username atau Password salah!");
                 document.getElementById('password-input').value = '';
             }
         }
