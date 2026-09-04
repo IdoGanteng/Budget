@@ -533,7 +533,7 @@
     </div>
 
     <script>
-        // ATUR USERNAME & PASSWORD LU DI SINI:
+        // KREDENSIAL LOGIN
         const CORRECT_USER = 'Rebel';
         const CORRECT_PASS = 'Rebelganteng2026';
 
@@ -555,10 +555,7 @@
             const passInp = document.getElementById('password-input').value.trim();
 
             if (userInp === CORRECT_USER && passInp === CORRECT_PASS) {
-                // Tampilkan nama user di badge
                 document.getElementById('username-text').innerText = userInp;
-                
-                // Sembunyikan login container, tampilkan dashboard utama
                 document.getElementById('login-container').style.display = 'none';
                 document.body.style.display = 'block';
                 document.getElementById('app-container').style.display = 'block';
@@ -571,7 +568,6 @@
 
         function handleLogout() {
             if (confirm("Yakin ingin keluar dari akun?")) {
-                // Sembunyikan dashboard, tampilkan kembali form login
                 document.getElementById('app-container').style.display = 'none';
                 document.body.style.display = 'flex';
                 document.getElementById('login-container').style.display = 'block';
@@ -950,13 +946,16 @@
                 const data = globalMonthlyData[key];
                 const netCash = data.income - data.expense - data.jago; 
                 
+                const netCashClass = netCash >= 0 ? 'inc-text' : 'exp-text';
+                const netCashSign = netCash >= 0 ? '+ ' : '- ';
+                
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td><strong>${data.label}</strong></td>
                     <td class="inc-text">+ ${formatRp(data.income)}</td>
                     <td class="exp-text">- ${formatRp(data.expense)}</td>
                     <td class="jago-text">- ${formatRp(data.jago)}</td>
-                    <td><strong>${formatRp(netCash)}</strong></td>
+                    <td><strong class="${netCashClass}">${netCashSign} ${formatRp(Math.abs(netCash))}</strong></td>
                     <td class="simpanan-text">+ ${formatRp(data.simpanan)}</td>
                     <td class="pribadi-text">+ ${formatRp(data.pribadi)}</td>
                     <td class="tring-text">+ ${data.tringGram.toFixed(3)} Gram</td>
