@@ -47,7 +47,6 @@
         
         .container { width: 100%; max-width: 1200px; margin: 0 auto; }
 
-        /* HEADER PERBAIKAN UTAMA (AGAR TOMBOL BERJEJER RAPI KE SAMPING) */
         header { 
             display: flex; 
             justify-content: space-between; 
@@ -86,7 +85,6 @@
         .excel-btn { color: #16a34a; border-color: #bbf7d0; background-color: #f0fdf4; }
         [data-theme="dark"] .excel-btn { color: #4ade80; border-color: #14532d; background-color: #064e3b; }
 
-        /* WEALTH HERO CARD */
         .wealth-card {
             background: linear-gradient(135deg, var(--primary), var(--primary-hover));
             color: white;
@@ -99,7 +97,6 @@
         .wealth-card h3 { font-size: 14px; font-weight: 500; opacity: 0.9; margin-bottom: 4px; }
         .wealth-card p { font-size: 32px; font-weight: 700; word-break: break-word; letter-spacing: -0.5px; }
 
-        /* GOLD PRICE INPUT */
         .gold-price-box {
             background: var(--card-bg);
             padding: 16px;
@@ -118,7 +115,6 @@
         .gold-price-box small { font-size: 11px; color: var(--text-gray); }
         .gold-price-input-area { display: flex; gap: 8px; max-width: 280px; width: 100%; }
 
-        /* GOALS SECTION */
         .goals-container {
             background: var(--card-bg);
             padding: 18px;
@@ -159,7 +155,6 @@
         }
         .goal-btn:hover { opacity: 0.8; }
 
-        /* SUMMARY CARDS (GRID 5) */
         .summary-cards { 
             display: grid; 
             grid-template-columns: repeat(5, 1fr); 
@@ -177,7 +172,6 @@
         .c-tring p { color: var(--tring); }
         .c-jago p { color: var(--jago); }
 
-        /* MAIN GRID FORM & CHART */
         .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
 
         .section-box { 
@@ -213,7 +207,6 @@
 
         .chart-container { position: relative; height: 220px; width: 100%; display: flex; justify-content: center; align-items: center; }
 
-        /* EVALUATION SECTION */
         .eval-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
         .eval-select { width: auto; padding: 6px 10px; font-weight: 600; font-size: 12px; }
         
@@ -222,7 +215,6 @@
         .eval-insight-card h4 { font-size: 11px; color: var(--text-gray); font-weight: 600; margin-bottom: 4px; }
         .eval-insight-card p { font-size: 15px; font-weight: 700; }
 
-        /* HISTORY LIST */
         .history-list { list-style: none; max-height: 260px; overflow-y: auto; padding-right: 4px; }
         .history-list li { display: flex; justify-content: space-between; align-items: center; background: var(--list-bg); padding: 10px 12px; margin-bottom: 8px; border-radius: 8px; border-left: 4px solid #ccc; gap: 8px; border: 1px solid var(--border-color); border-left-width: 4px; }
 
@@ -249,14 +241,12 @@
         .delete-btn { background-color: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 11px; width: auto; font-weight: 600; }
         .delete-btn:hover { background-color: #dc2626; }
 
-        /* TABLES */
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
         .report-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 750px; }
         .report-table th, .report-table td { padding: 10px 8px; text-align: left; border-bottom: 1px solid var(--border-color); }
         .report-table th { background-color: var(--list-bg); color: var(--text-gray); font-weight: 600; }
         .report-table tbody tr:hover { background-color: var(--list-bg); }
 
-        /* RESPONSIVE BREAKPOINTS */
         @media (max-width: 1024px) {
             .summary-cards { grid-template-columns: repeat(3, 1fr); }
         }
@@ -458,6 +448,9 @@
     </div>
 
     <script>
+        // GANTI URL DI BAWAH INI DENGAN URL WEB APP GOOGLE APPS SCRIPT LU
+       const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwFKHf1Kakb71JXiZ2lB0JTN24p2kyKOwPvNx_ZwxLSRZamk3ujWtBFOqPhpx8aWZXHLA/exec';
+
         const currentTheme = localStorage.getItem('theme') || 'light';
         document.body.setAttribute('data-theme', currentTheme);
         const themeBtn = document.querySelector('.theme-toggle-btn');
@@ -510,6 +503,26 @@
                 amountInput.placeholder = "Jumlah Gram Emas (Misal: 0.5 atau 2)";
             } else {
                 amountInput.placeholder = "Jumlah Rupiah (Misal: 100.000)";
+            }
+        }
+
+        let transactions = [];
+
+        // AMBIL DATA DARI GOOGLE SHEETS
+        async function fetchTransactionsFromSheet() {
+            if (WEB_APP_URL === 'URL_WEB_APP_GOOGLE_LU_DISINI') return;
+            try {
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'sync' })
+                });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    transactions = result.data;
+                    updateUI();
+                }
+            } catch (err) {
+                console.error("Gagal memuat data online:", err);
             }
         }
 
@@ -577,7 +590,7 @@
                                 document.getElementById('gold-price-input').value = new Intl.NumberFormat('id-ID').format(goldPricePerGram);
                             }
                             updateUI();
-                            alert("Data berhasil dipulihkan (Restore)!");
+                            alert("Data berhasil dipulihkan (Restore)! Harap sync manual ke Google Sheet jika diperlukan.");
                         } else {
                             alert("Format file backup tidak valid!");
                         }
@@ -587,9 +600,6 @@
                 };
             }
         }
-
-        const localStorageTransactions = JSON.parse(localStorage.getItem('transactions'));
-        let transactions = localStorage.getItem('transactions') !== null ? localStorageTransactions : [];
 
         let financialGoals = JSON.parse(localStorage.getItem('financialGoals')) || { wealthGoal: 50000000, goldGoal: 10000000 };
 
@@ -736,21 +746,21 @@
                         globalMonthlyData[sortKey] = { label: label, income: 0, expense: 0, simpanan: 0, pribadi: 0, tringGram: 0, jago: 0, topExpenseName: '-', topExpenseAmt: 0 };
                     }
 
-                    if (trx.type === 'income') globalMonthlyData[sortKey].income += trx.amount;
+                    if (trx.type === 'income') globalMonthlyData[sortKey].income += Number(trx.amount);
                     else if (trx.type === 'expense') {
-                        globalMonthlyData[sortKey].expense += trx.amount;
-                        if(trx.amount > globalMonthlyData[sortKey].topExpenseAmt) {
-                            globalMonthlyData[sortKey].topExpenseAmt = trx.amount;
+                        globalMonthlyData[sortKey].expense += Number(trx.amount);
+                        if(Number(trx.amount) > globalMonthlyData[sortKey].topExpenseAmt) {
+                            globalMonthlyData[sortKey].topExpenseAmt = Number(trx.amount);
                             globalMonthlyData[sortKey].topExpenseName = trx.desc;
                         }
                     }
-                    else if (trx.type === 'simpanan') globalMonthlyData[sortKey].simpanan += trx.amount;
-                    else if (trx.type === 'pribadi') globalMonthlyData[sortKey].pribadi += trx.amount;
-                    else if (trx.type === 'tring' || trx.type === 'inv_tring') globalMonthlyData[sortKey].tringGram += trx.amount;
+                    else if (trx.type === 'simpanan') globalMonthlyData[sortKey].simpanan += Number(trx.amount);
+                    else if (trx.type === 'pribadi') globalMonthlyData[sortKey].pribadi += Number(trx.amount);
+                    else if (trx.type === 'tring' || trx.type === 'inv_tring') globalMonthlyData[sortKey].tringGram += Number(trx.amount);
                     else if (trx.type === 'jago' || trx.type === 'inv_jago') {
-                        globalMonthlyData[sortKey].jago += trx.amount;
-                        if(trx.amount > globalMonthlyData[sortKey].topExpenseAmt) {
-                            globalMonthlyData[sortKey].topExpenseAmt = trx.amount;
+                        globalMonthlyData[sortKey].jago += Number(trx.amount);
+                        if(Number(trx.amount) > globalMonthlyData[sortKey].topExpenseAmt) {
+                            globalMonthlyData[sortKey].topExpenseAmt = Number(trx.amount);
                             globalMonthlyData[sortKey].topExpenseName = trx.desc + ' (Jago)';
                         }
                     }
@@ -872,12 +882,13 @@
             const selectedFilterMonth = filterMonthSelect.value;
 
             transactions.forEach((trx) => {
-                if (trx.type === 'income') totalIncome += trx.amount;
-                else if (trx.type === 'expense') totalExpense += trx.amount;
-                else if (trx.type === 'simpanan') totalSimpanan += trx.amount;
-                else if (trx.type === 'pribadi') totalPribadi += trx.amount;
-                else if (trx.type === 'tring' || trx.type === 'inv_tring') totalTringGram += trx.amount;
-                else if (trx.type === 'jago' || trx.type === 'inv_jago') totalJago += trx.amount;
+                const amt = Number(trx.amount);
+                if (trx.type === 'income') totalIncome += amt;
+                else if (trx.type === 'expense') totalExpense += amt;
+                else if (trx.type === 'simpanan') totalSimpanan += amt;
+                else if (trx.type === 'pribadi') totalPribadi += amt;
+                else if (trx.type === 'tring' || trx.type === 'inv_tring') totalTringGram += amt;
+                else if (trx.type === 'jago' || trx.type === 'inv_jago') totalJago += amt;
 
                 if (selectedFilterMonth !== 'all' && trx.date) {
                     const parts = trx.date.split('/');
@@ -892,12 +903,12 @@
                 const li = document.createElement('li');
                 let sign = ''; let textClass = 'default-text'; let liClass = ''; let displayAmount = '';
                 
-                if (trx.type === 'income') { sign = '+'; textClass = 'inc-text'; liClass = 'inc'; displayAmount = formatRp(trx.amount); }
-                else if (trx.type === 'expense') { sign = '-'; textClass = 'exp-text'; liClass = 'exp'; displayAmount = formatRp(trx.amount); }
-                else if (trx.type === 'simpanan') { sign = 'Simpanan'; textClass = 'simpanan-text'; liClass = 'simpanan'; displayAmount = formatRp(trx.amount); }
-                else if (trx.type === 'pribadi') { sign = 'Tabungan'; textClass = 'pribadi-text'; liClass = 'pribadi'; displayAmount = formatRp(trx.amount); }
-                else if (trx.type === 'tring' || trx.type === 'inv_tring') { sign = '+'; textClass = 'tring-text'; liClass = 'tring'; displayAmount = trx.amount.toFixed(3) + ' Gram'; }
-                else if (trx.type === 'jago' || trx.type === 'inv_jago') { sign = 'Beli Jago'; textClass = 'jago-text'; liClass = 'jago'; displayAmount = formatRp(trx.amount); }
+                if (trx.type === 'income') { sign = '+'; textClass = 'inc-text'; liClass = 'inc'; displayAmount = formatRp(amt); }
+                else if (trx.type === 'expense') { sign = '-'; textClass = 'exp-text'; liClass = 'exp'; displayAmount = formatRp(amt); }
+                else if (trx.type === 'simpanan') { sign = 'Simpanan'; textClass = 'simpanan-text'; liClass = 'simpanan'; displayAmount = formatRp(amt); }
+                else if (trx.type === 'pribadi') { sign = 'Tabungan'; textClass = 'pribadi-text'; liClass = 'pribadi'; displayAmount = formatRp(amt); }
+                else if (trx.type === 'tring' || trx.type === 'inv_tring') { sign = '+'; textClass = 'tring-text'; liClass = 'tring'; displayAmount = amt.toFixed(3) + ' Gram'; }
+                else if (trx.type === 'jago' || trx.type === 'inv_jago') { sign = 'Beli Jago'; textClass = 'jago-text'; liClass = 'jago'; displayAmount = formatRp(amt); }
 
                 if (liClass !== '') { li.classList.add(liClass); }
 
@@ -908,7 +919,7 @@
                     </div>
                     <div class="amount-area">
                         <span class="amount-text ${textClass}">${sign} ${displayAmount}</span>
-                        <button class="delete-btn" onclick="deleteTransaction(${trx.id})">Hapus</button>
+                        <button class="delete-btn" onclick="deleteTransaction('${trx.id}')">Hapus</button>
                     </div>
                 `;
                 listEl.appendChild(li);
@@ -931,11 +942,9 @@
             
             const reportData = renderMonthlyReport();
             updateCharts(cashBalance, totalSimpanan, totalPribadi, totalTringRupiah, totalJago, reportData.chartLabels, reportData.chartIncomeValues, reportData.chartExpenseValues);
-            
-            localStorage.setItem('transactions', JSON.stringify(transactions));
         }
 
-        formEl.addEventListener('submit', function(e) {
+        formEl.addEventListener('submit', async function(e) {
             e.preventDefault();
             const desc = document.getElementById('desc').value;
             const type = document.getElementById('type').value;
@@ -951,20 +960,51 @@
             const dateObj = new Date();
             const dateStr = dateObj.getDate() + '/' + (dateObj.getMonth()+1) + '/' + dateObj.getFullYear();
 
-            const transaction = { id: Math.floor(Math.random() * 100000000), desc: desc, amount: amount, type: type, date: dateStr };
+            const transaction = { 
+                id: 'id_' + Math.floor(Math.random() * 100000000), 
+                desc: desc, 
+                amount: amount, 
+                type: type, 
+                date: dateStr 
+            };
+
+            // Kirim ke Google Sheet
+            if (WEB_APP_URL !== 'URL_WEB_APP_GOOGLE_LU_DISINI') {
+                try {
+                    await fetch(WEB_APP_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'add', ...transaction })
+                    });
+                } catch (err) {
+                    console.error("Gagal simpan ke online:", err);
+                }
+            }
+
             transactions.unshift(transaction); 
             updateUI();
             formEl.reset();
             handleTypeChange();
         });
 
-        function deleteTransaction(id) {
-            transactions = transactions.filter(trx => trx.id !== id);
-            updateUI();
+        async function deleteTransaction(id) {
+            if (confirm("Yakin mau hapus catatan ini?")) {
+                if (WEB_APP_URL !== 'URL_WEB_APP_GOOGLE_LU_DISINI') {
+                    try {
+                        await fetch(WEB_APP_URL, {
+                            method: 'POST',
+                            body: JSON.stringify({ action: 'delete', id: id })
+                        });
+                    } catch (err) {
+                        console.error("Gagal hapus dari online:", err);
+                    }
+                }
+                transactions = transactions.filter(trx => trx.id != id);
+                updateUI();
+            }
         }
 
         function resetData() {
-            if (confirm("Lu yakin mau hapus SEMUA data dan mulai dari awal? Data nggak bisa dibalikin lagi lho!")) {
+            if (confirm("Peringatan: Reset database lokal. Data di Google Sheet tidak akan ikut terhapus otomatis kecuali dihapus manual dari Sheet.")) {
                 transactions = [];
                 localStorage.removeItem('financialGoals');
                 financialGoals = { wealthGoal: 50000000, goldGoal: 10000000 };
@@ -972,7 +1012,8 @@
             }
         }
 
-        updateUI();
+        // Panggil data saat pertama kali web dibuka
+        fetchTransactionsFromSheet();
     </script>
 </body>
 </html>
