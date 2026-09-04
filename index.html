@@ -43,7 +43,7 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease; }
-        body { background-color: var(--bg-color); color: var(--text-dark); padding: 20px; font-size: 14px; line-height: 1.5; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        body { background-color: var(--bg-color); color: var(--text-dark); padding: 15px; font-size: 14px; line-height: 1.5; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         
         /* Halaman Login ala IG */
         #login-container {
@@ -89,25 +89,25 @@
 
         .container { width: 100%; max-width: 1200px; margin: 0 auto; display: none; }
 
-        /* HEADER SATU BARIS SUPER RAPI & ELEGAN */
+        /* HEADER SUPER RAPI & RESPONSIF HP */
         header { 
             display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 24px; 
-            gap: 15px;
+            flex-direction: column; 
+            gap: 12px;
+            margin-bottom: 20px; 
             width: 100%;
             background: var(--card-bg);
-            padding: 12px 20px;
+            padding: 16px;
             border-radius: 14px;
             border: 1px solid var(--border-color);
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
         }
 
-        .header-left {
+        .header-top {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 10px;
+            width: 100%;
         }
 
         header h1 { 
@@ -117,32 +117,27 @@
             white-space: nowrap;
         }
 
-        .header-right { 
-            display: flex; 
-            align-items: center; 
-            gap: 12px;
-        }
-
-        /* PROFILE DROPDOWN STYLING */
+        /* PROFILE DROPDOWN STYLING FULL WIDTH DI HP */
         .profile-dropdown-wrapper {
             position: relative;
-            display: inline-block;
+            width: 100%;
         }
         .user-badge {
             background: var(--list-bg);
             border: 1px solid var(--border-color);
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 12px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 13px;
             font-weight: 600;
             color: var(--text-dark);
             display: flex;
+            justify-content: center;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             box-shadow: 0 1px 2px rgba(0,0,0,0.03);
             cursor: pointer;
             user-select: none;
-            white-space: nowrap;
+            width: 100%;
         }
         .user-badge:hover { 
             border-color: var(--primary); 
@@ -152,27 +147,27 @@
         .dropdown-menu {
             display: none;
             position: absolute;
+            left: 0;
             right: 0;
-            top: 42px;
+            top: 50px;
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 10px;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
-            width: 180px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15);
             z-index: 100;
             overflow: hidden;
             animation: fadeIn 0.2s ease;
         }
         .dropdown-menu.show { display: block; }
         .dropdown-item {
-            padding: 10px 14px;
-            font-size: 12px;
+            padding: 12px 16px;
+            font-size: 13px;
             font-weight: 600;
             color: var(--text-dark);
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             border-bottom: 1px solid var(--border-color);
             background: none;
             border-left: none; border-right: none; border-top: none;
@@ -197,16 +192,16 @@
             align-items: center;
             background: var(--list-bg);
             border: 1px solid var(--border-color);
-            padding: 5px 10px;
+            padding: 6px 12px;
             border-radius: 8px;
             box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-            gap: 6px;
+            gap: 8px;
         }
         .theme-switch {
             position: relative;
             display: inline-block;
-            width: 34px;
-            height: 18px;
+            width: 38px;
+            height: 20px;
         }
         .theme-switch input { opacity: 0; width: 0; height: 0; }
         .slider {
@@ -220,8 +215,8 @@
         .slider:before {
             position: absolute;
             content: "";
-            height: 12px;
-            width: 12px;
+            height: 14px;
+            width: 14px;
             left: 3px;
             bottom: 3px;
             background-color: white;
@@ -229,8 +224,8 @@
             border-radius: 50%;
         }
         input:checked + .slider { background-color: var(--primary); }
-        input:checked + .slider:before { transform: translateX(16px); }
-        .theme-icon { font-size: 11px; }
+        input:checked + .slider:before { transform: translateX(18px); }
+        .theme-icon { font-size: 12px; }
 
         .wealth-card {
             background: linear-gradient(135deg, var(--primary), var(--primary-hover));
@@ -400,7 +395,6 @@
 
         @media (max-width: 768px) {
             body { padding: 10px; }
-            header { padding: 10px 14px; }
             .summary-cards { grid-template-columns: repeat(2, 1fr); }
             .main-grid { grid-template-columns: 1fr; }
             .eval-cards-grid { grid-template-columns: 1fr; }
@@ -433,11 +427,9 @@
     <!-- KONTEN UTAMA DASHBOARD -->
     <div class="container" id="app-container">
         <header>
-            <div class="header-left">
+            <div class="header-top">
                 <h1>💼 Keuangan Gua</h1>
-            </div>
 
-            <div class="header-right">
                 <!-- SWITCH TOGGLE MODE GELAP/TERANG -->
                 <div class="theme-switch-wrapper" title="Ganti Tema">
                     <span class="theme-icon">☀️</span>
@@ -447,21 +439,21 @@
                     </label>
                     <span class="theme-icon">🌙</span>
                 </div>
-
-                <!-- PROFIL DROPDOWN MENU REBEL -->
-                <div class="profile-dropdown-wrapper">
-                    <div class="user-badge" onclick="toggleProfileDropdown(event)">
-                        👤 <span id="username-text">Rebel</span> <span style="font-size: 10px; opacity: 0.7;">▾</span>
-                    </div>
-                    <div class="dropdown-menu" id="profile-dropdown">
-                        <button class="dropdown-item excel-item" onclick="exportToExcel()">📊 Download Excel</button>
-                        <button class="dropdown-item" onclick="exportData()">📥 Backup Data</button>
-                        <button class="dropdown-item" onclick="document.getElementById('importFile').click()">📤 Restore Data</button>
-                        <button class="dropdown-item logout-item" onclick="handleLogout()">🚪 Keluar (Logout)</button>
-                    </div>
-                </div>
-                <input type="file" id="importFile" style="display: none" accept=".json" onchange="importData(event)">
             </div>
+
+            <!-- PROFIL DROPDOWN MENU REBEL (FULL WIDTH DI BAWAHNYA) -->
+            <div class="profile-dropdown-wrapper">
+                <div class="user-badge" onclick="toggleProfileDropdown(event)">
+                    👤 <span id="username-text">Rebel</span> <span style="font-size: 10px; opacity: 0.7; margin-left: auto;">▾ Menu Akun</span>
+                </div>
+                <div class="dropdown-menu" id="profile-dropdown">
+                    <button class="dropdown-item excel-item" onclick="exportToExcel()">📊 Download Excel</button>
+                    <button class="dropdown-item" onclick="exportData()">📥 Backup Data</button>
+                    <button class="dropdown-item" onclick="document.getElementById('importFile').click()">📤 Restore Data</button>
+                    <button class="dropdown-item logout-item" onclick="handleLogout()">🚪 Keluar (Logout)</button>
+                </div>
+            </div>
+            <input type="file" id="importFile" style="display: none" accept=".json" onchange="importData(event)">
         </header>
 
         <div class="wealth-card">
