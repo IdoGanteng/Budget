@@ -517,7 +517,7 @@
                 const result = await response.json();
                 if (result.status === 'success') {
                     transactions = result.data;
-                    updateUI(); // Memanggil updateUI setelah data online masuk agar grafik & tabel ter-render
+                    updateUI();
                 }
             } catch (err) {
                 console.error("Gagal memuat data online:", err);
@@ -733,11 +733,25 @@
 
             transactions.forEach(trx => {
                 if(!trx.date) return; 
-                const parts = trx.date.split('/'); 
-                if(parts.length === 3) {
-                    const monthIndex = parseInt(parts[1]) - 1;
-                    const year = parts[2];
-                    const sortKey = `${year}-${parts[1].padStart(2, '0')}`; 
+                let year, month;
+                
+                if(trx.date.includes('/')) {
+                    const parts = trx.date.split('/');
+                    if(parts.length === 3) {
+                        month = parts[1].padStart(2, '0');
+                        year = parts[2];
+                    }
+                } else if(trx.date.includes('-')) {
+                    const dateObj = new Date(trx.date);
+                    if(!isNaN(dateObj)) {
+                        month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                        year = String(dateObj.getFullYear());
+                    }
+                }
+
+                if(year && month) {
+                    const monthIndex = parseInt(month) - 1;
+                    const sortKey = `${year}-${month}`; 
                     const label = `${monthNames[monthIndex]} ${year}`;
 
                     if(!globalMonthlyData[sortKey]) {
@@ -889,13 +903,19 @@
                 else if (trx.type === 'jago' || trx.type === 'inv_jago') totalJago += amt;
 
                 if (selectedFilterMonth !== 'all' && trx.date) {
-                    const parts = trx.date.split('/');
-                    if (parts.length === 3) {
-                        const trxKey = `${parts[2]}-${parts[1].padStart(2, '0')}`;
-                        if (trxKey !== selectedFilterMonth) return; 
-                    } else {
-                        return;
+                    let trxKey = '';
+                    if(trx.date.includes('/')) {
+                        const parts = trx.date.split('/');
+                        if (parts.length === 3) {
+                            trxKey = `${parts[2]}-${parts[1].padStart(2, '0')}`;
+                        }
+                    } else if(trx.date.includes('-')) {
+                        const dateObj = new Date(trx.date);
+                        if(!isNaN(dateObj)) {
+                            trxKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+                        }
                     }
+                    if (trxKey && trxKey !== selectedFilterMonth) return; 
                 }
 
                 const li = document.createElement('li');
@@ -910,10 +930,15 @@
 
                 if (liClass !== '') { li.classList.add(liClass); }
 
+                let formattedDateDisplay = trx.date;
+                if(trx.date.includes('T')) {
+                    formattedDateDisplay = trx.date.split('T')[0];
+                }
+
                 li.innerHTML = `
                     <div>
                         <span class="desc-text">${trx.desc}</span>
-                        <span class="date-text">${trx.date || '-'}</span>
+                        <span class="date-text">${formattedDateDisplay || '-'}</span>
                     </div>
                     <div class="amount-area">
                         <span class="amount-text ${textClass}">${sign} ${displayAmount}</span>
@@ -1009,7 +1034,6 @@
             }
         }
 
-        // Panggil data online saat pertama kali halaman dimuat
         fetchTransactionsFromSheet();
     </script>
 </body>
