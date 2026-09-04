@@ -625,6 +625,52 @@
         const CORRECT_USER = 'Rebel';
         const CORRECT_PASS = 'Rebelganteng2026';
 
+        // SISTEM AUTO-LOGOUT 5 MENIT & PERSISTENT LOGIN
+        let idleTimer;
+        const TIMEOUT_LIMIT = 5 * 60 * 1000; // 5 Menit dalam milidetik
+
+        function resetIdleTimer() {
+            if (localStorage.getItem('isLoggedIn') === 'true') {
+                localStorage.setItem('lastActiveTime', Date.now());
+                clearTimeout(idleTimer);
+                idleTimer = setTimeout(triggerAutoLogout, TIMEOUT_LIMIT);
+            }
+        }
+
+        function triggerAutoLogout() {
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('loggedUser');
+            localStorage.removeItem('lastActiveTime');
+            alert("⏰ Sesi habis karena tidak ada aktivitas selama 5 menit. Silakan masuk kembali.");
+            location.reload(); // Refresh halaman ke tampilan login
+        }
+
+        // Pasang event listener deteksi aktivitas pengguna
+        ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(event => {
+            window.addEventListener(event, resetIdleTimer);
+        });
+
+        // CEK STATUS LOGIN & TIMEOUT SAAT HALAMAN DIBUKA / DI-REFRESH
+        window.addEventListener('DOMContentLoaded', () => {
+            const isLogged = localStorage.getItem('isLoggedIn');
+            const lastActive = localStorage.getItem('lastActiveTime');
+            const savedUser = localStorage.getItem('loggedUser') || 'Rebel';
+
+            if (isLogged === 'true') {
+                if (lastActive && (Date.now() - parseInt(lastActive) > TIMEOUT_LIMIT)) {
+                    // Jika waktu offline/tidak aktif melebihi 5 menit, langsung logout
+                    triggerAutoLogout();
+                } else {
+                    document.getElementById('username-text').innerText = savedUser;
+                    document.getElementById('login-container').style.display = 'none';
+                    document.body.style.display = 'block';
+                    document.getElementById('app-container').style.display = 'block';
+                    fetchTransactionsFromSheet();
+                    resetIdleTimer(); // Mulai hitung mundur timer
+                }
+            }
+        });
+
         function togglePasswordVisibility() {
             const passInput = document.getElementById('password-input');
             const toggleBtn = document.querySelector('.toggle-password');
@@ -656,11 +702,17 @@
             const passInp = document.getElementById('password-input').value.trim();
 
             if (userInp === CORRECT_USER && passInp === CORRECT_PASS) {
+                // SIMPAN STATUS LOGIN & WAKTU AKTIF KE LOCALSTORAGE
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('loggedUser', userInp);
+                localStorage.setItem('lastActiveTime', Date.now());
+
                 document.getElementById('username-text').innerText = userInp;
                 document.getElementById('login-container').style.display = 'none';
                 document.body.style.display = 'block';
                 document.getElementById('app-container').style.display = 'block';
                 fetchTransactionsFromSheet();
+                resetIdleTimer();
             } else {
                 alert("❌ Username atau Password salah!");
                 document.getElementById('password-input').value = '';
@@ -669,6 +721,11 @@
 
         function handleLogout() {
             if (confirm("Yakin ingin keluar dari akun?")) {
+                clearTimeout(idleTimer);
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('loggedUser');
+                localStorage.removeItem('lastActiveTime');
+
                 document.getElementById('app-container').style.display = 'none';
                 document.body.style.display = 'flex';
                 document.getElementById('login-container').style.display = 'block';
