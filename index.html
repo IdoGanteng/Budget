@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Keuangan Gua</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --primary: #4361ee;
+            --primary-hover: #3a0ca3;
+            --income: #2ecc71;
+            --expense: #e74c3c;
+            --tring: #f1c40f; 
+            --simpanan: #9b59b6; 
+            --jago: #e67e22; 
+            --pribadi: #00b4d8; 
+            --text-dark: #2b2d42;
+            --text-gray: #6c757d;
+            --border-color: #e2e8f0;
+            --list-bg: #f8fafc;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --primary: #38bdf8;
+            --primary-hover: #0ea5e9;
+            --income: #2dd4bf;
+            --expense: #fb7185;
+            --tring: #facc15;
+            --simpanan: #e879f9;
+            --jago: #fb923c;
+            --pribadi: #38bdf8;
+            --text-dark: #f8fafc;
+            --text-gray: #94a3b8;
+            --border-color: #334155;
+            --list-bg: #0f172a;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease; }
+        body { background-color: var(--bg-color); color: var(--text-dark); padding: 20px; font-size: 14px; line-height: 1.5; }
+        
+        .container { width: 100%; max-width: 1200px; margin: 0 auto; }
+
+        /* HEADER PERBAIKAN UTAMA (AGAR TOMBOL BERJEJER RAPI KE SAMPING) */
+        header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 24px; 
+            gap: 15px;
+            width: 100%;
+        }
+        header h1 { 
+            color: var(--primary); 
+            font-size: 20px; 
+            font-weight: 700; 
+            white-space: nowrap;
+        }
+
+        .header-actions { 
+            display: flex; 
+            gap: 8px; 
+            align-items: center; 
+            flex-wrap: nowrap;
+        }
+
+        .theme-toggle-btn, .backup-btn, .excel-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-dark);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            white-space: nowrap;
+        }
+        .theme-toggle-btn:hover, .backup-btn:hover, .excel-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+        .excel-btn { color: #16a34a; border-color: #bbf7d0; background-color: #f0fdf4; }
+        [data-theme="dark"] .excel-btn { color: #4ade80; border-color: #14532d; background-color: #064e3b; }
+
+        /* WEALTH HERO CARD */
+        .wealth-card {
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            color: white;
+            padding: 24px 20px;
+            border-radius: 16px;
+            text-align: center;
+            margin-bottom: 16px;
+            box-shadow: 0 10px 25px -5px rgba(67, 97, 238, 0.25);
+        }
+        .wealth-card h3 { font-size: 14px; font-weight: 500; opacity: 0.9; margin-bottom: 4px; }
+        .wealth-card p { font-size: 32px; font-weight: 700; word-break: break-word; letter-spacing: -0.5px; }
+
+        /* GOLD PRICE INPUT */
+        .gold-price-box {
+            background: var(--card-bg);
+            padding: 16px;
+            border-radius: 14px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            border: 1px solid var(--border-color);
+            border-left: 5px solid var(--tring);
+        }
+        .gold-price-box label { font-weight: 600; font-size: 13px; }
+        .gold-price-box small { font-size: 11px; color: var(--text-gray); }
+        .gold-price-input-area { display: flex; gap: 8px; max-width: 280px; width: 100%; }
+
+        /* GOALS SECTION */
+        .goals-container {
+            background: var(--card-bg);
+            padding: 18px;
+            border-radius: 14px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+            margin-bottom: 16px;
+            border: 1px solid var(--border-color);
+        }
+        .goals-container h2 { font-size: 15px; margin-bottom: 12px; border-bottom: none; padding-bottom: 0; }
+        .goal-item { margin-bottom: 12px; }
+        .goal-item:last-child { margin-bottom: 0; }
+        .goal-info { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 12px; font-weight: 600; flex-wrap: wrap; gap: 4px; }
+        .progress-bar-container {
+            width: 100%;
+            background-color: var(--border-color);
+            border-radius: 9999px;
+            height: 10px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary), #38bdf8);
+            border-radius: 9999px;
+            transition: width 0.5s ease-in-out;
+        }
+        .goal-btn-area { text-align: right; margin-top: 10px; }
+        .goal-btn {
+            background: var(--list-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-dark);
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            width: auto;
+            font-weight: 600;
+        }
+        .goal-btn:hover { opacity: 0.8; }
+
+        /* SUMMARY CARDS (GRID 5) */
+        .summary-cards { 
+            display: grid; 
+            grid-template-columns: repeat(5, 1fr); 
+            gap: 12px; 
+            margin-bottom: 16px; 
+        }
+        .card { background: var(--card-bg); padding: 14px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid var(--border-color); }
+        .card h3 { font-size: 11px; color: var(--text-gray); font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+        .card p { font-size: 15px; font-weight: 700; margin-top: 4px; word-break: break-word; }
+        .card small { font-size: 10px; display: block; margin-top: 2px; }
+
+        .c-balance p { color: var(--income); }
+        .c-simpanan p { color: var(--simpanan); }
+        .c-pribadi p { color: var(--pribadi); }
+        .c-tring p { color: var(--tring); }
+        .c-jago p { color: var(--jago); }
+
+        /* MAIN GRID FORM & CHART */
+        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+
+        .section-box { 
+            background: var(--card-bg); 
+            padding: 18px; 
+            border-radius: 14px; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); 
+            margin-bottom: 16px;
+            border: 1px solid var(--border-color);
+        }
+        .section-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+        .section-header-flex h2 { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+        
+        h2 { font-size: 15px; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; color: var(--text-dark); font-weight: 600; }
+
+        form { display: flex; flex-direction: column; gap: 10px; }
+        input, select, button { 
+            width: 100%; 
+            padding: 10px 12px; 
+            border: 1px solid var(--border-color); 
+            background-color: var(--card-bg);
+            color: var(--text-dark);
+            border-radius: 8px; 
+            font-size: 13px; 
+            outline: none; 
+        }
+        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(67,97,238,0.15); }
+        button { background-color: var(--primary); color: white; border: none; cursor: pointer; font-weight: 600; font-size: 13px; transition: 0.2s;}
+        button:hover { background-color: var(--primary-hover); }
+
+        .reset-btn { background-color: #ef4444; margin-top: 12px; font-size: 13px; padding: 10px; }
+        .reset-btn:hover { background-color: #dc2626; }
+
+        .chart-container { position: relative; height: 220px; width: 100%; display: flex; justify-content: center; align-items: center; }
+
+        /* EVALUATION SECTION */
+        .eval-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+        .eval-select { width: auto; padding: 6px 10px; font-weight: 600; font-size: 12px; }
+        
+        .eval-cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+        .eval-insight-card { background: var(--list-bg); padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); text-align: center; }
+        .eval-insight-card h4 { font-size: 11px; color: var(--text-gray); font-weight: 600; margin-bottom: 4px; }
+        .eval-insight-card p { font-size: 15px; font-weight: 700; }
+
+        /* HISTORY LIST */
+        .history-list { list-style: none; max-height: 260px; overflow-y: auto; padding-right: 4px; }
+        .history-list li { display: flex; justify-content: space-between; align-items: center; background: var(--list-bg); padding: 10px 12px; margin-bottom: 8px; border-radius: 8px; border-left: 4px solid #ccc; gap: 8px; border: 1px solid var(--border-color); border-left-width: 4px; }
+
+        .history-list li.inc { border-left-color: var(--income); }
+        .history-list li.exp { border-left-color: var(--expense); }
+        .history-list li.tring { border-left-color: var(--tring); }
+        .history-list li.simpanan { border-left-color: var(--simpanan); }
+        .history-list li.pribadi { border-left-color: var(--pribadi); }
+        .history-list li.jago { border-left-color: var(--jago); }
+
+        .desc-text { font-weight: 600; font-size: 13px; display: block; color: var(--text-dark); }
+        .date-text { font-size: 11px; color: var(--text-gray); }
+        .amount-area { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+        .amount-text { font-weight: 700; font-size: 13px; }
+
+        .inc-text { color: var(--income); }
+        .exp-text { color: var(--expense); }
+        .tring-text { color: var(--tring); }
+        .simpanan-text { color: var(--simpanan); }
+        .pribadi-text { color: var(--pribadi); }
+        .jago-text { color: var(--jago); }
+        .default-text { color: var(--text-gray); }
+
+        .delete-btn { background-color: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 11px; width: auto; font-weight: 600; }
+        .delete-btn:hover { background-color: #dc2626; }
+
+        /* TABLES */
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .report-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 750px; }
+        .report-table th, .report-table td { padding: 10px 8px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .report-table th { background-color: var(--list-bg); color: var(--text-gray); font-weight: 600; }
+        .report-table tbody tr:hover { background-color: var(--list-bg); }
+
+        /* RESPONSIVE BREAKPOINTS */
+        @media (max-width: 1024px) {
+            .summary-cards { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            header { flex-direction: column; align-items: stretch; gap: 10px; }
+            header h1 { font-size: 18px; text-align: center; white-space: normal; }
+            .header-actions { justify-content: center; width: 100%; overflow-x: auto; padding-bottom: 4px; }
+            .summary-cards { grid-template-columns: repeat(2, 1fr); }
+            .main-grid { grid-template-columns: 1fr; }
+            .eval-cards-grid { grid-template-columns: 1fr; }
+            .gold-price-box { flex-direction: column; align-items: stretch; }
+            .gold-price-input-area { max-width: 100%; }
+        }
+
+        @media (max-width: 480px) {
+            .summary-cards { grid-template-columns: 1fr; }
+            .wealth-card p { font-size: 24px; }
+        }
+    </style>
+</head>
+<body data-theme="light">
+
+    <div class="container">
+        <header>
+            <h1>💼 Sistem Manajemen Keuangan</h1>
+            <div class="header-actions">
+                <button class="excel-btn" onclick="exportToExcel()" title="Download ke Excel (CSV)">📊 Excel</button>
+                <button class="backup-btn" onclick="exportData()" title="Backup Data">📥 Backup</button>
+                <button class="backup-btn" onclick="document.getElementById('importFile').click()" title="Restore Data">📤 Restore</button>
+                <input type="file" id="importFile" style="display: none" accept=".json" onchange="importData(event)">
+                <button class="theme-toggle-btn" onclick="toggleTheme()">🌙 Mode Gelap</button>
+            </div>
+        </header>
+
+        <div class="wealth-card">
+            <h3>Akumulasi Dana & Aset</h3>
+            <p id="total-wealth">Rp 0</p>
+        </div>
+
+        <div class="gold-price-box">
+            <div>
+                <label>🏷️ Harga Pasar Emas Tring Hari Ini (per Gram)</label>
+                <small>Nilai aset Tring otomatis dikalikan harga ini</small>
+            </div>
+            <div class="gold-price-input-area">
+                <input type="text" id="gold-price-input" placeholder="Misal: 1.250.000" oninput="formatGoldPriceInput(this)">
+                <button onclick="saveGoldPrice()" style="width: auto; padding: 0 14px;">Simpan</button>
+            </div>
+        </div>
+
+        <div class="goals-container">
+            <h2>🎯 Target Pencapaian Tahun 2026</h2>
+            
+            <div class="goal-item">
+                <div class="goal-info">
+                    <span>Target Total Kekayaan</span>
+                    <span id="wealth-progress-text">Rp 0 / Rp 0 (0%)</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div id="wealth-progress-bar" class="progress-bar"></div>
+                </div>
+            </div>
+
+            <div class="goal-item" style="margin-top: 10px;">
+                <div class="goal-info">
+                    <span>Target Total Aset Emas (Tring + Jago)</span>
+                    <span id="gold-progress-text">Rp 0 / Rp 0 (0%)</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div id="gold-progress-bar" class="progress-bar" style="background: linear-gradient(90deg, #f1c40f, #e67e22);"></div>
+                </div>
+            </div>
+
+            <div class="goal-btn-area">
+                <button onclick="setGoals()" class="goal-btn">⚙️ Atur Nominal Target</button>
+            </div>
+        </div>
+
+        <div class="summary-cards">
+            <div class="card c-balance">
+                <h3>Uang Tunai / Aktif</h3>
+                <p id="cash-balance">Rp 0</p>
+                <small>(Kas - Keluar - Jago)</small>
+            </div>
+            <div class="card c-simpanan">
+                <h3>Simpanan Wajib</h3>
+                <p id="total-simpanan">Rp 0</p>
+                <small>Aset Terpisah</small>
+            </div>
+            <div class="card c-pribadi">
+                <h3>Tabungan Pribadi</h3>
+                <p id="total-pribadi">Rp 0</p>
+                <small>Aset Terpisah</small>
+            </div>
+            <div class="card c-tring">
+                <h3>Emas Tring</h3>
+                <p id="total-tring">Rp 0</p>
+                <small id="tring-gram-info">0 Gram</small>
+            </div>
+            <div class="card c-jago">
+                <h3>Emas Jago</h3>
+                <p id="total-jago">Rp 0</p>
+                <small>Aset dari Kas</small>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <div class="section-box">
+                <h2>Catat Keuangan / Aset Baru</h2>
+                <form id="form">
+                    <input type="text" id="desc" placeholder="Keterangan (Makan, PDAM, Gaji)" required>
+                    <input type="text" id="amount" placeholder="Jumlah Rupiah / Gram" required>
+                    <select id="type" onchange="handleTypeChange()">
+                        <optgroup label="Uang Harian">
+                            <option value="income">Pemasukan Uang Tunai (+)</option>
+                            <option value="expense">Pengeluaran / Jajan / PDAM / Pulsa (-)</option>
+                        </optgroup>
+                        <optgroup label="Investasi & Tabungan">
+                            <option value="simpanan">Tambah Simpanan Wajib (Aset Terpisah) (+)</option>
+                            <option value="pribadi">Tambah Tabungan Pribadi (Aset Terpisah) (+)</option>
+                            <option value="tring">Tambah Saldo Emas Tring (Dalam Gram) (+)</option>
+                            <option value="jago">Beli Emas Bank Jago (- Kas, + Aset)</option>
+                        </optgroup>
+                    </select>
+                    <button type="submit">Simpan Catatan</button>
+                </form>
+            </div>
+
+            <div class="section-box">
+                <h2>Portofolio Kekayaan</h2>
+                <div class="chart-container">
+                    <canvas id="financeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <div class="eval-header">
+                <h2>📈 Dashboard Evaluasi Bulanan</h2>
+                <select id="eval-month-select" class="eval-select" onchange="renderEvaluasiBulanan()">
+                </select>
+            </div>
+
+            <div class="eval-cards-grid">
+                <div class="eval-insight-card">
+                    <h4>Rasio Alokasi Bulanan</h4>
+                    <p id="eval-savings-rate" style="color: var(--income);">0%</p>
+                </div>
+                <div class="eval-insight-card">
+                    <h4>Status Finansial Bulan Ini</h4>
+                    <p id="eval-status" style="color: var(--primary);">-</p>
+                </div>
+                <div class="eval-insight-card">
+                    <h4>Pengeluaran Terbesar</h4>
+                    <p id="eval-top-expense" style="font-size: 13px; margin-top: 4px; color: var(--expense);">-</p>
+                </div>
+            </div>
+
+            <div class="chart-container" style="height: 220px;">
+                <canvas id="comparisonChart"></canvas>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <h2>Laporan Rekap Bulanan</h2>
+            <div class="table-responsive">
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>Bulan</th>
+                            <th>Pemasukan</th>
+                            <th>Pengeluaran</th>
+                            <th>Beli Jago</th>
+                            <th>Sisa Kas</th>
+                            <th>Simpanan Wajib</th>
+                            <th>Tabungan Pribadi</th>
+                            <th>Emas Tring (Gram)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="monthly-report-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <div class="section-header-flex">
+                <h2>Riwayat Catatan</h2>
+                <select id="filter-month-select" class="eval-select" onchange="updateUI()">
+                    <option value="all">Semua Bulan</option>
+                </select>
+            </div>
+            <ul id="list" class="history-list">
+            </ul>
+            <button onclick="resetData()" class="reset-btn">Hapus Semua Data & Mulai Baru</button>
+        </div>
+    </div>
+
+    <script>
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', currentTheme);
+        const themeBtn = document.querySelector('.theme-toggle-btn');
+        if(currentTheme === 'dark') {
+            themeBtn.innerText = '☀️ Mode Terang';
+        }
+
+        function toggleTheme() {
+            let theme = document.body.getAttribute('data-theme');
+            if(theme === 'light') {
+                document.body.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                themeBtn.innerText = '☀️ Mode Terang';
+            } else {
+                document.body.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+                themeBtn.innerText = '🌙 Mode Gelap';
+            }
+            updateUI();
+        }
+
+        let goldPricePerGram = parseFloat(localStorage.getItem('goldPricePerGram')) || 1200000;
+        document.getElementById('gold-price-input').value = new Intl.NumberFormat('id-ID').format(goldPricePerGram);
+
+        function formatGoldPriceInput(el) {
+            let raw = el.value.replace(/[^0-9]/g, '');
+            if(raw) {
+                el.value = new Intl.NumberFormat('id-ID').format(raw);
+            } else {
+                el.value = '';
+            }
+        }
+
+        function saveGoldPrice() {
+            const rawVal = document.getElementById('gold-price-input').value.replace(/\./g, '');
+            if(rawVal && !isNaN(rawVal)) {
+                goldPricePerGram = parseFloat(rawVal);
+                localStorage.setItem('goldPricePerGram', goldPricePerGram);
+                updateUI();
+                alert("Harga emas Tring berhasil diperbarui!");
+            } else {
+                alert("Masukkan nominal harga yang valid!");
+            }
+        }
+
+        function handleTypeChange() {
+            const type = document.getElementById('type').value;
+            const amountInput = document.getElementById('amount');
+            if(type === 'tring') {
+                amountInput.placeholder = "Jumlah Gram Emas (Misal: 0.5 atau 2)";
+            } else {
+                amountInput.placeholder = "Jumlah Rupiah (Misal: 100.000)";
+            }
+        }
+
+        function exportToExcel() {
+            if (transactions.length === 0) {
+                alert("Belum ada data transaksi untuk diexport!");
+                return;
+            }
+
+            let csvContent = "\uFEFFTanggal,Keterangan,Jenis Transaksi,Jumlah (Rp / Gram)\n";
+            transactions.forEach(trx => {
+                let typeName = trx.type;
+                if(trx.type === 'income') typeName = 'Pemasukan';
+                else if(trx.type === 'expense') typeName = 'Pengeluaran';
+                else if(trx.type === 'simpanan') typeName = 'Simpanan Wajib';
+                else if(trx.type === 'pribadi') typeName = 'Tabungan Pribadi';
+                else if(trx.type === 'tring' || trx.type === 'inv_tring') typeName = 'Emas Tring (Gram)';
+                else if(trx.type === 'jago' || trx.type === 'inv_jago') typeName = 'Emas Jago';
+
+                let cleanDesc = `"${trx.desc.replace(/"/g, '""')}"`;
+                let row = [trx.date, cleanDesc, typeName, trx.amount].join(",");
+                csvContent += row + "\n";
+            });
+
+            const encodedUri = encodeURI("data:text/csv;charset=utf-8," + csvContent);
+            const downloadLink = document.createElement("a");
+            downloadLink.setAttribute("href", encodedUri);
+            downloadLink.setAttribute("download", `laporan_keuangan_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            downloadLink.remove();
+        }
+
+        function exportData() {
+            const dataToBackup = {
+                transactions: transactions,
+                financialGoals: financialGoals,
+                goldPricePerGram: goldPricePerGram
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataToBackup, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `backup_keuangan_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importData(event) {
+            const fileReader = new FileReader();
+            if (event.target.files[0]) {
+                fileReader.readAsText(event.target.files[0], "UTF-8");
+                fileReader.onload = function (e) {
+                    try {
+                        const parsed = JSON.parse(e.target.result);
+                        if (parsed.transactions && Array.isArray(parsed.transactions)) {
+                            transactions = parsed.transactions;
+                            if (parsed.financialGoals) {
+                                financialGoals = parsed.financialGoals;
+                                localStorage.setItem('financialGoals', JSON.stringify(financialGoals));
+                            }
+                            if (parsed.goldPricePerGram) {
+                                goldPricePerGram = parsed.goldPricePerGram;
+                                localStorage.setItem('goldPricePerGram', goldPricePerGram);
+                                document.getElementById('gold-price-input').value = new Intl.NumberFormat('id-ID').format(goldPricePerGram);
+                            }
+                            updateUI();
+                            alert("Data berhasil dipulihkan (Restore)!");
+                        } else {
+                            alert("Format file backup tidak valid!");
+                        }
+                    } catch (error) {
+                        alert("Gagal membaca file JSON.");
+                    }
+                };
+            }
+        }
+
+        const localStorageTransactions = JSON.parse(localStorage.getItem('transactions'));
+        let transactions = localStorage.getItem('transactions') !== null ? localStorageTransactions : [];
+
+        let financialGoals = JSON.parse(localStorage.getItem('financialGoals')) || { wealthGoal: 50000000, goldGoal: 10000000 };
+
+        const wealthEl = document.getElementById('total-wealth');
+        const cashBalanceEl = document.getElementById('cash-balance');
+        const simpananEl = document.getElementById('total-simpanan');
+        const pribadiEl = document.getElementById('total-pribadi');
+        const tringEl = document.getElementById('total-tring');
+        const tringGramInfo = document.getElementById('tring-gram-info');
+        const jagoEl = document.getElementById('total-jago');
+        
+        const listEl = document.getElementById('list');
+        const formEl = document.getElementById('form');
+        const amountInput = document.getElementById('amount');
+        const reportBodyEl = document.getElementById('monthly-report-body');
+        const evalMonthSelect = document.getElementById('eval-month-select');
+        const filterMonthSelect = document.getElementById('filter-month-select');
+
+        const wealthBar = document.getElementById('wealth-progress-bar');
+        const wealthText = document.getElementById('wealth-progress-text');
+        const goldBar = document.getElementById('gold-progress-bar');
+        const goldText = document.getElementById('gold-progress-text');
+
+        amountInput.addEventListener('input', function(e) {
+            const type = document.getElementById('type').value;
+            if (type !== 'tring') {
+                let rawValue = this.value.replace(/[^0-9]/g, ''); 
+                if (rawValue) {
+                    this.value = new Intl.NumberFormat('id-ID').format(rawValue);
+                } else {
+                    this.value = '';
+                }
+            } else {
+                this.value = this.value.replace(/[^0-9.,]/g, '').replace(',', '.');
+            }
+        });
+
+        function formatRp(angka) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+        }
+
+        let financeChart, comparisonChart;
+        const ctx1 = document.getElementById('financeChart').getContext('2d');
+        const ctx2 = document.getElementById('comparisonChart').getContext('2d');
+
+        function updateCharts(cash, simpanan, pribadi, tringRupiah, jago, monthlyLabels, monthlyIncomeData, monthlyExpenseData) {
+            if (financeChart) financeChart.destroy(); 
+            let safeCash = cash > 0 ? cash : 0; 
+
+            financeChart = new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Uang Tunai', 'Simpanan Wajib', 'Tabungan Pribadi', 'Emas Tring', 'Emas Bank Jago'],
+                    datasets: [{
+                        data: [safeCash, simpanan, pribadi, tringRupiah, jago],
+                        backgroundColor: ['#2ecc71', '#9b59b6', '#00b4d8', '#f1c40f', '#e67e22'],
+                        borderWidth: 0, hoverOffset: 4
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } } }
+            });
+
+            if (comparisonChart) comparisonChart.destroy();
+            const isDark = document.body.getAttribute('data-theme') === 'dark';
+            const textColor = isDark ? '#f8fafc' : '#2b2d42';
+            const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)';
+
+            comparisonChart = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: monthlyLabels,
+                    datasets: [
+                        {
+                            label: 'Pemasukan',
+                            data: monthlyIncomeData,
+                            backgroundColor: '#2ecc71',
+                            borderRadius: 6,
+                            barThickness: 24
+                        },
+                        {
+                            label: 'Pengeluaran',
+                            data: monthlyExpenseData,
+                            backgroundColor: '#fb7185',
+                            borderRadius: 6,
+                            barThickness: 24
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 11 } } },
+                        y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 11 } } }
+                    },
+                    plugins: { legend: { labels: { color: textColor, font: { size: 11 } } } }
+                }
+            });
+        }
+
+        function updateGoalsUI(totalWealth, totalGold) {
+            let wealthPercent = (totalWealth / financialGoals.wealthGoal) * 100;
+            if (wealthPercent > 100) wealthPercent = 100;
+            wealthBar.style.width = wealthPercent + '%';
+            wealthText.innerText = `${formatRp(totalWealth)} / ${formatRp(financialGoals.wealthGoal)} (${wealthPercent.toFixed(1)}%)`;
+
+            let goldPercent = (totalGold / financialGoals.goldGoal) * 100;
+            if (goldPercent > 100) goldPercent = 100;
+            goldBar.style.width = goldPercent + '%';
+            goldText.innerText = `${formatRp(totalGold)} / ${formatRp(financialGoals.goldGoal)} (${goldPercent.toFixed(1)}%)`;
+        }
+
+        function setGoals() {
+            let newWealth = prompt("Masukkan Target Akumulasi Dana & Aset Akhir Tahun (Rp):", financialGoals.wealthGoal);
+            if (newWealth !== null && !isNaN(newWealth) && newWealth.trim() !== "") {
+                let newGold = prompt("Masukkan Target Total Aset Emas Akhir Tahun (Rp):", financialGoals.goldGoal);
+                if (newGold !== null && !isNaN(newGold) && newGold.trim() !== "") {
+                    financialGoals.wealthGoal = parseInt(newWealth);
+                    financialGoals.goldGoal = parseInt(newGold);
+                    localStorage.setItem('financialGoals', JSON.stringify(financialGoals));
+                    updateUI();
+                    alert("Target berhasil diperbarui!");
+                }
+            }
+        }
+
+        let globalMonthlyData = {};
+
+        function renderMonthlyReport() {
+            reportBodyEl.innerHTML = '';
+            globalMonthlyData = {};
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
+
+            transactions.forEach(trx => {
+                if(!trx.date) return; 
+                const parts = trx.date.split('/'); 
+                if(parts.length === 3) {
+                    const monthIndex = parseInt(parts[1]) - 1;
+                    const year = parts[2];
+                    const sortKey = `${year}-${parts[1].padStart(2, '0')}`; 
+                    const label = `${monthNames[monthIndex]} ${year}`;
+
+                    if(!globalMonthlyData[sortKey]) {
+                        globalMonthlyData[sortKey] = { label: label, income: 0, expense: 0, simpanan: 0, pribadi: 0, tringGram: 0, jago: 0, topExpenseName: '-', topExpenseAmt: 0 };
+                    }
+
+                    if (trx.type === 'income') globalMonthlyData[sortKey].income += trx.amount;
+                    else if (trx.type === 'expense') {
+                        globalMonthlyData[sortKey].expense += trx.amount;
+                        if(trx.amount > globalMonthlyData[sortKey].topExpenseAmt) {
+                            globalMonthlyData[sortKey].topExpenseAmt = trx.amount;
+                            globalMonthlyData[sortKey].topExpenseName = trx.desc;
+                        }
+                    }
+                    else if (trx.type === 'simpanan') globalMonthlyData[sortKey].simpanan += trx.amount;
+                    else if (trx.type === 'pribadi') globalMonthlyData[sortKey].pribadi += trx.amount;
+                    else if (trx.type === 'tring' || trx.type === 'inv_tring') globalMonthlyData[sortKey].tringGram += trx.amount;
+                    else if (trx.type === 'jago' || trx.type === 'inv_jago') {
+                        globalMonthlyData[sortKey].jago += trx.amount;
+                        if(trx.amount > globalMonthlyData[sortKey].topExpenseAmt) {
+                            globalMonthlyData[sortKey].topExpenseAmt = trx.amount;
+                            globalMonthlyData[sortKey].topExpenseName = trx.desc + ' (Jago)';
+                        }
+                    }
+                }
+            });
+
+            const currentSelectedMonth = evalMonthSelect.value;
+            evalMonthSelect.innerHTML = '';
+            
+            const currentFilter = filterMonthSelect.value;
+            filterMonthSelect.innerHTML = '<option value="all">Semua Bulan</option>';
+
+            const sortedKeys = Object.keys(globalMonthlyData).sort();
+
+            if(sortedKeys.length === 0) {
+                evalMonthSelect.innerHTML = '<option>Belum ada data</option>';
+            } else {
+                sortedKeys.forEach(key => {
+                    const opt1 = document.createElement('option');
+                    opt1.value = key;
+                    opt1.innerText = globalMonthlyData[key].label;
+                    evalMonthSelect.appendChild(opt1);
+
+                    const opt2 = document.createElement('option');
+                    opt2.value = key;
+                    opt2.innerText = globalMonthlyData[key].label;
+                    filterMonthSelect.appendChild(opt2);
+                });
+
+                if(globalMonthlyData[currentSelectedMonth]) {
+                    evalMonthSelect.value = currentSelectedMonth;
+                }
+                filterMonthSelect.value = currentFilter;
+            }
+
+            const reversedKeys = [...sortedKeys].reverse();
+            reversedKeys.forEach(key => {
+                const data = globalMonthlyData[key];
+                const netCash = data.income - data.expense - data.jago; 
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${data.label}</strong></td>
+                    <td class="inc-text">+ ${formatRp(data.income)}</td>
+                    <td class="exp-text">- ${formatRp(data.expense)}</td>
+                    <td class="jago-text">- ${formatRp(data.jago)}</td>
+                    <td><strong>${formatRp(netCash)}</strong></td>
+                    <td class="simpanan-text">+ ${formatRp(data.simpanan)}</td>
+                    <td class="pribadi-text">+ ${formatRp(data.pribadi)}</td>
+                    <td class="tring-text">+ ${data.tringGram.toFixed(3)} Gram</td>
+                `;
+                reportBodyEl.appendChild(tr);
+            });
+
+            const chartLabels = [];
+            const chartIncomeValues = [];
+            const chartExpenseValues = [];
+            sortedKeys.forEach(key => {
+                const data = globalMonthlyData[key];
+                chartLabels.push(data.label);
+                chartIncomeValues.push(data.income);
+                chartExpenseValues.push(data.expense + data.jago);
+            });
+
+            renderEvaluasiBulanan();
+            return { chartLabels, chartIncomeValues, chartExpenseValues };
+        }
+
+        function renderEvaluasiBulanan() {
+            const selectedKey = evalMonthSelect.value;
+            const savingsRateEl = document.getElementById('eval-savings-rate');
+            const statusEl = document.getElementById('eval-status');
+            const topExpenseEl = document.getElementById('eval-top-expense');
+
+            if (!globalMonthlyData[selectedKey]) {
+                savingsRateEl.innerText = "0%";
+                statusEl.innerText = "Belum ada data";
+                topExpenseEl.innerText = "-";
+                return;
+            }
+
+            const mData = globalMonthlyData[selectedKey];
+            const totalOut = mData.expense + mData.jago;
+            const activeSaving = mData.jago;
+
+            let savingsRate = 0;
+            if (mData.income > 0) {
+                savingsRate = (activeSaving / mData.income) * 100;
+                if(savingsRate < 0) savingsRate = 0;
+            }
+
+            savingsRateEl.innerText = savingsRate.toFixed(1) + "%";
+
+            if (mData.income === 0 && totalOut === 0) {
+                statusEl.innerText = "Netral";
+                statusEl.style.color = "var(--text-gray)";
+            } else if (mData.income >= totalOut + activeSaving && savingsRate >= 20) {
+                statusEl.innerText = "🚀 Sangat Sehat";
+                statusEl.style.color = "var(--income)";
+            } else if (mData.income >= totalOut) {
+                statusEl.innerText = "👍 Stabil / Cukup";
+                statusEl.style.color = "var(--primary)";
+            } else {
+                statusEl.innerText = "⚠️ Defisit (Boncos)";
+                statusEl.style.color = "var(--expense)";
+            }
+
+            if (mData.topExpenseAmt > 0) {
+                topExpenseEl.innerText = `${mData.topExpenseName} (${formatRp(mData.topExpenseAmt)})`;
+            } else {
+                topExpenseEl.innerText = "Tidak ada pengeluaran";
+            }
+        }
+
+        function updateUI() {
+            listEl.innerHTML = ''; 
+            
+            let totalIncome = 0; let totalExpense = 0; let totalSimpanan = 0; let totalPribadi = 0; let totalTringGram = 0; let totalJago = 0;
+            const selectedFilterMonth = filterMonthSelect.value;
+
+            transactions.forEach((trx) => {
+                if (trx.type === 'income') totalIncome += trx.amount;
+                else if (trx.type === 'expense') totalExpense += trx.amount;
+                else if (trx.type === 'simpanan') totalSimpanan += trx.amount;
+                else if (trx.type === 'pribadi') totalPribadi += trx.amount;
+                else if (trx.type === 'tring' || trx.type === 'inv_tring') totalTringGram += trx.amount;
+                else if (trx.type === 'jago' || trx.type === 'inv_jago') totalJago += trx.amount;
+
+                if (selectedFilterMonth !== 'all' && trx.date) {
+                    const parts = trx.date.split('/');
+                    if (parts.length === 3) {
+                        const trxKey = `${parts[2]}-${parts[1].padStart(2, '0')}`;
+                        if (trxKey !== selectedFilterMonth) return; 
+                    } else {
+                        return;
+                    }
+                }
+
+                const li = document.createElement('li');
+                let sign = ''; let textClass = 'default-text'; let liClass = ''; let displayAmount = '';
+                
+                if (trx.type === 'income') { sign = '+'; textClass = 'inc-text'; liClass = 'inc'; displayAmount = formatRp(trx.amount); }
+                else if (trx.type === 'expense') { sign = '-'; textClass = 'exp-text'; liClass = 'exp'; displayAmount = formatRp(trx.amount); }
+                else if (trx.type === 'simpanan') { sign = 'Simpanan'; textClass = 'simpanan-text'; liClass = 'simpanan'; displayAmount = formatRp(trx.amount); }
+                else if (trx.type === 'pribadi') { sign = 'Tabungan'; textClass = 'pribadi-text'; liClass = 'pribadi'; displayAmount = formatRp(trx.amount); }
+                else if (trx.type === 'tring' || trx.type === 'inv_tring') { sign = '+'; textClass = 'tring-text'; liClass = 'tring'; displayAmount = trx.amount.toFixed(3) + ' Gram'; }
+                else if (trx.type === 'jago' || trx.type === 'inv_jago') { sign = 'Beli Jago'; textClass = 'jago-text'; liClass = 'jago'; displayAmount = formatRp(trx.amount); }
+
+                if (liClass !== '') { li.classList.add(liClass); }
+
+                li.innerHTML = `
+                    <div>
+                        <span class="desc-text">${trx.desc}</span>
+                        <span class="date-text">${trx.date || '-'}</span>
+                    </div>
+                    <div class="amount-area">
+                        <span class="amount-text ${textClass}">${sign} ${displayAmount}</span>
+                        <button class="delete-btn" onclick="deleteTransaction(${trx.id})">Hapus</button>
+                    </div>
+                `;
+                listEl.appendChild(li);
+            });
+
+            const totalTringRupiah = totalTringGram * goldPricePerGram;
+            const cashBalance = totalIncome - totalExpense - totalJago;
+            const totalWealth = cashBalance + totalSimpanan + totalPribadi + totalTringRupiah + totalJago;
+            const totalGold = totalTringRupiah + totalJago;
+
+            cashBalanceEl.innerText = formatRp(cashBalance);
+            simpananEl.innerText = formatRp(totalSimpanan);
+            pribadiEl.innerText = formatRp(totalPribadi);
+            tringEl.innerText = formatRp(totalTringRupiah);
+            tringGramInfo.innerText = `${totalTringGram.toFixed(3)} Gram ( @ ${formatRp(goldPricePerGram)} )`;
+            jagoEl.innerText = formatRp(totalJago);
+            wealthEl.innerText = formatRp(totalWealth);
+
+            updateGoalsUI(totalWealth, totalGold);
+            
+            const reportData = renderMonthlyReport();
+            updateCharts(cashBalance, totalSimpanan, totalPribadi, totalTringRupiah, totalJago, reportData.chartLabels, reportData.chartIncomeValues, reportData.chartExpenseValues);
+            
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+        }
+
+        formEl.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const desc = document.getElementById('desc').value;
+            const type = document.getElementById('type').value;
+            let rawAmount = document.getElementById('amount').value;
+            
+            let amount = 0;
+            if(type === 'tring') {
+                amount = parseFloat(rawAmount.replace(',', '.')) || 0;
+            } else {
+                amount = parseInt(rawAmount.replace(/\./g, '')) || 0;
+            }
+            
+            const dateObj = new Date();
+            const dateStr = dateObj.getDate() + '/' + (dateObj.getMonth()+1) + '/' + dateObj.getFullYear();
+
+            const transaction = { id: Math.floor(Math.random() * 100000000), desc: desc, amount: amount, type: type, date: dateStr };
+            transactions.unshift(transaction); 
+            updateUI();
+            formEl.reset();
+            handleTypeChange();
+        });
+
+        function deleteTransaction(id) {
+            transactions = transactions.filter(trx => trx.id !== id);
+            updateUI();
+        }
+
+        function resetData() {
+            if (confirm("Lu yakin mau hapus SEMUA data dan mulai dari awal? Data nggak bisa dibalikin lagi lho!")) {
+                transactions = [];
+                localStorage.removeItem('financialGoals');
+                financialGoals = { wealthGoal: 50000000, goldGoal: 10000000 };
+                updateUI();
+            }
+        }
+
+        updateUI();
+    </script>
+</body>
+</html>
