@@ -96,12 +96,31 @@
             margin-bottom: 24px; 
             gap: 15px;
             width: 100%;
+            flex-wrap: wrap;
+        }
+        .header-title-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
         header h1 { 
             color: var(--primary); 
             font-size: 20px; 
             font-weight: 700; 
             white-space: nowrap;
+        }
+        .user-badge {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
         .header-actions { 
@@ -111,7 +130,7 @@
             flex-wrap: nowrap;
         }
 
-        .theme-toggle-btn, .backup-btn, .excel-btn {
+        .theme-toggle-btn, .backup-btn, .excel-btn, .logout-btn {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             color: var(--text-dark);
@@ -123,9 +142,11 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             white-space: nowrap;
         }
-        .theme-toggle-btn:hover, .backup-btn:hover, .excel-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+        .theme-toggle-btn:hover, .backup-btn:hover, .excel-btn:hover, .logout-btn:hover { opacity: 0.85; transform: translateY(-1px); }
         .excel-btn { color: #16a34a; border-color: #bbf7d0; background-color: #f0fdf4; }
         [data-theme="dark"] .excel-btn { color: #4ade80; border-color: #14532d; background-color: #064e3b; }
+        .logout-btn { color: #ef4444; border-color: #fecaca; background-color: #fef2f2; }
+        [data-theme="dark"] .logout-btn { color: #f87171; border-color: #7f1d1d; background-color: #450a0a; }
 
         .wealth-card {
             background: linear-gradient(135deg, var(--primary), var(--primary-hover));
@@ -296,7 +317,8 @@
         @media (max-width: 768px) {
             body { padding: 10px; }
             header { flex-direction: column; align-items: stretch; gap: 10px; }
-            header h1 { font-size: 18px; text-align: center; white-space: normal; }
+            .header-title-area { justify-content: space-between; width: 100%; }
+            header h1 { font-size: 18px; white-space: normal; }
             .header-actions { justify-content: center; width: 100%; overflow-x: auto; padding-bottom: 4px; }
             .summary-cards { grid-template-columns: repeat(2, 1fr); }
             .main-grid { grid-template-columns: 1fr; }
@@ -313,7 +335,7 @@
 </head>
 <body data-theme="light">
 
-    <!-- FORM LOGIN ALA INSTAGRAM + FITUR LIHAT PASSWORD -->
+    <!-- FORM LOGIN ALA INSTAGRAM -->
     <div id="login-container">
         <h1>Keuangan Gua</h1>
         <p>Masuk untuk mengelola keuangan pribadi</p>
@@ -330,13 +352,19 @@
     <!-- KONTEN UTAMA DASHBOARD -->
     <div class="container" id="app-container">
         <header>
-            <h1>💼 Sistem Manajemen Keuangan</h1>
+            <div class="header-title-area">
+                <h1>💼 Keuangan Gua</h1>
+                <div class="user-badge" id="user-display">
+                    👤 <span id="username-text">User</span>
+                </div>
+            </div>
             <div class="header-actions">
                 <button class="excel-btn" onclick="exportToExcel()" title="Download ke Excel (CSV)">📊 Excel</button>
                 <button class="backup-btn" onclick="exportData()" title="Backup Data">📥 Backup</button>
                 <button class="backup-btn" onclick="document.getElementById('importFile').click()" title="Restore Data">📤 Restore</button>
                 <input type="file" id="importFile" style="display: none" accept=".json" onchange="importData(event)">
                 <button class="theme-toggle-btn" onclick="toggleTheme()">🌙 Mode Gelap</button>
+                <button class="logout-btn" onclick="handleLogout()" title="Keluar Akun">🚪 Keluar</button>
             </div>
         </header>
 
@@ -507,7 +535,7 @@
     <script>
         // ATUR USERNAME & PASSWORD LU DI SINI:
         const CORRECT_USER = 'Rebel';
-        const CORRECT_PASS = 'RebelGanteng2026';
+        const CORRECT_PASS = 'Rebelganteng2026';
 
         function togglePasswordVisibility() {
             const passInput = document.getElementById('password-input');
@@ -527,6 +555,9 @@
             const passInp = document.getElementById('password-input').value.trim();
 
             if (userInp === CORRECT_USER && passInp === CORRECT_PASS) {
+                // Tampilkan nama user di badge
+                document.getElementById('username-text').innerText = userInp;
+                
                 // Sembunyikan login container, tampilkan dashboard utama
                 document.getElementById('login-container').style.display = 'none';
                 document.body.style.display = 'block';
@@ -534,6 +565,17 @@
                 fetchTransactionsFromSheet();
             } else {
                 alert("❌ Username atau Password salah!");
+                document.getElementById('password-input').value = '';
+            }
+        }
+
+        function handleLogout() {
+            if (confirm("Yakin ingin keluar dari akun?")) {
+                // Sembunyikan dashboard, tampilkan kembali form login
+                document.getElementById('app-container').style.display = 'none';
+                document.body.style.display = 'flex';
+                document.getElementById('login-container').style.display = 'block';
+                document.getElementById('username-input').value = '';
                 document.getElementById('password-input').value = '';
             }
         }
