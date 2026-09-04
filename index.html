@@ -59,7 +59,33 @@
         #login-container h1 { color: var(--primary); margin-bottom: 6px; font-size: 22px; font-weight: 700; border-bottom: none; padding-bottom: 0; }
         #login-container p { color: var(--text-gray); font-size: 12px; margin-bottom: 24px; }
         #login-container input { margin-bottom: 10px; background-color: var(--list-bg); font-size: 13px; }
-        #login-container button { margin-top: 4px; font-weight: 600; }
+        
+        .password-wrapper {
+            position: relative;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .password-wrapper input {
+            margin-bottom: 0;
+            padding-right: 45px;
+        }
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-gray);
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px;
+            width: auto;
+        }
+        .toggle-password:hover { color: var(--primary); }
+
+        #login-container button[type="submit"] { margin-top: 4px; font-weight: 600; }
 
         .container { width: 100%; max-width: 1200px; margin: 0 auto; display: none; } /* Default disembunyikan sampai login sukses */
 
@@ -287,13 +313,16 @@
 </head>
 <body data-theme="light">
 
-    <!-- FORM LOGIN ALA INSTAGRAM -->
+    <!-- FORM LOGIN ALA INSTAGRAM + FITUR LIHAT PASSWORD -->
     <div id="login-container">
         <h1>Keuangan Gua</h1>
         <p>Masuk untuk mengelola keuangan pribadi</p>
         <form id="login-form" onsubmit="handleLogin(event)">
             <input type="text" id="username-input" placeholder="Nama Pengguna (Username)" autocomplete="off" required>
-            <input type="password" id="password-input" placeholder="Kata Sandi (Password)" autocomplete="off" required>
+            <div class="password-wrapper">
+                <input type="password" id="password-input" placeholder="Kata Sandi (Password)" autocomplete="off" required>
+                <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">Lihat</button>
+            </div>
             <button type="submit">Masuk</button>
         </form>
     </div>
@@ -477,8 +506,20 @@
 
     <script>
         // ATUR USERNAME & PASSWORD LU DI SINI:
-        const CORRECT_USER = 'Rebel';
-        const CORRECT_PASS = 'Pertamax16rb';
+        const CORRECT_USER = 'ido';
+        const CORRECT_PASS = 'idoganteng2026';
+
+        function togglePasswordVisibility() {
+            const passInput = document.getElementById('password-input');
+            const toggleBtn = document.querySelector('.toggle-password');
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                toggleBtn.innerText = 'Sembunyi';
+            } else {
+                passInput.type = 'password';
+                toggleBtn.innerText = 'Lihat';
+            }
+        }
 
         function handleLogin(e) {
             e.preventDefault();
