@@ -87,8 +87,9 @@
 
         #login-container button[type="submit"] { margin-top: 4px; font-weight: 600; }
 
-        .container { width: 100%; max-width: 1200px; margin: 0 auto; display: none; } /* Default disembunyikan sampai login sukses */
+        .container { width: 100%; max-width: 1200px; margin: 0 auto; display: none; }
 
+        /* HEADER SATU BARIS SUPER RAPI & ELEGAN */
         header { 
             display: flex; 
             justify-content: space-between; 
@@ -96,23 +97,41 @@
             margin-bottom: 24px; 
             gap: 15px;
             width: 100%;
-            flex-wrap: wrap;
+            background: var(--card-bg);
+            padding: 12px 20px;
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
         }
-        .header-title-area {
+
+        .header-left {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
+
         header h1 { 
             color: var(--primary); 
-            font-size: 20px; 
+            font-size: 18px; 
             font-weight: 700; 
             white-space: nowrap;
         }
+
+        .header-right { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px;
+        }
+
+        /* PROFILE DROPDOWN STYLING */
+        .profile-dropdown-wrapper {
+            position: relative;
+            display: inline-block;
+        }
         .user-badge {
-            background: var(--card-bg);
+            background: var(--list-bg);
             border: 1px solid var(--border-color);
-            padding: 5px 10px;
+            padding: 6px 12px;
             border-radius: 8px;
             font-size: 12px;
             font-weight: 600;
@@ -120,33 +139,98 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-
-        .header-actions { 
-            display: flex; 
-            gap: 8px; 
-            align-items: center; 
-            flex-wrap: nowrap;
-        }
-
-        .theme-toggle-btn, .backup-btn, .excel-btn, .logout-btn {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-dark);
-            padding: 8px 12px;
-            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
             cursor: pointer;
-            font-weight: 600;
-            font-size: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            user-select: none;
             white-space: nowrap;
         }
-        .theme-toggle-btn:hover, .backup-btn:hover, .excel-btn:hover, .logout-btn:hover { opacity: 0.85; transform: translateY(-1px); }
-        .excel-btn { color: #16a34a; border-color: #bbf7d0; background-color: #f0fdf4; }
-        [data-theme="dark"] .excel-btn { color: #4ade80; border-color: #14532d; background-color: #064e3b; }
-        .logout-btn { color: #ef4444; border-color: #fecaca; background-color: #fef2f2; }
-        [data-theme="dark"] .logout-btn { color: #f87171; border-color: #7f1d1d; background-color: #450a0a; }
+        .user-badge:hover { 
+            border-color: var(--primary); 
+            background: var(--card-bg);
+        }
+        
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 42px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+            width: 180px;
+            z-index: 100;
+            overflow: hidden;
+            animation: fadeIn 0.2s ease;
+        }
+        .dropdown-menu.show { display: block; }
+        .dropdown-item {
+            padding: 10px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-dark);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border-color);
+            background: none;
+            border-left: none; border-right: none; border-top: none;
+            text-align: left;
+            width: 100%;
+        }
+        .dropdown-item:last-child { border-bottom: none; }
+        .dropdown-item:hover { background: var(--list-bg); }
+        .dropdown-item.excel-item { color: #16a34a; }
+        [data-theme="dark"] .dropdown-item.excel-item { color: #4ade80; }
+        .dropdown-item.logout-item { color: #ef4444; }
+        [data-theme="dark"] .dropdown-item.logout-item { color: #f87171; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* SWITCH TOGGLE THEME */
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+            background: var(--list-bg);
+            border: 1px solid var(--border-color);
+            padding: 5px 10px;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+            gap: 6px;
+        }
+        .theme-switch {
+            position: relative;
+            display: inline-block;
+            width: 34px;
+            height: 18px;
+        }
+        .theme-switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #cbd5e1;
+            transition: .3s;
+            border-radius: 20px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 12px;
+            width: 12px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(16px); }
+        .theme-icon { font-size: 11px; }
 
         .wealth-card {
             background: linear-gradient(135deg, var(--primary), var(--primary-hover));
@@ -316,10 +400,7 @@
 
         @media (max-width: 768px) {
             body { padding: 10px; }
-            header { flex-direction: column; align-items: stretch; gap: 10px; }
-            .header-title-area { justify-content: space-between; width: 100%; }
-            header h1 { font-size: 18px; white-space: normal; }
-            .header-actions { justify-content: center; width: 100%; overflow-x: auto; padding-bottom: 4px; }
+            header { padding: 10px 14px; }
             .summary-cards { grid-template-columns: repeat(2, 1fr); }
             .main-grid { grid-template-columns: 1fr; }
             .eval-cards-grid { grid-template-columns: 1fr; }
@@ -339,7 +420,7 @@
     <div id="login-container">
         <h1>Keuangan Gua</h1>
         <p>Masuk untuk mengelola keuangan pribadi</p>
-        <form id="login-form" onsubmit="handleLogin(event)">
+        <form id="login-form" onclick="event.stopPropagation()" onsubmit="handleLogin(event)">
             <input type="text" id="username-input" placeholder="Nama Pengguna (Username)" autocomplete="off" required>
             <div class="password-wrapper">
                 <input type="password" id="password-input" placeholder="Kata Sandi (Password)" autocomplete="off" required>
@@ -352,19 +433,34 @@
     <!-- KONTEN UTAMA DASHBOARD -->
     <div class="container" id="app-container">
         <header>
-            <div class="header-title-area">
+            <div class="header-left">
                 <h1>💼 Keuangan Gua</h1>
-                <div class="user-badge" id="user-display">
-                    👤 <span id="username-text">User</span>
-                </div>
             </div>
-            <div class="header-actions">
-                <button class="excel-btn" onclick="exportToExcel()" title="Download ke Excel (CSV)">📊 Excel</button>
-                <button class="backup-btn" onclick="exportData()" title="Backup Data">📥 Backup</button>
-                <button class="backup-btn" onclick="document.getElementById('importFile').click()" title="Restore Data">📤 Restore</button>
+
+            <div class="header-right">
+                <!-- SWITCH TOGGLE MODE GELAP/TERANG -->
+                <div class="theme-switch-wrapper" title="Ganti Tema">
+                    <span class="theme-icon">☀️</span>
+                    <label class="theme-switch">
+                        <input type="checkbox" id="theme-checkbox" onchange="toggleTheme()">
+                        <span class="slider"></span>
+                    </label>
+                    <span class="theme-icon">🌙</span>
+                </div>
+
+                <!-- PROFIL DROPDOWN MENU REBEL -->
+                <div class="profile-dropdown-wrapper">
+                    <div class="user-badge" onclick="toggleProfileDropdown(event)">
+                        👤 <span id="username-text">Rebel</span> <span style="font-size: 10px; opacity: 0.7;">▾</span>
+                    </div>
+                    <div class="dropdown-menu" id="profile-dropdown">
+                        <button class="dropdown-item excel-item" onclick="exportToExcel()">📊 Download Excel</button>
+                        <button class="dropdown-item" onclick="exportData()">📥 Backup Data</button>
+                        <button class="dropdown-item" onclick="document.getElementById('importFile').click()">📤 Restore Data</button>
+                        <button class="dropdown-item logout-item" onclick="handleLogout()">🚪 Keluar (Logout)</button>
+                    </div>
+                </div>
                 <input type="file" id="importFile" style="display: none" accept=".json" onchange="importData(event)">
-                <button class="theme-toggle-btn" onclick="toggleTheme()">🌙 Mode Gelap</button>
-                <button class="logout-btn" onclick="handleLogout()" title="Keluar Akun">🚪 Keluar</button>
             </div>
         </header>
 
@@ -549,6 +645,19 @@
             }
         }
 
+        function toggleProfileDropdown(event) {
+            event.stopPropagation();
+            const dropdown = document.getElementById('profile-dropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        window.addEventListener('click', function() {
+            const dropdown = document.getElementById('profile-dropdown');
+            if (dropdown && dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+            }
+        });
+
         function handleLogin(e) {
             e.preventDefault();
             const userInp = document.getElementById('username-input').value.trim();
@@ -580,9 +689,9 @@
 
         const currentTheme = localStorage.getItem('theme') || 'light';
         document.body.setAttribute('data-theme', currentTheme);
-        const themeBtn = document.querySelector('.theme-toggle-btn');
-        if(currentTheme === 'dark' && themeBtn) {
-            themeBtn.innerText = '☀️ Mode Terang';
+        const themeCheckbox = document.getElementById('theme-checkbox');
+        if(themeCheckbox) {
+            themeCheckbox.checked = (currentTheme === 'dark');
         }
 
         function toggleTheme() {
@@ -590,11 +699,9 @@
             if(theme === 'light') {
                 document.body.setAttribute('data-theme', 'dark');
                 localStorage.setItem('theme', 'dark');
-                if(themeBtn) themeBtn.innerText = '☀️ Mode Terang';
             } else {
                 document.body.setAttribute('data-theme', 'light');
                 localStorage.setItem('theme', 'light');
-                if(themeBtn) themeBtn.innerText = '🌙 Mode Gelap';
             }
             updateUI();
         }
