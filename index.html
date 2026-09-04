@@ -45,7 +45,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease; }
         body { background-color: var(--bg-color); color: var(--text-dark); padding: 20px; font-size: 14px; line-height: 1.5; }
         
-        .container { width: 100%; max-width: 1200px; margin: 0 auto; }
+        .container { width: 100%; max-width: 1200px; margin: 0 auto; display: none; } /* Default disembunyikan sampai password benar */
 
         header { 
             display: flex; 
@@ -271,7 +271,7 @@
 </head>
 <body data-theme="light">
 
-    <div class="container">
+    <div class="container" id="app-container">
         <header>
             <h1>💼 Sistem Manajemen Keuangan</h1>
             <div class="header-actions">
@@ -448,6 +448,20 @@
     </div>
 
     <script>
+        // ATUR PASSWORD LU DI SINI:
+        const MY_PASSWORD = 'idoganteng2026';
+
+        function checkPassword() {
+            let pass = prompt("🔒 Masukkan Password Akses Dashboard Keuangan:");
+            if (pass === MY_PASSWORD) {
+                document.getElementById('app-container').style.display = 'block';
+                fetchTransactionsFromSheet();
+            } else {
+                alert("❌ Password salah! Akses ditolak.");
+                location.reload();
+            }
+        }
+
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwFKHf1Kakb71JXiZ2lB0JTN24p2kyKOwPvNx_ZwxLSRZamk3ujWtBFOqPhpx8aWZXHLA/exec';
 
         const currentTheme = localStorage.getItem('theme') || 'light';
@@ -1034,7 +1048,8 @@
             }
         }
 
-        fetchTransactionsFromSheet();
+        // Jalankan pemeriksaan password saat web pertama kali dibuka
+        checkPassword();
     </script>
 </body>
 </html>
