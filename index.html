@@ -359,8 +359,8 @@
             <div class="section-box">
                 <h2>Catat Keuangan / Aset Baru</h2>
                 <form id="form">
-                    <input type="text" id="desc" placeholder="Keterangan (Makan, PDAM, Gaji)" required>
-                    <input type="text" id="amount" placeholder="Jumlah Rupiah / Gram" required>
+                    <input type="text" id="desc" placeholder="Keterangan (Makan, PDAM, Gaji)" autocomplete="off" required>
+                    <input type="text" id="amount" placeholder="Jumlah Rupiah / Gram" autocomplete="off" required>
                     <select id="type" onchange="handleTypeChange()">
                         <optgroup label="Uang Harian">
                             <option value="income">Pemasukan Uang Tunai (+)</option>
@@ -448,8 +448,7 @@
     </div>
 
     <script>
-        // GANTI URL DI BAWAH INI DENGAN URL WEB APP GOOGLE APPS SCRIPT LU
-       const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwFKHf1Kakb71JXiZ2lB0JTN24p2kyKOwPvNx_ZwxLSRZamk3ujWtBFOqPhpx8aWZXHLA/exec';
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwFKHf1Kakb71JXiZ2lB0JTN24p2kyKOwPvNx_ZwxLSRZamk3ujWtBFOqPhpx8aWZXHLA/exec';
 
         const currentTheme = localStorage.getItem('theme') || 'light';
         document.body.setAttribute('data-theme', currentTheme);
@@ -508,7 +507,6 @@
 
         let transactions = [];
 
-        // AMBIL DATA DARI GOOGLE SHEETS
         async function fetchTransactionsFromSheet() {
             if (WEB_APP_URL === 'URL_WEB_APP_GOOGLE_LU_DISINI') return;
             try {
@@ -968,7 +966,6 @@
                 date: dateStr 
             };
 
-            // Kirim ke Google Sheet
             if (WEB_APP_URL !== 'URL_WEB_APP_GOOGLE_LU_DISINI') {
                 try {
                     await fetch(WEB_APP_URL, {
@@ -1012,7 +1009,6 @@
             }
         }
 
-        // Panggil data saat pertama kali web dibuka
         fetchTransactionsFromSheet();
     </script>
 </body>
