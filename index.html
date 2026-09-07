@@ -35,7 +35,12 @@
         #login-container button[type="submit"] { margin-top: 4px; font-weight: 600; }
 
         /* PERBAIKAN LEBAR CONTAINER UTAMA (Lebih lebar & elegan) */
-        .container { width: 100%; max-width: 1400px; margin: 0 auto; display: none; }
+        .container { 
+        width: 96%; /* Mengisi hampir seluruh layar (hanya sisa sedikit di pinggir) */
+        max-width: 1800px; 
+        margin: 0 auto; 
+        display: none; 
+        }
 
         header { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; width: 100%; background: var(--card-bg); padding: 16px; border-radius: 14px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
         .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
