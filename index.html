@@ -10,16 +10,19 @@
     <title>Dashboard Keuangan Gua</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- TAMBAHAN: Library Enkripsi Data -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
     <style>
-        /* CSS TETAP SAMA (Bagian Style tidak ada yang diubah, biarkan seperti aslinya) */
         :root { --bg-color: #f4f6f9; --card-bg: #ffffff; --primary: #4361ee; --primary-hover: #3a0ca3; --income: #2ecc71; --expense: #e74c3c; --tring: #f1c40f; --simpanan: #9b59b6; --jago: #e67e22; --pribadi: #00b4d8; --text-dark: #2b2d42; --text-gray: #6c757d; --border-color: #e2e8f0; --list-bg: #f8fafc; }
         [data-theme="dark"] { --bg-color: #0f172a; --card-bg: #1e293b; --primary: #38bdf8; --primary-hover: #0ea5e9; --income: #2dd4bf; --expense: #fb7185; --tring: #facc15; --simpanan: #e879f9; --jago: #fb923c; --pribadi: #38bdf8; --text-dark: #f8fafc; --text-gray: #94a3b8; --border-color: #334155; --list-bg: #0f172a; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease; }
-        body { background-color: var(--bg-color); color: var(--text-dark); padding: 15px; font-size: 14px; line-height: 1.5; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease; }
+        
+        /* PERBAIKAN TAMPILAN FULL-WIDTH: Hapus display flex center yang bikin ngumpul di tengah */
+        body { background-color: var(--bg-color); color: var(--text-dark); padding: 20px; font-size: 14px; line-height: 1.5; min-height: 100vh; }
+        
+        /* Login Container tetap di tengah */
+        #login-wrapper { display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 40px); }
         #login-container { background: var(--card-bg); padding: 35px 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border-color); width: 100%; max-width: 350px; text-align: center; }
         #login-container h1 { color: var(--primary); margin-bottom: 6px; font-size: 22px; font-weight: 700; border-bottom: none; padding-bottom: 0; }
         #login-container p { color: var(--text-gray); font-size: 12px; margin-bottom: 24px; }
@@ -31,7 +34,9 @@
         .toggle-password:hover { color: var(--primary); }
         #login-container button[type="submit"] { margin-top: 4px; font-weight: 600; }
 
-        .container { width: 100%; max-width: 1200px; margin: 0 auto; display: none; }
+        /* PERBAIKAN LEBAR CONTAINER UTAMA (Lebih lebar & elegan) */
+        .container { width: 100%; max-width: 1400px; margin: 0 auto; display: none; }
+
         header { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; width: 100%; background: var(--card-bg); padding: 16px; border-radius: 14px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
         .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
         header h1 { color: var(--primary); font-size: 18px; font-weight: 700; white-space: nowrap; }
@@ -58,6 +63,16 @@
         input:checked + .slider { background-color: var(--primary); }
         input:checked + .slider:before { transform: translateX(18px); }
         .theme-icon { font-size: 12px; }
+
+        /* DEKORASI KANAN-KIRI (Banner Motivasi & Jam) */
+        .side-decoration-banner { background: var(--card-bg); border: 1px solid var(--border-color); padding: 16px 24px; border-radius: 14px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); flex-wrap: wrap; gap: 12px; }
+        .quote-box { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 250px; }
+        .quote-icon { font-size: 24px; background: var(--list-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border-color); }
+        .quote-text h4 { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 2px; }
+        .quote-text p { font-size: 12px; color: var(--text-gray); font-style: italic; }
+        .clock-box { text-align: right; min-width: 150px; border-left: 2px dashed var(--border-color); padding-left: 16px; }
+        .clock-time { font-size: 18px; font-weight: 700; color: var(--text-dark); letter-spacing: 0.5px; }
+        .clock-date { font-size: 11px; color: var(--text-gray); margin-top: 2px; }
 
         .wealth-card { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: white; padding: 24px 20px; border-radius: 16px; text-align: center; margin-bottom: 16px; box-shadow: 0 10px 25px -5px rgba(67, 97, 238, 0.25); }
         .wealth-card h3 { font-size: 14px; font-weight: 500; opacity: 0.9; margin-bottom: 4px; }
@@ -129,24 +144,37 @@
         .report-table th, .report-table td { padding: 10px 8px; text-align: left; border-bottom: 1px solid var(--border-color); }
         .report-table th { background-color: var(--list-bg); color: var(--text-gray); font-weight: 600; }
         .report-table tbody tr:hover { background-color: var(--list-bg); }
+        
         @media (max-width: 1024px) { .summary-cards { grid-template-columns: repeat(3, 1fr); } }
-        @media (max-width: 768px) { body { padding: 10px; } .summary-cards { grid-template-columns: repeat(2, 1fr); } .main-grid { grid-template-columns: 1fr; } .eval-cards-grid { grid-template-columns: 1fr; } .gold-price-box { flex-direction: column; align-items: stretch; } .gold-price-input-area { max-width: 100%; } }
+        @media (max-width: 768px) { 
+            body { padding: 10px; } 
+            .summary-cards { grid-template-columns: repeat(2, 1fr); } 
+            .main-grid { grid-template-columns: 1fr; } 
+            .eval-cards-grid { grid-template-columns: 1fr; } 
+            .gold-price-box { flex-direction: column; align-items: stretch; } 
+            .gold-price-input-area { max-width: 100%; } 
+            .side-decoration-banner { flex-direction: column; align-items: flex-start; }
+            .clock-box { text-align: left; border-left: none; padding-left: 0; border-top: 2px dashed var(--border-color); padding-top: 8px; width: 100%; }
+        }
         @media (max-width: 480px) { .summary-cards { grid-template-columns: 1fr; } .wealth-card p { font-size: 24px; } }
     </style>
 </head>
 <body data-theme="light">
-    <!-- FORM LOGIN -->
-    <div id="login-container">
-        <h1>Keuangan Gua</h1>
-        <p>🔒 Mode Aman: Masuk untuk melihat data terenkripsi</p>
-        <form id="login-form" onclick="event.stopPropagation()" onsubmit="handleLogin(event)">
-            <input type="text" id="username-input" placeholder="Nama Pengguna (Username)" autocomplete="off" required>
-            <div class="password-wrapper">
-                <input type="password" id="password-input" placeholder="Kata Sandi (Password)" autocomplete="off" required>
-                <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">Lihat</button>
-            </div>
-            <button type="submit">Buka Enkripsi & Masuk</button>
-        </form>
+
+    <!-- FORM LOGIN WRAPPER -->
+    <div id="login-wrapper">
+        <div id="login-container">
+            <h1>Keuangan Gua</h1>
+            <p>🔒 Mode Aman: Masuk untuk melihat data terenkripsi</p>
+            <form id="login-form" onclick="event.stopPropagation()" onsubmit="handleLogin(event)">
+                <input type="text" id="username-input" placeholder="Nama Pengguna (Username)" autocomplete="off" required>
+                <div class="password-wrapper">
+                    <input type="password" id="password-input" placeholder="Kata Sandi (Password)" autocomplete="off" required>
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">Lihat</button>
+                </div>
+                <button type="submit">Buka Enkripsi & Masuk</button>
+            </form>
+        </div>
     </div>
 
     <!-- KONTEN UTAMA DASHBOARD -->
@@ -178,6 +206,21 @@
             </div>
             <input type="file" id="importFile" style="display: none" accept=".json" onchange="importData(event)">
         </header>
+
+        <!-- DEKORASI KANAN-KIRI: Banner Motivasi & Jam -->
+        <div class="side-decoration-banner">
+            <div class="quote-box">
+                <div class="quote-icon">💡</div>
+                <div class="quote-text">
+                    <h4>Prinsip Keuangan Rebel</h4>
+                    <p id="motivational-quote">Memuat inspirasi...</p>
+                </div>
+            </div>
+            <div class="clock-box">
+                <div class="clock-time" id="live-clock">00:00:00</div>
+                <div class="clock-date" id="live-date">Memuat tanggal...</div>
+            </div>
+        </div>
 
         <div class="wealth-card">
             <h3>Akumulasi Dana & Aset</h3>
@@ -268,49 +311,65 @@
     </div>
 
     <script>
-        // --- 1. KEAMANAN AKSES (KREDENSIAL & API TOKEN) ---
+        // --- 1. KEAMANAN AKSES ---
         const CORRECT_USER = 'Rebel';
-        const ENCODED_PASS = 'UmViZWxpb24wMzA0MDE='; // Base64 dari 'Rebelion030401'
-        const API_SECRET_TOKEN = 'RebelAman2026'; // Token untuk Google Sheets Backend
-
-        // URL Google Sheets Anda (Jangan lupa update kode di Google Script juga, lihat panduan di bawah)
+        const ENCODED_PASS = 'UmViZWxpb24wMzA0MDE='; // Rebelion030401
+        const API_SECRET_TOKEN = 'RebelAman2026'; 
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwFKHf1Kakb71JXiZ2lB0JTN24p2kyKOwPvNx_ZwxLSRZamk3ujWtBFOqPhpx8aWZXHLA/exec';
 
-        // --- 2. SISTEM ENKRIPSI LOCAL STORAGE (AES) ---
+        // --- 2. SISTEM ENKRIPSI & DATA ---
         let transactions = [];
         let currentSessionKey = sessionStorage.getItem('appEncryptionKey'); 
 
-        // Fungsi Enkripsi & Simpan
         function saveToLocal() {
             if(!currentSessionKey) return; 
-            // Data disandikan dengan password pengguna
             const encryptedData = CryptoJS.AES.encrypt(JSON.stringify(transactions), currentSessionKey).toString();
             localStorage.setItem('keuangan_secure_db', encryptedData);
         }
 
-        // Fungsi Dekripsi & Muat
         function loadFromLocal(key) {
             const encryptedData = localStorage.getItem('keuangan_secure_db');
-            if(!encryptedData) return []; // Jika belum ada data sama sekali
+            if(!encryptedData) return []; 
             try {
                 const bytes = CryptoJS.AES.decrypt(encryptedData, key);
                 const decryptedStr = bytes.toString(CryptoJS.enc.Utf8);
                 if (!decryptedStr) throw new Error("Salah Kunci");
                 return JSON.parse(decryptedStr);
-            } catch(e) {
-                return null; // Jika password salah / gagal buka gembok
-            }
+            } catch(e) { return null; }
         }
 
-        // --- 3. MIGRASI DATA LAMA (Dari yang tidak aman ke aman) ---
         function runDataMigration() {
             const oldUnsecureData = localStorage.getItem('keuangan_transactions');
             if (oldUnsecureData && currentSessionKey) {
                 transactions = JSON.parse(oldUnsecureData);
-                saveToLocal(); // Simpan ulang secara aman (dienkripsi)
-                localStorage.removeItem('keuangan_transactions'); // Hapus jejak data telanjang
-                console.log("Migrasi data ke format aman berhasil!");
+                saveToLocal(); 
+                localStorage.removeItem('keuangan_transactions'); 
             }
+        }
+
+        // --- 3. SCRIPT JAM DINAMIS & MOTIVASI ---
+        const quotesList = [
+            "\"Jangan menabung apa yang tersisa setelah berbelanja, tetapi belanjakan apa yang tersisa setelah menabung.\"",
+            "\"Kekayaan bukan tentang seberapa banyak uang yang kamu hasilkan, tapi seberapa banyak uang yang kamu simpan.\"",
+            "\"Disiplin finansial hari ini adalah kebebasan di masa depan.\"",
+            "\"Keuangan yang sehat diciptakan dari kebiasaan kecil yang konsisten.\"",
+            "\"Target 2026: Aset bertumbuh, dompet utuh, pikiran tenang! 🚀\""
+        ];
+
+        function initDashboardDecorations() {
+            const randomQuote = quotesList[Math.floor(Math.random() * quotesList.length)];
+            const quoteEl = document.getElementById('motivational-quote');
+            if(quoteEl) quoteEl.innerText = randomQuote;
+            updateClock();
+            setInterval(updateClock, 1000);
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const clockEl = document.getElementById('live-clock');
+            const dateEl = document.getElementById('live-date');
+            if(clockEl) clockEl.innerText = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + " WIB";
+            if(dateEl) dateEl.innerText = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         }
 
         // --- 4. SISTEM LOGIN SESI SEMENTARA ---
@@ -326,15 +385,14 @@
         }
 
         function triggerAutoLogout() {
-            sessionStorage.clear(); // Hapus kunci dekripsi dari memori browser
-            alert("⏰ Sesi habis demi keamanan. Kunci enkripsi dilepas. Silakan masuk kembali.");
+            sessionStorage.clear(); 
+            alert("⏰ Sesi habis demi keamanan. Silakan masuk kembali.");
             location.reload(); 
         }
 
         ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(event => { window.addEventListener(event, resetIdleTimer); });
 
         window.addEventListener('DOMContentLoaded', () => {
-            // Karena ini sangat aman, jika tab ditutup total, user HARUS login lagi (sessionStorage hilang).
             const isLogged = sessionStorage.getItem('isLoggedIn');
             const lastActive = sessionStorage.getItem('lastActiveTime');
             
@@ -343,12 +401,12 @@
                     triggerAutoLogout();
                 } else {
                     document.getElementById('username-text').innerText = CORRECT_USER;
-                    document.getElementById('login-container').style.display = 'none';
-                    document.body.style.display = 'block';
+                    document.getElementById('login-wrapper').style.display = 'none';
                     document.getElementById('app-container').style.display = 'block';
                     
                     transactions = loadFromLocal(currentSessionKey) || [];
                     updateUI(); 
+                    initDashboardDecorations(); // Aktifkan Jam
                     fetchTransactionsFromSheet();
                     resetIdleTimer();
                 }
@@ -371,30 +429,27 @@
             const passInp = document.getElementById('password-input').value.trim();
 
             if (userInp === CORRECT_USER && btoa(passInp) === ENCODED_PASS) {
-                // Simpan kunci keamanan hanya di memori sesi sementara (Aman)
                 sessionStorage.setItem('isLoggedIn', 'true');
                 sessionStorage.setItem('appEncryptionKey', passInp); 
                 sessionStorage.setItem('lastActiveTime', Date.now());
                 currentSessionKey = passInp;
 
-                // Coba migrasi data telanjang lama (jika ada)
                 runDataMigration();
 
-                // Coba Buka Brankas Data
                 let loadedData = loadFromLocal(currentSessionKey);
                 if (loadedData === null) {
-                    alert("⚠️ Kunci enkripsi berubah atau data korup. Database lokal dikosongkan untuk diisi dari Sheet.");
+                    alert("⚠️ Kunci enkripsi berubah atau data korup. Database lokal dikosongkan.");
                     transactions = [];
                 } else {
                     transactions = loadedData;
                 }
 
                 document.getElementById('username-text').innerText = userInp;
-                document.getElementById('login-container').style.display = 'none';
-                document.body.style.display = 'block';
+                document.getElementById('login-wrapper').style.display = 'none';
                 document.getElementById('app-container').style.display = 'block';
                 
                 updateUI();
+                initDashboardDecorations(); // Aktifkan Jam
                 fetchTransactionsFromSheet();
                 resetIdleTimer();
             } else {
@@ -406,12 +461,12 @@
         function handleLogout() {
             if (confirm("Kunci kembali data Anda dan keluar?")) {
                 clearTimeout(idleTimer);
-                sessionStorage.clear(); // Hapus jejak kunci
-                location.reload(); // Refresh total untuk menghapus variabel RAM
+                sessionStorage.clear(); 
+                location.reload(); 
             }
         }
 
-        const currentTheme = localStorage.getItem('theme') || 'light';
+        const currentTheme = localStorage.getItem('theme') || 'dark';
         document.body.setAttribute('data-theme', currentTheme);
         const themeCheckbox = document.getElementById('theme-checkbox');
         if(themeCheckbox) themeCheckbox.checked = (currentTheme === 'dark');
@@ -448,22 +503,17 @@
             else amountInput.placeholder = "Jumlah Rupiah (Misal: 100.000)";
         }
 
-        // --- FETCH DENGAN TOKEN KEAMANAN ---
         async function fetchTransactionsFromSheet() {
             if (!WEB_APP_URL || WEB_APP_URL.includes('URL_WEB_APP')) return; 
             try {
                 const response = await fetch(WEB_APP_URL, {
                     method: 'POST',
-                    body: JSON.stringify({ action: 'sync', token: API_SECRET_TOKEN }) // Kunci dikirim
+                    body: JSON.stringify({ action: 'sync', token: API_SECRET_TOKEN }) 
                 });
                 const result = await response.json();
                 if (result.status === 'success' && result.data.length > 0) {
-                    transactions = result.data;
-                    saveToLocal(); // Simpan aman
-                    updateUI();
-                } else if (result.status === 'unauthorized') {
-                    console.error("Gagal Sync: Token API Ditolak Google Sheet");
-                }
+                    transactions = result.data; saveToLocal(); updateUI();
+                } 
             } catch (err) { console.log("Mode Offline. Memakai data lokal."); }
         }
 
@@ -498,7 +548,7 @@
                         const parsed = JSON.parse(e.target.result);
                         if (parsed.transactions && Array.isArray(parsed.transactions)) {
                             transactions = parsed.transactions;
-                            saveToLocal(); // Otomatis enkripsi dengan password aktif saat import
+                            saveToLocal(); 
                             if (parsed.financialGoals) { financialGoals = parsed.financialGoals; localStorage.setItem('financialGoals', JSON.stringify(financialGoals)); }
                             if (parsed.goldPricePerGram) { goldPricePerGram = parsed.goldPricePerGram; localStorage.setItem('goldPricePerGram', goldPricePerGram); document.getElementById('gold-price-input').value = new Intl.NumberFormat('id-ID').format(goldPricePerGram); }
                             updateUI(); alert("Data berhasil dipulihkan (Restore)!");
@@ -630,10 +680,7 @@
                 const dateObj = new Date(); const dateStr = dateObj.getDate() + '/' + (dateObj.getMonth()+1) + '/' + dateObj.getFullYear();
                 const transaction = { id: 'id_' + Math.floor(Math.random() * 100000000), desc: desc, amount: amount, type: type, date: dateStr };
 
-                transactions.unshift(transaction); 
-                saveToLocal(); // Otomatis terenkripsi
-                updateUI(); formEl.reset(); handleTypeChange();
-
+                transactions.unshift(transaction); saveToLocal(); updateUI(); formEl.reset(); handleTypeChange();
                 if (WEB_APP_URL && !WEB_APP_URL.includes('URL_WEB_APP')) {
                     try { await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'add', token: API_SECRET_TOKEN, ...transaction }) }); } catch (err) { console.error(err); }
                 }
