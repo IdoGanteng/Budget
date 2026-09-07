@@ -17,12 +17,9 @@
         [data-theme="dark"] { --bg-color: #0f172a; --card-bg: #1e293b; --primary: #38bdf8; --primary-hover: #0ea5e9; --income: #2dd4bf; --expense: #fb7185; --tring: #facc15; --simpanan: #e879f9; --jago: #fb923c; --pribadi: #38bdf8; --text-dark: #f8fafc; --text-gray: #94a3b8; --border-color: #334155; --list-bg: #0f172a; }
         
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease; }
+        body { background-color: var(--bg-color); color: var(--text-dark); padding: 15px; font-size: 14px; line-height: 1.5; min-height: 100vh; }
         
-        /* PERBAIKAN TAMPILAN FULL-WIDTH: Hapus display flex center yang bikin ngumpul di tengah */
-        body { background-color: var(--bg-color); color: var(--text-dark); padding: 20px; font-size: 14px; line-height: 1.5; min-height: 100vh; }
-        
-        /* Login Container tetap di tengah */
-        #login-wrapper { display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 40px); }
+        #login-wrapper { display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 30px); }
         #login-container { background: var(--card-bg); padding: 35px 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border-color); width: 100%; max-width: 350px; text-align: center; }
         #login-container h1 { color: var(--primary); margin-bottom: 6px; font-size: 22px; font-weight: 700; border-bottom: none; padding-bottom: 0; }
         #login-container p { color: var(--text-gray); font-size: 12px; margin-bottom: 24px; }
@@ -34,15 +31,13 @@
         .toggle-password:hover { color: var(--primary); }
         #login-container button[type="submit"] { margin-top: 4px; font-weight: 600; }
 
-        /* PERBAIKAN LEBAR CONTAINER UTAMA (Lebih lebar & elegan) */
-        .container { 
-        width: 96%; /* Mengisi hampir seluruh layar (hanya sisa sedikit di pinggir) */
-        max-width: 1800px; 
-        margin: 0 auto; 
-        display: none; 
-        }
+        /* LAYOUT 2 KOLOM */
+        .container { width: 100%; max-width: 1700px; margin: 0 auto; display: none; }
+        .dashboard-layout { display: grid; grid-template-columns: 380px 1fr; gap: 20px; align-items: start; }
+        .sidebar-column { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 15px; }
+        .main-column { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 
-        header { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; width: 100%; background: var(--card-bg); padding: 16px; border-radius: 14px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        header { display: flex; flex-direction: column; gap: 12px; width: 100%; background: var(--card-bg); padding: 16px; border-radius: 14px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
         .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
         header h1 { color: var(--primary); font-size: 18px; font-weight: 700; white-space: nowrap; }
 
@@ -69,26 +64,26 @@
         input:checked + .slider:before { transform: translateX(18px); }
         .theme-icon { font-size: 12px; }
 
-        /* DEKORASI KANAN-KIRI (Banner Motivasi & Jam) */
-        .side-decoration-banner { background: var(--card-bg); border: 1px solid var(--border-color); padding: 16px 24px; border-radius: 14px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); flex-wrap: wrap; gap: 12px; }
-        .quote-box { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 250px; }
-        .quote-icon { font-size: 24px; background: var(--list-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border-color); }
-        .quote-text h4 { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 2px; }
-        .quote-text p { font-size: 12px; color: var(--text-gray); font-style: italic; }
-        .clock-box { text-align: right; min-width: 150px; border-left: 2px dashed var(--border-color); padding-left: 16px; }
-        .clock-time { font-size: 18px; font-weight: 700; color: var(--text-dark); letter-spacing: 0.5px; }
+        /* DEKORASI SIDEBAR */
+        .side-decoration-banner { background: var(--card-bg); border: 1px solid var(--border-color); padding: 16px; border-radius: 14px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        .clock-box { text-align: center; background: var(--list-bg); padding: 10px; border-radius: 10px; border: 1px solid var(--border-color); }
+        .clock-time { font-size: 20px; font-weight: 700; color: var(--primary); letter-spacing: 0.5px; }
         .clock-date { font-size: 11px; color: var(--text-gray); margin-top: 2px; }
+        .quote-box { display: flex; gap: 10px; align-items: flex-start; }
+        .quote-icon { font-size: 20px; background: var(--list-bg); padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .quote-text h4 { font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 2px; }
+        .quote-text p { font-size: 11px; color: var(--text-gray); font-style: italic; }
 
-        .wealth-card { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: white; padding: 24px 20px; border-radius: 16px; text-align: center; margin-bottom: 16px; box-shadow: 0 10px 25px -5px rgba(67, 97, 238, 0.25); }
+        .wealth-card { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: white; padding: 24px 20px; border-radius: 16px; text-align: center; box-shadow: 0 10px 25px -5px rgba(67, 97, 238, 0.25); }
         .wealth-card h3 { font-size: 14px; font-weight: 500; opacity: 0.9; margin-bottom: 4px; }
         .wealth-card p { font-size: 32px; font-weight: 700; word-break: break-word; letter-spacing: -0.5px; }
 
-        .gold-price-box { background: var(--card-bg); padding: 16px; border-radius: 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; border: 1px solid var(--border-color); border-left: 5px solid var(--tring); }
+        .gold-price-box { background: var(--card-bg); padding: 16px; border-radius: 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; border: 1px solid var(--border-color); border-left: 5px solid var(--tring); }
         .gold-price-box label { font-weight: 600; font-size: 13px; }
         .gold-price-box small { font-size: 11px; color: var(--text-gray); }
         .gold-price-input-area { display: flex; gap: 8px; max-width: 280px; width: 100%; }
 
-        .goals-container { background: var(--card-bg); padding: 18px; border-radius: 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); margin-bottom: 16px; border: 1px solid var(--border-color); }
+        .goals-container { background: var(--card-bg); padding: 18px; border-radius: 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid var(--border-color); }
         .goals-container h2 { font-size: 15px; margin-bottom: 12px; border-bottom: none; padding-bottom: 0; }
         .goal-item { margin-bottom: 12px; }
         .goal-info { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 12px; font-weight: 600; flex-wrap: wrap; gap: 4px; }
@@ -98,7 +93,7 @@
         .goal-btn { background: var(--list-bg); border: 1px solid var(--border-color); color: var(--text-dark); padding: 5px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; width: auto; font-weight: 600; }
         .goal-btn:hover { opacity: 0.8; }
 
-        .summary-cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 16px; }
+        .summary-cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
         .card { background: var(--card-bg); padding: 14px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid var(--border-color); }
         .card h3 { font-size: 11px; color: var(--text-gray); font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
         .card p { font-size: 15px; font-weight: 700; margin-top: 4px; word-break: break-word; }
@@ -106,8 +101,8 @@
 
         .c-balance p { color: var(--income); } .c-simpanan p { color: var(--simpanan); } .c-pribadi p { color: var(--pribadi); } .c-tring p { color: var(--tring); } .c-jago p { color: var(--jago); }
 
-        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-        .section-box { background: var(--card-bg); padding: 18px; border-radius: 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); margin-bottom: 16px; border: 1px solid var(--border-color); }
+        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .section-box { background: var(--card-bg); padding: 18px; border-radius: 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid var(--border-color); }
         .section-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; flex-wrap: wrap; gap: 8px; }
         .section-header-flex h2 { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
         h2 { font-size: 15px; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; color: var(--text-dark); font-weight: 600; }
@@ -121,7 +116,9 @@
         .reset-btn { background-color: #ef4444; margin-top: 12px; font-size: 13px; padding: 10px; }
         .reset-btn:hover { background-color: #dc2626; }
 
-        .chart-container { position: relative; height: 220px; width: 100%; display: flex; justify-content: center; align-items: center; }
+        /* UKURAN KOTAK GRAFIK DIPADATKAN */
+        .chart-container { position: relative; height: 140px; width: 100%; display: flex; justify-content: center; align-items: center; }
+        #comparisonChart { max-height: 140px !important; }
 
         .eval-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
         .eval-select { width: auto; padding: 6px 10px; font-weight: 600; font-size: 12px; }
@@ -150,7 +147,11 @@
         .report-table th { background-color: var(--list-bg); color: var(--text-gray); font-weight: 600; }
         .report-table tbody tr:hover { background-color: var(--list-bg); }
         
-        @media (max-width: 1024px) { .summary-cards { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 1200px) { 
+            .dashboard-layout { grid-template-columns: 1fr; }
+            .sidebar-column { position: static; }
+            .summary-cards { grid-template-columns: repeat(3, 1fr); } 
+        }
         @media (max-width: 768px) { 
             body { padding: 10px; } 
             .summary-cards { grid-template-columns: repeat(2, 1fr); } 
@@ -158,13 +159,11 @@
             .eval-cards-grid { grid-template-columns: 1fr; } 
             .gold-price-box { flex-direction: column; align-items: stretch; } 
             .gold-price-input-area { max-width: 100%; } 
-            .side-decoration-banner { flex-direction: column; align-items: flex-start; }
-            .clock-box { text-align: left; border-left: none; padding-left: 0; border-top: 2px dashed var(--border-color); padding-top: 8px; width: 100%; }
         }
         @media (max-width: 480px) { .summary-cards { grid-template-columns: 1fr; } .wealth-card p { font-size: 24px; } }
     </style>
 </head>
-<body data-theme="light">
+<body data-theme="dark">
 
     <!-- FORM LOGIN WRAPPER -->
     <div id="login-wrapper">
@@ -182,147 +181,158 @@
         </div>
     </div>
 
-    <!-- KONTEN UTAMA DASHBOARD -->
+    <!-- KONTEN UTAMA DASHBOARD 2 KOLOM -->
     <div class="container" id="app-container">
-        <header>
-            <div class="header-top">
-                <h1>💼 Keuangan Gua</h1>
-                <div class="theme-switch-wrapper" title="Ganti Tema">
-                    <span class="theme-icon">☀️</span>
-                    <label class="theme-switch">
-                        <input type="checkbox" id="theme-checkbox" onchange="toggleTheme()">
-                        <span class="slider"></span>
-                    </label>
-                    <span class="theme-icon">🌙</span>
+        <div class="dashboard-layout">
+            
+            <!-- KOLOM KIRI (SIDEBAR) -->
+            <div class="sidebar-column">
+                <header>
+                    <div class="header-top">
+                        <h1>💼 Keuangan Gua</h1>
+                        <div class="theme-switch-wrapper" title="Ganti Tema">
+                            <span class="theme-icon">☀️</span>
+                            <label class="theme-switch">
+                                <input type="checkbox" id="theme-checkbox" onchange="toggleTheme()">
+                                <span class="slider"></span>
+                            </label>
+                            <span class="theme-icon">🌙</span>
+                        </div>
+                    </div>
+
+                    <div class="profile-dropdown-wrapper">
+                        <div class="user-badge" onclick="toggleProfileDropdown(event)">
+                            👤 <span id="username-text">Rebel</span> <span style="font-size: 10px; opacity: 0.7; margin-left: auto;">▾ Menu Akun</span>
+                        </div>
+                        <div class="dropdown-menu" id="profile-dropdown">
+                            <button class="dropdown-item excel-item" onclick="exportToExcel()">📊 Download Excel</button>
+                            <button class="dropdown-item" onclick="exportData()">📥 Backup Data Aman</button>
+                            <button class="dropdown-item" onclick="document.getElementById('importFile').click()">📤 Restore Data</button>
+                            <button class="dropdown-item logout-item" onclick="handleLogout()">🚪 Keluar (Kunci Data)</button>
+                        </div>
+                    </div>
+                    <input type="file" id="importFile" style="display: none" accept=".json" onchange="importData(event)">
+                </header>
+
+                <div class="side-decoration-banner">
+                    <div class="clock-box">
+                        <div class="clock-time" id="live-clock">00:00:00</div>
+                        <div class="clock-date" id="live-date">Memuat tanggal...</div>
+                    </div>
+                    <div class="quote-box">
+                        <div class="quote-icon">💡</div>
+                        <div class="quote-text">
+                            <h4>Prinsip Keuangan</h4>
+                            <p id="motivational-quote">Memuat inspirasi...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-box" style="margin-bottom: 0;">
+                    <h2>Catat Keuangan Baru</h2>
+                    <form id="form">
+                        <input type="text" id="desc" placeholder="Keterangan (Makan, Gaji, dll)" autocomplete="off" required>
+                        <input type="text" id="amount" placeholder="Jumlah Rupiah / Gram" autocomplete="off" required>
+                        <select id="type" onchange="handleTypeChange()">
+                            <optgroup label="Uang Harian">
+                                <option value="income">Pemasukan Uang Tunai (+)</option>
+                                <option value="expense">Pengeluaran / Jajan / Pulsa (-)</option>
+                            </optgroup>
+                            <optgroup label="Investasi & Tabungan">
+                                <option value="simpanan">Tambah Simpanan Wajib (+)</option>
+                                <option value="pribadi">Tambah Tabungan Pribadi (+)</option>
+                                <option value="tring">Tambah Saldo Emas Tring (Gram) (+)</option>
+                                <option value="jago">Beli Emas Bank Jago (- Kas, + Aset)</option>
+                            </optgroup>
+                        </select>
+                        <button type="submit">Simpan Catatan</button>
+                    </form>
+                </div>
+
+                <div class="goals-container" style="margin-bottom: 0;">
+                    <h2>🎯 Target 2026</h2>
+                    <div class="goal-item">
+                        <div class="goal-info"><span>Total Kekayaan</span><span id="wealth-progress-text">0%</span></div>
+                        <div class="progress-bar-container"><div id="wealth-progress-bar" class="progress-bar"></div></div>
+                    </div>
+                    <div class="goal-item" style="margin-top: 10px;">
+                        <div class="goal-info"><span>Total Aset Emas</span><span id="gold-progress-text">0%</span></div>
+                        <div class="progress-bar-container"><div id="gold-progress-bar" class="progress-bar" style="background: linear-gradient(90deg, #f1c40f, #e67e22);"></div></div>
+                    </div>
+                    <div class="goal-btn-area"><button onclick="setGoals()" class="goal-btn">⚙️ Atur Target</button></div>
                 </div>
             </div>
 
-            <!-- PROFIL DROPDOWN MENU -->
-            <div class="profile-dropdown-wrapper">
-                <div class="user-badge" onclick="toggleProfileDropdown(event)">
-                    👤 <span id="username-text">Rebel</span> <span style="font-size: 10px; opacity: 0.7; margin-left: auto;">▾ Menu Akun</span>
+            <!-- KOLOM KANAN (KONTEN UTAMA) -->
+            <div class="main-column">
+                <div class="wealth-card">
+                    <h3>Akumulasi Dana & Aset</h3>
+                    <p id="total-wealth">Rp 0</p>
                 </div>
-                <div class="dropdown-menu" id="profile-dropdown">
-                    <button class="dropdown-item excel-item" onclick="exportToExcel()">📊 Download Excel</button>
-                    <button class="dropdown-item" onclick="exportData()">📥 Backup Data Aman</button>
-                    <button class="dropdown-item" onclick="document.getElementById('importFile').click()">📤 Restore Data</button>
-                    <button class="dropdown-item logout-item" onclick="handleLogout()">🚪 Keluar (Kunci Data)</button>
+
+                <div class="gold-price-box">
+                    <div>
+                        <label>🏷️ Harga Pasar Emas Tring Hari Ini (per Gram)</label>
+                        <small>Nilai aset Tring otomatis dikalikan harga ini</small>
+                    </div>
+                    <div class="gold-price-input-area">
+                        <input type="text" id="gold-price-input" placeholder="Misal: 1.250.000" oninput="formatGoldPriceInput(this)">
+                        <button onclick="saveGoldPrice()" style="width: auto; padding: 0 14px;">Simpan</button>
+                    </div>
+                </div>
+
+                <div class="summary-cards">
+                    <div class="card c-balance"><h3>Uang Tunai</h3><p id="cash-balance">Rp 0</p><small>(Kas - Keluar)</small></div>
+                    <div class="card c-simpanan"><h3>Simpanan</h3><p id="total-simpanan">Rp 0</p><small>Terpisah</small></div>
+                    <div class="card c-pribadi"><h3>Pribadi</h3><p id="total-pribadi">Rp 0</p><small>Terpisah</small></div>
+                    <div class="card c-tring"><h3>Emas Tring</h3><p id="total-tring">Rp 0</p><small id="tring-gram-info">0 Gr</small></div>
+                    <div class="card c-jago"><h3>Emas Jago</h3><p id="total-jago">Rp 0</p><small>Dari Kas</small></div>
+                </div>
+
+                <div class="main-grid" style="margin-bottom: 0;">
+                    <div class="section-box"><h2>Portofolio Kekayaan</h2><div class="chart-container"><canvas id="financeChart"></canvas></div></div>
+                    <div class="section-box">
+                        <div class="eval-header" style="margin-bottom:8px;"><h2>📈 Evaluasi</h2><select id="eval-month-select" class="eval-select" onchange="renderEvaluasiBulanan()"></select></div>
+                        <div class="eval-cards-grid" style="grid-template-columns: 1fr; gap:6px; margin-bottom:10px;">
+                            <div class="eval-insight-card" style="padding:6px;"><h4>Rasio Alokasi</h4><p id="eval-savings-rate" style="color: var(--income); font-size:13px;">0%</p></div>
+                            <div class="eval-insight-card" style="padding:6px;"><h4>Status</h4><p id="eval-status" style="color: var(--primary); font-size:13px;">-</p></div>
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-gray);">Pengeluaran Terbesar: <span id="eval-top-expense" style="color: var(--expense); font-weight:600;">-</span></div>
+                    </div>
+                </div>
+
+                <!-- KOTAK GRAFIK PERBANDINGAN BULANAN (SUDAH DIPADATKAN) -->
+                <div class="section-box">
+                    <div class="eval-header"><h2>📊 Grafik Perbandingan Bulanan</h2></div>
+                    <div class="chart-container"><canvas id="comparisonChart"></canvas></div>
+                </div>
+
+                <div class="section-box">
+                    <h2>Laporan Rekap Bulanan</h2>
+                    <div class="table-responsive">
+                        <table class="report-table">
+                            <thead><tr><th>Bulan</th><th>Pemasukan</th><th>Pengeluaran</th><th>Beli Jago</th><th>Sisa Kas</th><th>Simpanan Wajib</th><th>Tabungan Pribadi</th><th>Emas Tring</th></tr></thead>
+                            <tbody id="monthly-report-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="section-box">
+                    <div class="section-header-flex"><h2>Riwayat Catatan</h2><select id="filter-month-select" class="eval-select" onchange="updateUI()"><option value="all">Semua Bulan</option></select></div>
+                    <ul id="list" class="history-list"></ul>
+                    <button onclick="resetData()" class="reset-btn">Hapus Semua Data & Mulai Baru</button>
                 </div>
             </div>
-            <input type="file" id="importFile" style="display: none" accept=".json" onchange="importData(event)">
-        </header>
 
-        <!-- DEKORASI KANAN-KIRI: Banner Motivasi & Jam -->
-        <div class="side-decoration-banner">
-            <div class="quote-box">
-                <div class="quote-icon">💡</div>
-                <div class="quote-text">
-                    <h4>Prinsip Keuangan Rebel</h4>
-                    <p id="motivational-quote">Memuat inspirasi...</p>
-                </div>
-            </div>
-            <div class="clock-box">
-                <div class="clock-time" id="live-clock">00:00:00</div>
-                <div class="clock-date" id="live-date">Memuat tanggal...</div>
-            </div>
-        </div>
-
-        <div class="wealth-card">
-            <h3>Akumulasi Dana & Aset</h3>
-            <p id="total-wealth">Rp 0</p>
-        </div>
-
-        <div class="gold-price-box">
-            <div>
-                <label>🏷️ Harga Pasar Emas Tring Hari Ini (per Gram)</label>
-                <small>Nilai aset Tring otomatis dikalikan harga ini</small>
-            </div>
-            <div class="gold-price-input-area">
-                <input type="text" id="gold-price-input" placeholder="Misal: 1.250.000" oninput="formatGoldPriceInput(this)">
-                <button onclick="saveGoldPrice()" style="width: auto; padding: 0 14px;">Simpan</button>
-            </div>
-        </div>
-
-        <div class="goals-container">
-            <h2>🎯 Target Pencapaian Tahun 2026</h2>
-            <div class="goal-item">
-                <div class="goal-info"><span>Target Total Kekayaan</span><span id="wealth-progress-text">Rp 0 / Rp 0 (0%)</span></div>
-                <div class="progress-bar-container"><div id="wealth-progress-bar" class="progress-bar"></div></div>
-            </div>
-            <div class="goal-item" style="margin-top: 10px;">
-                <div class="goal-info"><span>Target Total Aset Emas (Tring + Jago)</span><span id="gold-progress-text">Rp 0 / Rp 0 (0%)</span></div>
-                <div class="progress-bar-container"><div id="gold-progress-bar" class="progress-bar" style="background: linear-gradient(90deg, #f1c40f, #e67e22);"></div></div>
-            </div>
-            <div class="goal-btn-area"><button onclick="setGoals()" class="goal-btn">⚙️ Atur Nominal Target</button></div>
-        </div>
-
-        <div class="summary-cards">
-            <div class="card c-balance"><h3>Uang Tunai / Aktif</h3><p id="cash-balance">Rp 0</p><small>(Kas - Keluar - Jago)</small></div>
-            <div class="card c-simpanan"><h3>Simpanan Wajib</h3><p id="total-simpanan">Rp 0</p><small>Aset Terpisah</small></div>
-            <div class="card c-pribadi"><h3>Tabungan Pribadi</h3><p id="total-pribadi">Rp 0</p><small>Aset Terpisah</small></div>
-            <div class="card c-tring"><h3>Emas Tring</h3><p id="total-tring">Rp 0</p><small id="tring-gram-info">0 Gram</small></div>
-            <div class="card c-jago"><h3>Emas Jago</h3><p id="total-jago">Rp 0</p><small>Aset dari Kas</small></div>
-        </div>
-
-        <div class="main-grid">
-            <div class="section-box">
-                <h2>Catat Keuangan / Aset Baru</h2>
-                <form id="form">
-                    <input type="text" id="desc" placeholder="Keterangan (Makan, PDAM, Gaji)" autocomplete="off" required>
-                    <input type="text" id="amount" placeholder="Jumlah Rupiah / Gram" autocomplete="off" required>
-                    <select id="type" onchange="handleTypeChange()">
-                        <optgroup label="Uang Harian">
-                            <option value="income">Pemasukan Uang Tunai (+)</option>
-                            <option value="expense">Pengeluaran / Jajan / Pulsa (-)</option>
-                        </optgroup>
-                        <optgroup label="Investasi & Tabungan">
-                            <option value="simpanan">Tambah Simpanan Wajib (+)</option>
-                            <option value="pribadi">Tambah Tabungan Pribadi (+)</option>
-                            <option value="tring">Tambah Saldo Emas Tring (Dalam Gram) (+)</option>
-                            <option value="jago">Beli Emas Bank Jago (- Kas, + Aset)</option>
-                        </optgroup>
-                    </select>
-                    <button type="submit">Simpan Catatan</button>
-                </form>
-            </div>
-            <div class="section-box"><h2>Portofolio Kekayaan</h2><div class="chart-container"><canvas id="financeChart"></canvas></div></div>
-        </div>
-
-        <div class="section-box">
-            <div class="eval-header"><h2>📈 Dashboard Evaluasi Bulanan</h2><select id="eval-month-select" class="eval-select" onchange="renderEvaluasiBulanan()"></select></div>
-            <div class="eval-cards-grid">
-                <div class="eval-insight-card"><h4>Rasio Alokasi Bulanan</h4><p id="eval-savings-rate" style="color: var(--income);">0%</p></div>
-                <div class="eval-insight-card"><h4>Status Finansial</h4><p id="eval-status" style="color: var(--primary);">-</p></div>
-                <div class="eval-insight-card"><h4>Pengeluaran Terbesar</h4><p id="eval-top-expense" style="font-size: 13px; margin-top: 4px; color: var(--expense);">-</p></div>
-            </div>
-            <div class="chart-container" style="height: 220px;"><canvas id="comparisonChart"></canvas></div>
-        </div>
-
-        <div class="section-box">
-            <h2>Laporan Rekap Bulanan</h2>
-            <div class="table-responsive">
-                <table class="report-table">
-                    <thead><tr><th>Bulan</th><th>Pemasukan</th><th>Pengeluaran</th><th>Beli Jago</th><th>Sisa Kas</th><th>Simpanan Wajib</th><th>Tabungan Pribadi</th><th>Emas Tring (Gram)</th></tr></thead>
-                    <tbody id="monthly-report-body"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="section-box">
-            <div class="section-header-flex"><h2>Riwayat Catatan</h2><select id="filter-month-select" class="eval-select" onchange="updateUI()"><option value="all">Semua Bulan</option></select></div>
-            <ul id="list" class="history-list"></ul>
-            <button onclick="resetData()" class="reset-btn">Hapus Semua Data & Mulai Baru</button>
         </div>
     </div>
 
     <script>
-        // --- 1. KEAMANAN AKSES ---
         const CORRECT_USER = 'Rebel';
-        const ENCODED_PASS = 'UmViZWxpb24wMzA0MDE='; // Rebelion030401
+        const ENCODED_PASS = 'UmViZWxpb24wMzA0MDE='; 
         const API_SECRET_TOKEN = 'RebelAman2026'; 
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwFKHf1Kakb71JXiZ2lB0JTN24p2kyKOwPvNx_ZwxLSRZamk3ujWtBFOqPhpx8aWZXHLA/exec';
 
-        // --- 2. SISTEM ENKRIPSI & DATA ---
         let transactions = [];
         let currentSessionKey = sessionStorage.getItem('appEncryptionKey'); 
 
@@ -352,7 +362,6 @@
             }
         }
 
-        // --- 3. SCRIPT JAM DINAMIS & MOTIVASI ---
         const quotesList = [
             "\"Jangan menabung apa yang tersisa setelah berbelanja, tetapi belanjakan apa yang tersisa setelah menabung.\"",
             "\"Kekayaan bukan tentang seberapa banyak uang yang kamu hasilkan, tapi seberapa banyak uang yang kamu simpan.\"",
@@ -377,7 +386,6 @@
             if(dateEl) dateEl.innerText = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         }
 
-        // --- 4. SISTEM LOGIN SESI SEMENTARA ---
         let idleTimer;
         const TIMEOUT_LIMIT = 5 * 60 * 1000;
 
@@ -411,7 +419,7 @@
                     
                     transactions = loadFromLocal(currentSessionKey) || [];
                     updateUI(); 
-                    initDashboardDecorations(); // Aktifkan Jam
+                    initDashboardDecorations(); 
                     fetchTransactionsFromSheet();
                     resetIdleTimer();
                 }
@@ -443,7 +451,7 @@
 
                 let loadedData = loadFromLocal(currentSessionKey);
                 if (loadedData === null) {
-                    alert("⚠️ Kunci enkripsi berubah atau data korup. Database lokal dikosongkan.");
+                    alert("⚠️ Kunci enkripsi berubah atau data korup.");
                     transactions = [];
                 } else {
                     transactions = loadedData;
@@ -454,7 +462,7 @@
                 document.getElementById('app-container').style.display = 'block';
                 
                 updateUI();
-                initDashboardDecorations(); // Aktifkan Jam
+                initDashboardDecorations(); 
                 fetchTransactionsFromSheet();
                 resetIdleTimer();
             } else {
@@ -519,7 +527,7 @@
                 if (result.status === 'success' && result.data.length > 0) {
                     transactions = result.data; saveToLocal(); updateUI();
                 } 
-            } catch (err) { console.log("Mode Offline. Memakai data lokal."); }
+            } catch (err) { console.log("Mode Offline."); }
         }
 
         function exportToExcel() {
@@ -556,9 +564,9 @@
                             saveToLocal(); 
                             if (parsed.financialGoals) { financialGoals = parsed.financialGoals; localStorage.setItem('financialGoals', JSON.stringify(financialGoals)); }
                             if (parsed.goldPricePerGram) { goldPricePerGram = parsed.goldPricePerGram; localStorage.setItem('goldPricePerGram', goldPricePerGram); document.getElementById('gold-price-input').value = new Intl.NumberFormat('id-ID').format(goldPricePerGram); }
-                            updateUI(); alert("Data berhasil dipulihkan (Restore)!");
-                        } else alert("Format file backup tidak valid!");
-                    } catch (error) { alert("Gagal membaca file JSON."); }
+                            updateUI(); alert("Data berhasil dipulihkan!");
+                        } else alert("Format file tidak valid!");
+                    } catch (error) { alert("Gagal membaca file."); }
                 };
             }
         }
@@ -585,23 +593,23 @@
         function updateCharts(cash, simpanan, pribadi, tringRupiah, jago, monthlyLabels, monthlyIncomeData, monthlyExpenseData) {
             if (financeChart) financeChart.destroy(); 
             let safeCash = cash > 0 ? cash : 0; 
-            financeChart = new Chart(ctx1, { type: 'doughnut', data: { labels: ['Uang Tunai', 'Simpanan Wajib', 'Tabungan Pribadi', 'Emas Tring', 'Emas Bank Jago'], datasets: [{ data: [safeCash, simpanan, pribadi, tringRupiah, jago], backgroundColor: ['#2ecc71', '#9b59b6', '#00b4d8', '#f1c40f', '#e67e22'], borderWidth: 0, hoverOffset: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } } } });
+            financeChart = new Chart(ctx1, { type: 'doughnut', data: { labels: ['Tunai', 'Simpanan', 'Pribadi', 'Tring', 'Jago'], datasets: [{ data: [safeCash, simpanan, pribadi, tringRupiah, jago], backgroundColor: ['#2ecc71', '#9b59b6', '#00b4d8', '#f1c40f', '#e67e22'], borderWidth: 0, hoverOffset: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } } });
 
             if (comparisonChart) comparisonChart.destroy();
             const isDark = document.body.getAttribute('data-theme') === 'dark'; const textColor = isDark ? '#f8fafc' : '#2b2d42'; const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)';
-            comparisonChart = new Chart(ctx2, { type: 'bar', data: { labels: monthlyLabels, datasets: [ { label: 'Pemasukan', data: monthlyIncomeData, backgroundColor: '#2ecc71', borderRadius: 6, barThickness: 24 }, { label: 'Pengeluaran', data: monthlyExpenseData, backgroundColor: '#fb7185', borderRadius: 6, barThickness: 24 } ] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 11 } } }, y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 11 } } } }, plugins: { legend: { labels: { color: textColor, font: { size: 11 } } } } } });
+            comparisonChart = new Chart(ctx2, { type: 'bar', data: { labels: monthlyLabels, datasets: [ { label: 'Masuk', data: monthlyIncomeData, backgroundColor: '#2ecc71', borderRadius: 4 }, { label: 'Keluar', data: monthlyExpenseData, backgroundColor: '#fb7185', borderRadius: 4 } ] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 } } }, y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 } } } }, plugins: { legend: { labels: { color: textColor, font: { size: 10 } } } } } });
         }
 
         function updateGoalsUI(totalWealth, totalGold) {
-            let wealthPercent = (totalWealth / financialGoals.wealthGoal) * 100; if (wealthPercent > 100) wealthPercent = 100; wealthBar.style.width = wealthPercent + '%'; wealthText.innerText = `${formatRp(totalWealth)} / ${formatRp(financialGoals.wealthGoal)} (${wealthPercent.toFixed(1)}%)`;
-            let goldPercent = (totalGold / financialGoals.goldGoal) * 100; if (goldPercent > 100) goldPercent = 100; goldBar.style.width = goldPercent + '%'; goldText.innerText = `${formatRp(totalGold)} / ${formatRp(financialGoals.goldGoal)} (${goldPercent.toFixed(1)}%)`;
+            let wealthPercent = (totalWealth / financialGoals.wealthGoal) * 100; if (wealthPercent > 100) wealthPercent = 100; wealthBar.style.width = wealthPercent + '%'; wealthText.innerText = `${wealthPercent.toFixed(1)}%`;
+            let goldPercent = (totalGold / financialGoals.goldGoal) * 100; if (goldPercent > 100) goldPercent = 100; goldBar.style.width = goldPercent + '%'; goldText.innerText = `${goldPercent.toFixed(1)}%`;
         }
 
         function setGoals() {
             let newWealth = prompt("Masukkan Target Akumulasi Dana & Aset Akhir Tahun (Rp):", financialGoals.wealthGoal);
             if (newWealth !== null && !isNaN(newWealth) && newWealth.trim() !== "") {
                 let newGold = prompt("Masukkan Target Total Aset Emas Akhir Tahun (Rp):", financialGoals.goldGoal);
-                if (newGold !== null && !isNaN(newGold) && newGold.trim() !== "") { financialGoals.wealthGoal = parseInt(newWealth); financialGoals.goldGoal = parseInt(newGold); localStorage.setItem('financialGoals', JSON.stringify(financialGoals)); updateUI(); alert("Target berhasil diperbarui!"); }
+                if (newGold !== null && !isNaN(newGold) && newGold.trim() !== "") { financialGoals.wealthGoal = parseInt(newWealth); financialGoals.goldGoal = parseInt(newGold); localStorage.setItem('financialGoals', JSON.stringify(financialGoals)); updateUI(); alert("Target diperbarui!"); }
             }
         }
 
@@ -651,8 +659,8 @@
             const mData = globalMonthlyData[selectedKey]; const totalOut = mData.expense + mData.jago; const activeSaving = mData.jago;
             let savingsRate = 0; if (mData.income > 0) { savingsRate = (activeSaving / mData.income) * 100; if(savingsRate < 0) savingsRate = 0; }
             savingsRateEl.innerText = savingsRate.toFixed(1) + "%";
-            if (mData.income === 0 && totalOut === 0) { statusEl.innerText = "Netral"; statusEl.style.color = "var(--text-gray)"; } else if (mData.income >= totalOut + activeSaving && savingsRate >= 20) { statusEl.innerText = "🚀 Sangat Sehat"; statusEl.style.color = "var(--income)"; } else if (mData.income >= totalOut) { statusEl.innerText = "👍 Stabil / Cukup"; statusEl.style.color = "var(--primary)"; } else { statusEl.innerText = "⚠️ Defisit (Boncos)"; statusEl.style.color = "var(--expense)"; }
-            if (mData.topExpenseAmt > 0) topExpenseEl.innerText = `${mData.topExpenseName} (${formatRp(mData.topExpenseAmt)})`; else topExpenseEl.innerText = "Tidak ada pengeluaran";
+            if (mData.income === 0 && totalOut === 0) { statusEl.innerText = "Netral"; statusEl.style.color = "var(--text-gray)"; } else if (mData.income >= totalOut + activeSaving && savingsRate >= 20) { statusEl.innerText = "🚀 Sangat Sehat"; statusEl.style.color = "var(--income)"; } else if (mData.income >= totalOut) { statusEl.innerText = "👍 Stabil"; statusEl.style.color = "var(--primary)"; } else { statusEl.innerText = "⚠️ Defisit"; statusEl.style.color = "var(--expense)"; }
+            if (mData.topExpenseAmt > 0) topExpenseEl.innerText = `${mData.topExpenseName} (${formatRp(mData.topExpenseAmt)})`; else topExpenseEl.innerText = "Tidak ada";
         }
 
         function updateUI() {
@@ -702,7 +710,7 @@
         }
 
         function resetData() {
-            if (confirm("Peringatan: Database lokal akan dihapus. Data di Sheet online tidak dihapus otomatis.")) {
+            if (confirm("Peringatan: Database lokal akan dihapus.")) {
                 transactions = []; saveToLocal(); localStorage.removeItem('financialGoals'); financialGoals = { wealthGoal: 50000000, goldGoal: 10000000 }; updateUI();
             }
         }
