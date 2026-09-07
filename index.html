@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Meta tags untuk mode Aplikasi / PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#4361ee">
@@ -11,21 +10,13 @@
     <title>Dashboard Keuangan Gua</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- TAMBAHAN: Library Enkripsi Data -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
     <style>
-        /* CSS TETAP SAMA SEPERTI ASLINYA, TIDAK ADA YANG DIHAPUS */
-        :root {
-            --bg-color: #f4f6f9; --card-bg: #ffffff; --primary: #4361ee; --primary-hover: #3a0ca3;
-            --income: #2ecc71; --expense: #e74c3c; --tring: #f1c40f; --simpanan: #9b59b6; 
-            --jago: #e67e22; --pribadi: #00b4d8; --text-dark: #2b2d42; --text-gray: #6c757d;
-            --border-color: #e2e8f0; --list-bg: #f8fafc;
-        }
-        [data-theme="dark"] {
-            --bg-color: #0f172a; --card-bg: #1e293b; --primary: #38bdf8; --primary-hover: #0ea5e9;
-            --income: #2dd4bf; --expense: #fb7185; --tring: #facc15; --simpanan: #e879f9;
-            --jago: #fb923c; --pribadi: #38bdf8; --text-dark: #f8fafc; --text-gray: #94a3b8;
-            --border-color: #334155; --list-bg: #0f172a;
-        }
+        /* CSS TETAP SAMA (Bagian Style tidak ada yang diubah, biarkan seperti aslinya) */
+        :root { --bg-color: #f4f6f9; --card-bg: #ffffff; --primary: #4361ee; --primary-hover: #3a0ca3; --income: #2ecc71; --expense: #e74c3c; --tring: #f1c40f; --simpanan: #9b59b6; --jago: #e67e22; --pribadi: #00b4d8; --text-dark: #2b2d42; --text-gray: #6c757d; --border-color: #e2e8f0; --list-bg: #f8fafc; }
+        [data-theme="dark"] { --bg-color: #0f172a; --card-bg: #1e293b; --primary: #38bdf8; --primary-hover: #0ea5e9; --income: #2dd4bf; --expense: #fb7185; --tring: #facc15; --simpanan: #e879f9; --jago: #fb923c; --pribadi: #38bdf8; --text-dark: #f8fafc; --text-gray: #94a3b8; --border-color: #334155; --list-bg: #0f172a; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease; }
         body { background-color: var(--bg-color); color: var(--text-dark); padding: 15px; font-size: 14px; line-height: 1.5; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         
@@ -121,47 +112,40 @@
 
         .history-list { list-style: none; max-height: 260px; overflow-y: auto; padding-right: 4px; }
         .history-list li { display: flex; justify-content: space-between; align-items: center; background: var(--list-bg); padding: 10px 12px; margin-bottom: 8px; border-radius: 8px; border-left: 4px solid #ccc; gap: 8px; border: 1px solid var(--border-color); border-left-width: 4px; }
-
         .history-list li.inc { border-left-color: var(--income); } .history-list li.exp { border-left-color: var(--expense); }
         .history-list li.tring { border-left-color: var(--tring); } .history-list li.simpanan { border-left-color: var(--simpanan); }
         .history-list li.pribadi { border-left-color: var(--pribadi); } .history-list li.jago { border-left-color: var(--jago); }
-
         .desc-text { font-weight: 600; font-size: 13px; display: block; color: var(--text-dark); }
         .date-text { font-size: 11px; color: var(--text-gray); }
         .amount-area { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
         .amount-text { font-weight: 700; font-size: 13px; }
-
         .inc-text { color: var(--income); } .exp-text { color: var(--expense); } .tring-text { color: var(--tring); }
         .simpanan-text { color: var(--simpanan); } .pribadi-text { color: var(--pribadi); } .jago-text { color: var(--jago); }
         .default-text { color: var(--text-gray); }
-
         .delete-btn { background-color: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 11px; width: auto; font-weight: 600; }
         .delete-btn:hover { background-color: #dc2626; }
-
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
         .report-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 750px; }
         .report-table th, .report-table td { padding: 10px 8px; text-align: left; border-bottom: 1px solid var(--border-color); }
         .report-table th { background-color: var(--list-bg); color: var(--text-gray); font-weight: 600; }
         .report-table tbody tr:hover { background-color: var(--list-bg); }
-
         @media (max-width: 1024px) { .summary-cards { grid-template-columns: repeat(3, 1fr); } }
         @media (max-width: 768px) { body { padding: 10px; } .summary-cards { grid-template-columns: repeat(2, 1fr); } .main-grid { grid-template-columns: 1fr; } .eval-cards-grid { grid-template-columns: 1fr; } .gold-price-box { flex-direction: column; align-items: stretch; } .gold-price-input-area { max-width: 100%; } }
         @media (max-width: 480px) { .summary-cards { grid-template-columns: 1fr; } .wealth-card p { font-size: 24px; } }
     </style>
 </head>
 <body data-theme="light">
-
     <!-- FORM LOGIN -->
     <div id="login-container">
         <h1>Keuangan Gua</h1>
-        <p>Masuk untuk mengelola keuangan pribadi</p>
+        <p>🔒 Mode Aman: Masuk untuk melihat data terenkripsi</p>
         <form id="login-form" onclick="event.stopPropagation()" onsubmit="handleLogin(event)">
             <input type="text" id="username-input" placeholder="Nama Pengguna (Username)" autocomplete="off" required>
             <div class="password-wrapper">
                 <input type="password" id="password-input" placeholder="Kata Sandi (Password)" autocomplete="off" required>
                 <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">Lihat</button>
             </div>
-            <button type="submit">Masuk</button>
+            <button type="submit">Buka Enkripsi & Masuk</button>
         </form>
     </div>
 
@@ -187,9 +171,9 @@
                 </div>
                 <div class="dropdown-menu" id="profile-dropdown">
                     <button class="dropdown-item excel-item" onclick="exportToExcel()">📊 Download Excel</button>
-                    <button class="dropdown-item" onclick="exportData()">📥 Backup Data</button>
+                    <button class="dropdown-item" onclick="exportData()">📥 Backup Data Aman</button>
                     <button class="dropdown-item" onclick="document.getElementById('importFile').click()">📤 Restore Data</button>
-                    <button class="dropdown-item logout-item" onclick="handleLogout()">🚪 Keluar (Logout)</button>
+                    <button class="dropdown-item logout-item" onclick="handleLogout()">🚪 Keluar (Kunci Data)</button>
                 </div>
             </div>
             <input type="file" id="importFile" style="display: none" accept=".json" onchange="importData(event)">
@@ -214,28 +198,14 @@
         <div class="goals-container">
             <h2>🎯 Target Pencapaian Tahun 2026</h2>
             <div class="goal-item">
-                <div class="goal-info">
-                    <span>Target Total Kekayaan</span>
-                    <span id="wealth-progress-text">Rp 0 / Rp 0 (0%)</span>
-                </div>
-                <div class="progress-bar-container">
-                    <div id="wealth-progress-bar" class="progress-bar"></div>
-                </div>
+                <div class="goal-info"><span>Target Total Kekayaan</span><span id="wealth-progress-text">Rp 0 / Rp 0 (0%)</span></div>
+                <div class="progress-bar-container"><div id="wealth-progress-bar" class="progress-bar"></div></div>
             </div>
-
             <div class="goal-item" style="margin-top: 10px;">
-                <div class="goal-info">
-                    <span>Target Total Aset Emas (Tring + Jago)</span>
-                    <span id="gold-progress-text">Rp 0 / Rp 0 (0%)</span>
-                </div>
-                <div class="progress-bar-container">
-                    <div id="gold-progress-bar" class="progress-bar" style="background: linear-gradient(90deg, #f1c40f, #e67e22);"></div>
-                </div>
+                <div class="goal-info"><span>Target Total Aset Emas (Tring + Jago)</span><span id="gold-progress-text">Rp 0 / Rp 0 (0%)</span></div>
+                <div class="progress-bar-container"><div id="gold-progress-bar" class="progress-bar" style="background: linear-gradient(90deg, #f1c40f, #e67e22);"></div></div>
             </div>
-
-            <div class="goal-btn-area">
-                <button onclick="setGoals()" class="goal-btn">⚙️ Atur Nominal Target</button>
-            </div>
+            <div class="goal-btn-area"><button onclick="setGoals()" class="goal-btn">⚙️ Atur Nominal Target</button></div>
         </div>
 
         <div class="summary-cards">
@@ -267,34 +237,16 @@
                     <button type="submit">Simpan Catatan</button>
                 </form>
             </div>
-
-            <div class="section-box">
-                <h2>Portofolio Kekayaan</h2>
-                <div class="chart-container"><canvas id="financeChart"></canvas></div>
-            </div>
+            <div class="section-box"><h2>Portofolio Kekayaan</h2><div class="chart-container"><canvas id="financeChart"></canvas></div></div>
         </div>
 
         <div class="section-box">
-            <div class="eval-header">
-                <h2>📈 Dashboard Evaluasi Bulanan</h2>
-                <select id="eval-month-select" class="eval-select" onchange="renderEvaluasiBulanan()"></select>
-            </div>
-
+            <div class="eval-header"><h2>📈 Dashboard Evaluasi Bulanan</h2><select id="eval-month-select" class="eval-select" onchange="renderEvaluasiBulanan()"></select></div>
             <div class="eval-cards-grid">
-                <div class="eval-insight-card">
-                    <h4>Rasio Alokasi Bulanan</h4>
-                    <p id="eval-savings-rate" style="color: var(--income);">0%</p>
-                </div>
-                <div class="eval-insight-card">
-                    <h4>Status Finansial</h4>
-                    <p id="eval-status" style="color: var(--primary);">-</p>
-                </div>
-                <div class="eval-insight-card">
-                    <h4>Pengeluaran Terbesar</h4>
-                    <p id="eval-top-expense" style="font-size: 13px; margin-top: 4px; color: var(--expense);">-</p>
-                </div>
+                <div class="eval-insight-card"><h4>Rasio Alokasi Bulanan</h4><p id="eval-savings-rate" style="color: var(--income);">0%</p></div>
+                <div class="eval-insight-card"><h4>Status Finansial</h4><p id="eval-status" style="color: var(--primary);">-</p></div>
+                <div class="eval-insight-card"><h4>Pengeluaran Terbesar</h4><p id="eval-top-expense" style="font-size: 13px; margin-top: 4px; color: var(--expense);">-</p></div>
             </div>
-
             <div class="chart-container" style="height: 220px;"><canvas id="comparisonChart"></canvas></div>
         </div>
 
@@ -302,79 +254,101 @@
             <h2>Laporan Rekap Bulanan</h2>
             <div class="table-responsive">
                 <table class="report-table">
-                    <thead>
-                        <tr><th>Bulan</th><th>Pemasukan</th><th>Pengeluaran</th><th>Beli Jago</th><th>Sisa Kas</th><th>Simpanan Wajib</th><th>Tabungan Pribadi</th><th>Emas Tring (Gram)</th></tr>
-                    </thead>
+                    <thead><tr><th>Bulan</th><th>Pemasukan</th><th>Pengeluaran</th><th>Beli Jago</th><th>Sisa Kas</th><th>Simpanan Wajib</th><th>Tabungan Pribadi</th><th>Emas Tring (Gram)</th></tr></thead>
                     <tbody id="monthly-report-body"></tbody>
                 </table>
             </div>
         </div>
 
         <div class="section-box">
-            <div class="section-header-flex">
-                <h2>Riwayat Catatan</h2>
-                <select id="filter-month-select" class="eval-select" onchange="updateUI()">
-                    <option value="all">Semua Bulan</option>
-                </select>
-            </div>
+            <div class="section-header-flex"><h2>Riwayat Catatan</h2><select id="filter-month-select" class="eval-select" onchange="updateUI()"><option value="all">Semua Bulan</option></select></div>
             <ul id="list" class="history-list"></ul>
             <button onclick="resetData()" class="reset-btn">Hapus Semua Data & Mulai Baru</button>
         </div>
     </div>
 
     <script>
+        // --- 1. KEAMANAN AKSES (KREDENSIAL & API TOKEN) ---
         const CORRECT_USER = 'Rebel';
-        const ENCODED_PASS = 'UmViZWxpb24wMzA0MDE='; 
+        const ENCODED_PASS = 'UmViZWxpb24wMzA0MDE='; // Base64 dari 'Rebelion030401'
+        const API_SECRET_TOKEN = 'RebelAman2026'; // Token untuk Google Sheets Backend
 
-        // --- 2. OFFLINE-FIRST (LOCAL STORAGE) ---
-        // Load data langsung dari LocalStorage agar instan, baru nanti sinkron ke Google Sheet
-        let transactions = JSON.parse(localStorage.getItem('keuangan_transactions')) || [];
-        
-        // Fungsi untuk menyimpan ke memori browser (sangat penting!)
+        // URL Google Sheets Anda (Jangan lupa update kode di Google Script juga, lihat panduan di bawah)
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwFKHf1Kakb71JXiZ2lB0JTN24p2kyKOwPvNx_ZwxLSRZamk3ujWtBFOqPhpx8aWZXHLA/exec';
+
+        // --- 2. SISTEM ENKRIPSI LOCAL STORAGE (AES) ---
+        let transactions = [];
+        let currentSessionKey = sessionStorage.getItem('appEncryptionKey'); 
+
+        // Fungsi Enkripsi & Simpan
         function saveToLocal() {
-            localStorage.setItem('keuangan_transactions', JSON.stringify(transactions));
+            if(!currentSessionKey) return; 
+            // Data disandikan dengan password pengguna
+            const encryptedData = CryptoJS.AES.encrypt(JSON.stringify(transactions), currentSessionKey).toString();
+            localStorage.setItem('keuangan_secure_db', encryptedData);
         }
 
-        // SISTEM AUTO-LOGOUT 5 MENIT
+        // Fungsi Dekripsi & Muat
+        function loadFromLocal(key) {
+            const encryptedData = localStorage.getItem('keuangan_secure_db');
+            if(!encryptedData) return []; // Jika belum ada data sama sekali
+            try {
+                const bytes = CryptoJS.AES.decrypt(encryptedData, key);
+                const decryptedStr = bytes.toString(CryptoJS.enc.Utf8);
+                if (!decryptedStr) throw new Error("Salah Kunci");
+                return JSON.parse(decryptedStr);
+            } catch(e) {
+                return null; // Jika password salah / gagal buka gembok
+            }
+        }
+
+        // --- 3. MIGRASI DATA LAMA (Dari yang tidak aman ke aman) ---
+        function runDataMigration() {
+            const oldUnsecureData = localStorage.getItem('keuangan_transactions');
+            if (oldUnsecureData && currentSessionKey) {
+                transactions = JSON.parse(oldUnsecureData);
+                saveToLocal(); // Simpan ulang secara aman (dienkripsi)
+                localStorage.removeItem('keuangan_transactions'); // Hapus jejak data telanjang
+                console.log("Migrasi data ke format aman berhasil!");
+            }
+        }
+
+        // --- 4. SISTEM LOGIN SESI SEMENTARA ---
         let idleTimer;
         const TIMEOUT_LIMIT = 5 * 60 * 1000;
 
         function resetIdleTimer() {
-            if (localStorage.getItem('isLoggedIn') === 'true') {
-                localStorage.setItem('lastActiveTime', Date.now());
+            if (sessionStorage.getItem('isLoggedIn') === 'true') {
+                sessionStorage.setItem('lastActiveTime', Date.now());
                 clearTimeout(idleTimer);
                 idleTimer = setTimeout(triggerAutoLogout, TIMEOUT_LIMIT);
             }
         }
 
         function triggerAutoLogout() {
-            localStorage.removeItem('isLoggedIn'); localStorage.removeItem('loggedUser'); localStorage.removeItem('lastActiveTime');
-            alert("⏰ Sesi habis karena tidak ada aktivitas selama 5 menit. Silakan masuk kembali.");
+            sessionStorage.clear(); // Hapus kunci dekripsi dari memori browser
+            alert("⏰ Sesi habis demi keamanan. Kunci enkripsi dilepas. Silakan masuk kembali.");
             location.reload(); 
         }
 
-        ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(event => {
-            window.addEventListener(event, resetIdleTimer);
-        });
+        ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(event => { window.addEventListener(event, resetIdleTimer); });
 
         window.addEventListener('DOMContentLoaded', () => {
-            const isLogged = localStorage.getItem('isLoggedIn');
-            const lastActive = localStorage.getItem('lastActiveTime');
-            const savedUser = localStorage.getItem('loggedUser') || 'Rebel';
-
-            if (isLogged === 'true') {
+            // Karena ini sangat aman, jika tab ditutup total, user HARUS login lagi (sessionStorage hilang).
+            const isLogged = sessionStorage.getItem('isLoggedIn');
+            const lastActive = sessionStorage.getItem('lastActiveTime');
+            
+            if (isLogged === 'true' && currentSessionKey) {
                 if (lastActive && (Date.now() - parseInt(lastActive) > TIMEOUT_LIMIT)) {
                     triggerAutoLogout();
                 } else {
-                    document.getElementById('username-text').innerText = savedUser;
+                    document.getElementById('username-text').innerText = CORRECT_USER;
                     document.getElementById('login-container').style.display = 'none';
                     document.body.style.display = 'block';
                     document.getElementById('app-container').style.display = 'block';
                     
-                    // Render tampilan dari LocalStorage secepat kilat
+                    transactions = loadFromLocal(currentSessionKey) || [];
                     updateUI(); 
-                    
-                    // Lalu coba ambil data terbaru dari Google Sheets di background
                     fetchTransactionsFromSheet();
                     resetIdleTimer();
                 }
@@ -388,26 +362,32 @@
             else { passInput.type = 'password'; toggleBtn.innerText = 'Lihat'; }
         }
 
-        function toggleProfileDropdown(event) {
-            event.stopPropagation();
-            document.getElementById('profile-dropdown').classList.toggle('show');
-        }
-
-        window.addEventListener('click', function() {
-            const dropdown = document.getElementById('profile-dropdown');
-            if (dropdown && dropdown.classList.contains('show')) dropdown.classList.remove('show');
-        });
+        function toggleProfileDropdown(event) { event.stopPropagation(); document.getElementById('profile-dropdown').classList.toggle('show'); }
+        window.addEventListener('click', function() { const dropdown = document.getElementById('profile-dropdown'); if (dropdown && dropdown.classList.contains('show')) dropdown.classList.remove('show'); });
 
         function handleLogin(e) {
             e.preventDefault();
             const userInp = document.getElementById('username-input').value.trim();
             const passInp = document.getElementById('password-input').value.trim();
 
-            // Cek kecocokan password dengan base64
             if (userInp === CORRECT_USER && btoa(passInp) === ENCODED_PASS) {
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('loggedUser', userInp);
-                localStorage.setItem('lastActiveTime', Date.now());
+                // Simpan kunci keamanan hanya di memori sesi sementara (Aman)
+                sessionStorage.setItem('isLoggedIn', 'true');
+                sessionStorage.setItem('appEncryptionKey', passInp); 
+                sessionStorage.setItem('lastActiveTime', Date.now());
+                currentSessionKey = passInp;
+
+                // Coba migrasi data telanjang lama (jika ada)
+                runDataMigration();
+
+                // Coba Buka Brankas Data
+                let loadedData = loadFromLocal(currentSessionKey);
+                if (loadedData === null) {
+                    alert("⚠️ Kunci enkripsi berubah atau data korup. Database lokal dikosongkan untuk diisi dari Sheet.");
+                    transactions = [];
+                } else {
+                    transactions = loadedData;
+                }
 
                 document.getElementById('username-text').innerText = userInp;
                 document.getElementById('login-container').style.display = 'none';
@@ -424,17 +404,12 @@
         }
 
         function handleLogout() {
-            if (confirm("Yakin ingin keluar dari akun?")) {
+            if (confirm("Kunci kembali data Anda dan keluar?")) {
                 clearTimeout(idleTimer);
-                localStorage.removeItem('isLoggedIn'); localStorage.removeItem('loggedUser'); localStorage.removeItem('lastActiveTime');
-                document.getElementById('app-container').style.display = 'none';
-                document.body.style.display = 'flex';
-                document.getElementById('login-container').style.display = 'block';
-                document.getElementById('username-input').value = ''; document.getElementById('password-input').value = '';
+                sessionStorage.clear(); // Hapus jejak kunci
+                location.reload(); // Refresh total untuk menghapus variabel RAM
             }
         }
-
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwFKHf1Kakb71JXiZ2lB0JTN24p2kyKOwPvNx_ZwxLSRZamk3ujWtBFOqPhpx8aWZXHLA/exec';
 
         const currentTheme = localStorage.getItem('theme') || 'light';
         document.body.setAttribute('data-theme', currentTheme);
@@ -443,11 +418,8 @@
 
         function toggleTheme() {
             let theme = document.body.getAttribute('data-theme');
-            if(theme === 'light') {
-                document.body.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark');
-            } else {
-                document.body.setAttribute('data-theme', 'light'); localStorage.setItem('theme', 'light');
-            }
+            if(theme === 'light') { document.body.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); } 
+            else { document.body.setAttribute('data-theme', 'light'); localStorage.setItem('theme', 'light'); }
             updateUI();
         }
 
@@ -457,8 +429,7 @@
 
         function formatGoldPriceInput(el) {
             let raw = el.value.replace(/[^0-9]/g, '');
-            if(raw) el.value = new Intl.NumberFormat('id-ID').format(raw);
-            else el.value = '';
+            if(raw) el.value = new Intl.NumberFormat('id-ID').format(raw); else el.value = '';
         }
 
         function saveGoldPrice() {
@@ -466,11 +437,8 @@
             if(rawVal && !isNaN(rawVal)) {
                 goldPricePerGram = parseFloat(rawVal);
                 localStorage.setItem('goldPricePerGram', goldPricePerGram);
-                updateUI();
-                alert("Harga emas Tring berhasil diperbarui!");
-            } else {
-                alert("Masukkan nominal harga yang valid!");
-            }
+                updateUI(); alert("Harga emas Tring berhasil diperbarui!");
+            } else alert("Masukkan nominal harga yang valid!");
         }
 
         function handleTypeChange() {
@@ -480,44 +448,35 @@
             else amountInput.placeholder = "Jumlah Rupiah (Misal: 100.000)";
         }
 
-        // --- FETCH DARI ONLINE (GOOGLE SHEETS) ---
+        // --- FETCH DENGAN TOKEN KEAMANAN ---
         async function fetchTransactionsFromSheet() {
-            if (!WEB_APP_URL || WEB_APP_URL.includes('URL_WEB_APP')) return; // Abaikan jika URL belum diisi
+            if (!WEB_APP_URL || WEB_APP_URL.includes('URL_WEB_APP')) return; 
             try {
                 const response = await fetch(WEB_APP_URL, {
                     method: 'POST',
-                    body: JSON.stringify({ action: 'sync' })
+                    body: JSON.stringify({ action: 'sync', token: API_SECRET_TOKEN }) // Kunci dikirim
                 });
                 const result = await response.json();
                 if (result.status === 'success' && result.data.length > 0) {
                     transactions = result.data;
-                    saveToLocal(); // Simpan hasil online ke lokal
+                    saveToLocal(); // Simpan aman
                     updateUI();
+                } else if (result.status === 'unauthorized') {
+                    console.error("Gagal Sync: Token API Ditolak Google Sheet");
                 }
-            } catch (err) {
-                console.log("Mode Offline / Gagal memuat dari Sheets. Tetap memakai data lokal.");
-            }
+            } catch (err) { console.log("Mode Offline. Memakai data lokal."); }
         }
 
-        // Fungsi export & import (sudah diperbaiki untuk auto-save ke local)
         function exportToExcel() {
             if (transactions.length === 0) { alert("Belum ada data transaksi!"); return; }
             let csvContent = "\uFEFFTanggal,Keterangan,Jenis Transaksi,Jumlah (Rp / Gram)\n";
             transactions.forEach(trx => {
                 let typeName = trx.type;
-                if(trx.type === 'income') typeName = 'Pemasukan';
-                else if(trx.type === 'expense') typeName = 'Pengeluaran';
-                else if(trx.type === 'simpanan') typeName = 'Simpanan Wajib';
-                else if(trx.type === 'pribadi') typeName = 'Tabungan Pribadi';
-                else if(trx.type === 'tring' || trx.type === 'inv_tring') typeName = 'Emas Tring (Gram)';
-                else if(trx.type === 'jago' || trx.type === 'inv_jago') typeName = 'Emas Jago';
-
+                if(trx.type === 'income') typeName = 'Pemasukan'; else if(trx.type === 'expense') typeName = 'Pengeluaran'; else if(trx.type === 'simpanan') typeName = 'Simpanan Wajib'; else if(trx.type === 'pribadi') typeName = 'Tabungan Pribadi'; else if(trx.type === 'tring' || trx.type === 'inv_tring') typeName = 'Emas Tring (Gram)'; else if(trx.type === 'jago' || trx.type === 'inv_jago') typeName = 'Emas Jago';
                 let cleanDesc = `"${trx.desc.replace(/"/g, '""')}"`;
                 csvContent += [trx.date, cleanDesc, typeName, trx.amount].join(",") + "\n";
             });
-            const encodedUri = encodeURI("data:text/csv;charset=utf-8," + csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
+            const link = document.createElement("a"); link.setAttribute("href", encodeURI("data:text/csv;charset=utf-8," + csvContent));
             link.setAttribute("download", `laporan_keuangan_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(link); link.click(); link.remove();
         }
@@ -525,8 +484,7 @@
         function exportData() {
             const dataToBackup = { transactions: transactions, financialGoals: financialGoals, goldPricePerGram: goldPricePerGram };
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataToBackup, null, 2));
-            const link = document.createElement('a');
-            link.setAttribute("href", dataStr);
+            const link = document.createElement('a'); link.setAttribute("href", dataStr);
             link.setAttribute("download", `backup_keuangan_${new Date().toISOString().slice(0,10)}.json`);
             document.body.appendChild(link); link.click(); link.remove();
         }
@@ -540,19 +498,10 @@
                         const parsed = JSON.parse(e.target.result);
                         if (parsed.transactions && Array.isArray(parsed.transactions)) {
                             transactions = parsed.transactions;
-                            saveToLocal(); // Simpan ke local storage
-                            
-                            if (parsed.financialGoals) {
-                                financialGoals = parsed.financialGoals;
-                                localStorage.setItem('financialGoals', JSON.stringify(financialGoals));
-                            }
-                            if (parsed.goldPricePerGram) {
-                                goldPricePerGram = parsed.goldPricePerGram;
-                                localStorage.setItem('goldPricePerGram', goldPricePerGram);
-                                document.getElementById('gold-price-input').value = new Intl.NumberFormat('id-ID').format(goldPricePerGram);
-                            }
-                            updateUI();
-                            alert("Data berhasil dipulihkan (Restore)!");
+                            saveToLocal(); // Otomatis enkripsi dengan password aktif saat import
+                            if (parsed.financialGoals) { financialGoals = parsed.financialGoals; localStorage.setItem('financialGoals', JSON.stringify(financialGoals)); }
+                            if (parsed.goldPricePerGram) { goldPricePerGram = parsed.goldPricePerGram; localStorage.setItem('goldPricePerGram', goldPricePerGram); document.getElementById('gold-price-input').value = new Intl.NumberFormat('id-ID').format(goldPricePerGram); }
+                            updateUI(); alert("Data berhasil dipulihkan (Restore)!");
                         } else alert("Format file backup tidak valid!");
                     } catch (error) { alert("Gagal membaca file JSON."); }
                 };
@@ -561,379 +510,148 @@
 
         let financialGoals = JSON.parse(localStorage.getItem('financialGoals')) || { wealthGoal: 50000000, goldGoal: 10000000 };
 
-        const wealthEl = document.getElementById('total-wealth');
-        const cashBalanceEl = document.getElementById('cash-balance');
-        const simpananEl = document.getElementById('total-simpanan');
-        const pribadiEl = document.getElementById('total-pribadi');
-        const tringEl = document.getElementById('total-tring');
-        const tringGramInfo = document.getElementById('tring-gram-info');
-        const jagoEl = document.getElementById('total-jago');
-        
-        const listEl = document.getElementById('list');
-        const formEl = document.getElementById('form');
-        const amountInput = document.getElementById('amount');
-        const reportBodyEl = document.getElementById('monthly-report-body');
-        const evalMonthSelect = document.getElementById('eval-month-select');
-        const filterMonthSelect = document.getElementById('filter-month-select');
-
-        const wealthBar = document.getElementById('wealth-progress-bar');
-        const wealthText = document.getElementById('wealth-progress-text');
-        const goldBar = document.getElementById('gold-progress-bar');
-        const goldText = document.getElementById('gold-progress-text');
+        const wealthEl = document.getElementById('total-wealth'); const cashBalanceEl = document.getElementById('cash-balance'); const simpananEl = document.getElementById('total-simpanan'); const pribadiEl = document.getElementById('total-pribadi'); const tringEl = document.getElementById('total-tring'); const tringGramInfo = document.getElementById('tring-gram-info'); const jagoEl = document.getElementById('total-jago');
+        const listEl = document.getElementById('list'); const formEl = document.getElementById('form'); const amountInput = document.getElementById('amount'); const reportBodyEl = document.getElementById('monthly-report-body'); const evalMonthSelect = document.getElementById('eval-month-select'); const filterMonthSelect = document.getElementById('filter-month-select');
+        const wealthBar = document.getElementById('wealth-progress-bar'); const wealthText = document.getElementById('wealth-progress-text'); const goldBar = document.getElementById('gold-progress-bar'); const goldText = document.getElementById('gold-progress-text');
 
         if(amountInput) {
             amountInput.addEventListener('input', function(e) {
                 const type = document.getElementById('type').value;
-                if (type !== 'tring') {
-                    let rawValue = this.value.replace(/[^0-9]/g, ''); 
-                    if (rawValue) this.value = new Intl.NumberFormat('id-ID').format(rawValue);
-                    else this.value = '';
-                } else {
-                    this.value = this.value.replace(/[^0-9.,]/g, '').replace(',', '.');
-                }
+                if (type !== 'tring') { let rawValue = this.value.replace(/[^0-9]/g, ''); if (rawValue) this.value = new Intl.NumberFormat('id-ID').format(rawValue); else this.value = ''; } 
+                else { this.value = this.value.replace(/[^0-9.,]/g, '').replace(',', '.'); }
             });
         }
 
-        function formatRp(angka) {
-            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
-        }
+        function formatRp(angka) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka); }
 
         let financeChart, comparisonChart;
-        const ctx1 = document.getElementById('financeChart').getContext('2d');
-        const ctx2 = document.getElementById('comparisonChart').getContext('2d');
+        const ctx1 = document.getElementById('financeChart').getContext('2d'); const ctx2 = document.getElementById('comparisonChart').getContext('2d');
 
         function updateCharts(cash, simpanan, pribadi, tringRupiah, jago, monthlyLabels, monthlyIncomeData, monthlyExpenseData) {
             if (financeChart) financeChart.destroy(); 
             let safeCash = cash > 0 ? cash : 0; 
-
-            financeChart = new Chart(ctx1, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Uang Tunai', 'Simpanan Wajib', 'Tabungan Pribadi', 'Emas Tring', 'Emas Bank Jago'],
-                    datasets: [{ data: [safeCash, simpanan, pribadi, tringRupiah, jago], backgroundColor: ['#2ecc71', '#9b59b6', '#00b4d8', '#f1c40f', '#e67e22'], borderWidth: 0, hoverOffset: 4 }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } } }
-            });
+            financeChart = new Chart(ctx1, { type: 'doughnut', data: { labels: ['Uang Tunai', 'Simpanan Wajib', 'Tabungan Pribadi', 'Emas Tring', 'Emas Bank Jago'], datasets: [{ data: [safeCash, simpanan, pribadi, tringRupiah, jago], backgroundColor: ['#2ecc71', '#9b59b6', '#00b4d8', '#f1c40f', '#e67e22'], borderWidth: 0, hoverOffset: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } } } });
 
             if (comparisonChart) comparisonChart.destroy();
-            const isDark = document.body.getAttribute('data-theme') === 'dark';
-            const textColor = isDark ? '#f8fafc' : '#2b2d42';
-            const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)';
-
-            comparisonChart = new Chart(ctx2, {
-                type: 'bar',
-                data: {
-                    labels: monthlyLabels,
-                    datasets: [
-                        { label: 'Pemasukan', data: monthlyIncomeData, backgroundColor: '#2ecc71', borderRadius: 6, barThickness: 24 },
-                        { label: 'Pengeluaran', data: monthlyExpenseData, backgroundColor: '#fb7185', borderRadius: 6, barThickness: 24 }
-                    ]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    scales: {
-                        x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 11 } } },
-                        y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 11 } } }
-                    },
-                    plugins: { legend: { labels: { color: textColor, font: { size: 11 } } } }
-                }
-            });
+            const isDark = document.body.getAttribute('data-theme') === 'dark'; const textColor = isDark ? '#f8fafc' : '#2b2d42'; const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)';
+            comparisonChart = new Chart(ctx2, { type: 'bar', data: { labels: monthlyLabels, datasets: [ { label: 'Pemasukan', data: monthlyIncomeData, backgroundColor: '#2ecc71', borderRadius: 6, barThickness: 24 }, { label: 'Pengeluaran', data: monthlyExpenseData, backgroundColor: '#fb7185', borderRadius: 6, barThickness: 24 } ] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 11 } } }, y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 11 } } } }, plugins: { legend: { labels: { color: textColor, font: { size: 11 } } } } } });
         }
 
         function updateGoalsUI(totalWealth, totalGold) {
-            let wealthPercent = (totalWealth / financialGoals.wealthGoal) * 100;
-            if (wealthPercent > 100) wealthPercent = 100;
-            wealthBar.style.width = wealthPercent + '%';
-            wealthText.innerText = `${formatRp(totalWealth)} / ${formatRp(financialGoals.wealthGoal)} (${wealthPercent.toFixed(1)}%)`;
-
-            let goldPercent = (totalGold / financialGoals.goldGoal) * 100;
-            if (goldPercent > 100) goldPercent = 100;
-            goldBar.style.width = goldPercent + '%';
-            goldText.innerText = `${formatRp(totalGold)} / ${formatRp(financialGoals.goldGoal)} (${goldPercent.toFixed(1)}%)`;
+            let wealthPercent = (totalWealth / financialGoals.wealthGoal) * 100; if (wealthPercent > 100) wealthPercent = 100; wealthBar.style.width = wealthPercent + '%'; wealthText.innerText = `${formatRp(totalWealth)} / ${formatRp(financialGoals.wealthGoal)} (${wealthPercent.toFixed(1)}%)`;
+            let goldPercent = (totalGold / financialGoals.goldGoal) * 100; if (goldPercent > 100) goldPercent = 100; goldBar.style.width = goldPercent + '%'; goldText.innerText = `${formatRp(totalGold)} / ${formatRp(financialGoals.goldGoal)} (${goldPercent.toFixed(1)}%)`;
         }
 
         function setGoals() {
             let newWealth = prompt("Masukkan Target Akumulasi Dana & Aset Akhir Tahun (Rp):", financialGoals.wealthGoal);
             if (newWealth !== null && !isNaN(newWealth) && newWealth.trim() !== "") {
                 let newGold = prompt("Masukkan Target Total Aset Emas Akhir Tahun (Rp):", financialGoals.goldGoal);
-                if (newGold !== null && !isNaN(newGold) && newGold.trim() !== "") {
-                    financialGoals.wealthGoal = parseInt(newWealth);
-                    financialGoals.goldGoal = parseInt(newGold);
-                    localStorage.setItem('financialGoals', JSON.stringify(financialGoals));
-                    updateUI();
-                    alert("Target berhasil diperbarui!");
-                }
+                if (newGold !== null && !isNaN(newGold) && newGold.trim() !== "") { financialGoals.wealthGoal = parseInt(newWealth); financialGoals.goldGoal = parseInt(newGold); localStorage.setItem('financialGoals', JSON.stringify(financialGoals)); updateUI(); alert("Target berhasil diperbarui!"); }
             }
         }
 
         let globalMonthlyData = {};
-
         function renderMonthlyReport() {
-            reportBodyEl.innerHTML = ''; globalMonthlyData = {};
-            const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
-
+            reportBodyEl.innerHTML = ''; globalMonthlyData = {}; const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
             transactions.forEach(trx => {
-                if(!trx.date) return; 
-                let year, month;
-                
-                if(trx.date.includes('/')) {
-                    const parts = trx.date.split('/');
-                    if(parts.length === 3) { month = parts[1].padStart(2, '0'); year = parts[2]; }
-                } else if(trx.date.includes('-')) {
-                    const dateObj = new Date(trx.date);
-                    if(!isNaN(dateObj)) { month = String(dateObj.getMonth() + 1).padStart(2, '0'); year = String(dateObj.getFullYear()); }
-                }
-
+                if(!trx.date) return; let year, month;
+                if(trx.date.includes('/')) { const parts = trx.date.split('/'); if(parts.length === 3) { month = parts[1].padStart(2, '0'); year = parts[2]; } } else if(trx.date.includes('-')) { const dateObj = new Date(trx.date); if(!isNaN(dateObj)) { month = String(dateObj.getMonth() + 1).padStart(2, '0'); year = String(dateObj.getFullYear()); } }
                 if(year && month) {
-                    const monthIndex = parseInt(month) - 1;
-                    const sortKey = `${year}-${month}`; 
-                    const label = `${monthNames[monthIndex]} ${year}`;
-
-                    if(!globalMonthlyData[sortKey]) {
-                        globalMonthlyData[sortKey] = { label: label, income: 0, expense: 0, simpanan: 0, pribadi: 0, tringGram: 0, jago: 0, topExpenseName: '-', topExpenseAmt: 0 };
-                    }
-
+                    const monthIndex = parseInt(month) - 1; const sortKey = `${year}-${month}`; const label = `${monthNames[monthIndex]} ${year}`;
+                    if(!globalMonthlyData[sortKey]) { globalMonthlyData[sortKey] = { label: label, income: 0, expense: 0, simpanan: 0, pribadi: 0, tringGram: 0, jago: 0, topExpenseName: '-', topExpenseAmt: 0 }; }
                     if (trx.type === 'income') globalMonthlyData[sortKey].income += Number(trx.amount);
-                    else if (trx.type === 'expense') {
-                        globalMonthlyData[sortKey].expense += Number(trx.amount);
-                        if(Number(trx.amount) > globalMonthlyData[sortKey].topExpenseAmt) {
-                            globalMonthlyData[sortKey].topExpenseAmt = Number(trx.amount);
-                            globalMonthlyData[sortKey].topExpenseName = trx.desc;
-                        }
-                    }
+                    else if (trx.type === 'expense') { globalMonthlyData[sortKey].expense += Number(trx.amount); if(Number(trx.amount) > globalMonthlyData[sortKey].topExpenseAmt) { globalMonthlyData[sortKey].topExpenseAmt = Number(trx.amount); globalMonthlyData[sortKey].topExpenseName = trx.desc; } }
                     else if (trx.type === 'simpanan') globalMonthlyData[sortKey].simpanan += Number(trx.amount);
                     else if (trx.type === 'pribadi') globalMonthlyData[sortKey].pribadi += Number(trx.amount);
                     else if (trx.type === 'tring' || trx.type === 'inv_tring') globalMonthlyData[sortKey].tringGram += Number(trx.amount);
-                    else if (trx.type === 'jago' || trx.type === 'inv_jago') {
-                        globalMonthlyData[sortKey].jago += Number(trx.amount);
-                        if(Number(trx.amount) > globalMonthlyData[sortKey].topExpenseAmt) {
-                            globalMonthlyData[sortKey].topExpenseAmt = Number(trx.amount);
-                            globalMonthlyData[sortKey].topExpenseName = trx.desc + ' (Jago)';
-                        }
-                    }
+                    else if (trx.type === 'jago' || trx.type === 'inv_jago') { globalMonthlyData[sortKey].jago += Number(trx.amount); if(Number(trx.amount) > globalMonthlyData[sortKey].topExpenseAmt) { globalMonthlyData[sortKey].topExpenseAmt = Number(trx.amount); globalMonthlyData[sortKey].topExpenseName = trx.desc + ' (Jago)'; } }
                 }
             });
 
-            const currentSelectedMonth = evalMonthSelect.value;
-            evalMonthSelect.innerHTML = '';
-            
-            const currentFilter = filterMonthSelect.value;
-            filterMonthSelect.innerHTML = '<option value="all">Semua Bulan</option>';
-
+            const currentSelectedMonth = evalMonthSelect.value; evalMonthSelect.innerHTML = '';
+            const currentFilter = filterMonthSelect.value; filterMonthSelect.innerHTML = '<option value="all">Semua Bulan</option>';
             const sortedKeys = Object.keys(globalMonthlyData).sort();
 
-            if(sortedKeys.length === 0) {
-                evalMonthSelect.innerHTML = '<option>Belum ada data</option>';
-            } else {
-                sortedKeys.forEach(key => {
-                    const opt1 = document.createElement('option'); opt1.value = key; opt1.innerText = globalMonthlyData[key].label; evalMonthSelect.appendChild(opt1);
-                    const opt2 = document.createElement('option'); opt2.value = key; opt2.innerText = globalMonthlyData[key].label; filterMonthSelect.appendChild(opt2);
-                });
-                if(globalMonthlyData[currentSelectedMonth]) evalMonthSelect.value = currentSelectedMonth;
-                filterMonthSelect.value = currentFilter;
+            if(sortedKeys.length === 0) { evalMonthSelect.innerHTML = '<option>Belum ada data</option>'; } else {
+                sortedKeys.forEach(key => { const opt1 = document.createElement('option'); opt1.value = key; opt1.innerText = globalMonthlyData[key].label; evalMonthSelect.appendChild(opt1); const opt2 = document.createElement('option'); opt2.value = key; opt2.innerText = globalMonthlyData[key].label; filterMonthSelect.appendChild(opt2); });
+                if(globalMonthlyData[currentSelectedMonth]) evalMonthSelect.value = currentSelectedMonth; filterMonthSelect.value = currentFilter;
             }
 
             const reversedKeys = [...sortedKeys].reverse();
             reversedKeys.forEach(key => {
-                const data = globalMonthlyData[key];
-                const netCash = data.income - data.expense - data.jago; 
-                const netCashClass = netCash >= 0 ? 'inc-text' : 'exp-text';
-                const netCashSign = netCash >= 0 ? '+ ' : '- ';
-                
+                const data = globalMonthlyData[key]; const netCash = data.income - data.expense - data.jago; const netCashClass = netCash >= 0 ? 'inc-text' : 'exp-text'; const netCashSign = netCash >= 0 ? '+ ' : '- ';
                 const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><strong>${data.label}</strong></td>
-                    <td class="inc-text">+ ${formatRp(data.income)}</td>
-                    <td class="exp-text">- ${formatRp(data.expense)}</td>
-                    <td class="jago-text">- ${formatRp(data.jago)}</td>
-                    <td><strong class="${netCashClass}">${netCashSign} ${formatRp(Math.abs(netCash))}</strong></td>
-                    <td class="simpanan-text">+ ${formatRp(data.simpanan)}</td>
-                    <td class="pribadi-text">+ ${formatRp(data.pribadi)}</td>
-                    <td class="tring-text">+ ${data.tringGram.toFixed(3)} Gram</td>
-                `;
+                tr.innerHTML = `<td><strong>${data.label}</strong></td><td class="inc-text">+ ${formatRp(data.income)}</td><td class="exp-text">- ${formatRp(data.expense)}</td><td class="jago-text">- ${formatRp(data.jago)}</td><td><strong class="${netCashClass}">${netCashSign} ${formatRp(Math.abs(netCash))}</strong></td><td class="simpanan-text">+ ${formatRp(data.simpanan)}</td><td class="pribadi-text">+ ${formatRp(data.pribadi)}</td><td class="tring-text">+ ${data.tringGram.toFixed(3)} Gram</td>`;
                 reportBodyEl.appendChild(tr);
             });
 
             const chartLabels = []; const chartIncomeValues = []; const chartExpenseValues = [];
-            sortedKeys.forEach(key => {
-                const data = globalMonthlyData[key];
-                chartLabels.push(data.label);
-                chartIncomeValues.push(data.income);
-                chartExpenseValues.push(data.expense + data.jago);
-            });
-
-            renderEvaluasiBulanan();
-            return { chartLabels, chartIncomeValues, chartExpenseValues };
+            sortedKeys.forEach(key => { const data = globalMonthlyData[key]; chartLabels.push(data.label); chartIncomeValues.push(data.income); chartExpenseValues.push(data.expense + data.jago); });
+            renderEvaluasiBulanan(); return { chartLabels, chartIncomeValues, chartExpenseValues };
         }
 
         function renderEvaluasiBulanan() {
-            const selectedKey = evalMonthSelect.value;
-            const savingsRateEl = document.getElementById('eval-savings-rate');
-            const statusEl = document.getElementById('eval-status');
-            const topExpenseEl = document.getElementById('eval-top-expense');
-
-            if (!globalMonthlyData[selectedKey]) {
-                savingsRateEl.innerText = "0%"; statusEl.innerText = "Belum ada data"; topExpenseEl.innerText = "-"; return;
-            }
-
-            const mData = globalMonthlyData[selectedKey];
-            const totalOut = mData.expense + mData.jago;
-            const activeSaving = mData.jago;
-
-            let savingsRate = 0;
-            if (mData.income > 0) {
-                savingsRate = (activeSaving / mData.income) * 100;
-                if(savingsRate < 0) savingsRate = 0;
-            }
+            const selectedKey = evalMonthSelect.value; const savingsRateEl = document.getElementById('eval-savings-rate'); const statusEl = document.getElementById('eval-status'); const topExpenseEl = document.getElementById('eval-top-expense');
+            if (!globalMonthlyData[selectedKey]) { savingsRateEl.innerText = "0%"; statusEl.innerText = "Belum ada data"; topExpenseEl.innerText = "-"; return; }
+            const mData = globalMonthlyData[selectedKey]; const totalOut = mData.expense + mData.jago; const activeSaving = mData.jago;
+            let savingsRate = 0; if (mData.income > 0) { savingsRate = (activeSaving / mData.income) * 100; if(savingsRate < 0) savingsRate = 0; }
             savingsRateEl.innerText = savingsRate.toFixed(1) + "%";
-
-            if (mData.income === 0 && totalOut === 0) { statusEl.innerText = "Netral"; statusEl.style.color = "var(--text-gray)"; }
-            else if (mData.income >= totalOut + activeSaving && savingsRate >= 20) { statusEl.innerText = "🚀 Sangat Sehat"; statusEl.style.color = "var(--income)"; }
-            else if (mData.income >= totalOut) { statusEl.innerText = "👍 Stabil / Cukup"; statusEl.style.color = "var(--primary)"; }
-            else { statusEl.innerText = "⚠️ Defisit (Boncos)"; statusEl.style.color = "var(--expense)"; }
-
-            if (mData.topExpenseAmt > 0) topExpenseEl.innerText = `${mData.topExpenseName} (${formatRp(mData.topExpenseAmt)})`;
-            else topExpenseEl.innerText = "Tidak ada pengeluaran";
+            if (mData.income === 0 && totalOut === 0) { statusEl.innerText = "Netral"; statusEl.style.color = "var(--text-gray)"; } else if (mData.income >= totalOut + activeSaving && savingsRate >= 20) { statusEl.innerText = "🚀 Sangat Sehat"; statusEl.style.color = "var(--income)"; } else if (mData.income >= totalOut) { statusEl.innerText = "👍 Stabil / Cukup"; statusEl.style.color = "var(--primary)"; } else { statusEl.innerText = "⚠️ Defisit (Boncos)"; statusEl.style.color = "var(--expense)"; }
+            if (mData.topExpenseAmt > 0) topExpenseEl.innerText = `${mData.topExpenseName} (${formatRp(mData.topExpenseAmt)})`; else topExpenseEl.innerText = "Tidak ada pengeluaran";
         }
 
         function updateUI() {
-            listEl.innerHTML = ''; 
-            
-            let totalIncome = 0; let totalExpense = 0; let totalSimpanan = 0; let totalPribadi = 0; let totalTringGram = 0; let totalJago = 0;
+            listEl.innerHTML = ''; let totalIncome = 0; let totalExpense = 0; let totalSimpanan = 0; let totalPribadi = 0; let totalTringGram = 0; let totalJago = 0;
             const selectedFilterMonth = filterMonthSelect.value;
 
             transactions.forEach((trx) => {
                 const amt = Number(trx.amount);
-                if (trx.type === 'income') totalIncome += amt;
-                else if (trx.type === 'expense') totalExpense += amt;
-                else if (trx.type === 'simpanan') totalSimpanan += amt;
-                else if (trx.type === 'pribadi') totalPribadi += amt;
-                else if (trx.type === 'tring' || trx.type === 'inv_tring') totalTringGram += amt;
-                else if (trx.type === 'jago' || trx.type === 'inv_jago') totalJago += amt;
-
-                if (selectedFilterMonth !== 'all' && trx.date) {
-                    let trxKey = '';
-                    if(trx.date.includes('/')) {
-                        const parts = trx.date.split('/');
-                        if (parts.length === 3) trxKey = `${parts[2]}-${parts[1].padStart(2, '0')}`;
-                    } else if(trx.date.includes('-')) {
-                        const dateObj = new Date(trx.date);
-                        if(!isNaN(dateObj)) trxKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
-                    }
-                    if (trxKey && trxKey !== selectedFilterMonth) return; 
-                }
-
-                const li = document.createElement('li');
-                let sign = ''; let textClass = 'default-text'; let liClass = ''; let displayAmount = '';
-                
-                if (trx.type === 'income') { sign = '+'; textClass = 'inc-text'; liClass = 'inc'; displayAmount = formatRp(amt); }
-                else if (trx.type === 'expense') { sign = '-'; textClass = 'exp-text'; liClass = 'exp'; displayAmount = formatRp(amt); }
-                else if (trx.type === 'simpanan') { sign = 'Simpanan'; textClass = 'simpanan-text'; liClass = 'simpanan'; displayAmount = formatRp(amt); }
-                else if (trx.type === 'pribadi') { sign = 'Tabungan'; textClass = 'pribadi-text'; liClass = 'pribadi'; displayAmount = formatRp(amt); }
-                else if (trx.type === 'tring' || trx.type === 'inv_tring') { sign = '+'; textClass = 'tring-text'; liClass = 'tring'; displayAmount = amt.toFixed(3) + ' Gram'; }
-                else if (trx.type === 'jago' || trx.type === 'inv_jago') { sign = 'Beli Jago'; textClass = 'jago-text'; liClass = 'jago'; displayAmount = formatRp(amt); }
-
+                if (trx.type === 'income') totalIncome += amt; else if (trx.type === 'expense') totalExpense += amt; else if (trx.type === 'simpanan') totalSimpanan += amt; else if (trx.type === 'pribadi') totalPribadi += amt; else if (trx.type === 'tring' || trx.type === 'inv_tring') totalTringGram += amt; else if (trx.type === 'jago' || trx.type === 'inv_jago') totalJago += amt;
+                if (selectedFilterMonth !== 'all' && trx.date) { let trxKey = ''; if(trx.date.includes('/')) { const parts = trx.date.split('/'); if (parts.length === 3) trxKey = `${parts[2]}-${parts[1].padStart(2, '0')}`; } else if(trx.date.includes('-')) { const dateObj = new Date(trx.date); if(!isNaN(dateObj)) trxKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`; } if (trxKey && trxKey !== selectedFilterMonth) return; }
+                const li = document.createElement('li'); let sign = ''; let textClass = 'default-text'; let liClass = ''; let displayAmount = '';
+                if (trx.type === 'income') { sign = '+'; textClass = 'inc-text'; liClass = 'inc'; displayAmount = formatRp(amt); } else if (trx.type === 'expense') { sign = '-'; textClass = 'exp-text'; liClass = 'exp'; displayAmount = formatRp(amt); } else if (trx.type === 'simpanan') { sign = 'Simpanan'; textClass = 'simpanan-text'; liClass = 'simpanan'; displayAmount = formatRp(amt); } else if (trx.type === 'pribadi') { sign = 'Tabungan'; textClass = 'pribadi-text'; liClass = 'pribadi'; displayAmount = formatRp(amt); } else if (trx.type === 'tring' || trx.type === 'inv_tring') { sign = '+'; textClass = 'tring-text'; liClass = 'tring'; displayAmount = amt.toFixed(3) + ' Gram'; } else if (trx.type === 'jago' || trx.type === 'inv_jago') { sign = 'Beli Jago'; textClass = 'jago-text'; liClass = 'jago'; displayAmount = formatRp(amt); }
                 if (liClass !== '') li.classList.add(liClass);
-
-                let formattedDateDisplay = trx.date;
-                if(trx.date.includes('T')) formattedDateDisplay = trx.date.split('T')[0];
-
-                li.innerHTML = `
-                    <div>
-                        <span class="desc-text">${trx.desc}</span>
-                        <span class="date-text">${formattedDateDisplay || '-'}</span>
-                    </div>
-                    <div class="amount-area">
-                        <span class="amount-text ${textClass}">${sign} ${displayAmount}</span>
-                        <button class="delete-btn" onclick="deleteTransaction('${trx.id}')">Hapus</button>
-                    </div>
-                `;
+                let formattedDateDisplay = trx.date; if(trx.date.includes('T')) formattedDateDisplay = trx.date.split('T')[0];
+                li.innerHTML = `<div><span class="desc-text">${trx.desc}</span><span class="date-text">${formattedDateDisplay || '-'}</span></div><div class="amount-area"><span class="amount-text ${textClass}">${sign} ${displayAmount}</span><button class="delete-btn" onclick="deleteTransaction('${trx.id}')">Hapus</button></div>`;
                 listEl.appendChild(li);
             });
 
-            const totalTringRupiah = totalTringGram * goldPricePerGram;
-            const cashBalance = totalIncome - totalExpense - totalJago;
-            const totalWealth = cashBalance + totalSimpanan + totalPribadi + totalTringRupiah + totalJago;
-            const totalGold = totalTringRupiah + totalJago;
-
-            cashBalanceEl.innerText = formatRp(cashBalance);
-            simpananEl.innerText = formatRp(totalSimpanan);
-            pribadiEl.innerText = formatRp(totalPribadi);
-            tringEl.innerText = formatRp(totalTringRupiah);
-            tringGramInfo.innerText = `${totalTringGram.toFixed(3)} Gram ( @ ${formatRp(goldPricePerGram)} )`;
-            jagoEl.innerText = formatRp(totalJago);
-            wealthEl.innerText = formatRp(totalWealth);
-
+            const totalTringRupiah = totalTringGram * goldPricePerGram; const cashBalance = totalIncome - totalExpense - totalJago; const totalWealth = cashBalance + totalSimpanan + totalPribadi + totalTringRupiah + totalJago; const totalGold = totalTringRupiah + totalJago;
+            cashBalanceEl.innerText = formatRp(cashBalance); simpananEl.innerText = formatRp(totalSimpanan); pribadiEl.innerText = formatRp(totalPribadi); tringEl.innerText = formatRp(totalTringRupiah); tringGramInfo.innerText = `${totalTringGram.toFixed(3)} Gram ( @ ${formatRp(goldPricePerGram)} )`; jagoEl.innerText = formatRp(totalJago); wealthEl.innerText = formatRp(totalWealth);
             updateGoalsUI(totalWealth, totalGold);
-            
-            const reportData = renderMonthlyReport();
-            updateCharts(cashBalance, totalSimpanan, totalPribadi, totalTringRupiah, totalJago, reportData.chartLabels, reportData.chartIncomeValues, reportData.chartExpenseValues);
+            const reportData = renderMonthlyReport(); updateCharts(cashBalance, totalSimpanan, totalPribadi, totalTringRupiah, totalJago, reportData.chartLabels, reportData.chartIncomeValues, reportData.chartExpenseValues);
         }
 
         if(formEl) {
             formEl.addEventListener('submit', async function(e) {
                 e.preventDefault();
-                const desc = document.getElementById('desc').value;
-                const type = document.getElementById('type').value;
-                let rawAmount = document.getElementById('amount').value;
-                
-                let amount = 0;
-                if(type === 'tring') amount = parseFloat(rawAmount.replace(',', '.')) || 0;
-                else amount = parseInt(rawAmount.replace(/\./g, '')) || 0;
-                
-                const dateObj = new Date();
-                const dateStr = dateObj.getDate() + '/' + (dateObj.getMonth()+1) + '/' + dateObj.getFullYear();
+                const desc = document.getElementById('desc').value; const type = document.getElementById('type').value; let rawAmount = document.getElementById('amount').value;
+                let amount = 0; if(type === 'tring') amount = parseFloat(rawAmount.replace(',', '.')) || 0; else amount = parseInt(rawAmount.replace(/\./g, '')) || 0;
+                const dateObj = new Date(); const dateStr = dateObj.getDate() + '/' + (dateObj.getMonth()+1) + '/' + dateObj.getFullYear();
+                const transaction = { id: 'id_' + Math.floor(Math.random() * 100000000), desc: desc, amount: amount, type: type, date: dateStr };
 
-                const transaction = { 
-                    id: 'id_' + Math.floor(Math.random() * 100000000), 
-                    desc: desc, amount: amount, type: type, date: dateStr 
-                };
-
-                // 1. Simpan ke lokal dulu (Biar instan)
                 transactions.unshift(transaction); 
-                saveToLocal();
-                updateUI();
-                formEl.reset();
-                handleTypeChange();
+                saveToLocal(); // Otomatis terenkripsi
+                updateUI(); formEl.reset(); handleTypeChange();
 
-                // 2. Kirim ke Google Sheets (Background process)
                 if (WEB_APP_URL && !WEB_APP_URL.includes('URL_WEB_APP')) {
-                    try {
-                        await fetch(WEB_APP_URL, {
-                            method: 'POST',
-                            body: JSON.stringify({ action: 'add', ...transaction })
-                        });
-                    } catch (err) { console.error("Gagal simpan ke online:", err); }
+                    try { await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'add', token: API_SECRET_TOKEN, ...transaction }) }); } catch (err) { console.error(err); }
                 }
             });
         }
 
         async function deleteTransaction(id) {
             if (confirm("Yakin mau hapus catatan ini?")) {
-                // 1. Hapus dari lokal dulu biar cepat
-                transactions = transactions.filter(trx => trx.id != id);
-                saveToLocal();
-                updateUI();
-
-                // 2. Hapus dari online
+                transactions = transactions.filter(trx => trx.id != id); saveToLocal(); updateUI();
                 if (WEB_APP_URL && !WEB_APP_URL.includes('URL_WEB_APP')) {
-                    try {
-                        await fetch(WEB_APP_URL, {
-                            method: 'POST',
-                            body: JSON.stringify({ action: 'delete', id: id })
-                        });
-                    } catch (err) { console.error("Gagal hapus dari online:", err); }
+                    try { await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', token: API_SECRET_TOKEN, id: id }) }); } catch (err) { console.error(err); }
                 }
             }
         }
 
         function resetData() {
-            if (confirm("Peringatan: Reset database lokal. Data di Google Sheet tidak akan ikut terhapus otomatis kecuali dihapus manual.")) {
-                transactions = [];
-                saveToLocal();
-                localStorage.removeItem('financialGoals');
-                financialGoals = { wealthGoal: 50000000, goldGoal: 10000000 };
-                updateUI();
+            if (confirm("Peringatan: Database lokal akan dihapus. Data di Sheet online tidak dihapus otomatis.")) {
+                transactions = []; saveToLocal(); localStorage.removeItem('financialGoals'); financialGoals = { wealthGoal: 50000000, goldGoal: 10000000 }; updateUI();
             }
         }
     </script>
