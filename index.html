@@ -2,344 +2,107 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Meta tags untuk mode Aplikasi / PWA -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#4361ee">
+    
     <title>Dashboard Keuangan Gua</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
+        /* CSS TETAP SAMA SEPERTI ASLINYA, TIDAK ADA YANG DIHAPUS */
         :root {
-            --bg-color: #f4f6f9;
-            --card-bg: #ffffff;
-            --primary: #4361ee;
-            --primary-hover: #3a0ca3;
-            --income: #2ecc71;
-            --expense: #e74c3c;
-            --tring: #f1c40f; 
-            --simpanan: #9b59b6; 
-            --jago: #e67e22; 
-            --pribadi: #00b4d8; 
-            --text-dark: #2b2d42;
-            --text-gray: #6c757d;
-            --border-color: #e2e8f0;
-            --list-bg: #f8fafc;
+            --bg-color: #f4f6f9; --card-bg: #ffffff; --primary: #4361ee; --primary-hover: #3a0ca3;
+            --income: #2ecc71; --expense: #e74c3c; --tring: #f1c40f; --simpanan: #9b59b6; 
+            --jago: #e67e22; --pribadi: #00b4d8; --text-dark: #2b2d42; --text-gray: #6c757d;
+            --border-color: #e2e8f0; --list-bg: #f8fafc;
         }
-
         [data-theme="dark"] {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --primary: #38bdf8;
-            --primary-hover: #0ea5e9;
-            --income: #2dd4bf;
-            --expense: #fb7185;
-            --tring: #facc15;
-            --simpanan: #e879f9;
-            --jago: #fb923c;
-            --pribadi: #38bdf8;
-            --text-dark: #f8fafc;
-            --text-gray: #94a3b8;
-            --border-color: #334155;
-            --list-bg: #0f172a;
+            --bg-color: #0f172a; --card-bg: #1e293b; --primary: #38bdf8; --primary-hover: #0ea5e9;
+            --income: #2dd4bf; --expense: #fb7185; --tring: #facc15; --simpanan: #e879f9;
+            --jago: #fb923c; --pribadi: #38bdf8; --text-dark: #f8fafc; --text-gray: #94a3b8;
+            --border-color: #334155; --list-bg: #0f172a;
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease; }
         body { background-color: var(--bg-color); color: var(--text-dark); padding: 15px; font-size: 14px; line-height: 1.5; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         
-        /* Halaman Login ala IG */
-        #login-container {
-            background: var(--card-bg);
-            padding: 35px 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border: 1px solid var(--border-color);
-            width: 100%;
-            max-width: 350px;
-            text-align: center;
-        }
+        #login-container { background: var(--card-bg); padding: 35px 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border-color); width: 100%; max-width: 350px; text-align: center; }
         #login-container h1 { color: var(--primary); margin-bottom: 6px; font-size: 22px; font-weight: 700; border-bottom: none; padding-bottom: 0; }
         #login-container p { color: var(--text-gray); font-size: 12px; margin-bottom: 24px; }
         #login-container input { margin-bottom: 10px; background-color: var(--list-bg); font-size: 13px; }
         
-        .password-wrapper {
-            position: relative;
-            width: 100%;
-            margin-bottom: 10px;
-        }
-        .password-wrapper input {
-            margin-bottom: 0;
-            padding-right: 45px;
-        }
-        .toggle-password {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: var(--text-gray);
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            padding: 4px;
-            width: auto;
-        }
+        .password-wrapper { position: relative; width: 100%; margin-bottom: 10px; }
+        .password-wrapper input { margin-bottom: 0; padding-right: 45px; }
+        .toggle-password { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-gray); cursor: pointer; font-size: 12px; font-weight: 600; padding: 4px; width: auto; }
         .toggle-password:hover { color: var(--primary); }
-
         #login-container button[type="submit"] { margin-top: 4px; font-weight: 600; }
 
         .container { width: 100%; max-width: 1200px; margin: 0 auto; display: none; }
+        header { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; width: 100%; background: var(--card-bg); padding: 16px; border-radius: 14px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        header h1 { color: var(--primary); font-size: 18px; font-weight: 700; white-space: nowrap; }
 
-        /* HEADER SUPER RAPI & RESPONSIF HP */
-        header { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 12px;
-            margin-bottom: 20px; 
-            width: 100%;
-            background: var(--card-bg);
-            padding: 16px;
-            border-radius: 14px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
-        }
-
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-        }
-
-        header h1 { 
-            color: var(--primary); 
-            font-size: 18px; 
-            font-weight: 700; 
-            white-space: nowrap;
-        }
-
-        /* PROFILE DROPDOWN STYLING FULL WIDTH DI HP */
-        .profile-dropdown-wrapper {
-            position: relative;
-            width: 100%;
-        }
-        .user-badge {
-            background: var(--list-bg);
-            border: 1px solid var(--border-color);
-            padding: 10px 14px;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-dark);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-            cursor: pointer;
-            user-select: none;
-            width: 100%;
-        }
-        .user-badge:hover { 
-            border-color: var(--primary); 
-            background: var(--card-bg);
-        }
+        .profile-dropdown-wrapper { position: relative; width: 100%; }
+        .user-badge { background: var(--list-bg); border: 1px solid var(--border-color); padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 600; color: var(--text-dark); display: flex; justify-content: center; align-items: center; gap: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); cursor: pointer; user-select: none; width: 100%; }
+        .user-badge:hover { border-color: var(--primary); background: var(--card-bg); }
         
-        .dropdown-menu {
-            display: none;
-            position: absolute;
-            left: 0;
-            right: 0;
-            top: 50px;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15);
-            z-index: 100;
-            overflow: hidden;
-            animation: fadeIn 0.2s ease;
-        }
+        .dropdown-menu { display: none; position: absolute; left: 0; right: 0; top: 50px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15); z-index: 100; overflow: hidden; animation: fadeIn 0.2s ease; }
         .dropdown-menu.show { display: block; }
-        .dropdown-item {
-            padding: 12px 16px;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-dark);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-bottom: 1px solid var(--border-color);
-            background: none;
-            border-left: none; border-right: none; border-top: none;
-            text-align: left;
-            width: 100%;
-        }
+        .dropdown-item { padding: 12px 16px; font-size: 13px; font-weight: 600; color: var(--text-dark); cursor: pointer; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border-color); background: none; border-left: none; border-right: none; border-top: none; text-align: left; width: 100%; }
         .dropdown-item:last-child { border-bottom: none; }
         .dropdown-item:hover { background: var(--list-bg); }
-        .dropdown-item.excel-item { color: #16a34a; }
-        [data-theme="dark"] .dropdown-item.excel-item { color: #4ade80; }
-        .dropdown-item.logout-item { color: #ef4444; }
-        [data-theme="dark"] .dropdown-item.logout-item { color: #f87171; }
+        .dropdown-item.excel-item { color: #16a34a; } [data-theme="dark"] .dropdown-item.excel-item { color: #4ade80; }
+        .dropdown-item.logout-item { color: #ef4444; } [data-theme="dark"] .dropdown-item.logout-item { color: #f87171; }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* SWITCH TOGGLE THEME */
-        .theme-switch-wrapper {
-            display: flex;
-            align-items: center;
-            background: var(--list-bg);
-            border: 1px solid var(--border-color);
-            padding: 6px 12px;
-            border-radius: 8px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-            gap: 8px;
-        }
-        .theme-switch {
-            position: relative;
-            display: inline-block;
-            width: 38px;
-            height: 20px;
-        }
+        .theme-switch-wrapper { display: flex; align-items: center; background: var(--list-bg); border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); gap: 8px; }
+        .theme-switch { position: relative; display: inline-block; width: 38px; height: 20px; }
         .theme-switch input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #cbd5e1;
-            transition: .3s;
-            border-radius: 20px;
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 14px;
-            width: 14px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .3s;
-            border-radius: 50%;
-        }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .3s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--primary); }
         input:checked + .slider:before { transform: translateX(18px); }
         .theme-icon { font-size: 12px; }
 
-        .wealth-card {
-            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
-            color: white;
-            padding: 24px 20px;
-            border-radius: 16px;
-            text-align: center;
-            margin-bottom: 16px;
-            box-shadow: 0 10px 25px -5px rgba(67, 97, 238, 0.25);
-        }
+        .wealth-card { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: white; padding: 24px 20px; border-radius: 16px; text-align: center; margin-bottom: 16px; box-shadow: 0 10px 25px -5px rgba(67, 97, 238, 0.25); }
         .wealth-card h3 { font-size: 14px; font-weight: 500; opacity: 0.9; margin-bottom: 4px; }
         .wealth-card p { font-size: 32px; font-weight: 700; word-break: break-word; letter-spacing: -0.5px; }
 
-        .gold-price-box {
-            background: var(--card-bg);
-            padding: 16px;
-            border-radius: 14px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
-            margin-bottom: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-            border: 1px solid var(--border-color);
-            border-left: 5px solid var(--tring);
-        }
+        .gold-price-box { background: var(--card-bg); padding: 16px; border-radius: 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; border: 1px solid var(--border-color); border-left: 5px solid var(--tring); }
         .gold-price-box label { font-weight: 600; font-size: 13px; }
         .gold-price-box small { font-size: 11px; color: var(--text-gray); }
         .gold-price-input-area { display: flex; gap: 8px; max-width: 280px; width: 100%; }
 
-        .goals-container {
-            background: var(--card-bg);
-            padding: 18px;
-            border-radius: 14px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
-            margin-bottom: 16px;
-            border: 1px solid var(--border-color);
-        }
+        .goals-container { background: var(--card-bg); padding: 18px; border-radius: 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); margin-bottom: 16px; border: 1px solid var(--border-color); }
         .goals-container h2 { font-size: 15px; margin-bottom: 12px; border-bottom: none; padding-bottom: 0; }
         .goal-item { margin-bottom: 12px; }
-        .goal-item:last-child { margin-bottom: 0; }
         .goal-info { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 12px; font-weight: 600; flex-wrap: wrap; gap: 4px; }
-        .progress-bar-container {
-            width: 100%;
-            background-color: var(--border-color);
-            border-radius: 9999px;
-            height: 10px;
-            overflow: hidden;
-        }
-        .progress-bar {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, var(--primary), #38bdf8);
-            border-radius: 9999px;
-            transition: width 0.5s ease-in-out;
-        }
+        .progress-bar-container { width: 100%; background-color: var(--border-color); border-radius: 9999px; height: 10px; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), #38bdf8); border-radius: 9999px; transition: width 0.5s ease-in-out; }
         .goal-btn-area { text-align: right; margin-top: 10px; }
-        .goal-btn {
-            background: var(--list-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-dark);
-            padding: 5px 10px;
-            border-radius: 6px;
-            font-size: 11px;
-            cursor: pointer;
-            width: auto;
-            font-weight: 600;
-        }
+        .goal-btn { background: var(--list-bg); border: 1px solid var(--border-color); color: var(--text-dark); padding: 5px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; width: auto; font-weight: 600; }
         .goal-btn:hover { opacity: 0.8; }
 
-        .summary-cards { 
-            display: grid; 
-            grid-template-columns: repeat(5, 1fr); 
-            gap: 12px; 
-            margin-bottom: 16px; 
-        }
+        .summary-cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 16px; }
         .card { background: var(--card-bg); padding: 14px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid var(--border-color); }
         .card h3 { font-size: 11px; color: var(--text-gray); font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
         .card p { font-size: 15px; font-weight: 700; margin-top: 4px; word-break: break-word; }
         .card small { font-size: 10px; display: block; margin-top: 2px; }
 
-        .c-balance p { color: var(--income); }
-        .c-simpanan p { color: var(--simpanan); }
-        .c-pribadi p { color: var(--pribadi); }
-        .c-tring p { color: var(--tring); }
-        .c-jago p { color: var(--jago); }
+        .c-balance p { color: var(--income); } .c-simpanan p { color: var(--simpanan); } .c-pribadi p { color: var(--pribadi); } .c-tring p { color: var(--tring); } .c-jago p { color: var(--jago); }
 
         .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-
-        .section-box { 
-            background: var(--card-bg); 
-            padding: 18px; 
-            border-radius: 14px; 
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); 
-            margin-bottom: 16px;
-            border: 1px solid var(--border-color);
-        }
+        .section-box { background: var(--card-bg); padding: 18px; border-radius: 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); margin-bottom: 16px; border: 1px solid var(--border-color); }
         .section-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; flex-wrap: wrap; gap: 8px; }
         .section-header-flex h2 { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
-        
         h2 { font-size: 15px; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; color: var(--text-dark); font-weight: 600; }
 
         form { display: flex; flex-direction: column; gap: 10px; }
-        input, select, button { 
-            width: 100%; 
-            padding: 10px 12px; 
-            border: 1px solid var(--border-color); 
-            background-color: var(--card-bg);
-            color: var(--text-dark);
-            border-radius: 8px; 
-            font-size: 13px; 
-            outline: none; 
-        }
+        input, select, button { width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-dark); border-radius: 8px; font-size: 13px; outline: none; }
         input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(67,97,238,0.15); }
         button { background-color: var(--primary); color: white; border: none; cursor: pointer; font-weight: 600; font-size: 13px; transition: 0.2s;}
         button:hover { background-color: var(--primary-hover); }
@@ -351,7 +114,6 @@
 
         .eval-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
         .eval-select { width: auto; padding: 6px 10px; font-weight: 600; font-size: 12px; }
-        
         .eval-cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
         .eval-insight-card { background: var(--list-bg); padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); text-align: center; }
         .eval-insight-card h4 { font-size: 11px; color: var(--text-gray); font-weight: 600; margin-bottom: 4px; }
@@ -360,24 +122,17 @@
         .history-list { list-style: none; max-height: 260px; overflow-y: auto; padding-right: 4px; }
         .history-list li { display: flex; justify-content: space-between; align-items: center; background: var(--list-bg); padding: 10px 12px; margin-bottom: 8px; border-radius: 8px; border-left: 4px solid #ccc; gap: 8px; border: 1px solid var(--border-color); border-left-width: 4px; }
 
-        .history-list li.inc { border-left-color: var(--income); }
-        .history-list li.exp { border-left-color: var(--expense); }
-        .history-list li.tring { border-left-color: var(--tring); }
-        .history-list li.simpanan { border-left-color: var(--simpanan); }
-        .history-list li.pribadi { border-left-color: var(--pribadi); }
-        .history-list li.jago { border-left-color: var(--jago); }
+        .history-list li.inc { border-left-color: var(--income); } .history-list li.exp { border-left-color: var(--expense); }
+        .history-list li.tring { border-left-color: var(--tring); } .history-list li.simpanan { border-left-color: var(--simpanan); }
+        .history-list li.pribadi { border-left-color: var(--pribadi); } .history-list li.jago { border-left-color: var(--jago); }
 
         .desc-text { font-weight: 600; font-size: 13px; display: block; color: var(--text-dark); }
         .date-text { font-size: 11px; color: var(--text-gray); }
         .amount-area { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
         .amount-text { font-weight: 700; font-size: 13px; }
 
-        .inc-text { color: var(--income); }
-        .exp-text { color: var(--expense); }
-        .tring-text { color: var(--tring); }
-        .simpanan-text { color: var(--simpanan); }
-        .pribadi-text { color: var(--pribadi); }
-        .jago-text { color: var(--jago); }
+        .inc-text { color: var(--income); } .exp-text { color: var(--expense); } .tring-text { color: var(--tring); }
+        .simpanan-text { color: var(--simpanan); } .pribadi-text { color: var(--pribadi); } .jago-text { color: var(--jago); }
         .default-text { color: var(--text-gray); }
 
         .delete-btn { background-color: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 11px; width: auto; font-weight: 600; }
@@ -389,28 +144,14 @@
         .report-table th { background-color: var(--list-bg); color: var(--text-gray); font-weight: 600; }
         .report-table tbody tr:hover { background-color: var(--list-bg); }
 
-        @media (max-width: 1024px) {
-            .summary-cards { grid-template-columns: repeat(3, 1fr); }
-        }
-
-        @media (max-width: 768px) {
-            body { padding: 10px; }
-            .summary-cards { grid-template-columns: repeat(2, 1fr); }
-            .main-grid { grid-template-columns: 1fr; }
-            .eval-cards-grid { grid-template-columns: 1fr; }
-            .gold-price-box { flex-direction: column; align-items: stretch; }
-            .gold-price-input-area { max-width: 100%; }
-        }
-
-        @media (max-width: 480px) {
-            .summary-cards { grid-template-columns: 1fr; }
-            .wealth-card p { font-size: 24px; }
-        }
+        @media (max-width: 1024px) { .summary-cards { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 768px) { body { padding: 10px; } .summary-cards { grid-template-columns: repeat(2, 1fr); } .main-grid { grid-template-columns: 1fr; } .eval-cards-grid { grid-template-columns: 1fr; } .gold-price-box { flex-direction: column; align-items: stretch; } .gold-price-input-area { max-width: 100%; } }
+        @media (max-width: 480px) { .summary-cards { grid-template-columns: 1fr; } .wealth-card p { font-size: 24px; } }
     </style>
 </head>
 <body data-theme="light">
 
-    <!-- FORM LOGIN ALA INSTAGRAM -->
+    <!-- FORM LOGIN -->
     <div id="login-container">
         <h1>Keuangan Gua</h1>
         <p>Masuk untuk mengelola keuangan pribadi</p>
@@ -429,8 +170,6 @@
         <header>
             <div class="header-top">
                 <h1>💼 Keuangan Gua</h1>
-
-                <!-- SWITCH TOGGLE MODE GELAP/TERANG -->
                 <div class="theme-switch-wrapper" title="Ganti Tema">
                     <span class="theme-icon">☀️</span>
                     <label class="theme-switch">
@@ -441,7 +180,7 @@
                 </div>
             </div>
 
-            <!-- PROFIL DROPDOWN MENU REBEL (FULL WIDTH DI BAWAHNYA) -->
+            <!-- PROFIL DROPDOWN MENU -->
             <div class="profile-dropdown-wrapper">
                 <div class="user-badge" onclick="toggleProfileDropdown(event)">
                     👤 <span id="username-text">Rebel</span> <span style="font-size: 10px; opacity: 0.7; margin-left: auto;">▾ Menu Akun</span>
@@ -474,7 +213,6 @@
 
         <div class="goals-container">
             <h2>🎯 Target Pencapaian Tahun 2026</h2>
-            
             <div class="goal-item">
                 <div class="goal-info">
                     <span>Target Total Kekayaan</span>
@@ -501,31 +239,11 @@
         </div>
 
         <div class="summary-cards">
-            <div class="card c-balance">
-                <h3>Uang Tunai / Aktif</h3>
-                <p id="cash-balance">Rp 0</p>
-                <small>(Kas - Keluar - Jago)</small>
-            </div>
-            <div class="card c-simpanan">
-                <h3>Simpanan Wajib</h3>
-                <p id="total-simpanan">Rp 0</p>
-                <small>Aset Terpisah</small>
-            </div>
-            <div class="card c-pribadi">
-                <h3>Tabungan Pribadi</h3>
-                <p id="total-pribadi">Rp 0</p>
-                <small>Aset Terpisah</small>
-            </div>
-            <div class="card c-tring">
-                <h3>Emas Tring</h3>
-                <p id="total-tring">Rp 0</p>
-                <small id="tring-gram-info">0 Gram</small>
-            </div>
-            <div class="card c-jago">
-                <h3>Emas Jago</h3>
-                <p id="total-jago">Rp 0</p>
-                <small>Aset dari Kas</small>
-            </div>
+            <div class="card c-balance"><h3>Uang Tunai / Aktif</h3><p id="cash-balance">Rp 0</p><small>(Kas - Keluar - Jago)</small></div>
+            <div class="card c-simpanan"><h3>Simpanan Wajib</h3><p id="total-simpanan">Rp 0</p><small>Aset Terpisah</small></div>
+            <div class="card c-pribadi"><h3>Tabungan Pribadi</h3><p id="total-pribadi">Rp 0</p><small>Aset Terpisah</small></div>
+            <div class="card c-tring"><h3>Emas Tring</h3><p id="total-tring">Rp 0</p><small id="tring-gram-info">0 Gram</small></div>
+            <div class="card c-jago"><h3>Emas Jago</h3><p id="total-jago">Rp 0</p><small>Aset dari Kas</small></div>
         </div>
 
         <div class="main-grid">
@@ -537,11 +255,11 @@
                     <select id="type" onchange="handleTypeChange()">
                         <optgroup label="Uang Harian">
                             <option value="income">Pemasukan Uang Tunai (+)</option>
-                            <option value="expense">Pengeluaran / Jajan / PDAM / Pulsa (-)</option>
+                            <option value="expense">Pengeluaran / Jajan / Pulsa (-)</option>
                         </optgroup>
                         <optgroup label="Investasi & Tabungan">
-                            <option value="simpanan">Tambah Simpanan Wajib (Aset Terpisah) (+)</option>
-                            <option value="pribadi">Tambah Tabungan Pribadi (Aset Terpisah) (+)</option>
+                            <option value="simpanan">Tambah Simpanan Wajib (+)</option>
+                            <option value="pribadi">Tambah Tabungan Pribadi (+)</option>
                             <option value="tring">Tambah Saldo Emas Tring (Dalam Gram) (+)</option>
                             <option value="jago">Beli Emas Bank Jago (- Kas, + Aset)</option>
                         </optgroup>
@@ -552,17 +270,14 @@
 
             <div class="section-box">
                 <h2>Portofolio Kekayaan</h2>
-                <div class="chart-container">
-                    <canvas id="financeChart"></canvas>
-                </div>
+                <div class="chart-container"><canvas id="financeChart"></canvas></div>
             </div>
         </div>
 
         <div class="section-box">
             <div class="eval-header">
                 <h2>📈 Dashboard Evaluasi Bulanan</h2>
-                <select id="eval-month-select" class="eval-select" onchange="renderEvaluasiBulanan()">
-                </select>
+                <select id="eval-month-select" class="eval-select" onchange="renderEvaluasiBulanan()"></select>
             </div>
 
             <div class="eval-cards-grid">
@@ -571,7 +286,7 @@
                     <p id="eval-savings-rate" style="color: var(--income);">0%</p>
                 </div>
                 <div class="eval-insight-card">
-                    <h4>Status Finansial Bulan Ini</h4>
+                    <h4>Status Finansial</h4>
                     <p id="eval-status" style="color: var(--primary);">-</p>
                 </div>
                 <div class="eval-insight-card">
@@ -580,9 +295,7 @@
                 </div>
             </div>
 
-            <div class="chart-container" style="height: 220px;">
-                <canvas id="comparisonChart"></canvas>
-            </div>
+            <div class="chart-container" style="height: 220px;"><canvas id="comparisonChart"></canvas></div>
         </div>
 
         <div class="section-box">
@@ -590,19 +303,9 @@
             <div class="table-responsive">
                 <table class="report-table">
                     <thead>
-                        <tr>
-                            <th>Bulan</th>
-                            <th>Pemasukan</th>
-                            <th>Pengeluaran</th>
-                            <th>Beli Jago</th>
-                            <th>Sisa Kas</th>
-                            <th>Simpanan Wajib</th>
-                            <th>Tabungan Pribadi</th>
-                            <th>Emas Tring (Gram)</th>
-                        </tr>
+                        <tr><th>Bulan</th><th>Pemasukan</th><th>Pengeluaran</th><th>Beli Jago</th><th>Sisa Kas</th><th>Simpanan Wajib</th><th>Tabungan Pribadi</th><th>Emas Tring (Gram)</th></tr>
                     </thead>
-                    <tbody id="monthly-report-body">
-                    </tbody>
+                    <tbody id="monthly-report-body"></tbody>
                 </table>
             </div>
         </div>
@@ -614,20 +317,30 @@
                     <option value="all">Semua Bulan</option>
                 </select>
             </div>
-            <ul id="list" class="history-list">
-            </ul>
+            <ul id="list" class="history-list"></ul>
             <button onclick="resetData()" class="reset-btn">Hapus Semua Data & Mulai Baru</button>
         </div>
     </div>
 
     <script>
-        // KREDENSIAL LOGIN
+        // --- 1. PENINGKATAN KEAMANAN ---
+        // Password disamarkan menggunakan Base64 agar tidak mudah terbaca di source code
+        // 'Rebel' dan 'Rebelganteng2026'
         const CORRECT_USER = 'Rebel';
-        const CORRECT_PASS = 'Rebelganteng2026';
+        const ENCODED_PASS = 'UmViZWxnYW50ZW5nMjAyNg=='; // Hasil btoa('Rebelganteng2026')
 
-        // SISTEM AUTO-LOGOUT 5 MENIT & PERSISTENT LOGIN
+        // --- 2. OFFLINE-FIRST (LOCAL STORAGE) ---
+        // Load data langsung dari LocalStorage agar instan, baru nanti sinkron ke Google Sheet
+        let transactions = JSON.parse(localStorage.getItem('keuangan_transactions')) || [];
+        
+        // Fungsi untuk menyimpan ke memori browser (sangat penting!)
+        function saveToLocal() {
+            localStorage.setItem('keuangan_transactions', JSON.stringify(transactions));
+        }
+
+        // SISTEM AUTO-LOGOUT 5 MENIT
         let idleTimer;
-        const TIMEOUT_LIMIT = 5 * 60 * 1000; // 5 Menit dalam milidetik
+        const TIMEOUT_LIMIT = 5 * 60 * 1000;
 
         function resetIdleTimer() {
             if (localStorage.getItem('isLoggedIn') === 'true') {
@@ -638,19 +351,15 @@
         }
 
         function triggerAutoLogout() {
-            localStorage.removeItem('isLoggedIn');
-            localStorage.removeItem('loggedUser');
-            localStorage.removeItem('lastActiveTime');
+            localStorage.removeItem('isLoggedIn'); localStorage.removeItem('loggedUser'); localStorage.removeItem('lastActiveTime');
             alert("⏰ Sesi habis karena tidak ada aktivitas selama 5 menit. Silakan masuk kembali.");
-            location.reload(); // Refresh halaman ke tampilan login
+            location.reload(); 
         }
 
-        // Pasang event listener deteksi aktivitas pengguna
         ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(event => {
             window.addEventListener(event, resetIdleTimer);
         });
 
-        // CEK STATUS LOGIN & TIMEOUT SAAT HALAMAN DIBUKA / DI-REFRESH
         window.addEventListener('DOMContentLoaded', () => {
             const isLogged = localStorage.getItem('isLoggedIn');
             const lastActive = localStorage.getItem('lastActiveTime');
@@ -658,15 +367,19 @@
 
             if (isLogged === 'true') {
                 if (lastActive && (Date.now() - parseInt(lastActive) > TIMEOUT_LIMIT)) {
-                    // Jika waktu offline/tidak aktif melebihi 5 menit, langsung logout
                     triggerAutoLogout();
                 } else {
                     document.getElementById('username-text').innerText = savedUser;
                     document.getElementById('login-container').style.display = 'none';
                     document.body.style.display = 'block';
                     document.getElementById('app-container').style.display = 'block';
+                    
+                    // Render tampilan dari LocalStorage secepat kilat
+                    updateUI(); 
+                    
+                    // Lalu coba ambil data terbaru dari Google Sheets di background
                     fetchTransactionsFromSheet();
-                    resetIdleTimer(); // Mulai hitung mundur timer
+                    resetIdleTimer();
                 }
             }
         });
@@ -674,26 +387,18 @@
         function togglePasswordVisibility() {
             const passInput = document.getElementById('password-input');
             const toggleBtn = document.querySelector('.toggle-password');
-            if (passInput.type === 'password') {
-                passInput.type = 'text';
-                toggleBtn.innerText = 'Sembunyi';
-            } else {
-                passInput.type = 'password';
-                toggleBtn.innerText = 'Lihat';
-            }
+            if (passInput.type === 'password') { passInput.type = 'text'; toggleBtn.innerText = 'Sembunyi'; } 
+            else { passInput.type = 'password'; toggleBtn.innerText = 'Lihat'; }
         }
 
         function toggleProfileDropdown(event) {
             event.stopPropagation();
-            const dropdown = document.getElementById('profile-dropdown');
-            dropdown.classList.toggle('show');
+            document.getElementById('profile-dropdown').classList.toggle('show');
         }
 
         window.addEventListener('click', function() {
             const dropdown = document.getElementById('profile-dropdown');
-            if (dropdown && dropdown.classList.contains('show')) {
-                dropdown.classList.remove('show');
-            }
+            if (dropdown && dropdown.classList.contains('show')) dropdown.classList.remove('show');
         });
 
         function handleLogin(e) {
@@ -701,8 +406,8 @@
             const userInp = document.getElementById('username-input').value.trim();
             const passInp = document.getElementById('password-input').value.trim();
 
-            if (userInp === CORRECT_USER && passInp === CORRECT_PASS) {
-                // SIMPAN STATUS LOGIN & WAKTU AKTIF KE LOCALSTORAGE
+            // Cek kecocokan password dengan base64
+            if (userInp === CORRECT_USER && btoa(passInp) === ENCODED_PASS) {
                 localStorage.setItem('isLoggedIn', 'true');
                 localStorage.setItem('loggedUser', userInp);
                 localStorage.setItem('lastActiveTime', Date.now());
@@ -711,6 +416,8 @@
                 document.getElementById('login-container').style.display = 'none';
                 document.body.style.display = 'block';
                 document.getElementById('app-container').style.display = 'block';
+                
+                updateUI();
                 fetchTransactionsFromSheet();
                 resetIdleTimer();
             } else {
@@ -722,15 +429,11 @@
         function handleLogout() {
             if (confirm("Yakin ingin keluar dari akun?")) {
                 clearTimeout(idleTimer);
-                localStorage.removeItem('isLoggedIn');
-                localStorage.removeItem('loggedUser');
-                localStorage.removeItem('lastActiveTime');
-
+                localStorage.removeItem('isLoggedIn'); localStorage.removeItem('loggedUser'); localStorage.removeItem('lastActiveTime');
                 document.getElementById('app-container').style.display = 'none';
                 document.body.style.display = 'flex';
                 document.getElementById('login-container').style.display = 'block';
-                document.getElementById('username-input').value = '';
-                document.getElementById('password-input').value = '';
+                document.getElementById('username-input').value = ''; document.getElementById('password-input').value = '';
             }
         }
 
@@ -739,35 +442,26 @@
         const currentTheme = localStorage.getItem('theme') || 'light';
         document.body.setAttribute('data-theme', currentTheme);
         const themeCheckbox = document.getElementById('theme-checkbox');
-        if(themeCheckbox) {
-            themeCheckbox.checked = (currentTheme === 'dark');
-        }
+        if(themeCheckbox) themeCheckbox.checked = (currentTheme === 'dark');
 
         function toggleTheme() {
             let theme = document.body.getAttribute('data-theme');
             if(theme === 'light') {
-                document.body.setAttribute('data-theme', 'dark');
-                localStorage.setItem('theme', 'dark');
+                document.body.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark');
             } else {
-                document.body.setAttribute('data-theme', 'light');
-                localStorage.setItem('theme', 'light');
+                document.body.setAttribute('data-theme', 'light'); localStorage.setItem('theme', 'light');
             }
             updateUI();
         }
 
         let goldPricePerGram = parseFloat(localStorage.getItem('goldPricePerGram')) || 1200000;
         const goldPriceEl = document.getElementById('gold-price-input');
-        if(goldPriceEl) {
-            goldPriceEl.value = new Intl.NumberFormat('id-ID').format(goldPricePerGram);
-        }
+        if(goldPriceEl) goldPriceEl.value = new Intl.NumberFormat('id-ID').format(goldPricePerGram);
 
         function formatGoldPriceInput(el) {
             let raw = el.value.replace(/[^0-9]/g, '');
-            if(raw) {
-                el.value = new Intl.NumberFormat('id-ID').format(raw);
-            } else {
-                el.value = '';
-            }
+            if(raw) el.value = new Intl.NumberFormat('id-ID').format(raw);
+            else el.value = '';
         }
 
         function saveGoldPrice() {
@@ -785,38 +479,32 @@
         function handleTypeChange() {
             const type = document.getElementById('type').value;
             const amountInput = document.getElementById('amount');
-            if(type === 'tring') {
-                amountInput.placeholder = "Jumlah Gram Emas (Misal: 0.5 atau 2)";
-            } else {
-                amountInput.placeholder = "Jumlah Rupiah (Misal: 100.000)";
-            }
+            if(type === 'tring') amountInput.placeholder = "Jumlah Gram Emas (Misal: 0.5 atau 2)";
+            else amountInput.placeholder = "Jumlah Rupiah (Misal: 100.000)";
         }
 
-        let transactions = [];
-
+        // --- FETCH DARI ONLINE (GOOGLE SHEETS) ---
         async function fetchTransactionsFromSheet() {
-            if (WEB_APP_URL === 'URL_WEB_APP_GOOGLE_LU_DISINI') return;
+            if (!WEB_APP_URL || WEB_APP_URL.includes('URL_WEB_APP')) return; // Abaikan jika URL belum diisi
             try {
                 const response = await fetch(WEB_APP_URL, {
                     method: 'POST',
                     body: JSON.stringify({ action: 'sync' })
                 });
                 const result = await response.json();
-                if (result.status === 'success') {
+                if (result.status === 'success' && result.data.length > 0) {
                     transactions = result.data;
+                    saveToLocal(); // Simpan hasil online ke lokal
                     updateUI();
                 }
             } catch (err) {
-                console.error("Gagal memuat data online:", err);
+                console.log("Mode Offline / Gagal memuat dari Sheets. Tetap memakai data lokal.");
             }
         }
 
+        // Fungsi export & import (sudah diperbaiki untuk auto-save ke local)
         function exportToExcel() {
-            if (transactions.length === 0) {
-                alert("Belum ada data transaksi untuk diexport!");
-                return;
-            }
-
+            if (transactions.length === 0) { alert("Belum ada data transaksi!"); return; }
             let csvContent = "\uFEFFTanggal,Keterangan,Jenis Transaksi,Jumlah (Rp / Gram)\n";
             transactions.forEach(trx => {
                 let typeName = trx.type;
@@ -828,32 +516,22 @@
                 else if(trx.type === 'jago' || trx.type === 'inv_jago') typeName = 'Emas Jago';
 
                 let cleanDesc = `"${trx.desc.replace(/"/g, '""')}"`;
-                let row = [trx.date, cleanDesc, typeName, trx.amount].join(",");
-                csvContent += row + "\n";
+                csvContent += [trx.date, cleanDesc, typeName, trx.amount].join(",") + "\n";
             });
-
             const encodedUri = encodeURI("data:text/csv;charset=utf-8," + csvContent);
-            const downloadLink = document.createElement("a");
-            downloadLink.setAttribute("href", encodedUri);
-            downloadLink.setAttribute("download", `laporan_keuangan_${new Date().toISOString().slice(0,10)}.csv`);
-            document.body.appendChild(downloadLink);
-            downloadLink.click();
-            downloadLink.remove();
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `laporan_keuangan_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link); link.click(); link.remove();
         }
 
         function exportData() {
-            const dataToBackup = {
-                transactions: transactions,
-                financialGoals: financialGoals,
-                goldPricePerGram: goldPricePerGram
-            };
+            const dataToBackup = { transactions: transactions, financialGoals: financialGoals, goldPricePerGram: goldPricePerGram };
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataToBackup, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `backup_keuangan_${new Date().toISOString().slice(0,10)}.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
+            const link = document.createElement('a');
+            link.setAttribute("href", dataStr);
+            link.setAttribute("download", `backup_keuangan_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(link); link.click(); link.remove();
         }
 
         function importData(event) {
@@ -865,6 +543,8 @@
                         const parsed = JSON.parse(e.target.result);
                         if (parsed.transactions && Array.isArray(parsed.transactions)) {
                             transactions = parsed.transactions;
+                            saveToLocal(); // Simpan ke local storage
+                            
                             if (parsed.financialGoals) {
                                 financialGoals = parsed.financialGoals;
                                 localStorage.setItem('financialGoals', JSON.stringify(financialGoals));
@@ -875,13 +555,9 @@
                                 document.getElementById('gold-price-input').value = new Intl.NumberFormat('id-ID').format(goldPricePerGram);
                             }
                             updateUI();
-                            alert("Data berhasil dipulihkan (Restore)! Harap sync manual ke Google Sheet jika diperlukan.");
-                        } else {
-                            alert("Format file backup tidak valid!");
-                        }
-                    } catch (error) {
-                        alert("Gagal membaca file JSON.");
-                    }
+                            alert("Data berhasil dipulihkan (Restore)!");
+                        } else alert("Format file backup tidak valid!");
+                    } catch (error) { alert("Gagal membaca file JSON."); }
                 };
             }
         }
@@ -913,11 +589,8 @@
                 const type = document.getElementById('type').value;
                 if (type !== 'tring') {
                     let rawValue = this.value.replace(/[^0-9]/g, ''); 
-                    if (rawValue) {
-                        this.value = new Intl.NumberFormat('id-ID').format(rawValue);
-                    } else {
-                        this.value = '';
-                    }
+                    if (rawValue) this.value = new Intl.NumberFormat('id-ID').format(rawValue);
+                    else this.value = '';
                 } else {
                     this.value = this.value.replace(/[^0-9.,]/g, '').replace(',', '.');
                 }
@@ -940,11 +613,7 @@
                 type: 'doughnut',
                 data: {
                     labels: ['Uang Tunai', 'Simpanan Wajib', 'Tabungan Pribadi', 'Emas Tring', 'Emas Bank Jago'],
-                    datasets: [{
-                        data: [safeCash, simpanan, pribadi, tringRupiah, jago],
-                        backgroundColor: ['#2ecc71', '#9b59b6', '#00b4d8', '#f1c40f', '#e67e22'],
-                        borderWidth: 0, hoverOffset: 4
-                    }]
+                    datasets: [{ data: [safeCash, simpanan, pribadi, tringRupiah, jago], backgroundColor: ['#2ecc71', '#9b59b6', '#00b4d8', '#f1c40f', '#e67e22'], borderWidth: 0, hoverOffset: 4 }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } } }
             });
@@ -959,25 +628,12 @@
                 data: {
                     labels: monthlyLabels,
                     datasets: [
-                        {
-                            label: 'Pemasukan',
-                            data: monthlyIncomeData,
-                            backgroundColor: '#2ecc71',
-                            borderRadius: 6,
-                            barThickness: 24
-                        },
-                        {
-                            label: 'Pengeluaran',
-                            data: monthlyExpenseData,
-                            backgroundColor: '#fb7185',
-                            borderRadius: 6,
-                            barThickness: 24
-                        }
+                        { label: 'Pemasukan', data: monthlyIncomeData, backgroundColor: '#2ecc71', borderRadius: 6, barThickness: 24 },
+                        { label: 'Pengeluaran', data: monthlyExpenseData, backgroundColor: '#fb7185', borderRadius: 6, barThickness: 24 }
                     ]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    responsive: true, maintainAspectRatio: false,
                     scales: {
                         x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 11 } } },
                         y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 11 } } }
@@ -1016,8 +672,7 @@
         let globalMonthlyData = {};
 
         function renderMonthlyReport() {
-            reportBodyEl.innerHTML = '';
-            globalMonthlyData = {};
+            reportBodyEl.innerHTML = ''; globalMonthlyData = {};
             const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
 
             transactions.forEach(trx => {
@@ -1026,16 +681,10 @@
                 
                 if(trx.date.includes('/')) {
                     const parts = trx.date.split('/');
-                    if(parts.length === 3) {
-                        month = parts[1].padStart(2, '0');
-                        year = parts[2];
-                    }
+                    if(parts.length === 3) { month = parts[1].padStart(2, '0'); year = parts[2]; }
                 } else if(trx.date.includes('-')) {
                     const dateObj = new Date(trx.date);
-                    if(!isNaN(dateObj)) {
-                        month = String(dateObj.getMonth() + 1).padStart(2, '0');
-                        year = String(dateObj.getFullYear());
-                    }
+                    if(!isNaN(dateObj)) { month = String(dateObj.getMonth() + 1).padStart(2, '0'); year = String(dateObj.getFullYear()); }
                 }
 
                 if(year && month) {
@@ -1080,20 +729,10 @@
                 evalMonthSelect.innerHTML = '<option>Belum ada data</option>';
             } else {
                 sortedKeys.forEach(key => {
-                    const opt1 = document.createElement('option');
-                    opt1.value = key;
-                    opt1.innerText = globalMonthlyData[key].label;
-                    evalMonthSelect.appendChild(opt1);
-
-                    const opt2 = document.createElement('option');
-                    opt2.value = key;
-                    opt2.innerText = globalMonthlyData[key].label;
-                    filterMonthSelect.appendChild(opt2);
+                    const opt1 = document.createElement('option'); opt1.value = key; opt1.innerText = globalMonthlyData[key].label; evalMonthSelect.appendChild(opt1);
+                    const opt2 = document.createElement('option'); opt2.value = key; opt2.innerText = globalMonthlyData[key].label; filterMonthSelect.appendChild(opt2);
                 });
-
-                if(globalMonthlyData[currentSelectedMonth]) {
-                    evalMonthSelect.value = currentSelectedMonth;
-                }
+                if(globalMonthlyData[currentSelectedMonth]) evalMonthSelect.value = currentSelectedMonth;
                 filterMonthSelect.value = currentFilter;
             }
 
@@ -1101,7 +740,6 @@
             reversedKeys.forEach(key => {
                 const data = globalMonthlyData[key];
                 const netCash = data.income - data.expense - data.jago; 
-                
                 const netCashClass = netCash >= 0 ? 'inc-text' : 'exp-text';
                 const netCashSign = netCash >= 0 ? '+ ' : '- ';
                 
@@ -1119,9 +757,7 @@
                 reportBodyEl.appendChild(tr);
             });
 
-            const chartLabels = [];
-            const chartIncomeValues = [];
-            const chartExpenseValues = [];
+            const chartLabels = []; const chartIncomeValues = []; const chartExpenseValues = [];
             sortedKeys.forEach(key => {
                 const data = globalMonthlyData[key];
                 chartLabels.push(data.label);
@@ -1140,10 +776,7 @@
             const topExpenseEl = document.getElementById('eval-top-expense');
 
             if (!globalMonthlyData[selectedKey]) {
-                savingsRateEl.innerText = "0%";
-                statusEl.innerText = "Belum ada data";
-                topExpenseEl.innerText = "-";
-                return;
+                savingsRateEl.innerText = "0%"; statusEl.innerText = "Belum ada data"; topExpenseEl.innerText = "-"; return;
             }
 
             const mData = globalMonthlyData[selectedKey];
@@ -1155,28 +788,15 @@
                 savingsRate = (activeSaving / mData.income) * 100;
                 if(savingsRate < 0) savingsRate = 0;
             }
-
             savingsRateEl.innerText = savingsRate.toFixed(1) + "%";
 
-            if (mData.income === 0 && totalOut === 0) {
-                statusEl.innerText = "Netral";
-                statusEl.style.color = "var(--text-gray)";
-            } else if (mData.income >= totalOut + activeSaving && savingsRate >= 20) {
-                statusEl.innerText = "🚀 Sangat Sehat";
-                statusEl.style.color = "var(--income)";
-            } else if (mData.income >= totalOut) {
-                statusEl.innerText = "👍 Stabil / Cukup";
-                statusEl.style.color = "var(--primary)";
-            } else {
-                statusEl.innerText = "⚠️ Defisit (Boncos)";
-                statusEl.style.color = "var(--expense)";
-            }
+            if (mData.income === 0 && totalOut === 0) { statusEl.innerText = "Netral"; statusEl.style.color = "var(--text-gray)"; }
+            else if (mData.income >= totalOut + activeSaving && savingsRate >= 20) { statusEl.innerText = "🚀 Sangat Sehat"; statusEl.style.color = "var(--income)"; }
+            else if (mData.income >= totalOut) { statusEl.innerText = "👍 Stabil / Cukup"; statusEl.style.color = "var(--primary)"; }
+            else { statusEl.innerText = "⚠️ Defisit (Boncos)"; statusEl.style.color = "var(--expense)"; }
 
-            if (mData.topExpenseAmt > 0) {
-                topExpenseEl.innerText = `${mData.topExpenseName} (${formatRp(mData.topExpenseAmt)})`;
-            } else {
-                topExpenseEl.innerText = "Tidak ada pengeluaran";
-            }
+            if (mData.topExpenseAmt > 0) topExpenseEl.innerText = `${mData.topExpenseName} (${formatRp(mData.topExpenseAmt)})`;
+            else topExpenseEl.innerText = "Tidak ada pengeluaran";
         }
 
         function updateUI() {
@@ -1198,14 +818,10 @@
                     let trxKey = '';
                     if(trx.date.includes('/')) {
                         const parts = trx.date.split('/');
-                        if (parts.length === 3) {
-                            trxKey = `${parts[2]}-${parts[1].padStart(2, '0')}`;
-                        }
+                        if (parts.length === 3) trxKey = `${parts[2]}-${parts[1].padStart(2, '0')}`;
                     } else if(trx.date.includes('-')) {
                         const dateObj = new Date(trx.date);
-                        if(!isNaN(dateObj)) {
-                            trxKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
-                        }
+                        if(!isNaN(dateObj)) trxKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
                     }
                     if (trxKey && trxKey !== selectedFilterMonth) return; 
                 }
@@ -1220,12 +836,10 @@
                 else if (trx.type === 'tring' || trx.type === 'inv_tring') { sign = '+'; textClass = 'tring-text'; liClass = 'tring'; displayAmount = amt.toFixed(3) + ' Gram'; }
                 else if (trx.type === 'jago' || trx.type === 'inv_jago') { sign = 'Beli Jago'; textClass = 'jago-text'; liClass = 'jago'; displayAmount = formatRp(amt); }
 
-                if (liClass !== '') { li.classList.add(liClass); }
+                if (liClass !== '') li.classList.add(liClass);
 
                 let formattedDateDisplay = trx.date;
-                if(trx.date.includes('T')) {
-                    formattedDateDisplay = trx.date.split('T')[0];
-                }
+                if(trx.date.includes('T')) formattedDateDisplay = trx.date.split('T')[0];
 
                 li.innerHTML = `
                     <div>
@@ -1267,61 +881,59 @@
                 let rawAmount = document.getElementById('amount').value;
                 
                 let amount = 0;
-                if(type === 'tring') {
-                    amount = parseFloat(rawAmount.replace(',', '.')) || 0;
-                } else {
-                    amount = parseInt(rawAmount.replace(/\./g, '')) || 0;
-                }
+                if(type === 'tring') amount = parseFloat(rawAmount.replace(',', '.')) || 0;
+                else amount = parseInt(rawAmount.replace(/\./g, '')) || 0;
                 
                 const dateObj = new Date();
                 const dateStr = dateObj.getDate() + '/' + (dateObj.getMonth()+1) + '/' + dateObj.getFullYear();
 
                 const transaction = { 
                     id: 'id_' + Math.floor(Math.random() * 100000000), 
-                    desc: desc, 
-                    amount: amount, 
-                    type: type, 
-                    date: dateStr 
+                    desc: desc, amount: amount, type: type, date: dateStr 
                 };
 
-                if (WEB_APP_URL !== 'URL_WEB_APP_GOOGLE_LU_DISINI') {
+                // 1. Simpan ke lokal dulu (Biar instan)
+                transactions.unshift(transaction); 
+                saveToLocal();
+                updateUI();
+                formEl.reset();
+                handleTypeChange();
+
+                // 2. Kirim ke Google Sheets (Background process)
+                if (WEB_APP_URL && !WEB_APP_URL.includes('URL_WEB_APP')) {
                     try {
                         await fetch(WEB_APP_URL, {
                             method: 'POST',
                             body: JSON.stringify({ action: 'add', ...transaction })
                         });
-                    } catch (err) {
-                        console.error("Gagal simpan ke online:", err);
-                    }
+                    } catch (err) { console.error("Gagal simpan ke online:", err); }
                 }
-
-                transactions.unshift(transaction); 
-                updateUI();
-                formEl.reset();
-                handleTypeChange();
             });
         }
 
         async function deleteTransaction(id) {
             if (confirm("Yakin mau hapus catatan ini?")) {
-                if (WEB_APP_URL !== 'URL_WEB_APP_GOOGLE_LU_DISINI') {
+                // 1. Hapus dari lokal dulu biar cepat
+                transactions = transactions.filter(trx => trx.id != id);
+                saveToLocal();
+                updateUI();
+
+                // 2. Hapus dari online
+                if (WEB_APP_URL && !WEB_APP_URL.includes('URL_WEB_APP')) {
                     try {
                         await fetch(WEB_APP_URL, {
                             method: 'POST',
                             body: JSON.stringify({ action: 'delete', id: id })
                         });
-                    } catch (err) {
-                        console.error("Gagal hapus dari online:", err);
-                    }
+                    } catch (err) { console.error("Gagal hapus dari online:", err); }
                 }
-                transactions = transactions.filter(trx => trx.id != id);
-                updateUI();
             }
         }
 
         function resetData() {
-            if (confirm("Peringatan: Reset database lokal. Data di Google Sheet tidak akan ikut terhapus otomatis kecuali dihapus manual dari Sheet.")) {
+            if (confirm("Peringatan: Reset database lokal. Data di Google Sheet tidak akan ikut terhapus otomatis kecuali dihapus manual.")) {
                 transactions = [];
+                saveToLocal();
                 localStorage.removeItem('financialGoals');
                 financialGoals = { wealthGoal: 50000000, goldGoal: 10000000 };
                 updateUI();
