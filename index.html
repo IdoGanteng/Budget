@@ -118,7 +118,17 @@
         .progress-fill { height: 100%; border-radius: 100px; transition: width 0.8s; }
 
         .history-list { list-style: none; max-height: 300px; overflow-y: auto; }
-        .history-list li { display: flex; justify-content: space-between; align-items: center; background: var(--list-bg); padding: 14px 16px; margin-bottom: 10px; border-radius: 16px; border: 1px solid var(--border-color); }
+        
+        /* DIPERBAIKI: Layout list riwayat agar sisi kiri & kanan aman sejajar */
+        .history-list li { 
+            display: flex; justify-content: space-between; align-items: center; 
+            background: var(--list-bg); padding: 12px 16px; margin-bottom: 10px; 
+            border-radius: 16px; border: 1px solid var(--border-color); gap: 16px;
+        }
+        .history-item-left { flex: 1; min-width: 0; }
+        .history-item-left span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .history-item-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; text-align: right; white-space: nowrap; }
+        
         .text-inc { color: var(--income); } .text-exp { color: var(--expense); }
 
         .roadmap-grid { display: grid; grid-template-columns: 340px 1fr; gap: 24px; align-items: start; }
@@ -516,6 +526,19 @@
         }
 
         function formatRp(angka) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka); }
+
+        function cleanDateStr(dateStr) {
+            if (!dateStr) return '-';
+            if (dateStr.includes('T')) {
+                try {
+                    let d = new Date(dateStr);
+                    if (!isNaN(d.getTime())) {
+                        return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
+                    }
+                } catch(e) {}
+            }
+            return dateStr;
+        }
         
         let financeChart, comparisonChart;
         function updateCharts(cash, simpanan, pribadi, tring, jago, totalInc, totalExp) {
@@ -537,7 +560,7 @@
             if (!analysisEl) return;
 
             if (totalInc === 0 && totalExp === 0) {
-                analysisEl.innerHTML = `<p style="color: var(--text-gray);">Belum ada data transaksi pada periode ini.</p>`;
+                analysisEl.innerHTML = `<p style="color: var(--text-gray);">Belum ada data transaksi yang cukup untuk dianalisa pada bulan ini.</p>`;
                 return;
             }
 
@@ -579,8 +602,9 @@
             
             let monthsSet = new Set();
             transactions.forEach(trx => {
-                if(trx.date && trx.date.includes('/')) {
-                    let parts = trx.date.split('/');
+                let cleanD = cleanDateStr(trx.date);
+                if(cleanD && cleanD.includes('/')) {
+                    let parts = cleanD.split('/');
                     if(parts.length === 3) monthsSet.add(parts[1] + '/' + parts[2]);
                 }
             });
@@ -601,16 +625,16 @@
 
             transactions.forEach((trx) => {
                 const amt = Number(trx.amount);
+                let cleanD = cleanDateStr(trx.date);
                 
                 let isCurrentMonthMatch = true;
-                if(selectedMonth !== 'all' && trx.date) {
-                    let parts = trx.date.split('/');
+                if(selectedMonth !== 'all' && cleanD) {
+                    let parts = cleanD.split('/');
                     if(parts.length === 3 && (parts[1] + '/' + parts[2]) !== selectedMonth) {
                         isCurrentMonthMatch = false;
                     }
                 }
 
-                // Kalkulasi global aset
                 if (trx.type === 'income') { totalIncAll += amt; if(isCurrentMonthMatch) filteredInc += amt; } 
                 else if (trx.type === 'expense') { totalExpAll += amt; if(isCurrentMonthMatch) filteredExp += amt; } 
                 else if (trx.type === 'simpanan') totalSimAll += amt; 
@@ -622,7 +646,7 @@
                     if(isCurrentMonthMatch) filteredExp += amt;
                 }
 
-                if(!isCurrentMonthMatch) return; // Skip render list riwayat jika tidak sesuai filter
+                if(!isCurrentMonthMatch) return;
                 
                 const li = document.createElement('li');
                 let sign = '', tCls = '', dAmt = '';
@@ -633,7 +657,16 @@
                 else if (trx.type === 'tring' || trx.type === 'inv_tring') { sign='+'; tCls='text-inc'; dAmt=amt.toFixed(2)+' Gr'; } 
                 else if (trx.type === 'jago' || trx.type === 'inv_jago') { sign='Jago'; tCls='text-exp'; dAmt=formatRp(amt); }
                 
-                li.innerHTML = `<div><span style="font-weight:700; font-size:13px; display:block; color:var(--text-dark);">${trx.desc}</span><span style="font-size:11px; color:var(--text-gray);">${trx.date}</span></div><div style="display:flex; align-items:center; gap:12px;"><span class="${tCls}" style="font-weight:800; font-size:13px;">${sign} ${dAmt}</span><button onclick="deleteTransaction('${trx.id}')" style="background:transparent; color:var(--expense); border:none; font-size:18px; cursor:pointer; padding:0;">×</button></div>`;
+                li.innerHTML = `
+                    <div class="history-item-left">
+                        <strong style="font-size:13px; color:var(--text-dark); display:block;">${trx.desc}</strong>
+                        <span style="font-size:11px; color:var(--text-gray); display:block;">${cleanD}</span>
+                    </div>
+                    <div class="history-item-right">
+                        <span class="${tCls}" style="font-weight:800; font-size:13px;">${sign} ${dAmt}</span>
+                        <button onclick="deleteTransaction('${trx.id}')" style="background:transparent; color:var(--expense); border:none; font-size:18px; cursor:pointer; padding:0; line-height:1;">×</button>
+                    </div>
+                `;
                 listEl.appendChild(li);
             });
 
