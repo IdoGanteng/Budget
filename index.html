@@ -191,7 +191,7 @@
                             <input type="text" id="amount" placeholder="Nominal Rupiah / Gram" autocomplete="off" required>
                             <select id="type" onchange="handleTypeChange()">
                                 <optgroup label="Uang Harian"><option value="income">Pemasukan (+)</option><option value="expense">Pengeluaran (-)</option></optgroup>
-                                <optgroup label="Tabungan & Aset"><option value="simpanan">Simpanan Wajib (+)</option><option value="pribadi">Tabungan Pribadi (+)</option><option value="tring">Emas Tring (+)</option><option value="jago">Emas Jago (+)</option></optgroup>
+                                <optgroup label="Tabungan & Aset"><option value="simpanan">Simpanan Wajib (+)</option><option value="pribadi">Tabungan Pribadi (+)</option><option value="tring">Emas Tring (+)</option><option value="jago">Emas Jago (- Kas, + Aset)</option></optgroup>
                             </select>
                             <button type="submit" class="btn-primary" style="padding: 12px; border-radius: 14px; border:none;">Simpan Catatan</button>
                         </form>
@@ -529,13 +529,11 @@
 
         function updateUI() {
             const listEl = document.getElementById('list'); listEl.innerHTML = ''; 
-            let inc=0, exp=0, sim=0, pri=0, trg=0, jag=0;
             
             // Populate filter bulan
             const monthSelect = document.getElementById('filter-month-select');
             const selectedMonth = monthSelect ? monthSelect.value : 'all';
             
-            // Ekstrak bulan unik untuk dropdown
             let monthsSet = new Set();
             transactions.forEach(trx => {
                 if(trx.date && trx.date.includes('/')) {
@@ -555,23 +553,30 @@
                 monthSelect.value = currentVal;
             }
 
+            // Hitung total keseluruhan untuk statistik utama & grafik
+            let totalIncAll = 0, totalExpAll = 0, totalSimAll = 0, totalPriAll = 0, totalTrgAll = 0, totalJagAll = 0;
+
             transactions.forEach((trx) => {
                 const amt = Number(trx.amount);
                 
-                // Filter logic
+                // Akumulasi data global
+                if (trx.type === 'income') totalIncAll += amt; 
+                else if (trx.type === 'expense') totalExpAll += amt; 
+                else if (trx.type === 'simpanan') totalSimAll += amt; 
+                else if (trx.type === 'pribadi') totalPriAll += amt; 
+                else if (trx.type === 'tring' || trx.type === 'inv_tring') totalTrgAll += amt; 
+                else if (trx.type === 'jago' || trx.type === 'inv_jago') {
+                    totalJagAll += amt;
+                    totalExpAll += amt; // Jago dihitung sebagai pengeluaran/investasi keluar kas pada grafik
+                }
+
+                // Filter logic untuk tampilan list riwayat
                 if(selectedMonth !== 'all' && trx.date) {
                     let parts = trx.date.split('/');
                     if(parts.length === 3 && (parts[1] + '/' + parts[2]) !== selectedMonth) {
-                        return; // Skip jika tidak sesuai filter
+                        return; // Skip render jika tidak sesuai filter bulan
                     }
                 }
-
-                if (trx.type === 'income') inc+=amt; 
-                else if (trx.type === 'expense') exp+=amt; 
-                else if (trx.type === 'simpanan') sim+=amt; 
-                else if (trx.type === 'pribadi') pri+=amt; 
-                else if (trx.type === 'tring' || trx.type === 'inv_tring') trg+=amt; 
-                else if (trx.type === 'jago' || trx.type === 'inv_jago') jag+=amt;
                 
                 const li = document.createElement('li');
                 let sign = '', tCls = '', dAmt = '';
@@ -580,26 +585,14 @@
                 else if (trx.type === 'simpanan') { sign='Simpan'; tCls='text-inc'; dAmt=formatRp(amt); } 
                 else if (trx.type === 'pribadi') { sign='Pribadi'; tCls='text-inc'; dAmt=formatRp(amt); } 
                 else if (trx.type === 'tring' || trx.type === 'inv_tring') { sign='+'; tCls='text-inc'; dAmt=amt.toFixed(2)+' Gr'; } 
-                else if (trx.type === 'jago' || trx.type === 'inv_jago') { sign='+'; tCls='text-inc'; dAmt=formatRp(amt); }
+                else if (trx.type === 'jago' || trx.type === 'inv_jago') { sign='Jago'; tCls='text-exp'; dAmt=formatRp(amt); }
                 
                 li.innerHTML = `<div><span style="font-weight:700; font-size:13px; display:block; color:var(--text-dark);">${trx.desc}</span><span style="font-size:11px; color:var(--text-gray);">${trx.date}</span></div><div style="display:flex; align-items:center; gap:12px;"><span class="${tCls}" style="font-weight:800; font-size:13px;">${sign} ${dAmt}</span><button onclick="deleteTransaction('${trx.id}')" style="background:transparent; color:var(--expense); border:none; font-size:18px; cursor:pointer; padding:0;">×</button></div>`;
                 listEl.appendChild(li);
             });
 
-            // Hitung total keseluruhan untuk statistik utama
-            let totalIncAll = 0, totalExpAll = 0, totalSimAll = 0, totalPriAll = 0, totalTrgAll = 0, totalJagAll = 0;
-            transactions.forEach(trx => {
-                const amt = Number(trx.amount);
-                if (trx.type === 'income') totalIncAll += amt;
-                else if (trx.type === 'expense') totalExpAll += amt;
-                else if (trx.type === 'simpanan') totalSimAll += amt;
-                else if (trx.type === 'pribadi') totalPriAll += amt;
-                else if (trx.type === 'tring' || trx.type === 'inv_tring') totalTrgAll += amt;
-                else if (trx.type === 'jago' || trx.type === 'inv_jago') totalJagAll += amt;
-            });
-
             const trgRp = totalTrgAll * goldPricePerGram; 
-            const cash = totalIncAll - totalExpAll - totalJagAll; 
+            const cash = totalIncAll - totalExpAll; 
             const total = cash + totalSimAll + totalPriAll + trgRp + totalJagAll; 
             const gold = trgRp + totalJagAll;
 
