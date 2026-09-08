@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#020617">
     
     <title>Personal OS - Keuangan & Roadmap</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -16,15 +16,15 @@
     <style>
         :root { 
             --bg-color: #f8fafc; --card-bg: #ffffff; --primary: #4f46e5; --primary-hover: #4338ca; 
-            --income: #10b981; --expense: #ef4444; --tring: #f59e0b; --simpanan: #8b5cf6; 
-            --jago: #f97316; --pribadi: #0ea5e9; --text-dark: #0f172a; --text-gray: #64748b; 
-            --border-color: #e2e8f0; --list-bg: #f1f5f9; --glass-border: rgba(0,0,0,0.05);
+            --income: #10b981; --expense: #ef4444; --tring: #d97706; --simpanan: #7c3aed; 
+            --jago: #ea580c; --pribadi: #0284c7; --text-dark: #0f172a; --text-gray: #475569; 
+            --border-color: #cbd5e1; --list-bg: #f1f5f9; --glass-border: rgba(0,0,0,0.08);
         }
         [data-theme="dark"] { 
-            --bg-color: #020617; --card-bg: rgba(30, 41, 59, 0.7); --primary: #6366f1; --primary-hover: #4f46e5; 
-            --income: #10b981; --expense: #f43f5e; --tring: #fbbf24; --simpanan: #a855f7; 
-            --jago: #fb923c; --pribadi: #38bdf8; --text-dark: #f8fafc; --text-gray: #94a3b8; 
-            --border-color: rgba(255,255,255,0.08); --list-bg: rgba(15, 23, 42, 0.6); --glass-border: rgba(255,255,255,0.1);
+            --bg-color: #020617; --card-bg: rgba(15, 23, 42, 0.9); --primary: #818cf8; --primary-hover: #6366f1; 
+            --income: #34d399; --expense: #fb7185; --tring: #fbbf24; --simpanan: #c084fc; 
+            --jago: #fb923c; --pribadi: #38bdf8; --text-dark: #ffffff; --text-gray: #e2e8f0; 
+            --border-color: rgba(255,255,255,0.15); --list-bg: rgba(30, 41, 59, 0.8); --glass-border: rgba(255,255,255,0.15);
         }
         
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -45,6 +45,7 @@
         #login-container h1 { color: var(--primary); margin-bottom: 8px; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
         #login-container p { color: var(--text-gray); font-size: 13px; margin-bottom: 30px; }
         #login-container input { width: 100%; padding: 12px 16px; margin-bottom: 0; background: var(--list-bg); border: 1px solid var(--border-color); border-radius: 12px; color: var(--text-dark); font-size: 14px; outline: none; transition: 0.2s; }
+        #login-container input::placeholder { color: var(--text-gray); opacity: 0.7; }
         #login-container input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); }
         
         .password-wrapper { position: relative; width: 100%; margin-bottom: 12px; }
@@ -55,7 +56,7 @@
             width: auto; padding: 4px; z-index: 10; display: flex; align-items: center; justify-content: center;
         }
 
-        #login-container button[type="submit"] { width: 100%; padding: 12px; background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: white; border: none; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; margin-top: 6px; }
+        #login-container button[type="submit"] { width: 100%; padding: 12px; background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: #020617; border: none; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; margin-top: 6px; }
         #login-container button[type="submit"]:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -10px var(--primary); }
 
         .app-navbar-container { display: flex; justify-content: center; margin-bottom: 30px; position: relative; z-index: 40; }
@@ -70,7 +71,7 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .nav-tab-btn:hover { color: var(--text-dark); }
-        .nav-tab-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4); }
+        .nav-tab-btn.active { background: var(--primary); color: #020617; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4); font-weight: 700; }
 
         .app-wrapper { display: none; width: 100%; max-width: 1400px; margin: 0 auto; animation: fadeInUp 0.5s ease forwards; }
         .app-wrapper.active { display: block; }
@@ -82,7 +83,7 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.03);
         }
         .panel-title { font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
-        .badge { background: rgba(99, 102, 241, 0.1); color: var(--primary); font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; }
+        .badge { background: rgba(99, 102, 241, 0.2); color: var(--primary); font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; }
 
         .dashboard-layout { display: grid; grid-template-columns: 360px 1fr; gap: 24px; align-items: start; }
         .sidebar-col { display: flex; flex-direction: column; gap: 20px; position: sticky; top: 20px; }
@@ -90,7 +91,7 @@
 
         .header-info { display: flex; justify-content: space-between; align-items: center; }
         .app-title { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 8px;}
-        .user-menu { background: var(--list-bg); border: 1px solid var(--border-color); padding: 8px 14px; border-radius: 100px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        .user-menu { background: var(--list-bg); border: 1px solid var(--border-color); color: var(--text-dark); padding: 8px 14px; border-radius: 100px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
         
         .theme-switch { position: relative; display: inline-block; width: 44px; height: 24px; }
         .theme-switch input { opacity: 0; width: 0; height: 0; }
@@ -101,21 +102,23 @@
 
         form { display: flex; flex-direction: column; gap: 12px; }
         input, select, button { width: 100%; padding: 12px 16px; border: 1px solid var(--border-color); background-color: var(--list-bg); color: var(--text-dark); border-radius: 14px; font-size: 14px; font-weight: 500; outline: none; }
-        button.btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: white; border: none; font-weight: 700; cursor: pointer; }
+        input::placeholder { color: var(--text-gray); opacity: 0.8; }
+        select option { background: var(--card-bg); color: var(--text-dark); }
+        button.btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: #020617; border: none; font-weight: 700; cursor: pointer; }
         button.btn-danger { background: var(--list-bg); color: var(--expense); border: 1px solid rgba(244, 63, 94, 0.3); font-weight: 600; cursor: pointer; }
 
-        .wealth-card { background: linear-gradient(135deg, var(--primary), #8b5cf6); color: white; padding: 30px; border-radius: 24px; text-align: center; box-shadow: 0 15px 30px -10px rgba(99, 102, 241, 0.4); }
-        .wealth-card h3 { font-size: 14px; font-weight: 500; opacity: 0.9; margin-bottom: 8px; }
-        .wealth-card p { font-size: 36px; font-weight: 800; }
+        .wealth-card { background: linear-gradient(135deg, var(--primary), #8b5cf6); color: #020617; padding: 30px; border-radius: 24px; text-align: center; box-shadow: 0 15px 30px -10px rgba(99, 102, 241, 0.4); }
+        .wealth-card h3 { font-size: 14px; font-weight: 700; opacity: 0.95; margin-bottom: 8px; color: #020617; }
+        .wealth-card p { font-size: 36px; font-weight: 800; color: #020617; }
 
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; }
         .stat-box { background: var(--list-bg); padding: 16px; border-radius: 16px; border: 1px solid var(--border-color); }
         .stat-box h3 { font-size: 12px; color: var(--text-gray); font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
-        .stat-box p { font-size: 16px; font-weight: 800; }
+        .stat-box p { font-size: 16px; font-weight: 800; color: var(--text-dark); }
         .c-balance p { color: var(--income); } .c-simpanan p { color: var(--simpanan); } 
         .c-pribadi p { color: var(--pribadi); } .c-tring p { color: var(--tring); } .c-jago p { color: var(--jago); }
 
-        .progress-wrapper { background: var(--list-bg); border-radius: 100px; height: 10px; overflow: hidden; margin-top: 8px; }
+        .progress-wrapper { background: var(--border-color); border-radius: 100px; height: 10px; overflow: hidden; margin-top: 8px; }
         .progress-fill { height: 100%; border-radius: 100px; transition: width 0.8s; }
 
         .history-list { list-style: none; max-height: 300px; overflow-y: auto; }
@@ -137,7 +140,7 @@
         .custom-checkbox::before { content: ""; width: 12px; height: 12px; transform: scale(0); box-shadow: inset 1em 1em white; background-color: white; transform-origin: center; clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); transition: 120ms transform; }
         .custom-checkbox:checked { background-color: var(--primary); border-color: var(--primary); }
         .custom-checkbox:checked::before { transform: scale(1); }
-        .task-text { font-size: 13px; color: var(--text-gray); font-weight: 500; line-height: 1.5; }
+        .task-text { font-size: 13px; color: var(--text-dark); font-weight: 500; line-height: 1.5; }
         .task-done .task-text { text-decoration: line-through; opacity: 0.5; }
 
         @media (max-width: 1024px) {
@@ -201,7 +204,7 @@
                     </div>
 
                     <div class="glass-panel">
-                        <h2 class="panel-title">🎯 Target 2026 <button onclick="setGoals()" style="font-size: 11px; padding: 4px 12px; border-radius: 100px; border:none; cursor:pointer;">Edit</button></h2>
+                        <h2 class="panel-title">🎯 Target 2026 <button onclick="setGoals()" style="font-size: 11px; padding: 4px 12px; border-radius: 100px; border:none; cursor:pointer; background:var(--list-bg); color:var(--text-dark);">Edit</button></h2>
                         <div style="margin-bottom: 16px;">
                             <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 4px;"><span>Kekayaan</span><span id="wealth-progress-text">0%</span></div>
                             <div class="progress-wrapper"><div id="wealth-progress-bar" class="progress-fill" style="width: 0%; background: var(--primary);"></div></div>
@@ -271,7 +274,7 @@
                     </div>
 
                     <div class="glass-panel">
-                        <div class="panel-title">Total Progress <button onclick="resetRoadmapProgress()" style="font-size: 11px; padding: 4px 12px; border-radius: 100px; border:none; cursor:pointer;">Reset</button></div>
+                        <div class="panel-title">Total Progress <button onclick="resetRoadmapProgress()" style="font-size: 11px; padding: 4px 12px; border-radius: 100px; border:none; cursor:pointer; background:var(--list-bg); color:var(--text-dark);">Reset</button></div>
                         <h3 id="roadmap-progress-text" style="font-size: 32px; font-weight: 800; color: var(--primary); margin-bottom: 8px;">0%</h3>
                         <div class="progress-wrapper"><div id="roadmap-progress-bar" class="progress-fill" style="width: 0%; background: linear-gradient(90deg, var(--primary), var(--pribadi));"></div></div>
                     </div>
@@ -287,7 +290,7 @@
 
                 <div class="roadmap-months">
                     <div class="glass-panel">
-                        <span class="badge" style="background:rgba(245, 158, 11, 0.1); color:var(--tring);">Bulan 1</span>
+                        <span class="badge" style="background:rgba(245, 158, 11, 0.2); color:var(--tring);">Bulan 1</span>
                         <h3 style="font-size:15px; font-weight:700; margin:12px 0;">Kesehatan & Dasar IT</h3>
                         <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Konsultasi sisa akar gigi di faskes BPJS.</span></label>
                         <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Olahraga malam rutin min. 20 menit.</span></label>
@@ -295,7 +298,7 @@
                     </div>
 
                     <div class="glass-panel">
-                        <span class="badge" style="background:rgba(245, 158, 11, 0.1); color:var(--tring);">Bulan 2</span>
+                        <span class="badge" style="background:rgba(245, 158, 11, 0.2); color:var(--tring);">Bulan 2</span>
                         <h3 style="font-size:15px; font-weight:700; margin:12px 0;">Pemulihan & Teknis</h3>
                         <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Selesaikan tindakan gigi di rujukan BPJS.</span></label>
                         <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Tingkatkan intensitas bodyweight workout.</span></label>
@@ -303,7 +306,7 @@
                     </div>
 
                     <div class="glass-panel">
-                        <span class="badge" style="background:rgba(14, 165, 233, 0.1); color:var(--pribadi);">Bulan 3</span>
+                        <span class="badge" style="background:rgba(14, 165, 233, 0.2); color:var(--pribadi);">Bulan 3</span>
                         <h3 style="font-size:15px; font-weight:700; margin:12px 0;">Penguasaan Excel</h3>
                         <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Kuasai rumus dasar (SUM, AVERAGE, IF).</span></label>
                         <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Lancar menggunakan VLOOKUP/XLOOKUP.</span></label>
@@ -311,7 +314,7 @@
                     </div>
 
                     <div class="glass-panel">
-                        <span class="badge" style="background:rgba(14, 165, 233, 0.1); color:var(--pribadi);">Bulan 4</span>
+                        <span class="badge" style="background:rgba(14, 165, 233, 0.2); color:var(--pribadi);">Bulan 4</span>
                         <h3 style="font-size:15px; font-weight:700; margin:12px 0;">Psikotes & Logika</h3>
                         <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Latihan rutin Deret Angka & Aritmatika.</span></label>
                         <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Latihan Penalaran Verbal & Sinonim.</span></label>
@@ -319,7 +322,7 @@
                     </div>
 
                     <div class="glass-panel">
-                        <span class="badge" style="background:rgba(16, 185, 129, 0.1); color:var(--income);">Bulan 5</span>
+                        <span class="badge" style="background:rgba(16, 185, 129, 0.2); color:var(--income);">Bulan 5</span>
                         <h3 style="font-size:15px; font-weight:700; margin:12px 0;">Simulasi CAT SKD</h3>
                         <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Ikuti Try Out CAT online (1 sesi penuh).</span></label>
                         <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Review mendalam TWK & TIU.</span></label>
@@ -327,7 +330,7 @@
                     </div>
 
                     <div class="glass-panel">
-                        <span class="badge" style="background:rgba(16, 185, 129, 0.1); color:var(--income);">Bulan 6</span>
+                        <span class="badge" style="background:rgba(16, 185, 129, 0.2); color:var(--income);">Bulan 6</span>
                         <h3 style="font-size:15px; font-weight:700; margin:12px 0;">Eksekusi Pendaftaran</h3>
                         <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Scan dokumen digital wajib secara rapi.</span></label>
                         <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Siapkan CV dengan menonjolkan IT/Admin.</span></label>
@@ -499,12 +502,15 @@
         function updateCharts(cash, simpanan, pribadi, tring, jago) {
             if(!document.getElementById('wrapper-budget').classList.contains('active')) return;
             const c1 = document.getElementById('financeChart').getContext('2d'); const c2 = document.getElementById('comparisonChart').getContext('2d');
+            const isDark = document.body.getAttribute('data-theme') === 'dark';
+            const legendColor = isDark ? '#ffffff' : '#0f172a';
+
             if (financeChart) financeChart.destroy(); 
-            financeChart = new Chart(c1, { type: 'doughnut', data: { labels: ['Kas', 'Simpanan', 'Pribadi', 'Tring', 'Jago'], datasets: [{ data: [cash>0?cash:0, simpanan, pribadi, tring, jago], backgroundColor: ['#10b981', '#a855f7', '#38bdf8', '#fbbf24', '#fb923c'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: 'var(--text-dark)' } } } } });
+            financeChart = new Chart(c1, { type: 'doughnut', data: { labels: ['Kas', 'Simpanan', 'Pribadi', 'Tring', 'Jago'], datasets: [{ data: [cash>0?cash:0, simpanan, pribadi, tring, jago], backgroundColor: ['#34d399', '#c084fc', '#38bdf8', '#fbbf24', '#fb923c'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: legendColor } } } } });
             
             if (comparisonChart) comparisonChart.destroy();
-            const gridCol = document.body.getAttribute('data-theme') === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
-            comparisonChart = new Chart(c2, { type: 'bar', data: { labels: ['Bulan Ini'], datasets: [{ label: 'Masuk', data: [cash>0?cash:0], backgroundColor: '#10b981', borderRadius:4 }, { label: 'Keluar', data: [0], backgroundColor: '#f43f5e', borderRadius:4 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: { color: gridCol }, ticks: { color: 'var(--text-gray)' } }, y: { grid: { color: gridCol }, ticks: { color: 'var(--text-gray)' } } }, plugins: { legend: { display: false } } } });
+            const gridCol = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
+            comparisonChart = new Chart(c2, { type: 'bar', data: { labels: ['Bulan Ini'], datasets: [{ label: 'Masuk', data: [cash>0?cash:0], backgroundColor: '#34d399', borderRadius:4 }, { label: 'Keluar', data: [0], backgroundColor: '#fb7185', borderRadius:4 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: { color: gridCol }, ticks: { color: legendColor } }, y: { grid: { color: gridCol }, ticks: { color: legendColor } } }, plugins: { legend: { display: false } } } });
         }
 
         function updateUI() {
