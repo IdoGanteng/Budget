@@ -7,8 +7,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#4361ee">
     
-    <title>Dashboard Keuangan Gua</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Dashboard Utama - Budget & Roadmap 2027</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
@@ -17,7 +17,7 @@
         [data-theme="dark"] { --bg-color: #0f172a; --card-bg: #1e293b; --primary: #38bdf8; --primary-hover: #0ea5e9; --income: #2dd4bf; --expense: #fb7185; --tring: #facc15; --simpanan: #e879f9; --jago: #fb923c; --pribadi: #38bdf8; --text-dark: #f8fafc; --text-gray: #94a3b8; --border-color: #334155; --list-bg: #0f172a; }
         
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease; }
-        body { background-color: var(--bg-color); color: var(--text-dark); padding: 15px; font-size: 14px; line-height: 1.5; min-height: 100vh; }
+        body { background-color: var(--bg-color); color: var(--text-dark); padding: 15px; font-size: 14px; line-height: 1.5; min-h-screen: 100vh; }
         
         #login-wrapper { display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 30px); }
         #login-container { background: var(--card-bg); padding: 35px 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border-color); width: 100%; max-width: 350px; text-align: center; }
@@ -31,7 +31,7 @@
         .toggle-password:hover { color: var(--primary); }
         #login-container button[type="submit"] { margin-top: 4px; font-weight: 600; }
 
-        /* LAYOUT 2 KOLOM */
+        /* LAYOUT UTAMA & TAB */
         .container { width: 100%; max-width: 1700px; margin: 0 auto; display: none; }
         .dashboard-layout { display: grid; grid-template-columns: 380px 1fr; gap: 20px; align-items: start; }
         .sidebar-column { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 15px; }
@@ -116,7 +116,6 @@
         .reset-btn { background-color: #ef4444; margin-top: 12px; font-size: 13px; padding: 10px; }
         .reset-btn:hover { background-color: #dc2626; }
 
-        /* UKURAN KOTAK GRAFIK DIPADATKAN */
         .chart-container { position: relative; height: 140px; width: 100%; display: flex; justify-content: center; align-items: center; }
         #comparisonChart { max-height: 140px !important; }
 
@@ -146,7 +145,26 @@
         .report-table th, .report-table td { padding: 10px 8px; text-align: left; border-bottom: 1px solid var(--border-color); }
         .report-table th { background-color: var(--list-bg); color: var(--text-gray); font-weight: 600; }
         .report-table tbody tr:hover { background-color: var(--list-bg); }
+
+        /* STYLING TAMBAHAN UNTUK TAB & ROADMAP */
+        .app-navbar { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 12px 20px; border-radius: 14px; border: 1px solid var(--border-color); margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); flex-wrap: wrap; gap: 12px; }
+        .nav-tabs { display: flex; gap: 8px; background: var(--list-bg); padding: 4px; border-radius: 10px; border: 1px solid var(--border-color); }
+        .nav-tab-btn { background: transparent; border: none; color: var(--text-gray); padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s; }
+        .nav-tab-btn.active { background: var(--primary); color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         
+        .roadmap-wrapper { display: none; }
+        .roadmap-wrapper.active { display: block; }
+        .budget-wrapper { display: block; }
+        .budget-wrapper.hidden-tab { display: none; }
+
+        /* Roadmap UI Specifics */
+        .glass-card { background: var(--card-bg); backdrop-filter: blur(16px); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        .custom-checkbox { appearance: none; background-color: var(--list-bg); margin: 0; font: inherit; color: currentColor; width: 1.25em; height: 1.25em; border: 2px solid var(--border-color); border-radius: 0.35em; display: grid; place-content: center; cursor: pointer; transition: all 0.2s ease; flex-shrink: 0; }
+        .custom-checkbox::before { content: ""; width: 0.65em; height: 0.65em; transform: scale(0); transition: 120ms transform ease-in-out; box-shadow: inset 1em 1em white; background-color: white; transform-origin: center; clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); }
+        .custom-checkbox:checked { background-color: var(--primary); border-color: var(--primary); }
+        .custom-checkbox:checked::before { transform: scale(1); }
+        .task-done { text-decoration: line-through; color: var(--text-gray); transition: all 0.3s ease; }
+
         @media (max-width: 1200px) { 
             .dashboard-layout { grid-template-columns: 1fr; }
             .sidebar-column { position: static; }
@@ -181,152 +199,252 @@
         </div>
     </div>
 
-    <!-- KONTEN UTAMA DASHBOARD 2 KOLOM -->
+    <!-- KONTEN UTAMA DASHBOARD (TERSEMBUNYI SEBELUM LOGIN) -->
     <div class="container" id="app-container">
-        <div class="dashboard-layout">
-            
-            <!-- KOLOM KIRI (SIDEBAR) -->
-            <div class="sidebar-column">
-                <header>
-                    <div class="header-top">
-                        <h1>💼 Keuangan Gua</h1>
-                        <div class="theme-switch-wrapper" title="Ganti Tema">
-                            <span class="theme-icon">☀️</span>
-                            <label class="theme-switch">
-                                <input type="checkbox" id="theme-checkbox" onchange="toggleTheme()">
-                                <span class="slider"></span>
-                            </label>
-                            <span class="theme-icon">🌙</span>
-                        </div>
-                    </div>
-
-                    <div class="profile-dropdown-wrapper">
-                        <div class="user-badge" onclick="toggleProfileDropdown(event)">
-                            👤 <span id="username-text">Rebel</span> <span style="font-size: 10px; opacity: 0.7; margin-left: auto;">▾ Menu Akun</span>
-                        </div>
-                        <div class="dropdown-menu" id="profile-dropdown">
-                            <button class="dropdown-item excel-item" onclick="exportToExcel()">📊 Download Excel</button>
-                            <button class="dropdown-item" onclick="exportData()">📥 Backup Data Aman</button>
-                            <button class="dropdown-item" onclick="document.getElementById('importFile').click()">📤 Restore Data</button>
-                            <button class="dropdown-item logout-item" onclick="handleLogout()">🚪 Keluar (Kunci Data)</button>
-                        </div>
-                    </div>
-                    <input type="file" id="importFile" style="display: none" accept=".json" onchange="importData(event)">
-                </header>
-
-                <div class="side-decoration-banner">
-                    <div class="clock-box">
-                        <div class="clock-time" id="live-clock">00:00:00</div>
-                        <div class="clock-date" id="live-date">Memuat tanggal...</div>
-                    </div>
-                    <div class="quote-box">
-                        <div class="quote-icon">💡</div>
-                        <div class="quote-text">
-                            <h4>Prinsip Keuangan</h4>
-                            <p id="motivational-quote">Memuat inspirasi...</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="section-box" style="margin-bottom: 0;">
-                    <h2>Catat Keuangan Baru</h2>
-                    <form id="form">
-                        <input type="text" id="desc" placeholder="Keterangan (Makan, Gaji, dll)" autocomplete="off" required>
-                        <input type="text" id="amount" placeholder="Jumlah Rupiah / Gram" autocomplete="off" required>
-                        <select id="type" onchange="handleTypeChange()">
-                            <optgroup label="Uang Harian">
-                                <option value="income">Pemasukan Uang Tunai (+)</option>
-                                <option value="expense">Pengeluaran / Jajan / Pulsa (-)</option>
-                            </optgroup>
-                            <optgroup label="Investasi & Tabungan">
-                                <option value="simpanan">Tambah Simpanan Wajib (+)</option>
-                                <option value="pribadi">Tambah Tabungan Pribadi (+)</option>
-                                <option value="tring">Tambah Saldo Emas Tring (Gram) (+)</option>
-                                <option value="jago">Beli Emas Bank Jago (- Kas, + Aset)</option>
-                            </optgroup>
-                        </select>
-                        <button type="submit">Simpan Catatan</button>
-                    </form>
-                </div>
-
-                <div class="goals-container" style="margin-bottom: 0;">
-                    <h2>🎯 Target 2026</h2>
-                    <div class="goal-item">
-                        <div class="goal-info"><span>Total Kekayaan</span><span id="wealth-progress-text">0%</span></div>
-                        <div class="progress-bar-container"><div id="wealth-progress-bar" class="progress-bar"></div></div>
-                    </div>
-                    <div class="goal-item" style="margin-top: 10px;">
-                        <div class="goal-info"><span>Total Aset Emas</span><span id="gold-progress-text">0%</span></div>
-                        <div class="progress-bar-container"><div id="gold-progress-bar" class="progress-bar" style="background: linear-gradient(90deg, #f1c40f, #e67e22);"></div></div>
-                    </div>
-                    <div class="goal-btn-area"><button onclick="setGoals()" class="goal-btn">⚙️ Atur Target</button></div>
-                </div>
+        
+        <!-- NAVBAR NAVIGASI TAB UTAMA -->
+        <div class="app-navbar">
+            <div style="font-weight: 700; color: var(--primary); font-size: 16px;">🚀 Personal Dashboard</div>
+            <div class="nav-tabs">
+                <button class="nav-tab-btn active" id="btn-tab-budget" onclick="switchAppTab('budget')">💰 Keuangan (Budget)</button>
+                <button class="nav-tab-btn" id="btn-tab-roadmap" onclick="switchAppTab('roadmap')">🎯 Roadmap Karier 2027</button>
             </div>
-
-            <!-- KOLOM KANAN (KONTEN UTAMA) -->
-            <div class="main-column">
-                <div class="wealth-card">
-                    <h3>Akumulasi Dana & Aset</h3>
-                    <p id="total-wealth">Rp 0</p>
-                </div>
-
-                <div class="gold-price-box">
-                    <div>
-                        <label>🏷️ Harga Pasar Emas Tring Hari Ini (per Gram)</label>
-                        <small>Nilai aset Tring otomatis dikalikan harga ini</small>
-                    </div>
-                    <div class="gold-price-input-area">
-                        <input type="text" id="gold-price-input" placeholder="Misal: 1.250.000" oninput="formatGoldPriceInput(this)">
-                        <button onclick="saveGoldPrice()" style="width: auto; padding: 0 14px;">Simpan</button>
-                    </div>
-                </div>
-
-                <div class="summary-cards">
-                    <div class="card c-balance"><h3>Uang Tunai</h3><p id="cash-balance">Rp 0</p><small>(Kas - Keluar)</small></div>
-                    <div class="card c-simpanan"><h3>Simpanan</h3><p id="total-simpanan">Rp 0</p><small>Terpisah</small></div>
-                    <div class="card c-pribadi"><h3>Pribadi</h3><p id="total-pribadi">Rp 0</p><small>Terpisah</small></div>
-                    <div class="card c-tring"><h3>Emas Tring</h3><p id="total-tring">Rp 0</p><small id="tring-gram-info">0 Gr</small></div>
-                    <div class="card c-jago"><h3>Emas Jago</h3><p id="total-jago">Rp 0</p><small>Dari Kas</small></div>
-                </div>
-
-                <div class="main-grid" style="margin-bottom: 0;">
-                    <div class="section-box"><h2>Portofolio Kekayaan</h2><div class="chart-container"><canvas id="financeChart"></canvas></div></div>
-                    <div class="section-box">
-                        <div class="eval-header" style="margin-bottom:8px;"><h2>📈 Evaluasi</h2><select id="eval-month-select" class="eval-select" onchange="renderEvaluasiBulanan()"></select></div>
-                        <div class="eval-cards-grid" style="grid-template-columns: 1fr; gap:6px; margin-bottom:10px;">
-                            <div class="eval-insight-card" style="padding:6px;"><h4>Rasio Alokasi</h4><p id="eval-savings-rate" style="color: var(--income); font-size:13px;">0%</p></div>
-                            <div class="eval-insight-card" style="padding:6px;"><h4>Status</h4><p id="eval-status" style="color: var(--primary); font-size:13px;">-</p></div>
-                        </div>
-                        <div style="font-size: 11px; color: var(--text-gray);">Pengeluaran Terbesar: <span id="eval-top-expense" style="color: var(--expense); font-weight:600;">-</span></div>
-                    </div>
-                </div>
-
-                <!-- KOTAK GRAFIK PERBANDINGAN BULANAN (SUDAH DIPADATKAN) -->
-                <div class="section-box">
-                    <div class="eval-header"><h2>📊 Grafik Perbandingan Bulanan</h2></div>
-                    <div class="chart-container"><canvas id="comparisonChart"></canvas></div>
-                </div>
-
-                <div class="section-box">
-                    <h2>Laporan Rekap Bulanan</h2>
-                    <div class="table-responsive">
-                        <table class="report-table">
-                            <thead><tr><th>Bulan</th><th>Pemasukan</th><th>Pengeluaran</th><th>Beli Jago</th><th>Sisa Kas</th><th>Simpanan Wajib</th><th>Tabungan Pribadi</th><th>Emas Tring</th></tr></thead>
-                            <tbody id="monthly-report-body"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="section-box">
-                    <div class="section-header-flex"><h2>Riwayat Catatan</h2><select id="filter-month-select" class="eval-select" onchange="updateUI()"><option value="all">Semua Bulan</option></select></div>
-                    <ul id="list" class="history-list"></ul>
-                    <button onclick="resetData()" class="reset-btn">Hapus Semua Data & Mulai Baru</button>
-                </div>
-            </div>
-
         </div>
+
+        <!-- 1. WRAPPER HALAMAN KEUANGAN / BUDGET -->
+        <div id="wrapper-budget" class="budget-wrapper">
+            <div class="dashboard-layout">
+                
+                <!-- KOLOM KIRI (SIDEBAR) -->
+                <div class="sidebar-column">
+                    <header>
+                        <div class="header-top">
+                            <h1>💼 Keuangan Gua</h1>
+                            <div class="theme-switch-wrapper" title="Ganti Tema">
+                                <span class="theme-icon">☀️</span>
+                                <label class="theme-switch">
+                                    <input type="checkbox" id="theme-checkbox" onchange="toggleTheme()">
+                                    <span class="slider"></span>
+                                </label>
+                                <span class="theme-icon">🌙</span>
+                            </div>
+                        </div>
+
+                        <div class="profile-dropdown-wrapper">
+                            <div class="user-badge" onclick="toggleProfileDropdown(event)">
+                                👤 <span id="username-text">Rebel</span> <span style="font-size: 10px; opacity: 0.7; margin-left: auto;">▾ Menu Akun</span>
+                            </div>
+                            <div class="dropdown-menu" id="profile-dropdown">
+                                <button class="dropdown-item excel-item" onclick="exportToExcel()">📊 Download Excel</button>
+                                <button class="dropdown-item" onclick="exportData()">📥 Backup Data Aman</button>
+                                <button class="dropdown-item" onclick="document.getElementById('importFile').click()">📤 Restore Data</button>
+                                <button class="dropdown-item logout-item" onclick="handleLogout()">🚪 Keluar (Kunci Data)</button>
+                            </div>
+                        </div>
+                        <input type="file" id="importFile" style="display: none" accept=".json" onchange="importData(event)">
+                    </header>
+
+                    <div class="side-decoration-banner">
+                        <div class="clock-box">
+                            <div class="clock-time" id="live-clock">00:00:00</div>
+                            <div class="clock-date" id="live-date">Memuat tanggal...</div>
+                        </div>
+                        <div class="quote-box">
+                            <div class="quote-icon">💡</div>
+                            <div class="quote-text">
+                                <h4>Prinsip Keuangan</h4>
+                                <p id="motivational-quote">Memuat inspirasi...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-box" style="margin-bottom: 0;">
+                        <h2>Catat Keuangan Baru</h2>
+                        <form id="form">
+                            <input type="text" id="desc" placeholder="Keterangan (Makan, Gaji, dll)" autocomplete="off" required>
+                            <input type="text" id="amount" placeholder="Jumlah Rupiah / Gram" autocomplete="off" required>
+                            <select id="type" onchange="handleTypeChange()">
+                                <optgroup label="Uang Harian">
+                                    <option value="income">Pemasukan Uang Tunai (+)</option>
+                                    <option value="expense">Pengeluaran / Jajan / Pulsa (-)</option>
+                                </optgroup>
+                                <optgroup label="Investasi & Tabungan">
+                                    <option value="simpanan">Tambah Simpanan Wajib (+)</option>
+                                    <option value="pribadi">Tambah Tabungan Pribadi (+)</option>
+                                    <option value="tring">Tambah Saldo Emas Tring (Gram) (+)</option>
+                                    <option value="jago">Beli Emas Bank Jago (- Kas, + Aset)</option>
+                                </optgroup>
+                            </select>
+                            <button type="submit">Simpan Catatan</button>
+                        </form>
+                    </div>
+
+                    <div class="goals-container" style="margin-bottom: 0;">
+                        <h2>🎯 Target 2026</h2>
+                        <div class="goal-item">
+                            <div class="goal-info"><span>Total Kekayaan</span><span id="wealth-progress-text">0%</span></div>
+                            <div class="progress-bar-container"><div id="wealth-progress-bar" class="progress-bar"></div></div>
+                        </div>
+                        <div class="goal-item" style="margin-top: 10px;">
+                            <div class="goal-info"><span>Total Aset Emas</span><span id="gold-progress-text">0%</span></div>
+                            <div class="progress-bar-container"><div id="gold-progress-bar" class="progress-bar" style="background: linear-gradient(90deg, #f1c40f, #e67e22);"></div></div>
+                        </div>
+                        <div class="goal-btn-area"><button onclick="setGoals()" class="goal-btn">⚙️ Atur Target</button></div>
+                    </div>
+                </div>
+
+                <!-- KOLOM KANAN (KONTEN UTAMA) -->
+                <div class="main-column">
+                    <div class="wealth-card">
+                        <h3>Akumulasi Dana & Aset</h3>
+                        <p id="total-wealth">Rp 0</p>
+                    </div>
+
+                    <div class="gold-price-box">
+                        <div>
+                            <label>🏷️ Harga Pasar Emas Tring Hari Ini (per Gram)</label>
+                            <small>Nilai aset Tring otomatis dikalikan harga ini</small>
+                        </div>
+                        <div class="gold-price-input-area">
+                            <input type="text" id="gold-price-input" placeholder="Misal: 1.250.000" oninput="formatGoldPriceInput(this)">
+                            <button onclick="saveGoldPrice()" style="width: auto; padding: 0 14px;">Simpan</button>
+                        </div>
+                    </div>
+
+                    <div class="summary-cards">
+                        <div class="card c-balance"><h3>Uang Tunai</h3><p id="cash-balance">Rp 0</p><small>(Kas - Keluar)</small></div>
+                        <div class="card c-simpanan"><h3>Simpanan</h3><p id="total-simpanan">Rp 0</p><small>Terpisah</small></div>
+                        <div class="card c-pribadi"><h3>Pribadi</h3><p id="total-pribadi">Rp 0</p><small>Terpisah</small></div>
+                        <div class="card c-tring"><h3>Emas Tring</h3><p id="total-tring">Rp 0</p><small id="tring-gram-info">0 Gr</small></div>
+                        <div class="card c-jago"><h3>Emas Jago</h3><p id="total-jago">Rp 0</p><small>Dari Kas</small></div>
+                    </div>
+
+                    <div class="main-grid" style="margin-bottom: 0;">
+                        <div class="section-box"><h2>Portofolio Kekayaan</h2><div class="chart-container"><canvas id="financeChart"></canvas></div></div>
+                        <div class="section-box">
+                            <div class="eval-header" style="margin-bottom:8px;"><h2>📈 Evaluasi</h2><select id="eval-month-select" class="eval-select" onchange="renderEvaluasiBulanan()"></select></div>
+                            <div class="eval-cards-grid" style="grid-template-columns: 1fr; gap:6px; margin-bottom:10px;">
+                                <div class="eval-insight-card" style="padding:6px;"><h4>Rasio Alokasi</h4><p id="eval-savings-rate" style="color: var(--income); font-size:13px;">0%</p></div>
+                                <div class="eval-insight-card" style="padding:6px;"><h4>Status</h4><p id="eval-status" style="color: var(--primary); font-size:13px;">-</p></div>
+                            </div>
+                            <div style="font-size: 11px; color: var(--text-gray);">Pengeluaran Terbesar: <span id="eval-top-expense" style="color: var(--expense); font-weight:600;">-</span></div>
+                        </div>
+                    </div>
+
+                    <div class="section-box">
+                        <div class="eval-header"><h2>📊 Grafik Perbandingan Bulanan</h2></div>
+                        <div class="chart-container"><canvas id="comparisonChart"></canvas></div>
+                    </div>
+
+                    <div class="section-box">
+                        <h2>Laporan Rekap Bulanan</h2>
+                        <div class="table-responsive">
+                            <table class="report-table">
+                                <thead><tr><th>Bulan</th><th>Pemasukan</th><th>Pengeluaran</th><th>Beli Jago</th><th>Sisa Kas</th><th>Simpanan Wajib</th><th>Tabungan Pribadi</th><th>Emas Tring</th></tr></thead>
+                                <tbody id="monthly-report-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="section-box">
+                        <div class="section-header-flex"><h2>Riwayat Catatan</h2><select id="filter-month-select" class="eval-select" onchange="updateUI()"><option value="all">Semua Bulan</option></select></div>
+                        <ul id="list" class="history-list"></ul>
+                        <button onclick="resetData()" class="reset-btn">Hapus Semua Data & Mulai Baru</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 2. WRAPPER HALAMAN ROADMAP KARIER 2027 -->
+        <div id="wrapper-roadmap" class="roadmap-wrapper">
+            <div class="glass-card" style="margin-bottom: 20px; text-align: center; padding: 25px;">
+                <span style="background: rgba(67, 97, 238, 0.1); color: var(--primary); font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; text-transform: uppercase;">Akselerasi Karier 6 Bulan</span>
+                <h2 style="font-size: 24px; margin-top: 10px; border-bottom: none;">Roadmap Target 2027 🚀</h2>
+                <p style="color: var(--text-gray); font-size: 13px; margin-top: 5px;">Shift Kerja 07.00 - 17.00 | Fokus IT Support, Gigi, KCIC, BUMN & ASN</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                <!-- Kotak Roadmap Ringkas -->
+                <div class="glass-card">
+                    <h3 style="color: var(--primary); margin-bottom: 10px; font-size: 16px;">⏳ Hitung Mundur Maret 2027</h3>
+                    <div id="roadmap-countdown" style="font-weight: 700; font-size: 18px; margin-bottom: 15px;">Menghitung waktu...</div>
+                    <hr style="border-color: var(--border-color); margin-bottom: 15px;">
+                    <h3 style="color: var(--primary); margin-bottom: 10px; font-size: 16px;">🔗 Portal Resmi</h3>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <a href="https://sscasn.bkn.go.id/" target="_blank" style="color: var(--text-dark); text-decoration: none; background: var(--list-bg); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); font-weight: 600;">🌐 Portal ASN (SSCASN)</a>
+                        <a href="https://rekrutmenbersama.fhcibumn.id/" target="_blank" style="color: var(--text-dark); text-decoration: none; background: var(--list-bg); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); font-weight: 600;">🌐 Portal BUMN (FHCI)</a>
+                        <a href="https://kcic.co.id/" target="_blank" style="color: var(--text-dark); text-decoration: none; background: var(--list-bg); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); font-weight: 600;">🌐 Kereta Cepat (KCIC)</a>
+                    </div>
+                </div>
+
+                <div class="glass-card">
+                    <h3 style="color: var(--primary); margin-bottom: 10px; font-size: 16px;">💼 Rutinitas Harian & Weekend</h3>
+                    <p style="font-size: 13px; margin-bottom: 8px;"><strong>Senin – Jumat:</strong><br>07.00 - 17.00: Fokus kerja & rutinitas.<br>19.00 - 21.00: Olahraga (20-30 mnt) + Belajar (45-60 mnt).</p>
+                    <p style="font-size: 13px;"><strong>Sabtu & Minggu:</strong><br>Sabtu: Urusan BPJS/Gigi, cek lowongan KCIC.<br>Minggu: Try out santai & *me time*.</p>
+                </div>
+
+                <div class="glass-card" style="grid-column: 1 / -1;">
+                    <h3 style="color: var(--primary); margin-bottom: 15px; font-size: 16px;">📋 Checklist Tahapan Persiapan 6 Bulan</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
+                        <!-- Bulan 1-3 -->
+                        <div style="background: var(--list-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color);">
+                            <strong style="color: var(--tring);">Bulan 1: Eksekusi Gigi & Dasar IT</strong>
+                            <ul style="list-style: none; margin-top: 8px; font-size: 13px; display: flex; flex-direction: column; gap: 6px;">
+                                <li><label><input type="checkbox" class="roadmap-checkbox" onchange="saveRoadmapProgress()"> Konsultasi pencabutan akar gigi BPJS</label></li>
+                                <li><label><input type="checkbox" class="roadmap-checkbox" onchange="saveRoadmapProgress()"> Rutinkan olahraga malam</label></li>
+                                <li><label><input type="checkbox" class="roadmap-checkbox" onchange="saveRoadmapProgress()"> Review teori dasar komputer & jaringan LAN</label></li>
+                            </ul>
+                        </div>
+                        <div style="background: var(--list-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color);">
+                            <strong style="color: var(--tring);">Bulan 2: Pemulihan & Troubleshooting</strong>
+                            <ul style="list-style: none; margin-top: 8px; font-size: 13px; display: flex; flex-direction: column; gap: 6px;">
+                                <li><label><input type="checkbox" class="roadmap-checkbox" onchange="saveRoadmapProgress()"> Selesaikan tambal/perawatan gigi</label></li>
+                                <li><label><input type="checkbox" class="roadmap-checkbox" onchange="saveRoadmapProgress()"> Tambah bodyweight workout ringan</label></li>
+                                <li><label><input type="checkbox" class="roadmap-checkbox" onchange="saveRoadmapProgress()"> Praktik troubleshooting printer & server</label></li>
+                            </ul>
+                        </div>
+                        <div style="background: var(--list-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color);">
+                            <strong style="color: var(--primary);">Bulan 3: Kuasai Microsoft Excel</strong>
+                            <ul style="list-style: none; margin-top: 8px; font-size: 13px; display: flex; flex-direction: column; gap: 6px;">
+                                <li><label><input type="checkbox" class="roadmap-checkbox" onchange="saveRoadmapProgress()"> Belajar rumus dasar (SUM, AVERAGE, IF)</label></li>
+                                <li><label><input type="checkbox" class="roadmap-checkbox" onchange="saveRoadmapProgress()"> Belajar fungsi VLOOKUP, HLOOKUP, XLOOKUP</label></li>
+                                <li><label><input type="checkbox" class="roadmap-checkbox" onchange="saveRoadmapProgress()"> Latihan Pivot Table & Grafik rekap</label></li>
+                            </ul>
+                        </div>
+                        <!-- Bulan 4-6 -->
+                        <div style="background: var(--list-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color);">
+                            <strong style="color: var(--primary);">Bulan 4: Latihan Psikotes & Logika</strong>
+                            <ul style="list-style: none; margin-top: 8px; font-size: 13px; display: flex; flex-direction: column; gap: 6px;">
+                                <li><label><input type="checkbox" class="roadmap-checkbox" onchange="saveRoadmapProgress()"> Latihan Deret Angka & Aritmatika</label></li>
+                                <li><label><input type="checkbox" class="roadmap-checkbox" onchange="saveRoadmapProgress()"> Latihan Penalaran Verbal & Sinonim</label></li>
+                                <li><label><input type="checkbox" class="roadmap-checkbox" onchange="saveRoadmapProgress()"> Latihan Soal Figural / Tes Gambar</label></li>
+                            </ul>
+                        </div>
+                        <div style="background: var(--list-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color);">
+                            <strong style="color: var(--income);">Bulan 5: Simulasi CAT & TWK</strong>
+                            <ul style="list-style: none; margin-top: 8px; font-size: 13px; display: flex; flex-direction: column; gap: 6px;">
+                                <li><label><input type="checkbox" class="roadmap-checkbox" onchange="saveRoadmapProgress()"> Ikuti try out online sistem CAT</label></li>
+                                <li><label><input type="checkbox" class="roadmap-checkbox" onchange="saveRoadmapProgress()"> Pelajari TWK & TIU secara rutin</label></li>
+                                <li><label><input type="checkbox" class="roadmap-checkbox" onchange="saveRoadmapProgress()"> Cek kesehatan gigi mandiri</label></li>
+                            </ul>
+                        </div>
+                        <div style="background: var(--list-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color);">
+                            <strong style="color: var(--income);">Bulan 6: Eksekusi Pendaftaran</strong>
+                            <ul style="list-style: none; margin-top: 8px; font-size: 13px; display: flex; flex-direction: column; gap: 6px;">
+                                <li><label><input type="checkbox" class="roadmap-checkbox" onchange="saveRoadmapProgress()"> Scan dokumen wajib digital rapi</label></li>
+                                <li><label><input type="checkbox" class="roadmap-checkbox" onchange="saveRoadmapProgress()"> Buat template CV menonjolkan IT/Admin</label></li>
+                                <li><label><input type="checkbox" class="roadmap-checkbox" onchange="saveRoadmapProgress()"> Daftar BUMN, KCIC, & SSCASN!</label></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
+    <!-- SCRIPT UTAMA KEUANGAN & ROADMAP -->
     <script>
         const CORRECT_USER = 'Rebel';
         const ENCODED_PASS = 'UmViZWxpb24wMzA0MDE='; 
@@ -422,6 +540,8 @@
                     initDashboardDecorations(); 
                     fetchTransactionsFromSheet();
                     resetIdleTimer();
+                    loadRoadmapProgress();
+                    startRoadmapCountdown();
                 }
             }
         });
@@ -465,6 +585,8 @@
                 initDashboardDecorations(); 
                 fetchTransactionsFromSheet();
                 resetIdleTimer();
+                loadRoadmapProgress();
+                startRoadmapCountdown();
             } else {
                 alert("❌ Username atau Password salah!");
                 document.getElementById('password-input').value = '';
@@ -713,6 +835,68 @@
             if (confirm("Peringatan: Database lokal akan dihapus.")) {
                 transactions = []; saveToLocal(); localStorage.removeItem('financialGoals'); financialGoals = { wealthGoal: 50000000, goldGoal: 10000000 }; updateUI();
             }
+        }
+
+        // FUNGSI NAVIGASI TAB UTAMA (BUDGET vs ROADMAP)
+        function switchAppTab(tabName) {
+            const wrapperBudget = document.getElementById('wrapper-budget');
+            const wrapperRoadmap = document.getElementById('wrapper-roadmap');
+            const btnBudget = document.getElementById('btn-tab-budget');
+            const btnRoadmap = document.getElementById('btn-tab-roadmap');
+
+            if (tabName === 'budget') {
+                wrapperBudget.classList.remove('hidden-tab');
+                wrapperRoadmap.classList.remove('active');
+                btnBudget.classList.add('active');
+                btnRoadmap.classList.remove('active');
+            } else {
+                wrapperBudget.classList.add('hidden-tab');
+                wrapperRoadmap.classList.add('active');
+                btnBudget.classList.remove('active');
+                btnRoadmap.classList.add('active');
+            }
+        }
+
+        // SCRIPT COUNTDOWN & CHECKLIST ROADMAP
+        function startRoadmapCountdown() {
+            const targetDate = new Date("March 1, 2027 00:00:00").getTime();
+            const countdownEl = document.getElementById('roadmap-countdown');
+            if(!countdownEl) return;
+
+            setInterval(() => {
+                const now = new Date().getTime();
+                const distance = targetDate - now;
+                if (distance < 0) {
+                    countdownEl.innerHTML = "Waktu Target Telah Tiba! 🚀";
+                    return;
+                }
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                countdownEl.innerHTML = `${days} Hari : ${hours} Jam : ${minutes} Menit : ${seconds} Detik`;
+            }, 1000);
+        }
+
+        function saveRoadmapProgress() {
+            const checkboxes = document.querySelectorAll('.roadmap-checkbox');
+            checkboxes.forEach((cb, index) => {
+                localStorage.setItem(`roadmap_task_${index}`, cb.checked);
+                const textLabel = cb.parentElement;
+                if(cb.checked) textLabel.classList.add('task-done');
+                else textLabel.classList.remove('task-done');
+            });
+        }
+
+        function loadRoadmapProgress() {
+            const checkboxes = document.querySelectorAll('.roadmap-checkbox');
+            checkboxes.forEach((cb, index) => {
+                const savedState = localStorage.getItem(`roadmap_task_${index}`);
+                if (savedState === 'true') {
+                    cb.checked = true;
+                    cb.parentElement.classList.add('task-done');
+                }
+            });
         }
     </script>
 </body>
