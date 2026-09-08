@@ -52,12 +52,15 @@
 
         #login-container button[type="submit"] { width: 100%; padding: 12px; background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: #020617; border: none; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; margin-top: 6px; }
 
-        /* FLOATING TAB NAVIGATION */
-        .app-navbar-container { display: flex; justify-content: center; margin-bottom: 30px; position: relative; z-index: 40; }
+        /* STICKY FLOATING TAB NAVIGATION */
+        .app-navbar-container { 
+            display: flex; justify-content: center; margin-bottom: 30px; 
+            position: sticky; top: 15px; z-index: 100; pointer-events: none;
+        }
         .floating-tabs {
             background: var(--card-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border);
             padding: 6px; border-radius: 100px; display: inline-flex; gap: 4px;
-            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.15);
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.25); pointer-events: auto;
         }
         .nav-tab-btn {
             background: transparent; border: none; color: var(--text-gray); padding: 10px 24px; 
@@ -80,7 +83,7 @@
         .badge { background: rgba(99, 102, 241, 0.2); color: var(--primary); font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; }
 
         .dashboard-layout { display: grid; grid-template-columns: 360px 1fr; gap: 24px; align-items: start; }
-        .sidebar-col { display: flex; flex-direction: column; gap: 20px; position: sticky; top: 20px; }
+        .sidebar-col { display: flex; flex-direction: column; gap: 20px; position: sticky; top: 80px; }
         .main-col { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
 
         .header-info { display: flex; justify-content: space-between; align-items: center; }
@@ -243,6 +246,14 @@
                         </div>
                     </div>
 
+                    <!-- ANALISA KEUANGAN BULANAN -->
+                    <div class="glass-panel">
+                        <h2 class="panel-title">📈 Analisa Keuangan Bulanan</h2>
+                        <div id="financial-analysis-content" style="display: flex; flex-direction: column; gap: 12px; font-size: 13px; color: var(--text-dark);">
+                            <p style="color: var(--text-gray);">Belum ada data transaksi yang cukup untuk dianalisa pada bulan ini.</p>
+                        </div>
+                    </div>
+
                     <div class="glass-panel">
                         <div class="panel-title">Riwayat Catatan 
                             <select id="filter-month-select" onchange="updateUI()" style="width: auto; padding: 6px 12px; border-radius: 100px;"><option value="all">Semua Bulan</option></select>
@@ -341,7 +352,6 @@
         let transactions = [];
         let currentSessionKey = sessionStorage.getItem('appEncryptionKey'); 
 
-        // Session Expiration Handling (1 Jam)
         const SESSION_DURATION = 60 * 60 * 1000; 
         function checkSessionTimeout() {
             const loginTime = sessionStorage.getItem('loginTime');
@@ -362,13 +372,8 @@
         function togglePasswordVisibility() {
             const p = document.getElementById('password-input');
             const b = document.querySelector('.toggle-password');
-            if (p.type === 'password') { 
-                p.type = 'text'; 
-                b.innerText = '🙈'; 
-            } else { 
-                p.type = 'password'; 
-                b.innerText = '👀'; 
-            }
+            if (p.type === 'password') { p.type = 'text'; b.innerText = '🙈'; } 
+            else { p.type = 'password'; b.innerText = '👀'; }
         }
 
         function handleLogin(e) {
@@ -527,10 +532,48 @@
             comparisonChart = new Chart(c2, { type: 'bar', data: { labels: ['Bulan Ini'], datasets: [{ label: 'Masuk', data: [totalInc], backgroundColor: '#34d399', borderRadius:4 }, { label: 'Keluar', data: [totalExp], backgroundColor: '#fb7185', borderRadius:4 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: { color: gridCol }, ticks: { color: legendColor } }, y: { grid: { color: gridCol }, ticks: { color: legendColor } } }, plugins: { legend: { display: false } } } });
         }
 
+        function updateFinancialAnalysis(totalInc, totalExp) {
+            const analysisEl = document.getElementById('financial-analysis-content');
+            if (!analysisEl) return;
+
+            if (totalInc === 0 && totalExp === 0) {
+                analysisEl.innerHTML = `<p style="color: var(--text-gray);">Belum ada data transaksi pada periode ini.</p>`;
+                return;
+            }
+
+            const netCashflow = totalInc - totalExp;
+            const savingsRate = totalInc > 0 ? Math.max(0, ((totalInc - totalExp) / totalInc) * 100) : 0;
+            
+            let statusBadge = '';
+            let advice = '';
+
+            if (netCashflow >= 0) {
+                statusBadge = `<span style="color: var(--income); font-weight: 800;">🟢 SURPLUS (Sehat)</span>`;
+                advice = `Arus kas positif. Pertahankan kedisiplinan menabung dan alokasikan sebagian ke aset emas atau instrumen investasi target 2027.`;
+            } else {
+                statusBadge = `<span style="color: var(--expense); font-weight: 800;">🔴 DEFISIT (Perlu Evaluasi)</span>`;
+                advice = `Pengeluaran melebihi pemasukan bulan ini. Kurangi pengeluaran tersier dan tinjau kembali pos anggaran harian.`;
+            }
+
+            analysisEl.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                    <span style="color: var(--text-gray); font-weight: 600;">Status Arus Kas:</span>
+                    <span>${statusBadge}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                    <span style="color: var(--text-gray); font-weight: 600;">Rasio Sisa / Tabungan:</span>
+                    <span style="font-weight: 700; color: var(--primary);">${savingsRate.toFixed(1)}% dari pemasukan</span>
+                </div>
+                <div style="margin-top: 4px;">
+                    <strong style="display: block; margin-bottom: 2px; color: var(--text-dark);">💡 Rekomendasi Finansial:</strong>
+                    <p style="color: var(--text-gray); line-height: 1.5;">${advice}</p>
+                </div>
+            `;
+        }
+
         function updateUI() {
             const listEl = document.getElementById('list'); listEl.innerHTML = ''; 
             
-            // Populate filter bulan
             const monthSelect = document.getElementById('filter-month-select');
             const selectedMonth = monthSelect ? monthSelect.value : 'all';
             
@@ -553,30 +596,33 @@
                 monthSelect.value = currentVal;
             }
 
-            // Hitung total keseluruhan untuk statistik utama & grafik
             let totalIncAll = 0, totalExpAll = 0, totalSimAll = 0, totalPriAll = 0, totalTrgAll = 0, totalJagAll = 0;
+            let filteredInc = 0, filteredExp = 0;
 
             transactions.forEach((trx) => {
                 const amt = Number(trx.amount);
                 
-                // Akumulasi data global
-                if (trx.type === 'income') totalIncAll += amt; 
-                else if (trx.type === 'expense') totalExpAll += amt; 
+                let isCurrentMonthMatch = true;
+                if(selectedMonth !== 'all' && trx.date) {
+                    let parts = trx.date.split('/');
+                    if(parts.length === 3 && (parts[1] + '/' + parts[2]) !== selectedMonth) {
+                        isCurrentMonthMatch = false;
+                    }
+                }
+
+                // Kalkulasi global aset
+                if (trx.type === 'income') { totalIncAll += amt; if(isCurrentMonthMatch) filteredInc += amt; } 
+                else if (trx.type === 'expense') { totalExpAll += amt; if(isCurrentMonthMatch) filteredExp += amt; } 
                 else if (trx.type === 'simpanan') totalSimAll += amt; 
                 else if (trx.type === 'pribadi') totalPriAll += amt; 
                 else if (trx.type === 'tring' || trx.type === 'inv_tring') totalTrgAll += amt; 
                 else if (trx.type === 'jago' || trx.type === 'inv_jago') {
                     totalJagAll += amt;
-                    totalExpAll += amt; // Jago dihitung sebagai pengeluaran/investasi keluar kas pada grafik
+                    totalExpAll += amt; 
+                    if(isCurrentMonthMatch) filteredExp += amt;
                 }
 
-                // Filter logic untuk tampilan list riwayat
-                if(selectedMonth !== 'all' && trx.date) {
-                    let parts = trx.date.split('/');
-                    if(parts.length === 3 && (parts[1] + '/' + parts[2]) !== selectedMonth) {
-                        return; // Skip render jika tidak sesuai filter bulan
-                    }
-                }
+                if(!isCurrentMonthMatch) return; // Skip render list riwayat jika tidak sesuai filter
                 
                 const li = document.createElement('li');
                 let sign = '', tCls = '', dAmt = '';
@@ -611,6 +657,7 @@
             document.getElementById('gold-progress-text').innerText = Math.min((gold/financialGoals.goldGoal)*100, 100).toFixed(1) + '%';
             
             updateCharts(cash, totalSimAll, totalPriAll, trgRp, totalJagAll, totalIncAll, totalExpAll);
+            updateFinancialAnalysis(filteredInc, filteredExp);
         }
 
         function deleteTransaction(id) { if(confirm("Hapus catatan?")){ transactions = transactions.filter(t => t.id != id); saveToLocal(); updateUI(); } }
