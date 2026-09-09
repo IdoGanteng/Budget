@@ -60,16 +60,22 @@
         .app-navbar-container { 
             display: flex; justify-content: center; margin-bottom: 20px; 
             position: sticky; top: 10px; z-index: 100; pointer-events: none;
+            width: 100%; padding: 0 4px;
         }
         .floating-tabs {
             background: var(--card-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border);
-            padding: 6px; border-radius: 100px; display: inline-flex; gap: 4px;
-            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.25); pointer-events: auto;
+            padding: 5px; border-radius: 20px; display: flex; gap: 4px;
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.25); pointer-events: auto; 
+            width: 100%; max-width: 480px; overflow-x: auto; flex-wrap: nowrap;
+            -webkit-overflow-scrolling: touch; justify-content: space-between;
         }
+        .floating-tabs::-webkit-scrollbar { display: none; }
+        
         .nav-tab-btn {
-            background: transparent; border: none; color: var(--text-gray); padding: 10px 24px; 
-            border-radius: 100px; font-weight: 600; font-size: 14px; cursor: pointer; 
+            background: transparent; border: none; color: var(--text-gray); padding: 10px 12px; 
+            border-radius: 14px; font-weight: 600; font-size: 12px; cursor: pointer; 
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap; flex: 1; text-align: center;
         }
         .nav-tab-btn:hover { color: var(--text-dark); }
         .nav-tab-btn.active { background: var(--primary); color: #020617; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4); font-weight: 700; }
@@ -90,10 +96,22 @@
         .sidebar-col { display: flex; flex-direction: column; gap: 20px; position: sticky; top: 75px; }
         .main-col { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
 
-        .header-info { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        .app-title { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 8px;}
-        .user-menu { background: var(--list-bg); border: 1px solid var(--border-color); color: var(--text-dark); padding: 8px 14px; border-radius: 100px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
-        
+        .profile-header { display: flex; justify-content: space-between; align-items: center; width: 100%; position: relative; z-index: 2; }
+        .profile-info { display: flex; flex-direction: column; gap: 4px; }
+        .greeting-text { 
+            font-size: 22px; font-weight: 800; line-height: 1.2;
+            background: linear-gradient(135deg, var(--primary), #c084fc);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .date-text { font-size: 12px; color: var(--text-gray); font-weight: 600; display: flex; align-items: center; gap: 6px; }
+        .action-btn { 
+            background: var(--list-bg); border: 1px solid var(--border-color); color: var(--text-dark); 
+            padding: 8px; border-radius: 50%; width: 38px; height: 38px; display: grid; 
+            place-content: center; cursor: pointer; transition: 0.2s; font-size: 16px;
+        }
+        .action-btn:hover { background: rgba(239, 68, 68, 0.1); color: var(--expense); border-color: var(--expense); }
+        .header-glow { position: absolute; top: -30px; right: -30px; width: 130px; height: 130px; background: var(--primary); opacity: 0.15; border-radius: 50%; filter: blur(30px); z-index: 1; pointer-events: none; }
+
         .theme-switch { position: relative; display: inline-block; width: 44px; height: 24px; }
         .theme-switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border-color); border-radius: 24px; transition: .4s; }
@@ -116,7 +134,6 @@
         .stat-box h3 { font-size: 12px; color: var(--text-gray); font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
         .stat-box p { font-size: 16px; font-weight: 800; color: var(--text-dark); }
         
-        /* Badge Persentase Di Kotak Statistik */
         .stat-trend { position: absolute; top: 16px; right: 16px; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 100px; }
         .trend-up { background: rgba(16, 185, 129, 0.15); color: var(--income); }
         .trend-down { background: rgba(239, 68, 68, 0.15); color: var(--expense); }
@@ -128,7 +145,7 @@
         .progress-wrapper { background: var(--border-color); border-radius: 100px; height: 10px; overflow: hidden; margin-top: 8px; width: 100%; }
         .progress-fill { height: 100%; border-radius: 100px; transition: width 0.8s; }
 
-        .history-list { list-style: none; max-height: 220px; overflow-y: auto; padding-right: 4px; width: 100%; }
+        .history-list { list-style: none; max-height: 200px; overflow-y: auto; padding-right: 4px; width: 100%; }
         .history-list li { 
             display: flex; justify-content: space-between; align-items: center; 
             background: var(--list-bg); padding: 10px 14px; margin-bottom: 8px; 
@@ -136,7 +153,7 @@
         }
         .history-item-left { flex: 1; min-width: 0; }
         .history-item-left span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .history-item-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; text-align: right; white-space: nowrap; }
+        .history-item-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; text-align: right; white-space: nowrap; }
         .text-inc { color: var(--income); } .text-exp { color: var(--expense); }
 
         .modal-overlay {
@@ -221,40 +238,51 @@
     </div>
 
     <div id="app-container" style="display: none;">
+        
+        <!-- HEADER MENU TABS -->
         <div class="app-navbar-container">
             <div class="floating-tabs">
                 <button class="nav-tab-btn active" id="btn-budget" onclick="switchAppTab('budget')">💰 Keuangan</button>
-                <button class="nav-tab-btn" id="btn-roadmap" onclick="switchAppTab('roadmap')">🚀 Roadmap 2027</button>
+                <button class="nav-tab-btn" id="btn-planner" onclick="switchAppTab('planner')">📅 Estimasi</button>
+                <button class="nav-tab-btn" id="btn-roadmap" onclick="switchAppTab('roadmap')">🚀 Roadmap</button>
             </div>
         </div>
 
+        <!-- TAB 1: DASHBOARD KEUANGAN UTAMA -->
         <div id="wrapper-budget" class="app-wrapper active">
             <div class="dashboard-layout">
-                
                 <div class="sidebar-col">
-                    <div class="glass-panel" style="padding: 20px 24px;">
-                        <div class="header-info">
-                            <div class="app-title">✨ Finance</div>
-                            <div style="display: flex; gap:12px; align-items:center;">
+                    <div class="glass-panel" style="padding: 24px; position: relative; overflow: hidden; border-top: 4px solid var(--primary);">
+                        <div class="header-glow"></div>
+                        <div class="profile-header">
+                            <div class="profile-info">
+                                <div class="greeting-text dynamic-greeting">Halo, User! 👋</div>
+                                <div class="date-text dynamic-date">📅 Sedang memuat tanggal...</div>
+                            </div>
+                            <div style="display: flex; gap: 12px; align-items: center;">
                                 <label class="theme-switch" title="Ganti Tema">
                                     <input type="checkbox" id="theme-checkbox" onchange="toggleTheme()">
                                     <span class="slider"></span>
                                 </label>
-                                <div class="user-menu" onclick="handleLogout()">🚪 <span id="username-text">User</span></div>
+                                <button class="action-btn" onclick="handleLogout()" title="Keluar">🚪</button>
                             </div>
                         </div>
                     </div>
 
                     <div class="glass-panel" style="padding: 20px 24px;">
-                        <h2 class="panel-title">Catat Transaksi</h2>
+                        <h2 class="panel-title" id="form-panel-title">Catat Transaksi</h2>
                         <form id="form">
+                            <input type="hidden" id="edit-id" value="">
                             <input type="text" id="desc" placeholder="Keterangan (Makan, Gaji, dll)" autocomplete="off" required>
                             <input type="text" id="amount" placeholder="Nominal Rupiah / Gram" autocomplete="off" required>
                             <select id="type" onchange="handleTypeChange()">
                                 <optgroup label="Uang Harian"><option value="income">Pemasukan (+)</option><option value="expense">Pengeluaran (-)</option></optgroup>
                                 <optgroup label="Tabungan & Aset"><option value="simpanan">Simpanan Wajib (+)</option><option value="pribadi">Tabungan Pribadi (+)</option><option value="tring">Emas Tring (+)</option><option value="jago">Emas Jago (- Kas, + Aset)</option></optgroup>
                             </select>
-                            <button type="submit" class="btn-primary" style="padding: 12px; border-radius: 14px; border:none;">Simpan Catatan</button>
+                            <div style="display: flex; gap: 8px;">
+                                <button type="submit" id="form-submit-btn" class="btn-primary" style="padding: 12px; border-radius: 14px; border:none; flex: 1;">Simpan Catatan</button>
+                                <button type="button" id="form-cancel-btn" onclick="cancelEdit()" class="btn-danger" style="display: none; padding: 12px; border-radius: 14px; flex: 1;">Batal</button>
+                            </div>
                         </form>
                     </div>
 
@@ -274,7 +302,6 @@
                         <p id="total-wealth">Rp 0</p>
                     </div>
 
-                    <!-- KOTAK STATS DENGAN PERSENTASE NAIK/TURUN OTOMATIS -->
                     <div class="stats-grid">
                         <div class="stat-box c-balance">
                             <span id="trend-cash" class="stat-trend trend-flat">0%</span>
@@ -317,7 +344,6 @@
                             <button onclick="openGoalsModal()" style="width: auto; font-size: 11px; font-weight: 700; padding: 6px 16px; border-radius: 100px; border: 1px solid var(--border-color); cursor: pointer; background: var(--list-bg); color: var(--primary); transition: 0.2s;">Edit Target</button>
                         </div>
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; width: 100%;">
-                            
                             <div style="background: var(--list-bg); padding: 16px 20px; border-radius: 16px; border: 1px solid var(--border-color);">
                                 <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; margin-bottom: 8px;">
                                     <span style="color: var(--text-gray);">Kekayaan Total</span>
@@ -337,7 +363,6 @@
                                     <div id="gold-progress-bar" class="progress-fill" style="width: 0%; background: linear-gradient(90deg, var(--tring), #f59e0b);"></div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
 
@@ -362,6 +387,63 @@
             </div>
         </div>
 
+        <!-- TAB 2: ESTIMASI BULANAN (PLANNER) -->
+        <div id="wrapper-planner" class="app-wrapper">
+            <div class="dashboard-layout">
+                <div class="sidebar-col">
+                    <div class="glass-panel">
+                        <h2 class="panel-title">Atur Anggaran Fix</h2>
+                        <p style="font-size: 12px; color: var(--text-gray); margin-bottom: 16px;">Masukkan pengeluaran dan pemasukan yang sifatnya tetap tiap bulan untuk mengestimasi sisa bersih dana.</p>
+                        <form id="planner-form" onsubmit="addPlannerItem(event)">
+                            <input type="text" id="planner-desc" placeholder="Keterangan (Gaji, Kos, Cicilan)" autocomplete="off" required>
+                            <input type="text" id="planner-amount" placeholder="Nominal Rupiah" autocomplete="off" required oninput="formatGoalInput(this)">
+                            <select id="planner-type">
+                                <option value="income">Pemasukan Tetap (+)</option>
+                                <option value="expense">Pengeluaran Tetap (-)</option>
+                            </select>
+                            <button type="submit" class="btn-primary" style="padding: 12px; border-radius: 14px; border:none;">Tambah Anggaran</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="main-col">
+                    <div class="wealth-card" style="background: linear-gradient(135deg, var(--income), #059669); box-shadow: 0 15px 30px -10px rgba(16, 185, 129, 0.4);">
+                        <h3>Estimasi Sisa Uang Bersih (Net) Per Bulan</h3>
+                        <p id="planner-net">Rp 0</p>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-box c-balance">
+                            <h3>Total Pemasukan Fix</h3>
+                            <p id="planner-total-income">Rp 0</p>
+                        </div>
+                        <div class="stat-box">
+                            <h3 style="color: var(--expense);">Total Pengeluaran Fix</h3>
+                            <p id="planner-total-expense" style="color: var(--expense);">Rp 0</p>
+                        </div>
+                    </div>
+
+                    <!-- PEMISAHAN DAFTAR ANGGARAN: PEMASUKAN & PENGELUARAN -->
+                    <div class="glass-panel" style="display: flex; flex-direction: column; gap: 20px;">
+                        <div>
+                            <h2 style="font-size: 15px; font-weight: 700; color: var(--income); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">📥 Pemasukan Tetap</h2>
+                            <ul id="planner-income-list" class="history-list" style="margin: 0;">
+                                <!-- Injected by JS -->
+                            </ul>
+                        </div>
+                        
+                        <div style="border-top: 1px solid var(--border-color); padding-top: 16px;">
+                            <h2 style="font-size: 15px; font-weight: 700; color: var(--expense); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">📤 Pengeluaran Tetap</h2>
+                            <ul id="planner-expense-list" class="history-list" style="margin: 0;">
+                                <!-- Injected by JS -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: ROADMAP 2027 -->
         <div id="wrapper-roadmap" class="app-wrapper">
             <div class="roadmap-grid">
                 <div class="sidebar-col">
@@ -447,10 +529,29 @@
         const CORRECT_USER = 'Rebel';
         const ENCODED_PASS = 'UmViZWxpb24wMzA0MDE='; 
         let transactions = [];
+        let plannerItems = []; 
         let currentSessionKey = sessionStorage.getItem('appEncryptionKey'); 
 
         const SESSION_DURATION = 5 * 60 * 1000; 
         let idleTimer;
+
+        function updateHeaderGreeting() {
+            const hour = new Date().getHours();
+            let greeting = 'Halo';
+            if (hour >= 5 && hour < 11) greeting = 'Selamat Pagi';
+            else if (hour >= 11 && hour < 15) greeting = 'Selamat Siang';
+            else if (hour >= 15 && hour < 18) greeting = 'Selamat Sore';
+            else greeting = 'Selamat Malam';
+
+            const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+            const dateStr = new Date().toLocaleDateString('id-ID', options);
+
+            const greetingEls = document.querySelectorAll('.dynamic-greeting');
+            const dateEls = document.querySelectorAll('.dynamic-date');
+            
+            greetingEls.forEach(el => el.innerHTML = `${greeting}, ${CORRECT_USER}! ✨`);
+            dateEls.forEach(el => el.innerText = `📅 ${dateStr}`);
+        }
 
         function resetIdleTimer() {
             if (sessionStorage.getItem('isLoggedIn') === 'true') {
@@ -503,13 +604,16 @@
                 sessionStorage.setItem('lastActivityTime', new Date().getTime().toString());
                 currentSessionKey = p;
                 
-                document.getElementById('username-text').innerText = u;
                 document.getElementById('login-wrapper').style.display = 'none';
                 document.getElementById('app-container').style.display = 'block';
                 
+                updateHeaderGreeting();
                 transactions = loadFromLocal(currentSessionKey) || [];
+                plannerItems = loadPlannerFromLocal(currentSessionKey) || [];
+
                 fetchAutoGoldPrice();
                 updateUI(); 
+                renderPlannerUI(); 
                 loadRoadmapProgress();
                 startRoadmapCountdown();
                 resetIdleTimer();
@@ -526,12 +630,18 @@
             if(document.getElementById('theme-checkbox')) document.getElementById('theme-checkbox').checked = (currentTheme === 'dark');
 
             if (sessionStorage.getItem('isLoggedIn') === 'true' && currentSessionKey) {
-                document.getElementById('username-text').innerText = CORRECT_USER;
                 document.getElementById('login-wrapper').style.display = 'none';
                 document.getElementById('app-container').style.display = 'block';
+                
+                updateHeaderGreeting();
                 transactions = loadFromLocal(currentSessionKey) || [];
+                plannerItems = loadPlannerFromLocal(currentSessionKey) || [];
+
                 fetchAutoGoldPrice();
-                updateUI(); loadRoadmapProgress(); startRoadmapCountdown();
+                updateUI(); 
+                renderPlannerUI();
+                loadRoadmapProgress(); 
+                startRoadmapCountdown();
                 resetIdleTimer();
             }
         });
@@ -544,19 +654,19 @@
         }
 
         function switchAppTab(tab) {
-            const wB = document.getElementById('wrapper-budget');
-            const wR = document.getElementById('wrapper-roadmap');
-            const bB = document.getElementById('btn-budget');
-            const bR = document.getElementById('btn-roadmap');
-
-            if (tab === 'budget') {
-                wB.classList.add('active'); wR.classList.remove('active');
-                bB.classList.add('active'); bR.classList.remove('active');
-                setTimeout(updateUI, 50);
-            } else {
-                wB.classList.remove('active'); wR.classList.add('active');
-                bB.classList.remove('active'); bR.classList.add('active');
-            }
+            const tabs = ['budget', 'planner', 'roadmap'];
+            tabs.forEach(t => {
+                const w = document.getElementById(`wrapper-${t}`);
+                const b = document.getElementById(`btn-${t}`);
+                if (t === tab) {
+                    w.classList.add('active');
+                    b.classList.add('active');
+                } else {
+                    w.classList.remove('active');
+                    b.classList.remove('active');
+                }
+            });
+            if (tab === 'budget') setTimeout(updateUI, 50);
         }
 
         function startRoadmapCountdown() {
@@ -597,6 +707,9 @@
 
         function saveToLocal() { if(currentSessionKey) localStorage.setItem('keuangan_secure_db', CryptoJS.AES.encrypt(JSON.stringify(transactions), currentSessionKey).toString()); }
         function loadFromLocal(key) { try { return JSON.parse(CryptoJS.AES.decrypt(localStorage.getItem('keuangan_secure_db'), key).toString(CryptoJS.enc.Utf8)); } catch(e) { return null; } }
+
+        function savePlannerToLocal() { if(currentSessionKey) localStorage.setItem('keuangan_planner_db', CryptoJS.AES.encrypt(JSON.stringify(plannerItems), currentSessionKey).toString()); }
+        function loadPlannerFromLocal(key) { try { return JSON.parse(CryptoJS.AES.decrypt(localStorage.getItem('keuangan_planner_db'), key).toString(CryptoJS.enc.Utf8)); } catch(e) { return null; } }
 
         let financialGoals = JSON.parse(localStorage.getItem('financialGoals')) || { wealthGoal: 50000000, goldGoal: 10000000 };
         let goldPricePerGram = parseFloat(localStorage.getItem('goldPricePerGram')) || 1250000;
@@ -682,17 +795,151 @@
             });
         }
 
+        function editTransaction(id) {
+            const trx = transactions.find(t => t.id === id);
+            if(!trx) return;
+
+            document.getElementById('edit-id').value = trx.id;
+            document.getElementById('desc').value = trx.desc;
+            document.getElementById('type').value = trx.type;
+            handleTypeChange();
+
+            const amtField = document.getElementById('amount');
+            if (trx.type === 'tring' || trx.type === 'inv_tring') {
+                amtField.value = trx.amount;
+            } else {
+                amtField.value = new Intl.NumberFormat('id-ID').format(trx.amount);
+            }
+
+            document.getElementById('form-panel-title').innerText = "Edit Transaksi ✏️";
+            document.getElementById('form-submit-btn').innerText = "Update Catatan";
+            document.getElementById('form-cancel-btn').style.display = "block";
+            
+            document.getElementById('form').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function cancelEdit() {
+            document.getElementById('edit-id').value = "";
+            document.getElementById('form').reset();
+            document.getElementById('form-panel-title').innerText = "Catat Transaksi";
+            document.getElementById('form-submit-btn').innerText = "Simpan Catatan";
+            document.getElementById('form-cancel-btn').style.display = "none";
+            handleTypeChange();
+        }
+
         const frm = document.getElementById('form');
         if(frm) {
             frm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const desc = document.getElementById('desc').value; const type = document.getElementById('type').value; let rawAmt = document.getElementById('amount').value;
+                const editId = document.getElementById('edit-id').value;
+                const desc = document.getElementById('desc').value; 
+                const type = document.getElementById('type').value; 
+                let rawAmt = document.getElementById('amount').value;
                 let amt = type === 'tring' ? parseFloat(rawAmt.replace(',', '.')) : parseInt(rawAmt.replace(/\./g, ''));
                 if(!amt) return;
-                const d = new Date(); const dStr = String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
-                transactions.unshift({ id: 'id_' + Math.random().toString(36).substr(2, 9), desc: desc, amount: amt, type: type, date: dStr });
-                saveToLocal(); updateUI(); frm.reset(); handleTypeChange();
+
+                if (editId) {
+                    const idx = transactions.findIndex(t => t.id === editId);
+                    if (idx !== -1) {
+                        transactions[idx].desc = desc;
+                        transactions[idx].type = type;
+                        transactions[idx].amount = amt;
+                    }
+                    cancelEdit();
+                } else {
+                    const d = new Date(); 
+                    const dStr = String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
+                    transactions.unshift({ id: 'id_' + Math.random().toString(36).substr(2, 9), desc: desc, amount: amt, type: type, date: dStr });
+                    frm.reset(); 
+                    handleTypeChange();
+                }
+
+                saveToLocal(); 
+                updateUI();
             });
+        }
+
+        function addPlannerItem(e) {
+            e.preventDefault();
+            const desc = document.getElementById('planner-desc').value;
+            const type = document.getElementById('planner-type').value;
+            let rawAmt = document.getElementById('planner-amount').value;
+            let amt = parseInt(rawAmt.replace(/\./g, ''));
+            
+            if(!amt) return;
+
+            plannerItems.push({ id: 'pln_' + Math.random().toString(36).substr(2, 9), desc: desc, type: type, amount: amt });
+            savePlannerToLocal();
+            renderPlannerUI();
+            document.getElementById('planner-form').reset();
+        }
+
+        function deletePlannerItem(id) {
+            if(confirm("Hapus anggaran ini?")) {
+                plannerItems = plannerItems.filter(item => item.id !== id);
+                savePlannerToLocal();
+                renderPlannerUI();
+            }
+        }
+
+        function renderPlannerUI() {
+            const incomeListEl = document.getElementById('planner-income-list');
+            const expenseListEl = document.getElementById('planner-expense-list');
+            if(!incomeListEl || !expenseListEl) return;
+
+            incomeListEl.innerHTML = '';
+            expenseListEl.innerHTML = '';
+            
+            let totalIncome = 0;
+            let totalExpense = 0;
+
+            let hasIncome = false;
+            let hasExpense = false;
+
+            plannerItems.forEach(item => {
+                const li = document.createElement('li');
+                
+                if(item.type === 'income') {
+                    hasIncome = true;
+                    totalIncome += item.amount;
+                    li.innerHTML = `
+                        <div class="history-item-left">
+                            <strong style="font-size:13px; color:var(--text-dark); display:block;">${item.desc}</strong>
+                        </div>
+                        <div class="history-item-right">
+                            <span class="text-inc" style="font-weight:800; font-size:13px;">+ ${formatRp(item.amount)}</span>
+                            <button onclick="deletePlannerItem('${item.id}')" title="Hapus" style="background:transparent; color:var(--expense); border:none; font-size:18px; cursor:pointer; padding:0; line-height:1;">×</button>
+                        </div>
+                    `;
+                    incomeListEl.appendChild(li);
+                } else {
+                    hasExpense = true;
+                    totalExpense += item.amount;
+                    li.innerHTML = `
+                        <div class="history-item-left">
+                            <strong style="font-size:13px; color:var(--text-dark); display:block;">${item.desc}</strong>
+                        </div>
+                        <div class="history-item-right">
+                            <span class="text-exp" style="font-weight:800; font-size:13px;">- ${formatRp(item.amount)}</span>
+                            <button onclick="deletePlannerItem('${item.id}')" title="Hapus" style="background:transparent; color:var(--expense); border:none; font-size:18px; cursor:pointer; padding:0; line-height:1;">×</button>
+                        </div>
+                    `;
+                    expenseListEl.appendChild(li);
+                }
+            });
+
+            if(!hasIncome) {
+                incomeListEl.innerHTML = `<li style="justify-content: center; color: var(--text-gray); font-size: 12px; background: transparent; border: none;">Belum ada pemasukan tetap</li>`;
+            }
+            if(!hasExpense) {
+                expenseListEl.innerHTML = `<li style="justify-content: center; color: var(--text-gray); font-size: 12px; background: transparent; border: none;">Belum ada pengeluaran tetap</li>`;
+            }
+
+            const net = totalIncome - totalExpense;
+            
+            document.getElementById('planner-total-income').innerText = formatRp(totalIncome);
+            document.getElementById('planner-total-expense').innerText = formatRp(totalExpense);
+            document.getElementById('planner-net').innerText = formatRp(net);
         }
 
         function formatRp(angka) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka); }
@@ -764,7 +1011,6 @@
             `;
         }
 
-        // Fungsi Kalkulasi & Render Badge Persentase Trend
         function calculateAndRenderTrend(elementId, currentVal, prevVal) {
             const el = document.getElementById(elementId);
             if(!el) return;
@@ -798,11 +1044,9 @@
                 daily: {}
             };
 
-            // 1. Logika Bulanan (Kas, Simpanan, Pribadi) -> Bandingkan dengan bulan lalu
             let lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
             let prevMonthKey = `${lastMonthDate.getFullYear()}-${String(lastMonthDate.getMonth()+1).padStart(2,'0')}`;
             
-            // Simpan snapshot bulan berjalan jika belum ada
             if(!snapshots.monthly[currentMonthKey]) {
                 snapshots.monthly[currentMonthKey] = { cash, simpanan, pribadi };
                 localStorage.setItem('financialSnapshots', JSON.stringify(snapshots));
@@ -813,7 +1057,6 @@
             calculateAndRenderTrend('trend-simpanan', simpanan, prevMonthData.simpanan);
             calculateAndRenderTrend('trend-pribadi', pribadi, prevMonthData.pribadi);
 
-            // 2. Logika Harian (Emas Tring, Emas Jago) -> Bandingkan dengan hari kemarin
             let yesterday = new Date(now);
             yesterday.setDate(now.getDate() - 1);
             let prevDateKey = `${yesterday.getFullYear()}-${String(yesterday.getMonth()+1).padStart(2,'0')}-${String(yesterday.getDate()).padStart(2,'0')}`;
@@ -898,7 +1141,8 @@
                     </div>
                     <div class="history-item-right">
                         <span class="${tCls}" style="font-weight:800; font-size:13px;">${sign} ${dAmt}</span>
-                        <button onclick="deleteTransaction('${trx.id}')" style="background:transparent; color:var(--expense); border:none; font-size:18px; cursor:pointer; padding:0; line-height:1;">×</button>
+                        <button onclick="editTransaction('${trx.id}')" title="Edit" style="background:transparent; color:var(--primary); border:none; font-size:14px; cursor:pointer; padding:0; line-height:1;">✏️</button>
+                        <button onclick="deleteTransaction('${trx.id}')" title="Hapus" style="background:transparent; color:var(--expense); border:none; font-size:18px; cursor:pointer; padding:0; line-height:1;">×</button>
                     </div>
                 `;
                 listEl.appendChild(li);
@@ -923,7 +1167,6 @@
             document.getElementById('gold-progress-bar').style.width = Math.min((gold/financialGoals.goldGoal)*100, 100) + '%'; 
             document.getElementById('gold-progress-text').innerText = Math.min((gold/financialGoals.goldGoal)*100, 100).toFixed(1) + '%';
             
-            // Panggil fungsi pembanding persentase trend
             checkAndUpdateSnapshots(cash, totalSimAll, totalPriAll, trgRp, totalJagAll);
 
             updateCharts(cash, totalSimAll, totalPriAll, trgRp, totalJagAll, totalIncAll, totalExpAll);
