@@ -25,12 +25,17 @@
         
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { 
-            background-color: var(--bg-color); color: var(--text-dark); padding: 20px; 
+            background-color: var(--bg-color); color: var(--text-dark); padding: 12px 16px; 
             font-size: 14px; line-height: 1.6; min-height: 100vh; overflow-x: hidden;
             background-image: radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.08), transparent 25%),
                               radial-gradient(circle at 85% 30%, rgba(168, 85, 247, 0.08), transparent 25%);
             background-attachment: fixed; transition: background-color 0.4s ease;
         }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
         
         #login-wrapper { display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 40px); z-index: 50; position: relative; }
         #login-container { 
@@ -53,8 +58,8 @@
         #login-container button[type="submit"] { width: 100%; padding: 12px; background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: #020617; border: none; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; margin-top: 6px; }
 
         .app-navbar-container { 
-            display: flex; justify-content: center; margin-bottom: 30px; 
-            position: sticky; top: 15px; z-index: 100; pointer-events: none;
+            display: flex; justify-content: center; margin-bottom: 20px; 
+            position: sticky; top: 10px; z-index: 100; pointer-events: none;
         }
         .floating-tabs {
             background: var(--card-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border);
@@ -69,7 +74,7 @@
         .nav-tab-btn:hover { color: var(--text-dark); }
         .nav-tab-btn.active { background: var(--primary); color: #020617; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4); font-weight: 700; }
 
-        .app-wrapper { display: none; width: 100%; max-width: 1400px; margin: 0 auto; animation: fadeInUp 0.5s ease forwards; }
+        .app-wrapper { display: none; width: 100%; max-width: 100%; margin: 0; animation: fadeInUp 0.5s ease forwards; }
         .app-wrapper.active { display: block; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -78,14 +83,14 @@
             border: 1px solid var(--glass-border); border-radius: 24px; padding: 24px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.03);
         }
-        .panel-title { font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+        .panel-title { font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; width: 100%; }
         .badge { background: rgba(99, 102, 241, 0.2); color: var(--primary); font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; }
 
-        .dashboard-layout { display: grid; grid-template-columns: 360px 1fr; gap: 24px; align-items: start; }
-        .sidebar-col { display: flex; flex-direction: column; gap: 20px; position: sticky; top: 80px; }
+        .dashboard-layout { display: grid; grid-template-columns: 380px 1fr; gap: 20px; align-items: start; width: 100%; }
+        .sidebar-col { display: flex; flex-direction: column; gap: 20px; position: sticky; top: 75px; }
         .main-col { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
 
-        .header-info { display: flex; justify-content: space-between; align-items: center; }
+        .header-info { display: flex; justify-content: space-between; align-items: center; width: 100%; }
         .app-title { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 8px;}
         .user-menu { background: var(--list-bg); border: 1px solid var(--border-color); color: var(--text-dark); padding: 8px 14px; border-radius: 100px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
         
@@ -96,7 +101,7 @@
         input:checked + .slider { background-color: var(--primary); }
         input:checked + .slider:before { transform: translateX(20px); }
 
-        form { display: flex; flex-direction: column; gap: 12px; }
+        form { display: flex; flex-direction: column; gap: 12px; width: 100%; }
         input, select, button { width: 100%; padding: 12px 16px; border: 1px solid var(--border-color); background-color: var(--list-bg); color: var(--text-dark); border-radius: 14px; font-size: 14px; font-weight: 500; outline: none; }
         select option { background: var(--card-bg); color: var(--text-dark); }
         button.btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: #020617; border: none; font-weight: 700; cursor: pointer; }
@@ -106,28 +111,28 @@
         .wealth-card h3 { font-size: 14px; font-weight: 700; opacity: 0.95; margin-bottom: 8px; color: #020617; }
         .wealth-card p { font-size: 36px; font-weight: 800; color: #020617; }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; width: 100%; }
         .stat-box { background: var(--list-bg); padding: 16px; border-radius: 16px; border: 1px solid var(--border-color); }
         .stat-box h3 { font-size: 12px; color: var(--text-gray); font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
         .stat-box p { font-size: 16px; font-weight: 800; color: var(--text-dark); }
         .c-balance p { color: var(--income); } .c-simpanan p { color: var(--simpanan); } 
         .c-pribadi p { color: var(--pribadi); } .c-tring p { color: var(--tring); } .c-jago p { color: var(--jago); }
 
-        .progress-wrapper { background: var(--border-color); border-radius: 100px; height: 10px; overflow: hidden; margin-top: 8px; }
+        .progress-wrapper { background: var(--border-color); border-radius: 100px; height: 10px; overflow: hidden; margin-top: 8px; width: 100%; }
         .progress-fill { height: 100%; border-radius: 100px; transition: width 0.8s; }
 
-        .history-list { list-style: none; max-height: 300px; overflow-y: auto; }
+        /* DIUBAH: Batasi tinggi riwayat agar aman & compact di HP */
+        .history-list { list-style: none; max-height: 220px; overflow-y: auto; padding-right: 4px; width: 100%; }
         .history-list li { 
             display: flex; justify-content: space-between; align-items: center; 
-            background: var(--list-bg); padding: 12px 16px; margin-bottom: 10px; 
-            border-radius: 16px; border: 1px solid var(--border-color); gap: 16px;
+            background: var(--list-bg); padding: 10px 14px; margin-bottom: 8px; 
+            border-radius: 14px; border: 1px solid var(--border-color); gap: 12px; width: 100%;
         }
         .history-item-left { flex: 1; min-width: 0; }
         .history-item-left span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .history-item-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; text-align: right; white-space: nowrap; }
+        .history-item-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; text-align: right; white-space: nowrap; }
         .text-inc { color: var(--income); } .text-exp { color: var(--expense); }
 
-        /* MODAL CUSTOM MODERN STYLE */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(2, 6, 23, 0.7); backdrop-filter: blur(8px);
@@ -145,15 +150,15 @@
         .modal-box p { font-size: 13px; color: var(--text-gray); margin-bottom: 20px; }
         .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
 
-        .roadmap-grid { display: grid; grid-template-columns: 340px 1fr; gap: 24px; align-items: start; }
-        .countdown-timer { display: flex; gap: 10px; justify-content: space-between; margin-top: 15px; }
+        .roadmap-grid { display: grid; grid-template-columns: 340px 1fr; gap: 24px; align-items: start; width: 100%; }
+        .countdown-timer { display: flex; gap: 10px; justify-content: space-between; margin-top: 15px; width: 100%; }
         .time-box { background: var(--list-bg); padding: 12px 0; border-radius: 12px; flex: 1; text-align: center; border: 1px solid var(--border-color); }
         .time-box span { display: block; }
         .time-val { font-size: 20px; font-weight: 800; color: var(--text-dark); }
         .time-lbl { font-size: 10px; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-top: 4px; }
         
-        .roadmap-months { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-        .task-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; border-radius: 14px; background: var(--list-bg); margin-bottom: 10px; cursor: pointer; border: 1px solid transparent; }
+        .roadmap-months { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; width: 100%; }
+        .task-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; border-radius: 14px; background: var(--list-bg); margin-bottom: 10px; cursor: pointer; border: 1px solid transparent; width: 100%; }
         .task-item:hover { border-color: var(--primary); }
         
         .custom-checkbox { appearance: none; width: 22px; height: 22px; border: 2px solid var(--text-gray); border-radius: 6px; display: grid; place-content: center; cursor: pointer; flex-shrink: 0; background: transparent; margin-top: 2px;}
@@ -165,7 +170,7 @@
 
         @media (max-width: 1024px) {
             .dashboard-layout, .roadmap-grid { grid-template-columns: 1fr; }
-            .sidebar-col { position: static; }
+            .sidebar-col { position: static; height: auto; }
         }
     </style>
 </head>
@@ -219,8 +224,9 @@
 
         <div id="wrapper-budget" class="app-wrapper active">
             <div class="dashboard-layout">
+                
                 <div class="sidebar-col">
-                    <div class="glass-panel">
+                    <div class="glass-panel" style="padding: 20px 24px;">
                         <div class="header-info">
                             <div class="app-title">✨ Finance</div>
                             <div style="display: flex; gap:12px; align-items:center;">
@@ -233,7 +239,7 @@
                         </div>
                     </div>
 
-                    <div class="glass-panel">
+                    <div class="glass-panel" style="padding: 20px 24px;">
                         <h2 class="panel-title">Catat Transaksi</h2>
                         <form id="form">
                             <input type="text" id="desc" placeholder="Keterangan (Makan, Gaji, dll)" autocomplete="off" required>
@@ -246,19 +252,13 @@
                         </form>
                     </div>
 
-                    <div class="glass-panel">
+                    <div class="glass-panel" style="padding: 20px 24px;">
                         <div class="panel-title" style="margin-bottom: 12px;">
-                            <span>🎯 Target 2026</span>
-                            <button onclick="openGoalsModal()" style="font-size: 11px; font-weight: 700; padding: 5px 14px; border-radius: 100px; border: 1px solid var(--border-color); cursor: pointer; background: var(--list-bg); color: var(--primary); transition: 0.2s;">Edit</button>
+                            <span>Riwayat</span>
+                            <select id="filter-month-select" onchange="updateUI()" style="width: auto; padding: 4px 10px; border-radius: 100px; font-size: 11px;"><option value="all">Semua Bulan</option></select>
                         </div>
-                        <div style="margin-bottom: 16px;">
-                            <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 4px;"><span>Kekayaan</span><span id="wealth-progress-text">0%</span></div>
-                            <div class="progress-wrapper"><div id="wealth-progress-bar" class="progress-fill" style="width: 0%; background: var(--primary);"></div></div>
-                        </div>
-                        <div>
-                            <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 4px;"><span>Aset Emas</span><span id="gold-progress-text">0%</span></div>
-                            <div class="progress-wrapper"><div id="gold-progress-bar" class="progress-fill" style="width: 0%; background: var(--tring);"></div></div>
-                        </div>
+                        <ul id="list" class="history-list" style="margin-bottom: 12px;"></ul>
+                        <button onclick="resetData()" class="btn-danger" style="padding: 10px; border-radius: 12px; font-size: 13px;">Bersihkan Data</button>
                     </div>
                 </div>
 
@@ -284,7 +284,37 @@
                         </div>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+                    <div class="glass-panel">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; width: 100%;">
+                            <h2 style="font-size: 16px; font-weight: 700; color: var(--text-dark); margin: 0;">🎯 Progress Target 2026</h2>
+                            <button onclick="openGoalsModal()" style="width: auto; font-size: 11px; font-weight: 700; padding: 6px 16px; border-radius: 100px; border: 1px solid var(--border-color); cursor: pointer; background: var(--list-bg); color: var(--primary); transition: 0.2s;">Edit Target</button>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; width: 100%;">
+                            
+                            <div style="background: var(--list-bg); padding: 16px 20px; border-radius: 16px; border: 1px solid var(--border-color);">
+                                <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; margin-bottom: 8px;">
+                                    <span style="color: var(--text-gray);">Kekayaan Total</span>
+                                    <span id="wealth-progress-text" style="color: var(--primary);">0%</span>
+                                </div>
+                                <div class="progress-wrapper" style="height: 10px; margin-top: 0; background: var(--card-bg); border: 1px solid var(--border-color);">
+                                    <div id="wealth-progress-bar" class="progress-fill" style="width: 0%; background: linear-gradient(90deg, var(--primary), #8b5cf6);"></div>
+                                </div>
+                            </div>
+                            
+                            <div style="background: var(--list-bg); padding: 16px 20px; border-radius: 16px; border: 1px solid var(--border-color);">
+                                <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; margin-bottom: 8px;">
+                                    <span style="color: var(--text-gray);">Aset Emas</span>
+                                    <span id="gold-progress-text" style="color: var(--tring);">0%</span>
+                                </div>
+                                <div class="progress-wrapper" style="height: 10px; margin-top: 0; background: var(--card-bg); border: 1px solid var(--border-color);">
+                                    <div id="gold-progress-bar" class="progress-fill" style="width: 0%; background: linear-gradient(90deg, var(--tring), #f59e0b);"></div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
                         <div class="glass-panel">
                             <h2 class="panel-title">Portofolio</h2>
                             <div style="height: 160px; position: relative;"><canvas id="financeChart"></canvas></div>
@@ -300,14 +330,6 @@
                         <div id="financial-analysis-content" style="display: flex; flex-direction: column; gap: 12px; font-size: 13px; color: var(--text-dark);">
                             <p style="color: var(--text-gray);">Belum ada data transaksi yang cukup untuk dianalisa pada bulan ini.</p>
                         </div>
-                    </div>
-
-                    <div class="glass-panel">
-                        <div class="panel-title">Riwayat Catatan 
-                            <select id="filter-month-select" onchange="updateUI()" style="width: auto; padding: 6px 12px; border-radius: 100px;"><option value="all">Semua Bulan</option></select>
-                        </div>
-                        <ul id="list" class="history-list"></ul>
-                        <button onclick="resetData()" class="btn-danger" style="margin-top: 16px; padding: 12px; border-radius: 14px;">Bersihkan Database Lokal</button>
                     </div>
                 </div>
             </div>
@@ -327,7 +349,7 @@
                     </div>
 
                     <div class="glass-panel">
-                        <div class="panel-title">Total Progress <button onclick="resetRoadmapProgress()" style="font-size: 11px; padding: 4px 12px; border-radius: 100px; border:none; cursor:pointer; background:var(--list-bg); color:var(--text-dark);">Reset</button></div>
+                        <div class="panel-title">Total Progress <button onclick="resetRoadmapProgress()" style="width: auto; font-size: 11px; padding: 4px 12px; border-radius: 100px; border:none; cursor:pointer; background:var(--list-bg); color:var(--text-dark);">Reset</button></div>
                         <h3 id="roadmap-progress-text" style="font-size: 32px; font-weight: 800; color: var(--primary); margin-bottom: 8px;">0%</h3>
                         <div class="progress-wrapper"><div id="roadmap-progress-bar" class="progress-fill" style="width: 0%; background: linear-gradient(90deg, var(--primary), var(--pribadi));"></div></div>
                     </div>
@@ -400,22 +422,41 @@
         let transactions = [];
         let currentSessionKey = sessionStorage.getItem('appEncryptionKey'); 
 
-        const SESSION_DURATION = 60 * 60 * 1000; 
+        const SESSION_DURATION = 5 * 60 * 1000; 
+        let idleTimer;
+
+        function resetIdleTimer() {
+            if (sessionStorage.getItem('isLoggedIn') === 'true') {
+                clearTimeout(idleTimer);
+                sessionStorage.setItem('lastActivityTime', new Date().getTime().toString());
+                idleTimer = setTimeout(() => {
+                    handleLogout();
+                }, SESSION_DURATION);
+            }
+        }
+
+        window.onload = function() {
+            const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+            events.forEach(eventName => {
+                document.addEventListener(eventName, resetIdleTimer, true);
+            });
+        };
+
         function checkSessionTimeout() {
-            const loginTime = sessionStorage.getItem('loginTime');
-            if (loginTime) {
-                const elapsed = new Date().getTime() - parseInt(loginTime);
+            const lastActivity = sessionStorage.getItem('lastActivityTime');
+            if (lastActivity && sessionStorage.getItem('isLoggedIn') === 'true') {
+                const elapsed = new Date().getTime() - parseInt(lastActivity);
                 const remaining = SESSION_DURATION - elapsed;
                 if (remaining <= 0) {
                     handleLogout();
                 } else {
-                    const mins = Math.floor(remaining / 60000);
+                    const secs = Math.ceil(remaining / 1000);
                     const sw = document.getElementById('session-warning');
-                    if(sw) sw.innerText = `Sesi aktif (${mins} menit tersisa)`;
+                    if(sw) sw.innerText = `Sesi aktif (Auto-logout idle dalam ${secs}s)`;
                 }
             }
         }
-        setInterval(checkSessionTimeout, 30000);
+        setInterval(checkSessionTimeout, 1000);
 
         function togglePasswordVisibility() {
             const p = document.getElementById('password-input');
@@ -432,7 +473,7 @@
             if (u === CORRECT_USER && btoa(p) === ENCODED_PASS) {
                 sessionStorage.setItem('isLoggedIn', 'true');
                 sessionStorage.setItem('appEncryptionKey', p); 
-                sessionStorage.setItem('loginTime', new Date().getTime().toString());
+                sessionStorage.setItem('lastActivityTime', new Date().getTime().toString());
                 currentSessionKey = p;
                 
                 document.getElementById('username-text').innerText = u;
@@ -444,6 +485,7 @@
                 updateUI(); 
                 loadRoadmapProgress();
                 startRoadmapCountdown();
+                resetIdleTimer();
             } else {
                 alert("❌ Akses Ditolak!");
             }
@@ -457,13 +499,13 @@
             if(document.getElementById('theme-checkbox')) document.getElementById('theme-checkbox').checked = (currentTheme === 'dark');
 
             if (sessionStorage.getItem('isLoggedIn') === 'true' && currentSessionKey) {
-                checkSessionTimeout();
                 document.getElementById('username-text').innerText = CORRECT_USER;
                 document.getElementById('login-wrapper').style.display = 'none';
                 document.getElementById('app-container').style.display = 'block';
                 transactions = loadFromLocal(currentSessionKey) || [];
                 fetchAutoGoldPrice();
                 updateUI(); loadRoadmapProgress(); startRoadmapCountdown();
+                resetIdleTimer();
             }
         });
 
