@@ -412,7 +412,7 @@
                         <p id="planner-net">Rp 0</p>
                     </div>
 
-                    <!-- KARTU GRID AKUMULASI DARI UTAMA + ESTIMASI -->
+                    <!-- KARTU GRID AKUMULASI UTAMA + ESTIMASI -->
                     <div class="glass-panel" style="padding: 20px;">
                         <h2 style="font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 16px;">📊 Akumulasi Portofolio + Estimasi Bulan Depan</h2>
                         <div class="stats-grid">
@@ -953,7 +953,7 @@
             document.getElementById('planner-total-expense').innerText = formatRp(totalExpense);
             document.getElementById('planner-net').innerText = formatRp(net);
 
-            // AMBIL DATA UTAMA DARI TRANSAKSI, LALU KURANG/TAMBAH DENGAN PLANNER
+            // AMBIL DATA TRANSAKSI UTAMA + GABUNGKAN DENGAN PLANNER
             let baseInc = 0, baseExp = 0, baseSim = 0, basePri = 0, baseTrg = 0, baseJag = 0;
             transactions.forEach(trx => {
                 const amt = Number(trx.amount);
@@ -965,8 +965,14 @@
                 else if (trx.type === 'jago' || trx.type === 'inv_jago') { baseJag += amt; baseExp += amt; }
             });
 
+            // Jika transaksi utama kosong, masukkan total dari planner items sebagai simulasi awal
+            if (transactions.length === 0) {
+                baseInc = totalIncome;
+                baseExp = totalExpense;
+            }
+
             const baseCash = baseInc - baseExp;
-            const finalCash = baseCash + net; // Kas utama ditambah/dikurang sisa net planner
+            const finalCash = baseCash;
 
             document.getElementById('proj-cash').innerText = formatRp(finalCash);
             document.getElementById('proj-simpanan').innerText = formatRp(baseSim);
@@ -1204,7 +1210,7 @@
 
             updateCharts(cash, totalSimAll, totalPriAll, trgRp, totalJagAll, totalIncAll, totalExpAll);
             updateFinancialAnalysis(filteredInc, filteredExp);
-            renderPlannerUI(); // Update juga kartu estimasi saat utama berubah
+            renderPlannerUI(); 
         }
 
         function deleteTransaction(id) { if(confirm("Hapus catatan?")){ transactions = transactions.filter(t => t.id != id); saveToLocal(); updateUI(); } }
