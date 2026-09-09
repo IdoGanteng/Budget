@@ -407,7 +407,8 @@
                 </div>
                 
                 <div class="main-col">
-                    <div class="wealth-card" style="background: linear-gradient(135deg, var(--income), #059669); box-shadow: 0 15px 30px -10px rgba(16, 185, 129, 0.4);">
+                    <div class="wealth-card" style="background: linear-gradient(135deg, var(--income), #059669); box-shadow: 0 15px 30px -10px rgba(16, 185, 129, 0.4); position: relative;">
+                        <span id="planner-net-trend" class="stat-trend trend-flat" style="top: 20px; right: 20px; font-size: 12px; background: rgba(255,255,255,0.2); color: #020617;">0%</span>
                         <h3>Estimasi Sisa Uang Bersih (Net) Per Bulan</h3>
                         <p id="planner-net">Rp 0</p>
                     </div>
@@ -950,6 +951,23 @@
             const net = totalIncome - totalExpense;
             document.getElementById('planner-net').innerText = formatRp(net);
 
+            // Hitung Persentase Kenaikan / Rasio Net terhadap Pemasukan Total
+            let netTrendEl = document.getElementById('planner-net-trend');
+            if (netTrendEl) {
+                let ratio = totalIncome > 0 ? (net / totalIncome) * 100 : 0;
+                let sign = ratio > 0 ? '+' : '';
+                netTrendEl.innerText = `${sign}${ratio.toFixed(1)}% Rasio Bersih`;
+                if (ratio >= 0) {
+                    netTrendEl.className = 'stat-trend trend-up';
+                    netTrendEl.style.background = 'rgba(16, 185, 129, 0.2)';
+                    netTrendEl.style.color = 'var(--income)';
+                } else {
+                    netTrendEl.className = 'stat-trend trend-down';
+                    netTrendEl.style.background = 'rgba(239, 68, 68, 0.2)';
+                    netTrendEl.style.color = 'var(--expense)';
+                }
+            }
+
             // AMBIL DATA TRANSAKSI UTAMA
             let baseInc = 0, baseExp = 0, baseSim = 0, basePri = 0, baseTrg = 0, baseJag = 0;
             transactions.forEach(trx => {
@@ -962,7 +980,6 @@
                 else if (trx.type === 'jago' || trx.type === 'inv_jago') { baseJag += amt; baseExp += amt; }
             });
 
-            // GABUNGKAN DENGAN PLANNER (JIKA ADA KATA "Simpanan" ATAU "Jago" DI DESKRIPSI PLANNER, ATAU DISTRIBUSI OTOMATIS)
             let plannerSimpanan = 0;
             let plannerJago = 0;
             let plannerPribadi = 0;
