@@ -412,14 +412,26 @@
                         <p id="planner-net">Rp 0</p>
                     </div>
 
-                    <div class="stats-grid">
-                        <div class="stat-box c-balance">
-                            <h3>Total Pemasukan Fix</h3>
-                            <p id="planner-total-income">Rp 0</p>
-                        </div>
-                        <div class="stat-box">
-                            <h3 style="color: var(--expense);">Total Pengeluaran Fix</h3>
-                            <p id="planner-total-expense" style="color: var(--expense);">Rp 0</p>
+                    <!-- KARTU GRID AKUMULASI PORTOFOLIO DI ESTIMASI -->
+                    <div class="glass-panel" style="padding: 20px;">
+                        <h2 style="font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 16px;">📊 Proyeksi Akumulasi Portofolio Bulan Depan</h2>
+                        <div class="stats-grid">
+                            <div class="stat-box c-balance">
+                                <h3>Kas Tunai (Net)</h3>
+                                <p id="proj-cash">Rp 0</p>
+                            </div>
+                            <div class="stat-box c-simpanan">
+                                <h3>Simpanan (35%)</h3>
+                                <p id="proj-simpanan">Rp 0</p>
+                            </div>
+                            <div class="stat-box c-pribadi">
+                                <h3>Pribadi / Dev (25%)</h3>
+                                <p id="proj-pribadi">Rp 0</p>
+                            </div>
+                            <div class="stat-box c-tring">
+                                <h3>Aset Emas (40%)</h3>
+                                <p id="proj-gold">Rp 0</p>
+                            </div>
                         </div>
                     </div>
 
@@ -427,16 +439,12 @@
                     <div class="glass-panel" style="display: flex; flex-direction: column; gap: 20px;">
                         <div>
                             <h2 style="font-size: 15px; font-weight: 700; color: var(--income); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">📥 Pemasukan Tetap</h2>
-                            <ul id="planner-income-list" class="history-list" style="margin: 0;">
-                                <!-- Injected by JS -->
-                            </ul>
+                            <ul id="planner-income-list" class="history-list" style="margin: 0;"></ul>
                         </div>
                         
                         <div style="border-top: 1px solid var(--border-color); padding-top: 16px;">
                             <h2 style="font-size: 15px; font-weight: 700; color: var(--expense); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">📤 Pengeluaran Tetap</h2>
-                            <ul id="planner-expense-list" class="history-list" style="margin: 0;">
-                                <!-- Injected by JS -->
-                            </ul>
+                            <ul id="planner-expense-list" class="history-list" style="margin: 0;"></ul>
                         </div>
                     </div>
                 </div>
@@ -936,10 +944,17 @@
             }
 
             const net = totalIncome - totalExpense;
+            const positiveNet = net > 0 ? net : 0;
             
             document.getElementById('planner-total-income').innerText = formatRp(totalIncome);
             document.getElementById('planner-total-expense').innerText = formatRp(totalExpense);
             document.getElementById('planner-net').innerText = formatRp(net);
+
+            // UPDATE KARTU PROYEKSI DI ESTIMASI
+            document.getElementById('proj-cash').innerText = formatRp(positiveNet);
+            document.getElementById('proj-simpanan').innerText = formatRp(positiveNet * 0.35);
+            document.getElementById('proj-pribadi').innerText = formatRp(positiveNet * 0.25);
+            document.getElementById('proj-gold').innerText = formatRp(positiveNet * 0.40);
         }
 
         function formatRp(angka) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka); }
