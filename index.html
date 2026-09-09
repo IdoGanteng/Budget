@@ -413,27 +413,32 @@
                         <p id="planner-net">Rp 0</p>
                     </div>
 
-                    <!-- KARTU GRID AKUMULASI UTAMA + ESTIMASI -->
+                    <!-- KARTU GRID AKUMULASI UTAMA + ESTIMASI DENGAN PERSENTASE PORSI -->
                     <div class="glass-panel" style="padding: 20px;">
                         <h2 style="font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 16px;">📊 Akumulasi Portofolio + Estimasi Bulan Depan</h2>
                         <div class="stats-grid">
                             <div class="stat-box c-balance">
+                                <span id="proj-cash-pct" class="stat-trend trend-flat">0%</span>
                                 <h3>Kas Tunai (Total)</h3>
                                 <p id="proj-cash">Rp 0</p>
                             </div>
                             <div class="stat-box c-simpanan">
+                                <span id="proj-simpanan-pct" class="stat-trend trend-flat">0%</span>
                                 <h3>Simpanan (Total)</h3>
                                 <p id="proj-simpanan">Rp 0</p>
                             </div>
                             <div class="stat-box c-pribadi">
+                                <span id="proj-pribadi-pct" class="stat-trend trend-flat">0%</span>
                                 <h3>Pribadi (Total)</h3>
                                 <p id="proj-pribadi">Rp 0</p>
                             </div>
                             <div class="stat-box c-tring">
+                                <span id="proj-gold-pct" class="stat-trend trend-flat">0%</span>
                                 <h3>Emas Tring (Total)</h3>
                                 <p id="proj-gold">Rp 0</p>
                             </div>
                             <div class="stat-box c-jago">
+                                <span id="proj-jago-pct" class="stat-trend trend-flat">0%</span>
                                 <h3>Emas Jago (Total)</h3>
                                 <p id="proj-jago">Rp 0</p>
                             </div>
@@ -951,7 +956,6 @@
             const net = totalIncome - totalExpense;
             document.getElementById('planner-net').innerText = formatRp(net);
 
-            // Hitung Persentase Kenaikan / Rasio Net terhadap Pemasukan Total
             let netTrendEl = document.getElementById('planner-net-trend');
             if (netTrendEl) {
                 let ratio = totalIncome > 0 ? (net / totalIncome) * 100 : 0;
@@ -968,7 +972,6 @@
                 }
             }
 
-            // AMBIL DATA TRANSAKSI UTAMA
             let baseInc = 0, baseExp = 0, baseSim = 0, basePri = 0, baseTrg = 0, baseJag = 0;
             transactions.forEach(trx => {
                 const amt = Number(trx.amount);
@@ -1004,11 +1007,31 @@
             const finalJago = baseJag + plannerJago;
             const finalTring = (baseTrg * goldPricePerGram) + (plannerTring * goldPricePerGram);
 
+            const totalPortfolioProj = (baseCash > 0 ? baseCash : 0) + finalSimpanan + finalPribadi + finalTring + finalJago;
+
             document.getElementById('proj-cash').innerText = formatRp(baseCash > 0 ? baseCash : 0);
             document.getElementById('proj-simpanan').innerText = formatRp(finalSimpanan);
             document.getElementById('proj-pribadi').innerText = formatRp(finalPribadi);
             document.getElementById('proj-gold').innerText = formatRp(finalTring);
             document.getElementById('proj-jago').innerText = formatRp(finalJago);
+
+            // Hitung dan Tampilkan Persentase Porsi Kotak Portofolio
+            const setPct = (elId, val) => {
+                const el = document.getElementById(elId);
+                if(el && totalPortfolioProj > 0) {
+                    let pctVal = (val / totalPortfolioProj) * 100;
+                    el.innerText = `${pctVal.toFixed(1)}%`;
+                    el.className = 'stat-trend trend-flat';
+                } else if(el) {
+                    el.innerText = '0%';
+                }
+            };
+
+            setPct('proj-cash-pct', baseCash > 0 ? baseCash : 0);
+            setPct('proj-simpanan-pct', finalSimpanan);
+            setPct('proj-pribadi-pct', finalPribadi);
+            setPct('proj-gold-pct', finalTring);
+            setPct('proj-jago-pct', finalJago);
         }
 
         function formatRp(angka) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka); }
