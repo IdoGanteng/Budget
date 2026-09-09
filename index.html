@@ -158,20 +158,21 @@
 
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(2, 6, 23, 0.7); backdrop-filter: blur(8px);
+            background: rgba(2, 6, 23, 0.75); backdrop-filter: blur(10px);
             display: flex; justify-content: center; align-items: center; z-index: 1000;
-            opacity: 0; visibility: hidden; transition: all 0.3s ease;
+            opacity: 0; visibility: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .modal-overlay.active { opacity: 1; visibility: visible; }
         .modal-box {
             background: var(--card-bg); border: 1px solid var(--glass-border);
-            padding: 30px; border-radius: 24px; width: 100%; max-width: 400px;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3); transform: scale(0.95); transition: transform 0.3s ease;
+            padding: 30px; border-radius: 28px; width: 100%; max-width: 380px; text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4); transform: scale(0.9) translateY(10px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .modal-overlay.active .modal-box { transform: scale(1); }
-        .modal-box h3 { font-size: 18px; font-weight: 800; color: var(--text-dark); margin-bottom: 6px; }
-        .modal-box p { font-size: 13px; color: var(--text-gray); margin-bottom: 20px; }
-        .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+        .modal-overlay.active .modal-box { transform: scale(1) translateY(0); }
+        .modal-icon { font-size: 40px; margin-bottom: 12px; display: inline-block; }
+        .modal-box h3 { font-size: 18px; font-weight: 800; color: var(--text-dark); margin-bottom: 8px; }
+        .modal-box p { font-size: 13px; color: var(--text-gray); margin-bottom: 24px; line-height: 1.5; }
+        .modal-actions { display: flex; gap: 10px; margin-top: 0; }
 
         .roadmap-grid { display: grid; grid-template-columns: 340px 1fr; gap: 24px; align-items: start; width: 100%; }
         .countdown-timer { display: flex; gap: 10px; justify-content: space-between; margin-top: 15px; width: 100%; }
@@ -215,10 +216,23 @@
         </div>
     </div>
 
+    <!-- GLOBAL CUSTOM MODAL / POP-UP -->
+    <div id="custom-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div id="modal-icon-el" class="modal-icon">⚠️</div>
+            <h3 id="modal-title">Judul Pop-up</h3>
+            <p id="modal-desc">Keterangan pesan pop-up akan muncul di sini.</p>
+            <div id="modal-actions-container" class="modal-actions">
+                <!-- Tombol dinamis di-inject via JS -->
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL CUSTOM TARGET 2026 -->
     <div id="goals-modal" class="modal-overlay">
-        <div class="modal-box">
-            <h3>🎯 Pengaturan Target 2026</h3>
+        <div class="modal-box" style="text-align: left; max-width: 400px;">
+            <div style="font-size: 28px; margin-bottom: 8px;">🎯</div>
+            <h3>Pengaturan Target 2026</h3>
             <p>Tentukan target finansial impian kamu tahun ini.</p>
             <form onsubmit="saveGoals(event)" style="gap: 16px;">
                 <div>
@@ -229,9 +243,9 @@
                     <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Target Aset Emas (Rp)</label>
                     <input type="text" id="modal-gold-goal" placeholder="10.000.000" oninput="formatGoalInput(this)" required>
                 </div>
-                <div class="modal-actions">
+                <div class="modal-actions" style="margin-top: 10px;">
                     <button type="button" onclick="closeGoalsModal()" class="btn-danger" style="flex: 1; padding: 12px; border-radius: 12px;">Batal</button>
-                    <button type="submit" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 12px; border:none;">Simpan Target</button>
+                    <button type="submit" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 12px; border:none;">Simpan</button>
                 </div>
             </form>
         </div>
@@ -292,7 +306,7 @@
                             <select id="filter-month-select" onchange="updateUI()" style="width: auto; padding: 4px 10px; border-radius: 100px; font-size: 11px;"><option value="all">Semua Bulan</option></select>
                         </div>
                         <ul id="list" class="history-list" style="margin-bottom: 12px;"></ul>
-                        <button onclick="resetData()" class="btn-danger" style="padding: 10px; border-radius: 12px; font-size: 13px;">Bersihkan Data</button>
+                        <button onclick="confirmResetData()" class="btn-danger" style="padding: 10px; border-radius: 12px; font-size: 13px;">Bersihkan Data</button>
                     </div>
                 </div>
 
@@ -476,7 +490,7 @@
                     </div>
 
                     <div class="glass-panel">
-                        <div class="panel-title">Total Progress <button onclick="resetRoadmapProgress()" style="width: auto; font-size: 11px; padding: 4px 12px; border-radius: 100px; border:none; cursor:pointer; background:var(--list-bg); color:var(--text-dark);">Reset</button></div>
+                        <div class="panel-title">Total Progress <button onclick="confirmResetRoadmap()" style="width: auto; font-size: 11px; padding: 4px 12px; border-radius: 100px; border:none; cursor:pointer; background:var(--list-bg); color:var(--text-dark);">Reset</button></div>
                         <h3 id="roadmap-progress-text" style="font-size: 32px; font-weight: 800; color: var(--primary); margin-bottom: 8px;">0%</h3>
                         <div class="progress-wrapper"><div id="roadmap-progress-bar" class="progress-fill" style="width: 0%; background: linear-gradient(90deg, var(--primary), var(--pribadi));"></div></div>
                     </div>
@@ -552,6 +566,19 @@
 
         const SESSION_DURATION = 5 * 60 * 1000; 
         let idleTimer;
+
+        // FUNGSI CUSTOM POP-UP / MODAL MODERN
+        function showModal(icon, title, desc, buttonsHtml) {
+            document.getElementById('modal-icon-el').innerText = icon;
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-desc').innerText = desc;
+            document.getElementById('modal-actions-container').innerHTML = buttonsHtml;
+            document.getElementById('custom-modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').classList.remove('active');
+        }
 
         function updateHeaderGreeting() {
             const hour = new Date().getHours();
@@ -636,7 +663,9 @@
                 startRoadmapCountdown();
                 resetIdleTimer();
             } else {
-                alert("❌ Akses Ditolak!");
+                showModal('❌', 'Akses Ditolak', 'Username atau password yang kamu masukkan salah. Silakan coba lagi.', `
+                    <button type="button" onclick="closeModal()" class="btn-primary" style="padding: 12px; border-radius: 12px; border:none; width:100%;">Mengerti</button>
+                `);
             }
         }
 
@@ -712,12 +741,19 @@
             if (pct === 100 && cbs.length > 0) confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
         }
 
-        function resetRoadmapProgress() {
-            if (confirm("Reset roadmap?")) {
-                document.querySelectorAll('.task-checkbox').forEach((cb, i) => { cb.checked = false; localStorage.removeItem(`roadmap_task_${i}`); });
-                updateRoadmapProgress();
-            }
+        function confirmResetRoadmap() {
+            showModal('🔄', 'Reset Roadmap', 'Apakah kamu yakin ingin mereset semua progress roadmap?', `
+                <button type="button" onclick="closeModal()" class="btn-danger" style="flex: 1; padding: 12px; border-radius: 12px;">Batal</button>
+                <button type="button" onclick="executeResetRoadmap()" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 12px; border:none;">Ya, Reset</button>
+            `);
         }
+
+        function executeResetRoadmap() {
+            document.querySelectorAll('.task-checkbox').forEach((cb, i) => { cb.checked = false; localStorage.removeItem(`roadmap_task_${i}`); });
+            updateRoadmapProgress();
+            closeModal();
+        }
+
         function loadRoadmapProgress() {
             document.querySelectorAll('.task-checkbox').forEach((cb, i) => { if (localStorage.getItem(`roadmap_task_${i}`) === 'true') cb.checked = true; });
             updateRoadmapProgress();
@@ -893,11 +929,17 @@
         }
 
         function deletePlannerItem(id) {
-            if(confirm("Hapus anggaran ini?")) {
-                plannerItems = plannerItems.filter(item => item.id !== id);
-                savePlannerToLocal();
-                renderPlannerUI();
-            }
+            showModal('🗑️', 'Hapus Anggaran', 'Apakah kamu yakin ingin menghapus anggaran tetap ini?', `
+                <button type="button" onclick="closeModal()" class="btn-danger" style="flex: 1; padding: 12px; border-radius: 12px;">Batal</button>
+                <button type="button" onclick="executeDeletePlanner('${id}')" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 12px; border:none;">Hapus</button>
+            `);
+        }
+
+        function executeDeletePlanner(id) {
+            plannerItems = plannerItems.filter(item => item.id !== id);
+            savePlannerToLocal();
+            renderPlannerUI();
+            closeModal();
         }
 
         function renderPlannerUI() {
@@ -1015,7 +1057,6 @@
             document.getElementById('proj-gold').innerText = formatRp(finalTring);
             document.getElementById('proj-jago').innerText = formatRp(finalJago);
 
-            // Hitung dan Tampilkan Persentase Porsi Kotak Portofolio
             const setPct = (elId, val) => {
                 const el = document.getElementById(elId);
                 if(el && totalPortfolioProj > 0) {
@@ -1266,8 +1307,34 @@
             renderPlannerUI(); 
         }
 
-        function deleteTransaction(id) { if(confirm("Hapus catatan?")){ transactions = transactions.filter(t => t.id != id); saveToLocal(); updateUI(); } }
-        function resetData() { if(confirm("Hapus semua data?")){ transactions = []; localStorage.removeItem('financialSnapshots'); saveToLocal(); updateUI(); } }
+        function deleteTransaction(id) {
+            showModal('🗑️', 'Hapus Transaksi', 'Apakah kamu yakin ingin menghapus catatan transaksi ini?', `
+                <button type="button" onclick="closeModal()" class="btn-danger" style="flex: 1; padding: 12px; border-radius: 12px;">Batal</button>
+                <button type="button" onclick="executeDeleteTransaction('${id}')" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 12px; border:none;">Hapus</button>
+            `);
+        }
+
+        function executeDeleteTransaction(id) {
+            transactions = transactions.filter(t => t.id != id);
+            saveToLocal();
+            updateUI();
+            closeModal();
+        }
+
+        function confirmResetData() {
+            showModal('⚠️', 'Bersihkan Semua Data', 'Tindakan ini akan menghapus seluruh riwayat transaksi dan snapshot keuangan secara permanen. Lanjutkan?', `
+                <button type="button" onclick="closeModal()" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 12px; border:none;">Batal</button>
+                <button type="button" onclick="executeResetData()" class="btn-danger" style="flex: 1; padding: 12px; border-radius: 12px;">Ya, Bersihkan</button>
+            `);
+        }
+
+        function executeResetData() {
+            transactions = [];
+            localStorage.removeItem('financialSnapshots');
+            saveToLocal();
+            updateUI();
+            closeModal();
+        }
     </script>
 </body>
 </html>
