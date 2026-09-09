@@ -412,25 +412,29 @@
                         <p id="planner-net">Rp 0</p>
                     </div>
 
-                    <!-- KARTU GRID AKUMULASI PORTOFOLIO DI ESTIMASI -->
+                    <!-- KARTU GRID AKUMULASI DARI UTAMA + ESTIMASI -->
                     <div class="glass-panel" style="padding: 20px;">
-                        <h2 style="font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 16px;">📊 Proyeksi Akumulasi Portofolio Bulan Depan</h2>
+                        <h2 style="font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 16px;">📊 Akumulasi Portofolio + Estimasi Bulan Depan</h2>
                         <div class="stats-grid">
                             <div class="stat-box c-balance">
-                                <h3>Kas Tunai (Net)</h3>
+                                <h3>Kas Tunai (Total)</h3>
                                 <p id="proj-cash">Rp 0</p>
                             </div>
                             <div class="stat-box c-simpanan">
-                                <h3>Simpanan (35%)</h3>
+                                <h3>Simpanan (Total)</h3>
                                 <p id="proj-simpanan">Rp 0</p>
                             </div>
                             <div class="stat-box c-pribadi">
-                                <h3>Pribadi / Dev (25%)</h3>
+                                <h3>Pribadi (Total)</h3>
                                 <p id="proj-pribadi">Rp 0</p>
                             </div>
                             <div class="stat-box c-tring">
-                                <h3>Aset Emas (40%)</h3>
+                                <h3>Emas Tring (Total)</h3>
                                 <p id="proj-gold">Rp 0</p>
+                            </div>
+                            <div class="stat-box c-jago">
+                                <h3>Emas Jago (Total)</h3>
+                                <p id="proj-jago">Rp 0</p>
                             </div>
                         </div>
                     </div>
@@ -944,17 +948,31 @@
             }
 
             const net = totalIncome - totalExpense;
-            const positiveNet = net > 0 ? net : 0;
             
             document.getElementById('planner-total-income').innerText = formatRp(totalIncome);
             document.getElementById('planner-total-expense').innerText = formatRp(totalExpense);
             document.getElementById('planner-net').innerText = formatRp(net);
 
-            // UPDATE KARTU PROYEKSI DI ESTIMASI
-            document.getElementById('proj-cash').innerText = formatRp(positiveNet);
-            document.getElementById('proj-simpanan').innerText = formatRp(positiveNet * 0.35);
-            document.getElementById('proj-pribadi').innerText = formatRp(positiveNet * 0.25);
-            document.getElementById('proj-gold').innerText = formatRp(positiveNet * 0.40);
+            // AMBIL DATA UTAMA DARI TRANSAKSI, LALU KURANG/TAMBAH DENGAN PLANNER
+            let baseInc = 0, baseExp = 0, baseSim = 0, basePri = 0, baseTrg = 0, baseJag = 0;
+            transactions.forEach(trx => {
+                const amt = Number(trx.amount);
+                if (trx.type === 'income') baseInc += amt;
+                else if (trx.type === 'expense') baseExp += amt;
+                else if (trx.type === 'simpanan') baseSim += amt;
+                else if (trx.type === 'pribadi') basePri += amt;
+                else if (trx.type === 'tring' || trx.type === 'inv_tring') baseTrg += amt;
+                else if (trx.type === 'jago' || trx.type === 'inv_jago') { baseJag += amt; baseExp += amt; }
+            });
+
+            const baseCash = baseInc - baseExp;
+            const finalCash = baseCash + net; // Kas utama ditambah/dikurang sisa net planner
+
+            document.getElementById('proj-cash').innerText = formatRp(finalCash);
+            document.getElementById('proj-simpanan').innerText = formatRp(baseSim);
+            document.getElementById('proj-pribadi').innerText = formatRp(basePri);
+            document.getElementById('proj-gold').innerText = formatRp(baseTrg * goldPricePerGram);
+            document.getElementById('proj-jago').innerText = formatRp(baseJag);
         }
 
         function formatRp(angka) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka); }
@@ -1186,6 +1204,7 @@
 
             updateCharts(cash, totalSimAll, totalPriAll, trgRp, totalJagAll, totalIncAll, totalExpAll);
             updateFinancialAnalysis(filteredInc, filteredExp);
+            renderPlannerUI(); // Update juga kartu estimasi saat utama berubah
         }
 
         function deleteTransaction(id) { if(confirm("Hapus catatan?")){ transactions = transactions.filter(t => t.id != id); saveToLocal(); updateUI(); } }
