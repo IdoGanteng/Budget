@@ -112,16 +112,22 @@
         .wealth-card p { font-size: 36px; font-weight: 800; color: #020617; }
 
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; width: 100%; }
-        .stat-box { background: var(--list-bg); padding: 16px; border-radius: 16px; border: 1px solid var(--border-color); }
+        .stat-box { background: var(--list-bg); padding: 16px; border-radius: 16px; border: 1px solid var(--border-color); position: relative; }
         .stat-box h3 { font-size: 12px; color: var(--text-gray); font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
         .stat-box p { font-size: 16px; font-weight: 800; color: var(--text-dark); }
+        
+        /* Badge Persentase Di Kotak Statistik */
+        .stat-trend { position: absolute; top: 16px; right: 16px; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 100px; }
+        .trend-up { background: rgba(16, 185, 129, 0.15); color: var(--income); }
+        .trend-down { background: rgba(239, 68, 68, 0.15); color: var(--expense); }
+        .trend-flat { background: rgba(100, 116, 139, 0.15); color: var(--text-gray); }
+
         .c-balance p { color: var(--income); } .c-simpanan p { color: var(--simpanan); } 
         .c-pribadi p { color: var(--pribadi); } .c-tring p { color: var(--tring); } .c-jago p { color: var(--jago); }
 
         .progress-wrapper { background: var(--border-color); border-radius: 100px; height: 10px; overflow: hidden; margin-top: 8px; width: 100%; }
         .progress-fill { height: 100%; border-radius: 100px; transition: width 0.8s; }
 
-        /* DIUBAH: Batasi tinggi riwayat agar aman & compact di HP */
         .history-list { list-style: none; max-height: 220px; overflow-y: auto; padding-right: 4px; width: 100%; }
         .history-list li { 
             display: flex; justify-content: space-between; align-items: center; 
@@ -268,12 +274,33 @@
                         <p id="total-wealth">Rp 0</p>
                     </div>
 
+                    <!-- KOTAK STATS DENGAN PERSENTASE NAIK/TURUN OTOMATIS -->
                     <div class="stats-grid">
-                        <div class="stat-box c-balance"><h3>Kas Tunai</h3><p id="cash-balance">Rp 0</p></div>
-                        <div class="stat-box c-simpanan"><h3>Simpanan</h3><p id="total-simpanan">Rp 0</p></div>
-                        <div class="stat-box c-pribadi"><h3>Pribadi</h3><p id="total-pribadi">Rp 0</p></div>
-                        <div class="stat-box c-tring"><h3>Emas Tring</h3><p id="total-tring">Rp 0</p><span id="tring-gram-info" style="font-size:11px; color:var(--text-gray);">0 Gr</span></div>
-                        <div class="stat-box c-jago"><h3>Emas Jago</h3><p id="total-jago">Rp 0</p></div>
+                        <div class="stat-box c-balance">
+                            <span id="trend-cash" class="stat-trend trend-flat">0%</span>
+                            <h3>Kas Tunai</h3>
+                            <p id="cash-balance">Rp 0</p>
+                        </div>
+                        <div class="stat-box c-simpanan">
+                            <span id="trend-simpanan" class="stat-trend trend-flat">0%</span>
+                            <h3>Simpanan</h3>
+                            <p id="total-simpanan">Rp 0</p>
+                        </div>
+                        <div class="stat-box c-pribadi">
+                            <span id="trend-pribadi" class="stat-trend trend-flat">0%</span>
+                            <h3>Pribadi</h3>
+                            <p id="total-pribadi">Rp 0</p>
+                        </div>
+                        <div class="stat-box c-tring">
+                            <span id="trend-tring" class="stat-trend trend-flat">0%</span>
+                            <h3>Emas Tring</h3>
+                            <p id="total-tring">Rp 0</p><span id="tring-gram-info" style="font-size:11px; color:var(--text-gray);">0 Gr</span>
+                        </div>
+                        <div class="stat-box c-jago">
+                            <span id="trend-jago" class="stat-trend trend-flat">0%</span>
+                            <h3>Emas Jago</h3>
+                            <p id="total-jago">Rp 0</p>
+                        </div>
                     </div>
 
                     <div class="glass-panel" style="display: flex; justify-content: space-between; align-items: center; gap:16px; flex-wrap: wrap;">
@@ -737,6 +764,70 @@
             `;
         }
 
+        // Fungsi Kalkulasi & Render Badge Persentase Trend
+        function calculateAndRenderTrend(elementId, currentVal, prevVal) {
+            const el = document.getElementById(elementId);
+            if(!el) return;
+            
+            if (!prevVal || prevVal === 0) {
+                el.innerText = '0%';
+                el.className = 'stat-trend trend-flat';
+                return;
+            }
+
+            let diff = ((currentVal - prevVal) / prevVal) * 100;
+            let sign = diff > 0 ? '+' : '';
+            el.innerText = `${sign}${diff.toFixed(1)}%`;
+            
+            if (diff > 0) {
+                el.className = 'stat-trend trend-up';
+            } else if (diff < 0) {
+                el.className = 'stat-trend trend-down';
+            } else {
+                el.className = 'stat-trend trend-flat';
+            }
+        }
+
+        function checkAndUpdateSnapshots(cash, simpanan, pribadi, tring, jago) {
+            const now = new Date();
+            const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+            const currentDateKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+
+            let snapshots = JSON.parse(localStorage.getItem('financialSnapshots')) || {
+                monthly: {},
+                daily: {}
+            };
+
+            // 1. Logika Bulanan (Kas, Simpanan, Pribadi) -> Bandingkan dengan bulan lalu
+            let lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+            let prevMonthKey = `${lastMonthDate.getFullYear()}-${String(lastMonthDate.getMonth()+1).padStart(2,'0')}`;
+            
+            // Simpan snapshot bulan berjalan jika belum ada
+            if(!snapshots.monthly[currentMonthKey]) {
+                snapshots.monthly[currentMonthKey] = { cash, simpanan, pribadi };
+                localStorage.setItem('financialSnapshots', JSON.stringify(snapshots));
+            }
+
+            let prevMonthData = snapshots.monthly[prevMonthKey] || snapshots.monthly[currentMonthKey];
+            calculateAndRenderTrend('trend-cash', cash, prevMonthData.cash);
+            calculateAndRenderTrend('trend-simpanan', simpanan, prevMonthData.simpanan);
+            calculateAndRenderTrend('trend-pribadi', pribadi, prevMonthData.pribadi);
+
+            // 2. Logika Harian (Emas Tring, Emas Jago) -> Bandingkan dengan hari kemarin
+            let yesterday = new Date(now);
+            yesterday.setDate(now.getDate() - 1);
+            let prevDateKey = `${yesterday.getFullYear()}-${String(yesterday.getMonth()+1).padStart(2,'0')}-${String(yesterday.getDate()).padStart(2,'0')}`;
+
+            if(!snapshots.daily[currentDateKey]) {
+                snapshots.daily[currentDateKey] = { tring, jago };
+                localStorage.setItem('financialSnapshots', JSON.stringify(snapshots));
+            }
+
+            let prevDayData = snapshots.daily[prevDateKey] || snapshots.daily[currentDateKey];
+            calculateAndRenderTrend('trend-tring', tring, prevDayData.tring);
+            calculateAndRenderTrend('trend-jago', jago, prevDayData.jago);
+        }
+
         function updateUI() {
             const listEl = document.getElementById('list'); listEl.innerHTML = ''; 
             
@@ -832,12 +923,15 @@
             document.getElementById('gold-progress-bar').style.width = Math.min((gold/financialGoals.goldGoal)*100, 100) + '%'; 
             document.getElementById('gold-progress-text').innerText = Math.min((gold/financialGoals.goldGoal)*100, 100).toFixed(1) + '%';
             
+            // Panggil fungsi pembanding persentase trend
+            checkAndUpdateSnapshots(cash, totalSimAll, totalPriAll, trgRp, totalJagAll);
+
             updateCharts(cash, totalSimAll, totalPriAll, trgRp, totalJagAll, totalIncAll, totalExpAll);
             updateFinancialAnalysis(filteredInc, filteredExp);
         }
 
         function deleteTransaction(id) { if(confirm("Hapus catatan?")){ transactions = transactions.filter(t => t.id != id); saveToLocal(); updateUI(); } }
-        function resetData() { if(confirm("Hapus semua data?")){ transactions = []; saveToLocal(); updateUI(); } }
+        function resetData() { if(confirm("Hapus semua data?")){ transactions = []; localStorage.removeItem('financialSnapshots'); saveToLocal(); updateUI(); } }
     </script>
 </body>
 </html>
