@@ -217,8 +217,8 @@
     </div>
 
     <!-- GLOBAL CUSTOM MODAL / POP-UP -->
-    <div id="custom-modal" class="modal-overlay">
-        <div class="modal-box">
+    <div id="custom-modal" class="modal-overlay" onclick="closeAllModals(event)">
+        <div class="modal-box" onclick="event.stopPropagation()">
             <div id="modal-icon-el" class="modal-icon">⚠️</div>
             <h3 id="modal-title">Judul Pop-up</h3>
             <p id="modal-desc">Keterangan pesan pop-up akan muncul di sini.</p>
@@ -226,9 +226,40 @@
         </div>
     </div>
 
+    <!-- MODAL EDIT TRANSAKSI KEUANGAN -->
+    <div id="transaction-edit-modal" class="modal-overlay" onclick="closeAllModals(event)">
+        <div class="modal-box" style="text-align: left; max-width: 400px;" onclick="event.stopPropagation()">
+            <div style="font-size: 28px; margin-bottom: 8px;">✏️</div>
+            <h3>Edit Transaksi</h3>
+            <p>Perbarui keterangan, nominal, atau tipe transaksi.</p>
+            <form onsubmit="saveEditedTransaction(event)" style="gap: 16px;">
+                <input type="hidden" id="edit-trx-id">
+                <div>
+                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Keterangan</label>
+                    <input type="text" id="edit-trx-desc" required>
+                </div>
+                <div>
+                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Nominal / Gram</label>
+                    <input type="text" id="edit-trx-amount" required>
+                </div>
+                <div>
+                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Tipe</label>
+                    <select id="edit-trx-type" onchange="handleEditTrgTypeChange()">
+                        <optgroup label="Uang Harian"><option value="income">Pemasukan (+)</option><option value="expense">Pengeluaran (-)</option></optgroup>
+                        <optgroup label="Tabungan & Aset"><option value="simpanan">Simpanan Wajib (+)</option><option value="pribadi">Tabungan Pribadi (+)</option><option value="tring">Emas Tring (+)</option><option value="jago">Emas Jago (- Kas, + Aset)</option></optgroup>
+                    </select>
+                </div>
+                <div class="modal-actions" style="margin-top: 10px;">
+                    <button type="button" onclick="closeTransactionEditModal()" class="btn-danger" style="flex: 1; padding: 12px; border-radius: 12px;">Batal</button>
+                    <button type="submit" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 12px; border:none;">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- MODAL EDIT PLANNER / ANGGARAN TETAP -->
-    <div id="planner-edit-modal" class="modal-overlay">
-        <div class="modal-box" style="text-align: left; max-width: 400px;">
+    <div id="planner-edit-modal" class="modal-overlay" onclick="closeAllModals(event)">
+        <div class="modal-box" style="text-align: left; max-width: 400px;" onclick="event.stopPropagation()">
             <div style="font-size: 28px; margin-bottom: 8px;">✏️</div>
             <h3>Edit Anggaran Tetap</h3>
             <p>Perbarui keterangan atau nominal anggaran tetap.</p>
@@ -258,8 +289,8 @@
     </div>
 
     <!-- MODAL CUSTOM TARGET 2026 -->
-    <div id="goals-modal" class="modal-overlay">
-        <div class="modal-box" style="text-align: left; max-width: 400px;">
+    <div id="goals-modal" class="modal-overlay" onclick="closeAllModals(event)">
+        <div class="modal-box" style="text-align: left; max-width: 400px;" onclick="event.stopPropagation()">
             <div style="font-size: 28px; margin-bottom: 8px;">🎯</div>
             <h3>Pengaturan Target 2026</h3>
             <p>Tentukan target finansial impian kamu tahun ini.</p>
@@ -315,17 +346,13 @@
                     <div class="glass-panel" style="padding: 20px 24px;">
                         <h2 class="panel-title" id="form-panel-title">Catat Transaksi</h2>
                         <form id="form">
-                            <input type="hidden" id="edit-id" value="">
                             <input type="text" id="desc" placeholder="Keterangan (Makan, Gaji, dll)" autocomplete="off" required>
                             <input type="text" id="amount" placeholder="Nominal Rupiah / Gram" autocomplete="off" required>
                             <select id="type" onchange="handleTypeChange()">
                                 <optgroup label="Uang Harian"><option value="income">Pemasukan (+)</option><option value="expense">Pengeluaran (-)</option></optgroup>
                                 <optgroup label="Tabungan & Aset"><option value="simpanan">Simpanan Wajib (+)</option><option value="pribadi">Tabungan Pribadi (+)</option><option value="tring">Emas Tring (+)</option><option value="jago">Emas Jago (- Kas, + Aset)</option></optgroup>
                             </select>
-                            <div style="display: flex; gap: 8px;">
-                                <button type="submit" id="form-submit-btn" class="btn-primary" style="padding: 12px; border-radius: 14px; border:none; flex: 1;">Simpan Catatan</button>
-                                <button type="button" id="form-cancel-btn" onclick="cancelEdit()" class="btn-danger" style="display: none; padding: 12px; border-radius: 14px; flex: 1;">Batal</button>
-                            </div>
+                            <button type="submit" id="form-submit-btn" class="btn-primary" style="padding: 12px; border-radius: 14px; border:none;">Simpan Catatan</button>
                         </form>
                     </div>
 
@@ -447,7 +474,6 @@
                             <button type="submit" class="btn-primary" style="padding: 12px; border-radius: 14px; border:none;">Tambah Anggaran</button>
                         </form>
 
-                        <!-- RINGKASAN TOTAL ANGGARAN TETAP -->
                         <div style="margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 16px; display: flex; flex-direction: column; gap: 10px;">
                             <div style="display: flex; justify-content: space-between; font-size: 13px;">
                                 <span style="color: var(--text-gray); font-weight: 600;">Total Pemasukan Fix:</span>
@@ -468,7 +494,6 @@
                         <p id="planner-net">Rp 0</p>
                     </div>
 
-                    <!-- KARTU GRID AKUMULASI UTAMA + ESTIMASI DENGAN PERSENTASE PORSI -->
                     <div class="glass-panel" style="padding: 20px;">
                         <h2 style="font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 16px;">📊 Akumulasi Portofolio + Estimasi Bulan Depan</h2>
                         <div class="stats-grid">
@@ -500,7 +525,6 @@
                         </div>
                     </div>
 
-                    <!-- PEMISAHAN DAFTAR ANGGARAN: PEMASUKAN & PENGELUARAN -->
                     <div class="glass-panel" style="display: flex; flex-direction: column; gap: 20px;">
                         <div>
                             <h2 style="font-size: 15px; font-weight: 700; color: var(--income); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">📥 Pemasukan Tetap</h2>
@@ -608,16 +632,26 @@
         const SESSION_DURATION = 5 * 60 * 1000; 
         let idleTimer;
 
+        // FUNGSI KONTROL ESC & KLIK LUAR MODAL
+        function closeAllModals(e) {
+            if(e) e.stopPropagation();
+            document.querySelectorAll('.modal-overlay').forEach(modal => {
+                modal.classList.remove('active');
+            });
+        }
+
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeAllModals();
+            }
+        });
+
         function showModal(icon, title, desc, buttonsHtml) {
             document.getElementById('modal-icon-el').innerText = icon;
             document.getElementById('modal-title').innerText = title;
             document.getElementById('modal-desc').innerText = desc;
             document.getElementById('modal-actions-container').innerHTML = buttonsHtml;
             document.getElementById('custom-modal').classList.add('active');
-        }
-
-        function closeModal() {
-            document.getElementById('custom-modal').classList.remove('active');
         }
 
         function updateHeaderGreeting() {
@@ -704,7 +738,7 @@
                 resetIdleTimer();
             } else {
                 showModal('❌', 'Akses Ditolak', 'Username atau password yang kamu masukkan salah. Silakan coba lagi.', `
-                    <button type="button" onclick="closeModal()" class="btn-primary" style="padding: 12px; border-radius: 12px; border:none; width:100%;">Mengerti</button>
+                    <button type="button" onclick="closeAllModals()" class="btn-primary" style="padding: 12px; border-radius: 12px; border:none; width:100%;">Mengerti</button>
                 `);
             }
         }
@@ -783,7 +817,7 @@
 
         function confirmResetRoadmap() {
             showModal('🔄', 'Reset Roadmap', 'Apakah kamu yakin ingin mereset semua progress roadmap?', `
-                <button type="button" onclick="closeModal()" class="btn-danger" style="flex: 1; padding: 12px; border-radius: 12px;">Batal</button>
+                <button type="button" onclick="closeAllModals()" class="btn-danger" style="flex: 1; padding: 12px; border-radius: 12px;">Batal</button>
                 <button type="button" onclick="executeResetRoadmap()" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 12px; border:none;">Ya, Reset</button>
             `);
         }
@@ -791,7 +825,7 @@
         function executeResetRoadmap() {
             document.querySelectorAll('.task-checkbox').forEach((cb, i) => { cb.checked = false; localStorage.removeItem(`roadmap_task_${i}`); });
             updateRoadmapProgress();
-            closeModal();
+            closeAllModals();
         }
 
         function loadRoadmapProgress() {
@@ -889,64 +923,71 @@
             });
         }
 
+        // EDIT TRANSAKSI MENGGUNAKAN POP-UP MODAL MODERN
         function editTransaction(id) {
             const trx = transactions.find(t => t.id === id);
             if(!trx) return;
 
-            document.getElementById('edit-id').value = trx.id;
-            document.getElementById('desc').value = trx.desc;
-            document.getElementById('type').value = trx.type;
-            handleTypeChange();
-
-            const amtField = document.getElementById('amount');
+            document.getElementById('edit-trx-id').value = trx.id;
+            document.getElementById('edit-trx-desc').value = trx.desc;
+            document.getElementById('edit-trx-type').value = trx.type;
+            
+            const editAmtField = document.getElementById('edit-trx-amount');
             if (trx.type === 'tring' || trx.type === 'inv_tring') {
-                amtField.value = trx.amount;
+                editAmtField.value = trx.amount;
             } else {
-                amtField.value = new Intl.NumberFormat('id-ID').format(trx.amount);
+                editAmtField.value = new Intl.NumberFormat('id-ID').format(trx.amount);
             }
 
-            document.getElementById('form-panel-title').innerText = "Edit Transaksi ✏️";
-            document.getElementById('form-submit-btn').innerText = "Update Catatan";
-            document.getElementById('form-cancel-btn').style.display = "block";
-            
-            document.getElementById('form').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('transaction-edit-modal').classList.add('active');
         }
 
-        function cancelEdit() {
-            document.getElementById('edit-id').value = "";
-            document.getElementById('form').reset();
-            document.getElementById('form-panel-title').innerText = "Catat Transaksi";
-            document.getElementById('form-submit-btn').innerText = "Simpan Catatan";
-            document.getElementById('form-cancel-btn').style.display = "none";
-            handleTypeChange();
+        function closeTransactionEditModal() {
+            document.getElementById('transaction-edit-modal').classList.remove('active');
+        }
+
+        function handleEditTrgTypeChange() {
+            const t = document.getElementById('edit-trx-type').value;
+            const a = document.getElementById('edit-trx-amount');
+            if(t === 'tring') a.value = '';
+        }
+
+        function saveEditedTransaction(e) {
+            e.preventDefault();
+            const id = document.getElementById('edit-trx-id').value;
+            const desc = document.getElementById('edit-trx-desc').value;
+            const type = document.getElementById('edit-trx-type').value;
+            let rawAmt = document.getElementById('edit-trx-amount').value;
+            let amt = type === 'tring' ? parseFloat(rawAmt.replace(',', '.')) : parseInt(rawAmt.replace(/\./g, ''));
+
+            if(!amt) return;
+
+            const idx = transactions.findIndex(t => t.id === id);
+            if(idx !== -1) {
+                transactions[idx].desc = desc;
+                transactions[idx].type = type;
+                transactions[idx].amount = amt;
+                saveToLocal();
+                updateUI();
+            }
+            closeTransactionEditModal();
         }
 
         const frm = document.getElementById('form');
         if(frm) {
             frm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const editId = document.getElementById('edit-id').value;
                 const desc = document.getElementById('desc').value; 
                 const type = document.getElementById('type').value; 
                 let rawAmt = document.getElementById('amount').value;
                 let amt = type === 'tring' ? parseFloat(rawAmt.replace(',', '.')) : parseInt(rawAmt.replace(/\./g, ''));
                 if(!amt) return;
 
-                if (editId) {
-                    const idx = transactions.findIndex(t => t.id === editId);
-                    if (idx !== -1) {
-                        transactions[idx].desc = desc;
-                        transactions[idx].type = type;
-                        transactions[idx].amount = amt;
-                    }
-                    cancelEdit();
-                } else {
-                    const d = new Date(); 
-                    const dStr = String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
-                    transactions.unshift({ id: 'id_' + Math.random().toString(36).substr(2, 9), desc: desc, amount: amt, type: type, date: dStr });
-                    frm.reset(); 
-                    handleTypeChange();
-                }
+                const d = new Date(); 
+                const dStr = String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
+                transactions.unshift({ id: 'id_' + Math.random().toString(36).substr(2, 9), desc: desc, amount: amt, type: type, date: dStr });
+                frm.reset(); 
+                handleTypeChange();
 
                 saveToLocal(); 
                 updateUI();
@@ -968,7 +1009,6 @@
             document.getElementById('planner-form').reset();
         }
 
-        // FUNGSI EDIT ANGGARAN TETAP (PLANNER)
         function editPlannerItem(id) {
             const item = plannerItems.find(i => i.id === id);
             if(!item) return;
@@ -1008,7 +1048,7 @@
 
         function deletePlannerItem(id) {
             showModal('🗑️', 'Hapus Anggaran', 'Apakah kamu yakin ingin menghapus anggaran tetap ini?', `
-                <button type="button" onclick="closeModal()" class="btn-danger" style="flex: 1; padding: 12px; border-radius: 12px;">Batal</button>
+                <button type="button" onclick="closeAllModals()" class="btn-danger" style="flex: 1; padding: 12px; border-radius: 12px;">Batal</button>
                 <button type="button" onclick="executeDeletePlanner('${id}')" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 12px; border:none;">Hapus</button>
             `);
         }
@@ -1017,7 +1057,7 @@
             plannerItems = plannerItems.filter(item => item.id !== id);
             savePlannerToLocal();
             renderPlannerUI();
-            closeModal();
+            closeAllModals();
         }
 
         function renderPlannerUI() {
@@ -1075,7 +1115,6 @@
                 expenseListEl.innerHTML = `<li style="justify-content: center; color: var(--text-gray); font-size: 12px; background: transparent; border: none;">Belum ada pengeluaran tetap</li>`;
             }
 
-            // TAMPILKAN RINGKASAN TOTAL DI SIDEBAR
             document.getElementById('summary-total-income').innerText = formatRp(totalIncome);
             document.getElementById('summary-total-expense').innerText = formatRp(totalExpense);
 
@@ -1393,7 +1432,7 @@
 
         function deleteTransaction(id) {
             showModal('🗑️', 'Hapus Transaksi', 'Apakah kamu yakin ingin menghapus catatan transaksi ini?', `
-                <button type="button" onclick="closeModal()" class="btn-danger" style="flex: 1; padding: 12px; border-radius: 12px;">Batal</button>
+                <button type="button" onclick="closeAllModals()" class="btn-danger" style="flex: 1; padding: 12px; border-radius: 12px;">Batal</button>
                 <button type="button" onclick="executeDeleteTransaction('${id}')" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 12px; border:none;">Hapus</button>
             `);
         }
@@ -1402,12 +1441,12 @@
             transactions = transactions.filter(t => t.id != id);
             saveToLocal();
             updateUI();
-            closeModal();
+            closeAllModals();
         }
 
         function confirmResetData() {
             showModal('⚠️', 'Bersihkan Semua Data', 'Tindakan ini akan menghapus seluruh riwayat transaksi dan snapshot keuangan secara permanen. Lanjutkan?', `
-                <button type="button" onclick="closeModal()" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 12px; border:none;">Batal</button>
+                <button type="button" onclick="closeAllModals()" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 12px; border:none;">Batal</button>
                 <button type="button" onclick="executeResetData()" class="btn-danger" style="flex: 1; padding: 12px; border-radius: 12px;">Ya, Bersihkan</button>
             `);
         }
@@ -1417,7 +1456,7 @@
             localStorage.removeItem('financialSnapshots');
             saveToLocal();
             updateUI();
-            closeModal();
+            closeAllModals();
         }
     </script>
 </body>
