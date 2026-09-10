@@ -299,6 +299,26 @@
         </div>
     </div>
 
+    <!-- MODAL TAMBAH TUGAS ROADMAP (BARU) -->
+    <div id="roadmap-add-modal" class="modal-overlay" onclick="closeAllModals(event)">
+        <div class="modal-box" style="text-align: left; max-width: 400px;" onclick="event.stopPropagation()">
+            <div style="font-size: 32px; margin-bottom: 12px;">📝</div>
+            <h3>Tambah Tugas</h3>
+            <p>Masukkan target / rutinitas baru untuk fase ini.</p>
+            <form onsubmit="saveNewRoadmapTask(event)" style="gap: 18px;">
+                <input type="hidden" id="add-task-month-id">
+                <div>
+                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 8px;">Deskripsi Tugas</label>
+                    <input type="text" id="add-task-text" placeholder="Misal: Latihan Psikotes 1 Jam" required autocomplete="off">
+                </div>
+                <div class="modal-actions" style="margin-top: 12px;">
+                    <button type="button" onclick="closeRoadmapAddModal()" class="btn-danger" style="flex: 1; padding: 14px; border-radius: 14px;">Batal</button>
+                    <button type="submit" class="btn-primary" style="flex: 1; padding: 14px; border-radius: 14px;">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- MODAL EDIT TRANSAKSI KEUANGAN -->
     <div id="transaction-edit-modal" class="modal-overlay" onclick="closeAllModals(event)">
         <div class="modal-box" style="text-align: left; max-width: 420px;" onclick="event.stopPropagation()">
@@ -456,6 +476,9 @@
                         </div>
                         <div id="list" class="history-container" style="margin-bottom: 16px;"></div>
                         <button onclick="confirmResetData()" class="btn-danger" style="padding: 12px; border-radius: 14px; font-size: 13px; width: 100%;">Bersihkan Data Lokal</button>
+                        
+                        <!-- TOMBOL EXPORT CSV BARU -->
+                        <button onclick="exportToCSV()" class="btn-primary" style="padding: 12px; border-radius: 14px; font-size: 13px; width: 100%; margin-top: 12px; background: linear-gradient(135deg, var(--income), #059669); border:none; color:white;">📥 Download CSV Transaksi</button>
                     </div>
                 </div>
 
@@ -662,54 +685,9 @@
                     </div>
                 </div>
 
-                <div class="roadmap-months">
-                    <div class="glass-panel">
-                        <span class="badge" style="background:rgba(245, 158, 11, 0.15); color:var(--tring);">Bulan 1</span>
-                        <h3 style="font-size:16px; font-weight:800; margin:16px 0;">Kesehatan & Dasar IT</h3>
-                        <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Konsultasi sisa akar gigi di faskes BPJS.</span></label>
-                        <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Olahraga malam rutin min. 20 menit.</span></label>
-                        <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Review teori OS & jaringan LAN.</span></label>
-                    </div>
-
-                    <div class="glass-panel">
-                        <span class="badge" style="background:rgba(245, 158, 11, 0.15); color:var(--tring);">Bulan 2</span>
-                        <h3 style="font-size:16px; font-weight:800; margin:16px 0;">Pemulihan & Teknis</h3>
-                        <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Selesaikan tindakan gigi di rujukan BPJS.</span></label>
-                        <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Tingkatkan intensitas bodyweight workout.</span></label>
-                        <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Praktik sharing printer & file server.</span></label>
-                    </div>
-
-                    <div class="glass-panel">
-                        <span class="badge" style="background:rgba(14, 165, 233, 0.15); color:var(--pribadi);">Bulan 3</span>
-                        <h3 style="font-size:16px; font-weight:800; margin:16px 0;">Penguasaan Excel</h3>
-                        <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Kuasai rumus dasar (SUM, AVERAGE, IF).</span></label>
-                        <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Lancar menggunakan VLOOKUP/XLOOKUP.</span></label>
-                        <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Membuat Pivot Table & Grafik Report.</span></label>
-                    </div>
-
-                    <div class="glass-panel">
-                        <span class="badge" style="background:rgba(14, 165, 233, 0.15); color:var(--pribadi);">Bulan 4</span>
-                        <h3 style="font-size:16px; font-weight:800; margin:16px 0;">Psikotes & Logika</h3>
-                        <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Latihan rutin Deret Angka & Aritmatika.</span></label>
-                        <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Latihan Penalaran Verbal & Sinonim.</span></label>
-                        <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Simulasi Figural / Tes Gambar.</span></label>
-                    </div>
-
-                    <div class="glass-panel">
-                        <span class="badge" style="background:rgba(16, 185, 129, 0.15); color:var(--income);">Bulan 5</span>
-                        <h3 style="font-size:16px; font-weight:800; margin:16px 0;">Simulasi CAT SKD</h3>
-                        <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Ikuti Try Out CAT online (1 sesi penuh).</span></label>
-                        <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Review mendalam TWK & TIU.</span></label>
-                        <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Final check kesehatan gigi & fisik.</span></label>
-                    </div>
-
-                    <div class="glass-panel">
-                        <span class="badge" style="background:rgba(16, 185, 129, 0.15); color:var(--income);">Bulan 6</span>
-                        <h3 style="font-size:16px; font-weight:800; margin:16px 0;">Eksekusi Pendaftaran</h3>
-                        <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Scan dokumen digital wajib secara rapi.</span></label>
-                        <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Siapkan CV dengan menonjolkan IT/Admin.</span></label>
-                        <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Pantau portal BUMN/ASN & Daftar!</span></label>
-                    </div>
+                <!-- ROADMAP DINAMIS CONTAINER -->
+                <div class="roadmap-months" id="roadmap-months-container">
+                    <!-- Javascript akan merender card bulan disini -->
                 </div>
             </div>
         </div>
@@ -729,6 +707,41 @@
         const SESSION_DURATION = 5 * 60 * 1000; 
         let idleTimer;
 
+        // DATA DEFAULT ROADMAP DINAMIS (Jika baru pertama kali load)
+        let roadmapData = [];
+        const defaultRoadmap = [
+            { id: 'm1', badge: 'Bulan 1', badgeColor: 'rgba(245, 158, 11, 0.15)', textColor: 'var(--tring)', title: 'Kesehatan & Dasar IT', tasks: [
+                {id: 't1_1', text: 'Konsultasi sisa akar gigi di faskes BPJS.', done: false},
+                {id: 't1_2', text: 'Olahraga malam rutin min. 20 menit.', done: false},
+                {id: 't1_3', text: 'Review teori OS & jaringan LAN.', done: false}
+            ]},
+            { id: 'm2', badge: 'Bulan 2', badgeColor: 'rgba(245, 158, 11, 0.15)', textColor: 'var(--tring)', title: 'Pemulihan & Teknis', tasks: [
+                {id: 't2_1', text: 'Selesaikan tindakan gigi di rujukan BPJS.', done: false},
+                {id: 't2_2', text: 'Tingkatkan intensitas bodyweight workout.', done: false},
+                {id: 't2_3', text: 'Praktik sharing printer & file server.', done: false}
+            ]},
+            { id: 'm3', badge: 'Bulan 3', badgeColor: 'rgba(14, 165, 233, 0.15)', textColor: 'var(--pribadi)', title: 'Penguasaan Excel', tasks: [
+                {id: 't3_1', text: 'Kuasai rumus dasar (SUM, AVERAGE, IF).', done: false},
+                {id: 't3_2', text: 'Lancar menggunakan VLOOKUP/XLOOKUP.', done: false},
+                {id: 't3_3', text: 'Membuat Pivot Table & Grafik Report.', done: false}
+            ]},
+            { id: 'm4', badge: 'Bulan 4', badgeColor: 'rgba(14, 165, 233, 0.15)', textColor: 'var(--pribadi)', title: 'Psikotes & Logika', tasks: [
+                {id: 't4_1', text: 'Latihan rutin Deret Angka & Aritmatika.', done: false},
+                {id: 't4_2', text: 'Latihan Penalaran Verbal & Sinonim.', done: false},
+                {id: 't4_3', text: 'Simulasi Figural / Tes Gambar.', done: false}
+            ]},
+            { id: 'm5', badge: 'Bulan 5', badgeColor: 'rgba(16, 185, 129, 0.15)', textColor: 'var(--income)', title: 'Simulasi CAT SKD', tasks: [
+                {id: 't5_1', text: 'Ikuti Try Out CAT online (1 sesi penuh).', done: false},
+                {id: 't5_2', text: 'Review mendalam TWK & TIU.', done: false},
+                {id: 't5_3', text: 'Final check kesehatan gigi & fisik.', done: false}
+            ]},
+            { id: 'm6', badge: 'Bulan 6', badgeColor: 'rgba(16, 185, 129, 0.15)', textColor: 'var(--income)', title: 'Eksekusi Pendaftaran', tasks: [
+                {id: 't6_1', text: 'Scan dokumen digital wajib secara rapi.', done: false},
+                {id: 't6_2', text: 'Siapkan CV dengan menonjolkan IT/Admin.', done: false},
+                {id: 't6_3', text: 'Pantau portal BUMN/ASN & Daftar!', done: false}
+            ]}
+        ];
+
         function closeAllModals(e) {
             if(e) e.stopPropagation();
             document.querySelectorAll('.modal-overlay').forEach(modal => {
@@ -737,9 +750,7 @@
         }
 
         window.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeAllModals();
-            }
+            if (e.key === 'Escape') { closeAllModals(); }
         });
 
         function showModal(icon, title, desc, buttonsHtml) {
@@ -780,9 +791,7 @@
 
         window.onload = function() {
             const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
-            events.forEach(eventName => {
-                document.addEventListener(eventName, resetIdleTimer, true);
-            });
+            events.forEach(eventName => { document.addEventListener(eventName, resetIdleTimer, true); });
         };
 
         function checkSessionTimeout() {
@@ -882,25 +891,13 @@
         }
 
         async function addTransactionToSheet(trx) {
-            try {
-                await fetch(SHEET_WEB_APP_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'add', token: SHEET_TOKEN, ...trx })
-                });
-            } catch (err) {
-                console.error('Gagal menambahkan ke Spreadsheet:', err);
-            }
+            try { await fetch(SHEET_WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'add', token: SHEET_TOKEN, ...trx }) });
+            } catch (err) { console.error('Gagal menambahkan ke Spreadsheet:', err); }
         }
 
         async function deleteTransactionFromSheet(id) {
-            try {
-                await fetch(SHEET_WEB_APP_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'delete', token: SHEET_TOKEN, id: id })
-                });
-            } catch (err) {
-                console.error('Gagal menghapus dari Spreadsheet:', err);
-            }
+            try { await fetch(SHEET_WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', token: SHEET_TOKEN, id: id }) });
+            } catch (err) { console.error('Gagal menghapus dari Spreadsheet:', err); }
         }
 
         function toggleTheme() {
@@ -930,10 +927,7 @@
             document.getElementById('roadmap-pin-input').value = '';
             document.getElementById('roadmap-pin-modal').classList.add('active');
         }
-
-        function closeRoadmapPinModal() {
-            document.getElementById('roadmap-pin-modal').classList.remove('active');
-        }
+        function closeRoadmapPinModal() { document.getElementById('roadmap-pin-modal').classList.remove('active'); }
 
         function verifyRoadmapPin(e) {
             e.preventDefault();
@@ -960,36 +954,157 @@
             }, 1000);
         }
 
-        function updateRoadmapProgress() {
-            const cbs = document.querySelectorAll('.task-checkbox');
-            let checked = 0;
-            cbs.forEach((cb, i) => {
-                if (cb.checked) { checked++; cb.parentElement.classList.add('task-done'); } 
-                else { cb.parentElement.classList.remove('task-done'); }
-                localStorage.setItem(`roadmap_task_${i}`, cb.checked);
+        // ================= FUNGSI ROADMAP DINAMIS (BARU) ================= //
+        function saveRoadmapToLocal() {
+            if(currentSessionKey) {
+                localStorage.setItem('roadmap_secure_db', CryptoJS.AES.encrypt(JSON.stringify(roadmapData), currentSessionKey).toString());
+            }
+        }
+
+        function loadRoadmapProgress() {
+            try { 
+                const stored = localStorage.getItem('roadmap_secure_db');
+                if (stored) {
+                    roadmapData = JSON.parse(CryptoJS.AES.decrypt(stored, currentSessionKey).toString(CryptoJS.enc.Utf8));
+                } else {
+                    roadmapData = JSON.parse(JSON.stringify(defaultRoadmap));
+                }
+            } catch(e) { 
+                roadmapData = JSON.parse(JSON.stringify(defaultRoadmap));
+            }
+            renderRoadmapUI();
+        }
+
+        function renderRoadmapUI() {
+            const container = document.getElementById('roadmap-months-container');
+            container.innerHTML = '';
+            let totalTasks = 0;
+            let doneTasks = 0;
+
+            roadmapData.forEach(month => {
+                const card = document.createElement('div');
+                card.className = 'glass-panel';
+                
+                let tasksHtml = '';
+                month.tasks.forEach(task => {
+                    totalTasks++;
+                    if (task.done) doneTasks++;
+                    tasksHtml += `
+                        <div class="task-item ${task.done ? 'task-done' : ''}" style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                            <label style="display: flex; align-items: flex-start; gap: 14px; cursor: pointer; flex: 1;">
+                                <input type="checkbox" class="task-checkbox custom-checkbox" ${task.done ? 'checked' : ''} onchange="toggleRoadmapTask('${month.id}', '${task.id}', this.checked)">
+                                <span class="task-text">${task.text}</span>
+                            </label>
+                            <button onclick="deleteRoadmapTask('${month.id}', '${task.id}')" title="Hapus Tugas" style="background:transparent; border:none; color:var(--expense); font-size:20px; cursor:pointer; padding:4px; opacity:0.6; transition:0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">×</button>
+                        </div>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <span class="badge" style="background:${month.badgeColor}; color:${month.textColor};">${month.badge}</span>
+                    <h3 style="font-size:16px; font-weight:800; margin:16px 0;">${month.title}</h3>
+                    <div style="display: flex; flex-direction: column; gap: 0;">
+                        ${tasksHtml}
+                    </div>
+                    <button onclick="openRoadmapAddModal('${month.id}')" style="width: 100%; margin-top: 12px; background: transparent; border: 1px dashed var(--text-gray); color: var(--text-gray); padding: 12px; border-radius: 12px; cursor: pointer; font-weight: 600; transition: 0.2s; font-size:13px;" onmouseover="this.style.borderColor='var(--primary)'; this.style.color='var(--primary)'" onmouseout="this.style.borderColor='var(--text-gray)'; this.style.color='var(--text-gray)'">+ Tambah Tugas Baru</button>
+                `;
+                container.appendChild(card);
             });
-            const pct = cbs.length > 0 ? Math.round((checked / cbs.length) * 100) : 0;
+
+            const pct = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
             document.getElementById('roadmap-progress-bar').style.width = pct + '%';
             document.getElementById('roadmap-progress-text').innerText = pct + '%';
-            if (pct === 100 && cbs.length > 0) confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+            if (pct === 100 && totalTasks > 0) confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+        }
+
+        function toggleRoadmapTask(monthId, taskId, isChecked) {
+            const month = roadmapData.find(m => m.id === monthId);
+            if(month) {
+                const task = month.tasks.find(t => t.id === taskId);
+                if(task) {
+                    task.done = isChecked;
+                    saveRoadmapToLocal();
+                    renderRoadmapUI();
+                }
+            }
+        }
+
+        function openRoadmapAddModal(monthId) {
+            document.getElementById('add-task-month-id').value = monthId;
+            document.getElementById('add-task-text').value = '';
+            document.getElementById('roadmap-add-modal').classList.add('active');
+        }
+
+        function closeRoadmapAddModal() {
+            document.getElementById('roadmap-add-modal').classList.remove('active');
+        }
+
+        function saveNewRoadmapTask(e) {
+            e.preventDefault();
+            const monthId = document.getElementById('add-task-month-id').value;
+            const text = document.getElementById('add-task-text').value.trim();
+            
+            if(!text) return;
+
+            const month = roadmapData.find(m => m.id === monthId);
+            if(month) {
+                month.tasks.push({ id: 't_' + Math.random().toString(36).substr(2, 9), text: text, done: false });
+                saveRoadmapToLocal();
+                renderRoadmapUI();
+            }
+            closeRoadmapAddModal();
+        }
+
+        function deleteRoadmapTask(monthId, taskId) {
+            const month = roadmapData.find(m => m.id === monthId);
+            if(month) {
+                month.tasks = month.tasks.filter(t => t.id !== taskId);
+                saveRoadmapToLocal();
+                renderRoadmapUI();
+            }
         }
 
         function confirmResetRoadmap() {
-            showModal('🔄', 'Reset Roadmap', 'Apakah kamu yakin ingin mereset semua progress roadmap?', `
+            showModal('🔄', 'Reset Roadmap', 'Apakah kamu yakin ingin mereset/mengulang semua tugas roadmap kembali menjadi belum selesai?', `
                 <button type="button" onclick="closeAllModals()" class="btn-danger" style="flex: 1; padding: 14px; border-radius: 14px;">Batal</button>
                 <button type="button" onclick="executeResetRoadmap()" class="btn-primary" style="flex: 1; padding: 14px; border-radius: 14px;">Ya, Reset</button>
             `);
         }
 
         function executeResetRoadmap() {
-            document.querySelectorAll('.task-checkbox').forEach((cb, i) => { cb.checked = false; localStorage.removeItem(`roadmap_task_${i}`); });
-            updateRoadmapProgress();
+            roadmapData.forEach(month => { month.tasks.forEach(task => task.done = false); });
+            saveRoadmapToLocal();
+            renderRoadmapUI();
             closeAllModals();
         }
 
-        function loadRoadmapProgress() {
-            document.querySelectorAll('.task-checkbox').forEach((cb, i) => { if (localStorage.getItem(`roadmap_task_${i}`) === 'true') cb.checked = true; });
-            updateRoadmapProgress();
+        // ================= FUNGSI EXPORT CSV (BARU) ================= //
+        function exportToCSV() {
+            if (transactions.length === 0) {
+                showModal('⚠️', 'Data Kosong', 'Belum ada data transaksi yang bisa di-download.', `<button type="button" onclick="closeAllModals()" class="btn-primary" style="padding: 14px; border-radius: 14px; width:100%;">Mengerti</button>`);
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "ID,Tanggal,Keterangan,Nominal,Tipe,Sumber\n"; // Header CSV
+
+            transactions.forEach(row => {
+                // Hapus koma pada deskripsi supaya format kolom CSV tidak hancur
+                let descClean = row.desc.replace(/,/g, " "); 
+                let source = row.source ? row.source : '-';
+                
+                let rowStr = `${row.id},${row.date},${descClean},${row.amount},${row.type},${source}`;
+                csvContent += rowStr + "\n";
+            });
+
+            // Eksekusi download file
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Rekap_Keuangan_Personal_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         function saveToLocal() { if(currentSessionKey) localStorage.setItem('keuangan_secure_db', CryptoJS.AES.encrypt(JSON.stringify(transactions), currentSessionKey).toString()); }
@@ -1147,7 +1262,6 @@
 
         async function saveEditedTransaction(e) {
             e.preventDefault();
-            // POP-UP LANGSUNG TERTUTUP DISINI
             closeTransactionEditModal();
 
             const id = document.getElementById('edit-trx-id').value;
