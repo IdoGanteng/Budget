@@ -12,42 +12,48 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <style>
+        /* TWEAK VISUAL & KONTRAS */
         :root { 
-            --bg-color: #f8fafc; --card-bg: #ffffff; --primary: #4f46e5; --primary-hover: #4338ca; 
-            --income: #10b981; --expense: #ef4444; --tring: #d97706; --simpanan: #7c3aed; 
-            --jago: #ea580c; --pribadi: #0284c7; --text-dark: #0f172a; --text-gray: #475569; 
-            --border-color: #cbd5e1; --list-bg: #f1f5f9; --glass-border: rgba(0,0,0,0.08);
+            --bg-color: #f1f5f9; --card-bg: #ffffff; --primary: #4f46e5; --primary-hover: #4338ca; 
+            --income: #059669; --expense: #e11d48; --tring: #d97706; --simpanan: #6d28d9; 
+            --jago: #ea580c; --pribadi: #0284c7; --text-dark: #0f172a; --text-gray: #64748b; 
+            --border-color: #e2e8f0; --list-bg: #f8fafc; --glass-border: rgba(0,0,0,0.05);
+            --input-bg: #ffffff; --ring-color: rgba(79, 70, 229, 0.2);
         }
         [data-theme="dark"] { 
-            --bg-color: #020617; --card-bg: rgba(15, 23, 42, 0.9); --primary: #818cf8; --primary-hover: #6366f1; 
+            --bg-color: #0b1120; /* Biru super gelap yang lebih elegan */
+            --card-bg: rgba(30, 41, 59, 0.65); /* Card transparan slate */
+            --primary: #818cf8; --primary-hover: #6366f1; 
             --income: #34d399; --expense: #fb7185; --tring: #fbbf24; --simpanan: #c084fc; 
-            --jago: #fb923c; --pribadi: #38bdf8; --text-dark: #ffffff; --text-gray: #e2e8f0; 
-            --border-color: rgba(255,255,255,0.15); --list-bg: rgba(30, 41, 59, 0.8); --glass-border: rgba(255,255,255,0.15);
+            --jago: #fb923c; --pribadi: #38bdf8; --text-dark: #f8fafc; --text-gray: #94a3b8; /* Kontras lebih baik */
+            --border-color: rgba(255,255,255,0.08); --list-bg: rgba(15, 23, 42, 0.8); 
+            --glass-border: rgba(255,255,255,0.1); --input-bg: rgba(15, 23, 42, 0.9);
+            --ring-color: rgba(129, 140, 248, 0.25);
         }
         
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { 
             background-color: var(--bg-color); color: var(--text-dark); padding: 12px 16px; 
             font-size: 14px; line-height: 1.6; min-height: 100vh; overflow-x: hidden;
-            background-image: radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.08), transparent 25%),
-                              radial-gradient(circle at 85% 30%, rgba(168, 85, 247, 0.08), transparent 25%);
-            background-attachment: fixed; transition: background-color 0.4s ease;
+            background-image: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.05), transparent 30%),
+                              radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.05), transparent 30%);
+            background-attachment: fixed; transition: background-color 0.4s ease, color 0.4s ease;
         }
 
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
         
         #login-wrapper { display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 40px); z-index: 50; position: relative; }
         #login-container { 
-            background: var(--card-bg); backdrop-filter: blur(20px); padding: 40px 30px; 
-            border-radius: 24px; border: 1px solid var(--glass-border); width: 100%; max-width: 380px; 
-            text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            background: var(--card-bg); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            padding: 40px 30px; border-radius: 28px; border: 1px solid var(--glass-border); 
+            width: 100%; max-width: 380px; text-align: center; 
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3);
         }
-        #login-container h1 { color: var(--primary); margin-bottom: 8px; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
-        #login-container p { color: var(--text-gray); font-size: 13px; margin-bottom: 30px; }
-        #login-container input { width: 100%; padding: 12px 16px; margin-bottom: 0; background: var(--list-bg); border: 1px solid var(--border-color); border-radius: 12px; color: var(--text-dark); font-size: 14px; outline: none; transition: 0.2s; }
+        #login-container h1 { color: var(--primary); margin-bottom: 8px; font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+        #login-container p { color: var(--text-gray); font-size: 14px; margin-bottom: 30px; }
         
         .password-wrapper { position: relative; width: 100%; margin-bottom: 12px; }
         .password-wrapper input { padding-right: 45px; }
@@ -57,146 +63,190 @@
             width: auto; padding: 4px; z-index: 10; display: flex; align-items: center; justify-content: center;
         }
 
-        #login-container button[type="submit"] { width: 100%; padding: 12px; background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: #020617; border: none; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; margin-top: 6px; }
+        #login-container button[type="submit"] { 
+            width: 100%; padding: 14px; margin-top: 8px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover)); 
+            color: #ffffff; border: none; border-radius: 14px; font-weight: 700; font-size: 15px; 
+            cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+        #login-container button[type="submit"]:hover {
+            transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
 
         .app-navbar-container { 
-            display: flex; justify-content: center; margin-bottom: 20px; 
-            position: sticky; top: 10px; z-index: 100; pointer-events: none;
-            width: 100%; padding: 0 4px;
+            display: flex; justify-content: center; margin-bottom: 24px; 
+            position: sticky; top: 12px; z-index: 100; pointer-events: none; width: 100%; padding: 0 4px;
         }
         .floating-tabs {
-            background: var(--card-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border);
-            padding: 5px; border-radius: 20px; display: flex; gap: 4px;
-            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.25); pointer-events: auto; 
-            width: 100%; max-width: 480px; overflow-x: auto; flex-wrap: nowrap;
+            background: var(--card-bg); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border); padding: 6px; border-radius: 20px; 
+            display: flex; gap: 6px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.3); 
+            pointer-events: auto; width: 100%; max-width: 480px; overflow-x: auto; flex-wrap: nowrap;
             -webkit-overflow-scrolling: touch; justify-content: space-between;
         }
         .floating-tabs::-webkit-scrollbar { display: none; }
         
         .nav-tab-btn {
-            background: transparent; border: none; color: var(--text-gray); padding: 10px 12px; 
-            border-radius: 14px; font-weight: 600; font-size: 12px; cursor: pointer; 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            white-space: nowrap; flex: 1; text-align: center;
+            background: transparent; border: none; color: var(--text-gray); padding: 10px 14px; 
+            border-radius: 14px; font-weight: 600; font-size: 13px; cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); white-space: nowrap; flex: 1; text-align: center;
         }
-        .nav-tab-btn:hover { color: var(--text-dark); }
-        .nav-tab-btn.active { background: var(--primary); color: #020617; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4); font-weight: 700; }
+        .nav-tab-btn:hover { color: var(--text-dark); background: rgba(148, 163, 184, 0.1); }
+        .nav-tab-btn.active { 
+            background: var(--primary); color: #ffffff; 
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); font-weight: 700; 
+        }
 
-        .app-wrapper { display: none; width: 100%; max-width: 100%; margin: 0; animation: fadeInUp 0.5s ease forwards; }
+        .app-wrapper { display: none; width: 100%; max-width: 100%; margin: 0; animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .app-wrapper.active { display: block; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
         .glass-panel {
-            background: var(--card-bg); backdrop-filter: blur(16px);
+            background: var(--card-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border); border-radius: 24px; padding: 24px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.04); transition: transform 0.3s ease;
         }
         .panel-title { font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        .badge { background: rgba(99, 102, 241, 0.2); color: var(--primary); font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; }
+        .badge { background: rgba(99, 102, 241, 0.15); color: var(--primary); font-size: 11px; font-weight: 800; padding: 6px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        .dashboard-layout { display: grid; grid-template-columns: 380px 1fr; gap: 20px; align-items: start; width: 100%; }
-        .sidebar-col { display: flex; flex-direction: column; gap: 20px; position: sticky; top: 75px; }
-        .main-col { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+        .dashboard-layout { display: grid; grid-template-columns: 380px 1fr; gap: 24px; align-items: start; width: 100%; }
+        .sidebar-col { display: flex; flex-direction: column; gap: 24px; position: sticky; top: 85px; }
+        .main-col { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
 
         .profile-header { display: flex; justify-content: space-between; align-items: center; width: 100%; position: relative; z-index: 2; }
         .profile-info { display: flex; flex-direction: column; gap: 4px; }
         .greeting-text { 
-            font-size: 22px; font-weight: 800; line-height: 1.2;
+            font-size: 24px; font-weight: 800; line-height: 1.2;
             background: linear-gradient(135deg, var(--primary), #c084fc);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        .date-text { font-size: 12px; color: var(--text-gray); font-weight: 600; display: flex; align-items: center; gap: 6px; }
+        .date-text { font-size: 13px; color: var(--text-gray); font-weight: 600; display: flex; align-items: center; gap: 6px; }
         .action-btn { 
             background: var(--list-bg); border: 1px solid var(--border-color); color: var(--text-dark); 
-            padding: 8px; border-radius: 50%; width: 38px; height: 38px; display: grid; 
-            place-content: center; cursor: pointer; transition: 0.2s; font-size: 16px;
+            padding: 8px; border-radius: 50%; width: 40px; height: 40px; display: grid; 
+            place-content: center; cursor: pointer; transition: all 0.3s ease; font-size: 16px;
         }
-        .action-btn:hover { background: rgba(239, 68, 68, 0.1); color: var(--expense); border-color: var(--expense); }
-        .header-glow { position: absolute; top: -30px; right: -30px; width: 130px; height: 130px; background: var(--primary); opacity: 0.15; border-radius: 50%; filter: blur(30px); z-index: 1; pointer-events: none; }
+        .action-btn:hover { background: rgba(225, 29, 72, 0.1); color: var(--expense); border-color: var(--expense); transform: rotate(10deg); }
+        .header-glow { position: absolute; top: -40px; right: -40px; width: 150px; height: 150px; background: var(--primary); opacity: 0.15; border-radius: 50%; filter: blur(40px); z-index: 1; pointer-events: none; }
 
-        .theme-switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .theme-switch { position: relative; display: inline-block; width: 48px; height: 26px; }
         .theme-switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border-color); border-radius: 24px; transition: .4s; }
-        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; border-radius: 50%; transition: .4s; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border-color); border-radius: 26px; transition: .4s; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: #ffffff; border-radius: 50%; transition: .4s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         input:checked + .slider { background-color: var(--primary); }
-        input:checked + .slider:before { transform: translateX(20px); }
+        input:checked + .slider:before { transform: translateX(22px); }
 
-        form { display: flex; flex-direction: column; gap: 12px; width: 100%; }
-        input, select, button { width: 100%; padding: 12px 16px; border: 1px solid var(--border-color); background-color: var(--list-bg); color: var(--text-dark); border-radius: 14px; font-size: 14px; font-weight: 500; outline: none; }
+        /* FORM & INPUTS REFINED */
+        form { display: flex; flex-direction: column; gap: 14px; width: 100%; }
+        input, select, button { 
+            width: 100%; padding: 14px 16px; border: 1px solid var(--border-color); 
+            background-color: var(--input-bg); color: var(--text-dark); 
+            border-radius: 14px; font-size: 14px; font-weight: 500; outline: none; 
+            transition: all 0.3s ease; 
+        }
+        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--ring-color); }
+        input::placeholder { color: var(--text-gray); opacity: 0.7; }
         select option { background: var(--card-bg); color: var(--text-dark); }
-        button.btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: #020617; border: none; font-weight: 700; cursor: pointer; }
-        button.btn-danger { background: var(--list-bg); color: var(--expense); border: 1px solid rgba(244, 63, 94, 0.3); font-weight: 600; cursor: pointer; }
+        
+        button.btn-primary { 
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover)); 
+            color: #ffffff; border: none; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+        button.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4); }
+        
+        button.btn-danger { 
+            background: transparent; color: var(--expense); 
+            border: 1px solid rgba(225, 29, 72, 0.3); font-weight: 600; cursor: pointer; 
+        }
+        button.btn-danger:hover { background: rgba(225, 29, 72, 0.1); border-color: var(--expense); }
 
-        .wealth-card { background: linear-gradient(135deg, var(--primary), #8b5cf6); color: #020617; padding: 30px; border-radius: 24px; text-align: center; box-shadow: 0 15px 30px -10px rgba(99, 102, 241, 0.4); }
-        .wealth-card h3 { font-size: 14px; font-weight: 700; opacity: 0.95; margin-bottom: 8px; color: #020617; }
-        .wealth-card p { font-size: 36px; font-weight: 800; color: #020617; }
+        .wealth-card { 
+            background: linear-gradient(135deg, var(--primary), #8b5cf6); color: #ffffff; 
+            padding: 32px; border-radius: 28px; text-align: center; 
+            box-shadow: 0 20px 40px -15px rgba(99, 102, 241, 0.5); position: relative; overflow: hidden;
+        }
+        .wealth-card::after {
+            content: ""; position: absolute; top: -50%; right: -20%; width: 200px; height: 200px;
+            background: rgba(255,255,255,0.1); filter: blur(30px); border-radius: 50%;
+        }
+        .wealth-card h3 { font-size: 14px; font-weight: 600; opacity: 0.9; margin-bottom: 8px; color: #f8fafc; letter-spacing: 0.5px; }
+        .wealth-card p { font-size: 38px; font-weight: 800; color: #ffffff; text-shadow: 0 2px 10px rgba(0,0,0,0.1); }
 
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; width: 100%; }
-        .stat-box { background: var(--list-bg); padding: 16px; border-radius: 16px; border: 1px solid var(--border-color); position: relative; }
-        .stat-box h3 { font-size: 12px; color: var(--text-gray); font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
-        .stat-box p { font-size: 16px; font-weight: 800; color: var(--text-dark); }
+        .stat-box { 
+            background: var(--list-bg); padding: 18px; border-radius: 20px; 
+            border: 1px solid var(--border-color); position: relative; transition: transform 0.3s ease;
+        }
+        .stat-box:hover { transform: translateY(-3px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
+        .stat-box h3 { font-size: 12px; color: var(--text-gray); font-weight: 700; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
+        .stat-box p { font-size: 17px; font-weight: 800; color: var(--text-dark); }
         
-        .stat-trend { position: absolute; top: 16px; right: 16px; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 100px; }
-        .trend-up { background: rgba(16, 185, 129, 0.15); color: var(--income); }
-        .trend-down { background: rgba(239, 68, 68, 0.15); color: var(--expense); }
-        .trend-flat { background: rgba(100, 116, 139, 0.15); color: var(--text-gray); }
+        .stat-trend { position: absolute; top: 16px; right: 16px; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 100px; }
+        .trend-up { background: rgba(52, 211, 153, 0.15); color: var(--income); }
+        .trend-down { background: rgba(251, 113, 133, 0.15); color: var(--expense); }
+        .trend-flat { background: rgba(148, 163, 184, 0.15); color: var(--text-gray); }
 
         .c-balance p { color: var(--income); } .c-simpanan p { color: var(--simpanan); } 
         .c-pribadi p { color: var(--pribadi); } .c-tring p { color: var(--tring); } .c-jago p { color: var(--jago); }
 
-        .progress-wrapper { background: var(--border-color); border-radius: 100px; height: 10px; overflow: hidden; margin-top: 8px; width: 100%; }
-        .progress-fill { height: 100%; border-radius: 100px; transition: width 0.8s; }
+        .progress-wrapper { background: var(--border-color); border-radius: 100px; height: 12px; overflow: hidden; margin-top: 10px; width: 100%; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
+        .progress-fill { height: 100%; border-radius: 100px; transition: width 1s cubic-bezier(0.16, 1, 0.3, 1); }
 
-        .history-container { max-height: 280px; overflow-y: auto; padding-right: 4px; width: 100%; display: flex; flex-direction: column; gap: 10px; }
-        .history-date-group { display: flex; flex-direction: column; gap: 6px; }
-        .history-date-header { font-size: 11px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px; padding-left: 4px; display: flex; align-items: center; gap: 6px; }
+        .history-container { max-height: 300px; overflow-y: auto; padding-right: 6px; width: 100%; display: flex; flex-direction: column; gap: 12px; }
+        .history-date-group { display: flex; flex-direction: column; gap: 8px; }
+        .history-date-header { font-size: 12px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px; padding-left: 4px; display: flex; align-items: center; gap: 6px; }
         
         .history-list { list-style: none; display: flex; flex-direction: column; gap: 8px; width: 100%; }
         .history-list li { 
             display: flex; justify-content: space-between; align-items: center; 
-            background: var(--list-bg); padding: 10px 14px; 
-            border-radius: 14px; border: 1px solid var(--border-color); gap: 12px; width: 100%;
+            background: var(--list-bg); padding: 12px 16px; 
+            border-radius: 16px; border: 1px solid var(--border-color); gap: 12px; width: 100%;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
+        .history-list li:hover { transform: scale(1.01); border-color: var(--primary); }
         .history-item-left { flex: 1; min-width: 0; }
         .history-item-left span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .history-item-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; text-align: right; white-space: nowrap; }
+        .history-item-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; text-align: right; white-space: nowrap; }
+        .history-item-right button { transition: all 0.2s ease; border-radius: 8px; }
+        .history-item-right button:hover { transform: scale(1.2); }
         .text-inc { color: var(--income); } .text-exp { color: var(--expense); }
 
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(2, 6, 23, 0.75); backdrop-filter: blur(10px);
+            background: rgba(2, 6, 23, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
             display: flex; justify-content: center; align-items: center; z-index: 1000;
-            opacity: 0; visibility: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0; visibility: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .modal-overlay.active { opacity: 1; visibility: visible; }
         .modal-box {
             background: var(--card-bg); border: 1px solid var(--glass-border);
-            padding: 30px; border-radius: 28px; width: 100%; max-width: 380px; text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4); transform: scale(0.9) translateY(10px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 32px; border-radius: 32px; width: 100%; max-width: 380px; text-align: center;
+            box-shadow: 0 30px 60px -12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1); 
+            transform: scale(0.95) translateY(20px); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .modal-overlay.active .modal-box { transform: scale(1) translateY(0); }
-        .modal-icon { font-size: 40px; margin-bottom: 12px; display: inline-block; }
-        .modal-box h3 { font-size: 18px; font-weight: 800; color: var(--text-dark); margin-bottom: 8px; }
-        .modal-box p { font-size: 13px; color: var(--text-gray); margin-bottom: 24px; line-height: 1.5; }
-        .modal-actions { display: flex; gap: 10px; margin-top: 0; }
+        .modal-icon { font-size: 48px; margin-bottom: 16px; display: inline-block; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
+        .modal-box h3 { font-size: 20px; font-weight: 800; color: var(--text-dark); margin-bottom: 10px; }
+        .modal-box p { font-size: 14px; color: var(--text-gray); margin-bottom: 24px; line-height: 1.6; }
+        .modal-actions { display: flex; gap: 12px; margin-top: 0; }
 
         .roadmap-grid { display: grid; grid-template-columns: 340px 1fr; gap: 24px; align-items: start; width: 100%; }
-        .countdown-timer { display: flex; gap: 10px; justify-content: space-between; margin-top: 15px; width: 100%; }
-        .time-box { background: var(--list-bg); padding: 12px 0; border-radius: 12px; flex: 1; text-align: center; border: 1px solid var(--border-color); }
+        .countdown-timer { display: flex; gap: 12px; justify-content: space-between; margin-top: 20px; width: 100%; }
+        .time-box { background: var(--list-bg); padding: 14px 0; border-radius: 16px; flex: 1; text-align: center; border: 1px solid var(--border-color); box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
         .time-box span { display: block; }
-        .time-val { font-size: 20px; font-weight: 800; color: var(--text-dark); }
-        .time-lbl { font-size: 10px; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-top: 4px; }
+        .time-val { font-size: 24px; font-weight: 800; color: var(--text-dark); }
+        .time-lbl { font-size: 11px; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-top: 4px; letter-spacing: 0.5px;}
         
-        .roadmap-months { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; width: 100%; }
-        .task-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; border-radius: 14px; background: var(--list-bg); margin-bottom: 10px; cursor: pointer; border: 1px solid transparent; width: 100%; }
-        .task-item:hover { border-color: var(--primary); }
+        .roadmap-months { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; width: 100%; }
+        .task-item { display: flex; align-items: flex-start; gap: 14px; padding: 14px; border-radius: 16px; background: var(--list-bg); margin-bottom: 12px; cursor: pointer; border: 1px solid transparent; width: 100%; transition: all 0.3s ease; }
+        .task-item:hover { border-color: var(--primary); background: var(--card-bg); box-shadow: 0 4px 15px rgba(0,0,0,0.03); transform: translateX(4px); }
         
-        .custom-checkbox { appearance: none; width: 22px; height: 22px; border: 2px solid var(--text-gray); border-radius: 6px; display: grid; place-content: center; cursor: pointer; flex-shrink: 0; background: transparent; margin-top: 2px;}
-        .custom-checkbox::before { content: ""; width: 12px; height: 12px; transform: scale(0); box-shadow: inset 1em 1em white; background-color: white; transform-origin: center; clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); transition: 120ms transform; }
-        .custom-checkbox:checked { background-color: var(--primary); border-color: var(--primary); }
+        .custom-checkbox { appearance: none; width: 24px; height: 24px; border: 2px solid var(--text-gray); border-radius: 8px; display: grid; place-content: center; cursor: pointer; flex-shrink: 0; background: transparent; margin-top: 0; transition: all 0.2s ease;}
+        .custom-checkbox::before { content: ""; width: 12px; height: 12px; transform: scale(0); box-shadow: inset 1em 1em white; background-color: white; transform-origin: center; clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); transition: 120ms transform cubic-bezier(0.16, 1, 0.3, 1); }
+        .custom-checkbox:checked { background-color: var(--primary); border-color: var(--primary); box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3); }
         .custom-checkbox:checked::before { transform: scale(1); }
-        .task-text { font-size: 13px; color: var(--text-dark); font-weight: 500; line-height: 1.5; }
-        .task-done .task-text { text-decoration: line-through; opacity: 0.5; }
+        .task-text { font-size: 14px; color: var(--text-dark); font-weight: 500; line-height: 1.5; transition: all 0.3s ease; }
+        .task-done .task-text { text-decoration: line-through; color: var(--text-gray); opacity: 0.6; }
 
         @media (max-width: 1024px) {
             .dashboard-layout, .roadmap-grid { grid-template-columns: 1fr; }
@@ -206,6 +256,7 @@
 </head>
 <body data-theme="dark">
 
+    <!-- LOGIN -->
     <div id="login-wrapper">
         <div id="login-container">
             <h1>Personal OS</h1>
@@ -218,11 +269,11 @@
                 </div>
                 <button type="submit">Buka Vault</button>
             </form>
-            <div id="session-warning" style="margin-top: 15px; font-size: 11px; color: var(--text-gray);"></div>
+            <div id="session-warning" style="margin-top: 15px; font-size: 12px; color: var(--text-gray);"></div>
         </div>
     </div>
 
-    <!-- GLOBAL CUSTOM MODAL / POP-UP -->
+    <!-- GLOBAL MODAL -->
     <div id="custom-modal" class="modal-overlay" onclick="closeAllModals(event)">
         <div class="modal-box" onclick="event.stopPropagation()">
             <div id="modal-icon-el" class="modal-icon">⚠️</div>
@@ -235,14 +286,14 @@
     <!-- MODAL PIN ROADMAP -->
     <div id="roadmap-pin-modal" class="modal-overlay" onclick="closeAllModals(event)">
         <div class="modal-box" style="max-width: 340px;" onclick="event.stopPropagation()">
-            <div style="font-size: 32px; margin-bottom: 8px;">🔐</div>
+            <div style="font-size: 36px; margin-bottom: 12px;">🔐</div>
             <h3>PIN Roadmap</h3>
             <p>Masukkan password angka (6 digit) untuk membuka menu Roadmap.</p>
-            <form onsubmit="verifyRoadmapPin(event)" style="gap: 14px;">
-                <input type="password" id="roadmap-pin-input" placeholder="••••••" maxlength="6" pattern="[0-9]*" inputmode="numeric" autocomplete="off" required style="text-align: center; letter-spacing: 4px; font-size: 18px;">
+            <form onsubmit="verifyRoadmapPin(event)" style="gap: 16px;">
+                <input type="password" id="roadmap-pin-input" placeholder="••••••" maxlength="6" pattern="[0-9]*" inputmode="numeric" autocomplete="off" required style="text-align: center; letter-spacing: 6px; font-size: 20px; font-weight:800;">
                 <div class="modal-actions">
-                    <button type="button" onclick="closeRoadmapPinModal()" class="btn-danger" style="flex: 1; padding: 12px; border-radius: 12px;">Batal</button>
-                    <button type="submit" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 12px; border:none;">Buka</button>
+                    <button type="button" onclick="closeRoadmapPinModal()" class="btn-danger" style="flex: 1; padding: 14px; border-radius: 14px;">Batal</button>
+                    <button type="submit" class="btn-primary" style="flex: 1; padding: 14px; border-radius: 14px;">Buka</button>
                 </div>
             </form>
         </div>
@@ -250,30 +301,30 @@
 
     <!-- MODAL EDIT TRANSAKSI KEUANGAN -->
     <div id="transaction-edit-modal" class="modal-overlay" onclick="closeAllModals(event)">
-        <div class="modal-box" style="text-align: left; max-width: 400px;" onclick="event.stopPropagation()">
-            <div style="font-size: 28px; margin-bottom: 8px;">✏️</div>
+        <div class="modal-box" style="text-align: left; max-width: 420px;" onclick="event.stopPropagation()">
+            <div style="font-size: 32px; margin-bottom: 12px;">✏️</div>
             <h3>Edit Transaksi</h3>
             <p>Perbarui keterangan, nominal, atau tipe transaksi.</p>
-            <form onsubmit="saveEditedTransaction(event)" style="gap: 16px;">
+            <form onsubmit="saveEditedTransaction(event)" style="gap: 18px;">
                 <input type="hidden" id="edit-trx-id">
                 <div>
-                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Keterangan</label>
+                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 8px;">Keterangan</label>
                     <input type="text" id="edit-trx-desc" required>
                 </div>
                 <div>
-                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Nominal / Gram</label>
+                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 8px;">Nominal / Gram</label>
                     <input type="text" id="edit-trx-amount" required>
                 </div>
                 <div>
-                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Tipe</label>
+                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 8px;">Tipe</label>
                     <select id="edit-trx-type" onchange="handleEditTrgTypeChange()">
                         <optgroup label="Uang Harian"><option value="income">Pemasukan (+)</option><option value="expense">Pengeluaran (-)</option></optgroup>
-                        <optgroup label="Ambil Tabungan & Aset"><option value="withdraw">Ambil dari Tabungan / Aset (Masuk ke Kas) (-)</option></optgroup>
-                        <optgroup label="Tabungan & Aset"><option value="simpanan">Simpanan Wajib (+)</option><option value="pribadi">Tabungan Pribadi (+)</option><option value="tring">Emas Tring (+)</option><option value="jago">Emas Jago (- Kas, + Aset)</option></optgroup>
+                        <optgroup label="Ambil Tabungan & Aset"><option value="withdraw">Ambil dari Tabungan / Aset (-)</option></optgroup>
+                        <optgroup label="Tabungan & Aset"><option value="simpanan">Simpanan Wajib (+)</option><option value="pribadi">Tabungan Pribadi (+)</option><option value="tring">Emas Tring (+)</option><option value="jago">Emas Jago (- Kas)</option></optgroup>
                     </select>
                 </div>
                 <div id="edit-withdraw-source-container" style="display: none;">
-                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Sumber Pengambilan Tabungan</label>
+                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 8px;">Sumber Tabungan</label>
                     <select id="edit-withdraw-source">
                         <option value="simpanan">Simpanan Wajib</option>
                         <option value="pribadi">Tabungan Pribadi</option>
@@ -281,63 +332,63 @@
                         <option value="jago">Emas Jago</option>
                     </select>
                 </div>
-                <div class="modal-actions" style="margin-top: 10px;">
-                    <button type="button" onclick="closeTransactionEditModal()" class="btn-danger" style="flex: 1; padding: 12px; border-radius: 12px;">Batal</button>
-                    <button type="submit" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 12px; border:none;">Simpan</button>
+                <div class="modal-actions" style="margin-top: 12px;">
+                    <button type="button" onclick="closeTransactionEditModal()" class="btn-danger" style="flex: 1; padding: 14px; border-radius: 14px;">Batal</button>
+                    <button type="submit" class="btn-primary" style="flex: 1; padding: 14px; border-radius: 14px;">Simpan</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- MODAL EDIT PLANNER / ANGGARAN TETAP -->
+    <!-- MODAL EDIT PLANNER -->
     <div id="planner-edit-modal" class="modal-overlay" onclick="closeAllModals(event)">
-        <div class="modal-box" style="text-align: left; max-width: 400px;" onclick="event.stopPropagation()">
-            <div style="font-size: 28px; margin-bottom: 8px;">✏️</div>
+        <div class="modal-box" style="text-align: left; max-width: 420px;" onclick="event.stopPropagation()">
+            <div style="font-size: 32px; margin-bottom: 12px;">✏️</div>
             <h3>Edit Anggaran Tetap</h3>
             <p>Perbarui keterangan atau nominal anggaran tetap.</p>
-            <form onsubmit="saveEditedPlanner(event)" style="gap: 16px;">
+            <form onsubmit="saveEditedPlanner(event)" style="gap: 18px;">
                 <input type="hidden" id="edit-planner-id">
                 <div>
-                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Keterangan</label>
+                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 8px;">Keterangan</label>
                     <input type="text" id="edit-planner-desc" required>
                 </div>
                 <div>
-                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Nominal (Rp)</label>
+                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 8px;">Nominal (Rp)</label>
                     <input type="text" id="edit-planner-amount" oninput="formatGoalInput(this)" required>
                 </div>
                 <div>
-                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Tipe</label>
+                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 8px;">Tipe</label>
                     <select id="edit-planner-type">
                         <option value="income">Pemasukan Tetap (+)</option>
                         <option value="expense">Pengeluaran Tetap (-)</option>
                     </select>
                 </div>
-                <div class="modal-actions" style="margin-top: 10px;">
-                    <button type="button" onclick="closePlannerEditModal()" class="btn-danger" style="flex: 1; padding: 12px; border-radius: 12px;">Batal</button>
-                    <button type="submit" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 12px; border:none;">Simpan</button>
+                <div class="modal-actions" style="margin-top: 12px;">
+                    <button type="button" onclick="closePlannerEditModal()" class="btn-danger" style="flex: 1; padding: 14px; border-radius: 14px;">Batal</button>
+                    <button type="submit" class="btn-primary" style="flex: 1; padding: 14px; border-radius: 14px;">Simpan</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- MODAL CUSTOM TARGET 2026 -->
+    <!-- MODAL TARGET 2026 -->
     <div id="goals-modal" class="modal-overlay" onclick="closeAllModals(event)">
-        <div class="modal-box" style="text-align: left; max-width: 400px;" onclick="event.stopPropagation()">
-            <div style="font-size: 28px; margin-bottom: 8px;">🎯</div>
+        <div class="modal-box" style="text-align: left; max-width: 420px;" onclick="event.stopPropagation()">
+            <div style="font-size: 32px; margin-bottom: 12px;">🎯</div>
             <h3>Pengaturan Target 2026</h3>
             <p>Tentukan target finansial impian kamu tahun ini.</p>
-            <form onsubmit="saveGoals(event)" style="gap: 16px;">
+            <form onsubmit="saveGoals(event)" style="gap: 18px;">
                 <div>
-                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Target Kekayaan Total (Rp)</label>
+                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 8px;">Target Kekayaan Total (Rp)</label>
                     <input type="text" id="modal-wealth-goal" placeholder="50.000.000" oninput="formatGoalInput(this)" required>
                 </div>
                 <div>
-                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Target Aset Emas (Rp)</label>
+                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 8px;">Target Aset Emas (Rp)</label>
                     <input type="text" id="modal-gold-goal" placeholder="10.000.000" oninput="formatGoalInput(this)" required>
                 </div>
-                <div class="modal-actions" style="margin-top: 10px;">
-                    <button type="button" onclick="closeGoalsModal()" class="btn-danger" style="flex: 1; padding: 12px; border-radius: 12px;">Batal</button>
-                    <button type="submit" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 12px; border:none;">Simpan</button>
+                <div class="modal-actions" style="margin-top: 12px;">
+                    <button type="button" onclick="closeGoalsModal()" class="btn-danger" style="flex: 1; padding: 14px; border-radius: 14px;">Batal</button>
+                    <button type="submit" class="btn-primary" style="flex: 1; padding: 14px; border-radius: 14px;">Simpan</button>
                 </div>
             </form>
         </div>
@@ -375,18 +426,18 @@
                         </div>
                     </div>
 
-                    <div class="glass-panel" style="padding: 20px 24px;">
+                    <div class="glass-panel" style="padding: 24px;">
                         <h2 class="panel-title" id="form-panel-title">Catat Transaksi</h2>
                         <form id="form">
                             <input type="text" id="desc" placeholder="Keterangan (Makan, Darurat, dll)" autocomplete="off" required>
                             <input type="text" id="amount" placeholder="Nominal Rupiah / Gram" autocomplete="off" required>
                             <select id="type" onchange="handleTypeChange()">
                                 <optgroup label="Uang Harian"><option value="income">Pemasukan (+)</option><option value="expense">Pengeluaran (-)</option></optgroup>
-                                <optgroup label="Ambil Tabungan & Aset"><option value="withdraw">Ambil dari Tabungan / Aset (Masuk ke Kas) (-)</option></optgroup>
-                                <optgroup label="Tabungan & Aset"><option value="simpanan">Simpanan Wajib (+)</option><option value="pribadi">Tabungan Pribadi (+)</option><option value="tring">Emas Tring (+)</option><option value="jago">Emas Jago (- Kas, + Aset)</option></optgroup>
+                                <optgroup label="Ambil Tabungan & Aset"><option value="withdraw">Ambil dari Tabungan (-)</option></optgroup>
+                                <optgroup label="Tabungan & Aset"><option value="simpanan">Simpanan Wajib (+)</option><option value="pribadi">Tabungan Pribadi (+)</option><option value="tring">Emas Tring (+)</option><option value="jago">Emas Jago (- Kas)</option></optgroup>
                             </select>
                             <div id="withdraw-source-container" style="display: none;">
-                                <label style="font-size: 11px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 4px;">Sumber Pengambilan Tabungan</label>
+                                <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Sumber Pengambilan Tabungan</label>
                                 <select id="withdraw-source">
                                     <option value="simpanan">Simpanan Wajib</option>
                                     <option value="pribadi">Tabungan Pribadi</option>
@@ -394,17 +445,17 @@
                                     <option value="jago">Emas Jago</option>
                                 </select>
                             </div>
-                            <button type="submit" id="form-submit-btn" class="btn-primary" style="padding: 12px; border-radius: 14px; border:none;">Simpan Catatan</button>
+                            <button type="submit" id="form-submit-btn" class="btn-primary" style="padding: 14px; border-radius: 14px;">Simpan Catatan</button>
                         </form>
                     </div>
 
-                    <div class="glass-panel" style="padding: 20px 24px;">
-                        <div class="panel-title" style="margin-bottom: 12px;">
+                    <div class="glass-panel" style="padding: 24px;">
+                        <div class="panel-title" style="margin-bottom: 16px;">
                             <span>Riwayat</span>
-                            <select id="filter-month-select" onchange="updateUI()" style="width: auto; padding: 4px 10px; border-radius: 100px; font-size: 11px;"><option value="all">Semua Bulan</option></select>
+                            <select id="filter-month-select" onchange="updateUI()" style="width: auto; padding: 6px 12px; border-radius: 100px; font-size: 12px; border-color: var(--border-color); background: var(--list-bg);"><option value="all">Semua Bulan</option></select>
                         </div>
-                        <div id="list" class="history-container" style="margin-bottom: 12px;"></div>
-                        <button onclick="confirmResetData()" class="btn-danger" style="padding: 10px; border-radius: 12px; font-size: 13px;">Bersihkan Data Lokal</button>
+                        <div id="list" class="history-container" style="margin-bottom: 16px;"></div>
+                        <button onclick="confirmResetData()" class="btn-danger" style="padding: 12px; border-radius: 14px; font-size: 13px; width: 100%;">Bersihkan Data Lokal</button>
                     </div>
                 </div>
 
@@ -433,7 +484,7 @@
                         <div class="stat-box c-tring">
                             <span id="trend-tring" class="stat-trend trend-flat">0%</span>
                             <h3>Emas Tring</h3>
-                            <p id="total-tring">Rp 0</p><span id="tring-gram-info" style="font-size:11px; color:var(--text-gray);">0 Gr</span>
+                            <p id="total-tring">Rp 0</p><span id="tring-gram-info" style="font-size:12px; color:var(--text-gray); font-weight:500;">0 Gr</span>
                         </div>
                         <div class="stat-box c-jago">
                             <span id="trend-jago" class="stat-trend trend-flat">0%</span>
@@ -443,55 +494,55 @@
                     </div>
 
                     <div class="glass-panel" style="display: flex; justify-content: space-between; align-items: center; gap:16px; flex-wrap: wrap;">
-                        <span style="font-weight: 600; font-size: 14px;">🏷️ Harga Emas Tring / Gram: <small id="api-status" style="color:var(--income); font-weight:normal;"></small></span>
-                        <div style="display: flex; gap: 8px; flex:1; max-width: 300px;">
+                        <span style="font-weight: 700; font-size: 15px;">🏷️ Harga Emas Tring / Gram: <small id="api-status" style="color:var(--income); font-weight:600; font-size:12px;"></small></span>
+                        <div style="display: flex; gap: 10px; flex:1; max-width: 320px;">
                             <input type="text" id="gold-price-input" placeholder="1.250.000" oninput="formatGoldPriceInput(this)" style="margin:0;">
-                            <button onclick="saveGoldPrice()" class="btn-primary" style="width: auto; padding: 10px 16px; border-radius: 12px; border:none;">Update</button>
+                            <button onclick="saveGoldPrice()" class="btn-primary" style="width: auto; padding: 12px 20px; border-radius: 14px;">Update</button>
                         </div>
                     </div>
 
                     <div class="glass-panel">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; width: 100%;">
-                            <h2 style="font-size: 16px; font-weight: 700; color: var(--text-dark); margin: 0;">🎯 Progress Target 2026</h2>
-                            <button onclick="openGoalsModal()" style="width: auto; font-size: 11px; font-weight: 700; padding: 6px 16px; border-radius: 100px; border: 1px solid var(--border-color); cursor: pointer; background: var(--list-bg); color: var(--primary); transition: 0.2s;">Edit Target</button>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; width: 100%;">
+                            <h2 style="font-size: 18px; font-weight: 800; color: var(--text-dark); margin: 0;">🎯 Progress Target 2026</h2>
+                            <button onclick="openGoalsModal()" style="width: auto; font-size: 12px; font-weight: 700; padding: 8px 18px; border-radius: 100px; border: 1px solid var(--border-color); cursor: pointer; background: var(--list-bg); color: var(--primary); transition: all 0.3s ease;">Edit Target</button>
                         </div>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; width: 100%;">
-                            <div style="background: var(--list-bg); padding: 16px 20px; border-radius: 16px; border: 1px solid var(--border-color);">
-                                <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; margin-bottom: 8px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; width: 100%;">
+                            <div style="background: var(--list-bg); padding: 20px; border-radius: 20px; border: 1px solid var(--border-color);">
+                                <div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: 700; margin-bottom: 12px;">
                                     <span style="color: var(--text-gray);">Kekayaan Total</span>
-                                    <span id="wealth-progress-text" style="color: var(--primary);">0%</span>
+                                    <span id="wealth-progress-text" style="color: var(--primary); font-weight: 800;">0%</span>
                                 </div>
-                                <div class="progress-wrapper" style="height: 10px; margin-top: 0; background: var(--card-bg); border: 1px solid var(--border-color);">
-                                    <div id="wealth-progress-bar" class="progress-fill" style="width: 0%; background: linear-gradient(90deg, var(--primary), #8b5cf6);"></div>
+                                <div class="progress-wrapper" style="background: var(--input-bg);">
+                                    <div id="wealth-progress-bar" class="progress-fill" style="width: 0%; background: linear-gradient(90deg, var(--primary), #8b5cf6); box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);"></div>
                                 </div>
                             </div>
                             
-                            <div style="background: var(--list-bg); padding: 16px 20px; border-radius: 16px; border: 1px solid var(--border-color);">
-                                <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; margin-bottom: 8px;">
+                            <div style="background: var(--list-bg); padding: 20px; border-radius: 20px; border: 1px solid var(--border-color);">
+                                <div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: 700; margin-bottom: 12px;">
                                     <span style="color: var(--text-gray);">Aset Emas</span>
-                                    <span id="gold-progress-text" style="color: var(--tring);">0%</span>
+                                    <span id="gold-progress-text" style="color: var(--tring); font-weight: 800;">0%</span>
                                 </div>
-                                <div class="progress-wrapper" style="height: 10px; margin-top: 0; background: var(--card-bg); border: 1px solid var(--border-color);">
-                                    <div id="gold-progress-bar" class="progress-fill" style="width: 0%; background: linear-gradient(90deg, var(--tring), #f59e0b);"></div>
+                                <div class="progress-wrapper" style="background: var(--input-bg);">
+                                    <div id="gold-progress-bar" class="progress-fill" style="width: 0%; background: linear-gradient(90deg, var(--tring), #f59e0b); box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);"></div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
                         <div class="glass-panel">
                             <h2 class="panel-title">Portofolio</h2>
-                            <div style="height: 160px; position: relative;"><canvas id="financeChart"></canvas></div>
+                            <div style="height: 180px; position: relative;"><canvas id="financeChart"></canvas></div>
                         </div>
                         <div class="glass-panel">
                             <h2 class="panel-title">Arus Kas Bulanan</h2>
-                            <div style="height: 160px; position: relative;"><canvas id="comparisonChart"></canvas></div>
+                            <div style="height: 180px; position: relative;"><canvas id="comparisonChart"></canvas></div>
                         </div>
                     </div>
 
                     <div class="glass-panel">
                         <h2 class="panel-title">📈 Analisa Keuangan Bulanan</h2>
-                        <div id="financial-analysis-content" style="display: flex; flex-direction: column; gap: 12px; font-size: 13px; color: var(--text-dark);">
+                        <div id="financial-analysis-content" style="display: flex; flex-direction: column; gap: 14px; font-size: 14px; color: var(--text-dark);">
                             <p style="color: var(--text-gray);">Belum ada data transaksi yang cukup untuk dianalisa pada bulan ini.</p>
                         </div>
                     </div>
@@ -505,7 +556,7 @@
                 <div class="sidebar-col">
                     <div class="glass-panel">
                         <h2 class="panel-title">Atur Anggaran Fix</h2>
-                        <p style="font-size: 12px; color: var(--text-gray); margin-bottom: 16px;">Masukkan pengeluaran dan pemasukan yang sifatnya tetap tiap bulan untuk mengestimasi sisa bersih dana.</p>
+                        <p style="font-size: 13px; color: var(--text-gray); margin-bottom: 20px;">Masukkan pengeluaran dan pemasukan yang sifatnya tetap tiap bulan untuk mengestimasi sisa bersih dana.</p>
                         <form id="planner-form" onsubmit="addPlannerItem(event)">
                             <input type="text" id="planner-desc" placeholder="Keterangan (Gaji, Kos, Cicilan)" autocomplete="off" required>
                             <input type="text" id="planner-amount" placeholder="Nominal Rupiah" autocomplete="off" required oninput="formatGoalInput(this)">
@@ -513,15 +564,15 @@
                                 <option value="income">Pemasukan Tetap (+)</option>
                                 <option value="expense">Pengeluaran Tetap (-)</option>
                             </select>
-                            <button type="submit" class="btn-primary" style="padding: 12px; border-radius: 14px; border:none;">Tambah Anggaran</button>
+                            <button type="submit" class="btn-primary" style="padding: 14px; border-radius: 14px;">Tambah Anggaran</button>
                         </form>
 
-                        <div style="margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 16px; display: flex; flex-direction: column; gap: 10px;">
-                            <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                        <div style="margin-top: 24px; border-top: 1px solid var(--border-color); padding-top: 20px; display: flex; flex-direction: column; gap: 12px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 14px;">
                                 <span style="color: var(--text-gray); font-weight: 600;">Total Pemasukan Fix:</span>
                                 <span id="summary-total-income" style="color: var(--income); font-weight: 800;">Rp 0</span>
                             </div>
-                            <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 14px;">
                                 <span style="color: var(--text-gray); font-weight: 600;">Total Pengeluaran Fix:</span>
                                 <span id="summary-total-expense" style="color: var(--expense); font-weight: 800;">Rp 0</span>
                             </div>
@@ -530,51 +581,51 @@
                 </div>
                 
                 <div class="main-col">
-                    <div class="wealth-card" style="background: linear-gradient(135deg, var(--income), #059669); box-shadow: 0 15px 30px -10px rgba(16, 185, 129, 0.4); position: relative;">
-                        <span id="planner-net-trend" class="stat-trend trend-flat" style="top: 20px; right: 20px; font-size: 12px; background: rgba(255,255,255,0.2); color: #020617;">0%</span>
+                    <div class="wealth-card" style="background: linear-gradient(135deg, var(--income), #059669); box-shadow: 0 20px 40px -15px rgba(16, 185, 129, 0.4);">
+                        <span id="planner-net-trend" class="stat-trend trend-flat" style="top: 20px; right: 20px; font-size: 12px; background: rgba(255,255,255,0.2); color: #ffffff;">0%</span>
                         <h3>Estimasi Sisa Uang Bersih (Net) Per Bulan</h3>
                         <p id="planner-net">Rp 0</p>
                     </div>
 
-                    <div class="glass-panel" style="padding: 20px;">
-                        <h2 style="font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 16px;">📊 Akumulasi Portofolio + Estimasi Bulan Depan</h2>
+                    <div class="glass-panel" style="padding: 24px;">
+                        <h2 style="font-size: 18px; font-weight: 800; color: var(--text-dark); margin-bottom: 20px;">📊 Akumulasi Portofolio + Estimasi Bulan Depan</h2>
                         <div class="stats-grid">
                             <div class="stat-box c-balance">
                                 <span id="proj-cash-pct" class="stat-trend trend-flat">0%</span>
-                                <h3>Kas Tunai (Total)</h3>
+                                <h3>Kas Tunai</h3>
                                 <p id="proj-cash">Rp 0</p>
                             </div>
                             <div class="stat-box c-simpanan">
                                 <span id="proj-simpanan-pct" class="stat-trend trend-flat">0%</span>
-                                <h3>Simpanan (Total)</h3>
+                                <h3>Simpanan</h3>
                                 <p id="proj-simpanan">Rp 0</p>
                             </div>
                             <div class="stat-box c-pribadi">
                                 <span id="proj-pribadi-pct" class="stat-trend trend-flat">0%</span>
-                                <h3>Pribadi (Total)</h3>
+                                <h3>Pribadi</h3>
                                 <p id="proj-pribadi">Rp 0</p>
                             </div>
                             <div class="stat-box c-tring">
                                 <span id="proj-gold-pct" class="stat-trend trend-flat">0%</span>
-                                <h3>Emas Tring (Total)</h3>
+                                <h3>Emas Tring</h3>
                                 <p id="proj-gold">Rp 0</p>
                             </div>
                             <div class="stat-box c-jago">
                                 <span id="proj-jago-pct" class="stat-trend trend-flat">0%</span>
-                                <h3>Emas Jago (Total)</h3>
+                                <h3>Emas Jago</h3>
                                 <p id="proj-jago">Rp 0</p>
                             </div>
                         </div>
                     </div>
 
-                    <div class="glass-panel" style="display: flex; flex-direction: column; gap: 20px;">
+                    <div class="glass-panel" style="display: flex; flex-direction: column; gap: 24px;">
                         <div>
-                            <h2 style="font-size: 15px; font-weight: 700; color: var(--income); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">📥 Pemasukan Tetap</h2>
+                            <h2 style="font-size: 16px; font-weight: 800; color: var(--income); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">📥 Pemasukan Tetap</h2>
                             <ul id="planner-income-list" class="history-list" style="margin: 0;"></ul>
                         </div>
                         
-                        <div style="border-top: 1px solid var(--border-color); padding-top: 16px;">
-                            <h2 style="font-size: 15px; font-weight: 700; color: var(--expense); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">📤 Pengeluaran Tetap</h2>
+                        <div style="border-top: 1px solid var(--border-color); padding-top: 20px;">
+                            <h2 style="font-size: 16px; font-weight: 800; color: var(--expense); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">📤 Pengeluaran Tetap</h2>
                             <ul id="planner-expense-list" class="history-list" style="margin: 0;"></ul>
                         </div>
                     </div>
@@ -588,7 +639,7 @@
                 <div class="sidebar-col">
                     <div class="glass-panel">
                         <span class="badge">Akselerasi 6 Bulan</span>
-                        <h2 style="font-size: 22px; font-weight: 800; margin-top: 12px; line-height: 1.2;">Menuju ASN & BUMN 2027 🚀</h2>
+                        <h2 style="font-size: 24px; font-weight: 800; margin-top: 16px; line-height: 1.3;">Menuju ASN & BUMN 2027 🚀</h2>
                         <div class="countdown-timer">
                             <div class="time-box"><span class="time-val" id="days">00</span><span class="time-lbl">Hari</span></div>
                             <div class="time-box"><span class="time-val" id="hours">00</span><span class="time-lbl">Jam</span></div>
@@ -597,64 +648,64 @@
                     </div>
 
                     <div class="glass-panel">
-                        <div class="panel-title">Total Progress <button onclick="confirmResetRoadmap()" style="width: auto; font-size: 11px; padding: 4px 12px; border-radius: 100px; border:none; cursor:pointer; background:var(--list-bg); color:var(--text-dark);">Reset</button></div>
-                        <h3 id="roadmap-progress-text" style="font-size: 32px; font-weight: 800; color: var(--primary); margin-bottom: 8px;">0%</h3>
-                        <div class="progress-wrapper"><div id="roadmap-progress-bar" class="progress-fill" style="width: 0%; background: linear-gradient(90deg, var(--primary), var(--pribadi));"></div></div>
+                        <div class="panel-title">Total Progress <button onclick="confirmResetRoadmap()" style="width: auto; font-size: 11px; padding: 6px 14px; border-radius: 100px; border:1px solid var(--border-color); cursor:pointer; background:var(--list-bg); color:var(--text-dark); transition: all 0.3s ease;">Reset</button></div>
+                        <h3 id="roadmap-progress-text" style="font-size: 36px; font-weight: 800; color: var(--primary); margin-bottom: 10px;">0%</h3>
+                        <div class="progress-wrapper" style="height: 14px; background: var(--input-bg);"><div id="roadmap-progress-bar" class="progress-fill" style="width: 0%; background: linear-gradient(90deg, var(--primary), var(--pribadi)); box-shadow: 0 0 10px rgba(99,102,241,0.4);"></div></div>
                     </div>
 
                     <div class="glass-panel">
                         <h2 class="panel-title">Rutinitas Dasar</h2>
-                        <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 13px;">
-                            <li><strong style="color:var(--pribadi); display:block; margin-bottom:4px;">💼 Senin - Jumat</strong> 07.00-17.00: Fokus Kerja<br>19.00-21.00: Olahraga & Belajar</li>
-                            <li><strong style="color:var(--income); display:block; margin-bottom:4px;">🌴 Sabtu - Minggu</strong> Kesehatan gigi, Try Out CAT, & Me Time.</li>
+                        <ul style="list-style: none; display: flex; flex-direction: column; gap: 16px; font-size: 14px;">
+                            <li><strong style="color:var(--pribadi); display:block; margin-bottom:6px; font-size: 15px;">💼 Senin - Jumat</strong> <span style="color:var(--text-gray);">07.00-17.00: Fokus Kerja<br>19.00-21.00: Olahraga & Belajar</span></li>
+                            <li style="border-top: 1px solid var(--border-color); padding-top: 12px;"><strong style="color:var(--income); display:block; margin-bottom:6px; font-size: 15px;">🌴 Sabtu - Minggu</strong> <span style="color:var(--text-gray);">Kesehatan gigi, Try Out CAT, & Me Time.</span></li>
                         </ul>
                     </div>
                 </div>
 
                 <div class="roadmap-months">
                     <div class="glass-panel">
-                        <span class="badge" style="background:rgba(245, 158, 11, 0.2); color:var(--tring);">Bulan 1</span>
-                        <h3 style="font-size:15px; font-weight:700; margin:12px 0;">Kesehatan & Dasar IT</h3>
+                        <span class="badge" style="background:rgba(245, 158, 11, 0.15); color:var(--tring);">Bulan 1</span>
+                        <h3 style="font-size:16px; font-weight:800; margin:16px 0;">Kesehatan & Dasar IT</h3>
                         <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Konsultasi sisa akar gigi di faskes BPJS.</span></label>
                         <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Olahraga malam rutin min. 20 menit.</span></label>
                         <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Review teori OS & jaringan LAN.</span></label>
                     </div>
 
                     <div class="glass-panel">
-                        <span class="badge" style="background:rgba(245, 158, 11, 0.2); color:var(--tring);">Bulan 2</span>
-                        <h3 style="font-size:15px; font-weight:700; margin:12px 0;">Pemulihan & Teknis</h3>
+                        <span class="badge" style="background:rgba(245, 158, 11, 0.15); color:var(--tring);">Bulan 2</span>
+                        <h3 style="font-size:16px; font-weight:800; margin:16px 0;">Pemulihan & Teknis</h3>
                         <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Selesaikan tindakan gigi di rujukan BPJS.</span></label>
                         <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Tingkatkan intensitas bodyweight workout.</span></label>
                         <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Praktik sharing printer & file server.</span></label>
                     </div>
 
                     <div class="glass-panel">
-                        <span class="badge" style="background:rgba(14, 165, 233, 0.2); color:var(--pribadi);">Bulan 3</span>
-                        <h3 style="font-size:15px; font-weight:700; margin:12px 0;">Penguasaan Excel</h3>
+                        <span class="badge" style="background:rgba(14, 165, 233, 0.15); color:var(--pribadi);">Bulan 3</span>
+                        <h3 style="font-size:16px; font-weight:800; margin:16px 0;">Penguasaan Excel</h3>
                         <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Kuasai rumus dasar (SUM, AVERAGE, IF).</span></label>
                         <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Lancar menggunakan VLOOKUP/XLOOKUP.</span></label>
                         <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Membuat Pivot Table & Grafik Report.</span></label>
                     </div>
 
                     <div class="glass-panel">
-                        <span class="badge" style="background:rgba(14, 165, 233, 0.2); color:var(--pribadi);">Bulan 4</span>
-                        <h3 style="font-size:15px; font-weight:700; margin:12px 0;">Psikotes & Logika</h3>
+                        <span class="badge" style="background:rgba(14, 165, 233, 0.15); color:var(--pribadi);">Bulan 4</span>
+                        <h3 style="font-size:16px; font-weight:800; margin:16px 0;">Psikotes & Logika</h3>
                         <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Latihan rutin Deret Angka & Aritmatika.</span></label>
                         <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Latihan Penalaran Verbal & Sinonim.</span></label>
                         <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Simulasi Figural / Tes Gambar.</span></label>
                     </div>
 
                     <div class="glass-panel">
-                        <span class="badge" style="background:rgba(16, 185, 129, 0.2); color:var(--income);">Bulan 5</span>
-                        <h3 style="font-size:15px; font-weight:700; margin:12px 0;">Simulasi CAT SKD</h3>
+                        <span class="badge" style="background:rgba(16, 185, 129, 0.15); color:var(--income);">Bulan 5</span>
+                        <h3 style="font-size:16px; font-weight:800; margin:16px 0;">Simulasi CAT SKD</h3>
                         <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Ikuti Try Out CAT online (1 sesi penuh).</span></label>
                         <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Review mendalam TWK & TIU.</span></label>
                         <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Final check kesehatan gigi & fisik.</span></label>
                     </div>
 
                     <div class="glass-panel">
-                        <span class="badge" style="background:rgba(16, 185, 129, 0.2); color:var(--income);">Bulan 6</span>
-                        <h3 style="font-size:15px; font-weight:700; margin:12px 0;">Eksekusi Pendaftaran</h3>
+                        <span class="badge" style="background:rgba(16, 185, 129, 0.15); color:var(--income);">Bulan 6</span>
+                        <h3 style="font-size:16px; font-weight:800; margin:16px 0;">Eksekusi Pendaftaran</h3>
                         <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Scan dokumen digital wajib secara rapi.</span></label>
                         <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Siapkan CV dengan menonjolkan IT/Admin.</span></label>
                         <label class="task-item"><input type="checkbox" class="task-checkbox custom-checkbox" onchange="updateRoadmapProgress()"><span class="task-text">Pantau portal BUMN/ASN & Daftar!</span></label>
@@ -783,7 +834,7 @@
                 resetIdleTimer();
             } else {
                 showModal('❌', 'Akses Ditolak', 'Username atau password yang kamu masukkan salah. Silakan coba lagi.', `
-                    <button type="button" onclick="closeAllModals()" class="btn-primary" style="padding: 12px; border-radius: 12px; border:none; width:100%;">Mengerti</button>
+                    <button type="button" onclick="closeAllModals()" class="btn-primary" style="padding: 14px; border-radius: 14px; width:100%;">Mengerti</button>
                 `);
             }
         }
@@ -812,7 +863,6 @@
             }
         });
 
-        // FUNGSI SINKRONISASI GOOGLE SHEETS
         async function syncTransactionsFromSheet() {
             try {
                 const response = await fetch(SHEET_WEB_APP_URL, {
@@ -894,7 +944,7 @@
             } else {
                 closeRoadmapPinModal();
                 showModal('❌', 'PIN Salah', 'PIN angka yang kamu masukkan salah. Silakan coba lagi.', `
-                    <button type="button" onclick="closeAllModals(); handleRoadmapTabClick();" class="btn-primary" style="padding: 12px; border-radius: 12px; border:none; width:100%;">Coba Lagi</button>
+                    <button type="button" onclick="closeAllModals(); handleRoadmapTabClick();" class="btn-primary" style="padding: 14px; border-radius: 14px; width:100%;">Coba Lagi</button>
                 `);
             }
         }
@@ -926,8 +976,8 @@
 
         function confirmResetRoadmap() {
             showModal('🔄', 'Reset Roadmap', 'Apakah kamu yakin ingin mereset semua progress roadmap?', `
-                <button type="button" onclick="closeAllModals()" class="btn-danger" style="flex: 1; padding: 12px; border-radius: 12px;">Batal</button>
-                <button type="button" onclick="executeResetRoadmap()" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 12px; border:none;">Ya, Reset</button>
+                <button type="button" onclick="closeAllModals()" class="btn-danger" style="flex: 1; padding: 14px; border-radius: 14px;">Batal</button>
+                <button type="button" onclick="executeResetRoadmap()" class="btn-primary" style="flex: 1; padding: 14px; border-radius: 14px;">Ya, Reset</button>
             `);
         }
 
@@ -1097,7 +1147,9 @@
 
         async function saveEditedTransaction(e) {
             e.preventDefault();
+            // POP-UP LANGSUNG TERTUTUP DISINI
             closeTransactionEditModal();
+
             const id = document.getElementById('edit-trx-id').value;
             const desc = document.getElementById('edit-trx-desc').value;
             const type = document.getElementById('edit-trx-type').value;
@@ -1121,7 +1173,6 @@
                 await deleteTransactionFromSheet(id);
                 await addTransactionToSheet(transactions[idx]);
             }
-            closeTransactionEditModal();
         }
 
         const frm = document.getElementById('form');
@@ -1208,8 +1259,8 @@
 
         function deletePlannerItem(id) {
             showModal('🗑️', 'Hapus Anggaran', 'Apakah kamu yakin ingin menghapus anggaran tetap ini?', `
-                <button type="button" onclick="closeAllModals()" class="btn-danger" style="flex: 1; padding: 12px; border-radius: 12px;">Batal</button>
-                <button type="button" onclick="executeDeletePlanner('${id}')" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 12px; border:none;">Hapus</button>
+                <button type="button" onclick="closeAllModals()" class="btn-danger" style="flex: 1; padding: 14px; border-radius: 14px;">Batal</button>
+                <button type="button" onclick="executeDeletePlanner('${id}')" class="btn-primary" style="flex: 1; padding: 14px; border-radius: 14px;">Hapus</button>
             `);
         }
 
@@ -1242,12 +1293,12 @@
                     totalIncome += item.amount;
                     li.innerHTML = `
                         <div class="history-item-left">
-                            <strong style="font-size:13px; color:var(--text-dark); display:block;">${item.desc}</strong>
+                            <strong style="font-size:14px; color:var(--text-dark); display:block;">${item.desc}</strong>
                         </div>
                         <div class="history-item-right">
-                            <span class="text-inc" style="font-weight:800; font-size:13px;">+ ${formatRp(item.amount)}</span>
-                            <button onclick="editPlannerItem('${item.id}')" title="Edit" style="background:transparent; color:var(--primary); border:none; font-size:14px; cursor:pointer; padding:0; line-height:1;">✏️</button>
-                            <button onclick="deletePlannerItem('${item.id}')" title="Hapus" style="background:transparent; color:var(--expense); border:none; font-size:18px; cursor:pointer; padding:0; line-height:1;">×</button>
+                            <span class="text-inc" style="font-weight:800; font-size:14px;">+ ${formatRp(item.amount)}</span>
+                            <button onclick="editPlannerItem('${item.id}')" title="Edit" style="background:transparent; color:var(--primary); border:none; font-size:16px; cursor:pointer; padding:0; line-height:1;">✏️</button>
+                            <button onclick="deletePlannerItem('${item.id}')" title="Hapus" style="background:transparent; color:var(--expense); border:none; font-size:20px; cursor:pointer; padding:0; line-height:1;">×</button>
                         </div>
                     `;
                     incomeListEl.appendChild(li);
@@ -1256,12 +1307,12 @@
                     totalExpense += item.amount;
                     li.innerHTML = `
                         <div class="history-item-left">
-                            <strong style="font-size:13px; color:var(--text-dark); display:block;">${item.desc}</strong>
+                            <strong style="font-size:14px; color:var(--text-dark); display:block;">${item.desc}</strong>
                         </div>
                         <div class="history-item-right">
-                            <span class="text-exp" style="font-weight:800; font-size:13px;">- ${formatRp(item.amount)}</span>
-                            <button onclick="editPlannerItem('${item.id}')" title="Edit" style="background:transparent; color:var(--primary); border:none; font-size:14px; cursor:pointer; padding:0; line-height:1;">✏️</button>
-                            <button onclick="deletePlannerItem('${item.id}')" title="Hapus" style="background:transparent; color:var(--expense); border:none; font-size:18px; cursor:pointer; padding:0; line-height:1;">×</button>
+                            <span class="text-exp" style="font-weight:800; font-size:14px;">- ${formatRp(item.amount)}</span>
+                            <button onclick="editPlannerItem('${item.id}')" title="Edit" style="background:transparent; color:var(--primary); border:none; font-size:16px; cursor:pointer; padding:0; line-height:1;">✏️</button>
+                            <button onclick="deletePlannerItem('${item.id}')" title="Hapus" style="background:transparent; color:var(--expense); border:none; font-size:20px; cursor:pointer; padding:0; line-height:1;">×</button>
                         </div>
                     `;
                     expenseListEl.appendChild(li);
@@ -1269,10 +1320,10 @@
             });
 
             if(!hasIncome) {
-                incomeListEl.innerHTML = `<li style="justify-content: center; color: var(--text-gray); font-size: 12px; background: transparent; border: none;">Belum ada pemasukan tetap</li>`;
+                incomeListEl.innerHTML = `<li style="justify-content: center; color: var(--text-gray); font-size: 13px; background: transparent; border: none; box-shadow: none;">Belum ada pemasukan tetap</li>`;
             }
             if(!hasExpense) {
-                expenseListEl.innerHTML = `<li style="justify-content: center; color: var(--text-gray); font-size: 12px; background: transparent; border: none;">Belum ada pengeluaran tetap</li>`;
+                expenseListEl.innerHTML = `<li style="justify-content: center; color: var(--text-gray); font-size: 13px; background: transparent; border: none; box-shadow: none;">Belum ada pengeluaran tetap</li>`;
             }
 
             document.getElementById('summary-total-income').innerText = formatRp(totalIncome);
@@ -1288,12 +1339,12 @@
                 netTrendEl.innerText = `${sign}${ratio.toFixed(1)}% Rasio Bersih`;
                 if (ratio >= 0) {
                     netTrendEl.className = 'stat-trend trend-up';
-                    netTrendEl.style.background = 'rgba(16, 185, 129, 0.2)';
-                    netTrendEl.style.color = 'var(--income)';
+                    netTrendEl.style.background = 'rgba(52, 211, 153, 0.2)';
+                    netTrendEl.style.color = '#ffffff';
                 } else {
                     netTrendEl.className = 'stat-trend trend-down';
-                    netTrendEl.style.background = 'rgba(239, 68, 68, 0.2)';
-                    netTrendEl.style.color = 'var(--expense)';
+                    netTrendEl.style.background = 'rgba(225, 29, 72, 0.2)';
+                    netTrendEl.style.color = '#ffffff';
                 }
             }
 
@@ -1398,14 +1449,14 @@
             if(!document.getElementById('wrapper-budget').classList.contains('active')) return;
             const c1 = document.getElementById('financeChart').getContext('2d'); const c2 = document.getElementById('comparisonChart').getContext('2d');
             const isDark = document.body.getAttribute('data-theme') === 'dark';
-            const legendColor = isDark ? '#ffffff' : '#0f172a';
+            const legendColor = isDark ? '#f8fafc' : '#0f172a';
 
             if (financeChart) financeChart.destroy(); 
-            financeChart = new Chart(c1, { type: 'doughnut', data: { labels: ['Kas', 'Simpanan', 'Pribadi', 'Tring', 'Jago'], datasets: [{ data: [cash>0?cash:0, simpanan, pribadi, tring, jago], backgroundColor: ['#34d399', '#c084fc', '#38bdf8', '#fbbf24', '#fb923c'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: legendColor } } } } });
+            financeChart = new Chart(c1, { type: 'doughnut', data: { labels: ['Kas', 'Simpanan', 'Pribadi', 'Tring', 'Jago'], datasets: [{ data: [cash>0?cash:0, simpanan, pribadi, tring, jago], backgroundColor: ['#34d399', '#c084fc', '#38bdf8', '#fbbf24', '#fb923c'], borderWidth: 0, hoverOffset: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: legendColor, font: {family: "'Plus Jakarta Sans', sans-serif"} } } } } });
             
             if (comparisonChart) comparisonChart.destroy();
-            const gridCol = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
-            comparisonChart = new Chart(c2, { type: 'bar', data: { labels: ['Bulan Ini'], datasets: [{ label: 'Masuk', data: [totalInc], backgroundColor: '#34d399', borderRadius:4 }, { label: 'Keluar', data: [totalExp], backgroundColor: '#fb7185', borderRadius:4 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: { color: gridCol }, ticks: { color: legendColor } }, y: { grid: { color: gridCol }, ticks: { color: legendColor } } }, plugins: { legend: { display: false } } } });
+            const gridCol = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+            comparisonChart = new Chart(c2, { type: 'bar', data: { labels: ['Bulan Ini'], datasets: [{ label: 'Masuk', data: [totalInc], backgroundColor: '#34d399', borderRadius:6 }, { label: 'Keluar', data: [totalExp], backgroundColor: '#fb7185', borderRadius:6 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: { color: gridCol }, ticks: { color: legendColor, font: {family: "'Plus Jakarta Sans', sans-serif"} } }, y: { grid: { color: gridCol }, ticks: { color: legendColor, font: {family: "'Plus Jakarta Sans', sans-serif"} } } }, plugins: { legend: { display: false } } } });
         }
 
         function updateFinancialAnalysis(totalInc, totalExp) {
@@ -1432,17 +1483,17 @@
             }
 
             analysisEl.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
                     <span style="color: var(--text-gray); font-weight: 600;">Status Arus Kas:</span>
                     <span>${statusBadge}</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
                     <span style="color: var(--text-gray); font-weight: 600;">Rasio Sisa / Tabungan:</span>
-                    <span style="font-weight: 700; color: var(--primary);">${savingsRate.toFixed(1)}% dari pemasukan</span>
+                    <span style="font-weight: 800; color: var(--primary);">${savingsRate.toFixed(1)}% dari pemasukan</span>
                 </div>
-                <div style="margin-top: 4px;">
-                    <strong style="display: block; margin-bottom: 2px; color: var(--text-dark);">💡 Rekomendasi Finansial:</strong>
-                    <p style="color: var(--text-gray); line-height: 1.5;">${advice}</p>
+                <div style="margin-top: 8px;">
+                    <strong style="display: block; margin-bottom: 4px; color: var(--text-dark); font-size: 15px;">💡 Rekomendasi Finansial:</strong>
+                    <p style="color: var(--text-gray); line-height: 1.6;">${advice}</p>
                 </div>
             `;
         }
@@ -1610,13 +1661,13 @@
                     
                     li.innerHTML = `
                         <div class="history-item-left">
-                            <strong style="font-size:13px; color:var(--text-dark); display:block;">${trx.desc}</strong>
-                            <span style="font-size:10px; color:var(--text-gray); display:block; text-transform:capitalize;">${trx.type}</span>
+                            <strong style="font-size:14px; color:var(--text-dark); display:block;">${trx.desc}</strong>
+                            <span style="font-size:11px; color:var(--text-gray); display:block; text-transform:capitalize; margin-top:2px;">${trx.type}</span>
                         </div>
                         <div class="history-item-right">
-                            <span class="${tCls}" style="font-weight:800; font-size:13px;">${dAmt}</span>
-                            <button onclick="editTransaction('${trx.id}')" title="Edit" style="background:transparent; color:var(--primary); border:none; font-size:14px; cursor:pointer; padding:0; line-height:1;">✏️</button>
-                            <button onclick="deleteTransaction('${trx.id}')" title="Hapus" style="background:transparent; color:var(--expense); border:none; font-size:18px; cursor:pointer; padding:0; line-height:1;">×</button>
+                            <span class="${tCls}" style="font-weight:800; font-size:14px;">${dAmt}</span>
+                            <button onclick="editTransaction('${trx.id}')" title="Edit" style="background:transparent; color:var(--primary); border:none; font-size:16px; cursor:pointer; padding:0; line-height:1;">✏️</button>
+                            <button onclick="deleteTransaction('${trx.id}')" title="Hapus" style="background:transparent; color:var(--expense); border:none; font-size:20px; cursor:pointer; padding:0; line-height:1;">×</button>
                         </div>
                     `;
                     ul.appendChild(li);
@@ -1654,8 +1705,8 @@
 
         function deleteTransaction(id) {
             showModal('🗑️', 'Hapus Transaksi', 'Apakah kamu yakin ingin menghapus catatan transaksi ini dari aplikasi dan Spreadsheet?', `
-                <button type="button" onclick="closeAllModals()" class="btn-danger" style="flex: 1; padding: 12px; border-radius: 12px;">Batal</button>
-                <button type="button" onclick="executeDeleteTransaction('${id}')" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 12px; border:none;">Ya, Hapus</button>
+                <button type="button" onclick="closeAllModals()" class="btn-danger" style="flex: 1; padding: 14px; border-radius: 14px;">Batal</button>
+                <button type="button" onclick="executeDeleteTransaction('${id}')" class="btn-primary" style="flex: 1; padding: 14px; border-radius: 14px;">Ya, Hapus</button>
             `);
         }
 
@@ -1669,8 +1720,8 @@
 
         function confirmResetData() {
             showModal('⚠️', 'Bersihkan Data Lokal', 'Tindakan ini hanya membersihkan cache lokal browser. Data di Google Spreadsheet aman.', `
-                <button type="button" onclick="closeAllModals()" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 12px; border:none;">Batal</button>
-                <button type="button" onclick="executeResetData()" class="btn-danger" style="flex: 1; padding: 12px; border-radius: 12px;">Bersihkan</button>
+                <button type="button" onclick="closeAllModals()" class="btn-primary" style="flex: 1; padding: 14px; border-radius: 14px;">Batal</button>
+                <button type="button" onclick="executeResetData()" class="btn-danger" style="flex: 1; padding: 14px; border-radius: 14px;">Bersihkan</button>
             `);
         }
 
