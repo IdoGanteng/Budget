@@ -232,6 +232,22 @@
         </div>
     </div>
 
+    <!-- MODAL PIN ROADMAP -->
+    <div id="roadmap-pin-modal" class="modal-overlay" onclick="closeAllModals(event)">
+        <div class="modal-box" style="max-width: 340px;" onclick="event.stopPropagation()">
+            <div style="font-size: 32px; margin-bottom: 8px;">🔐</div>
+            <h3>PIN Roadmap</h3>
+            <p>Masukkan password angka (6 digit) untuk membuka menu Roadmap.</p>
+            <form onsubmit="verifyRoadmapPin(event)" style="gap: 14px;">
+                <input type="password" id="roadmap-pin-input" placeholder="••••••" maxlength="6" pattern="[0-9]*" inputmode="numeric" autocomplete="off" required style="text-align: center; letter-spacing: 4px; font-size: 18px;">
+                <div class="modal-actions">
+                    <button type="button" onclick="closeRoadmapPinModal()" class="btn-danger" style="flex: 1; padding: 12px; border-radius: 12px;">Batal</button>
+                    <button type="submit" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 12px; border:none;">Buka</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- MODAL EDIT TRANSAKSI KEUANGAN -->
     <div id="transaction-edit-modal" class="modal-overlay" onclick="closeAllModals(event)">
         <div class="modal-box" style="text-align: left; max-width: 400px;" onclick="event.stopPropagation()">
@@ -334,7 +350,7 @@
             <div class="floating-tabs">
                 <button class="nav-tab-btn active" id="btn-budget" onclick="switchAppTab('budget')">💰 Keuangan</button>
                 <button class="nav-tab-btn" id="btn-planner" onclick="switchAppTab('planner')">📅 Estimasi</button>
-                <button class="nav-tab-btn" id="btn-roadmap" onclick="switchAppTab('roadmap')">🚀 Roadmap</button>
+                <button class="nav-tab-btn" id="btn-roadmap" onclick="handleRoadmapTabClick()">🚀 Roadmap</button>
             </div>
         </div>
 
@@ -651,6 +667,7 @@
     <script>
         const CORRECT_USER = 'Rebel';
         const ENCODED_PASS = 'UmViZWxpb24wMzA0MDE='; 
+        const ROADMAP_PIN = '160323';
         let transactions = [];
         let plannerItems = []; 
         let currentSessionKey = sessionStorage.getItem('appEncryptionKey'); 
@@ -813,6 +830,33 @@
                 }
             });
             if (tab === 'budget') setTimeout(updateUI, 50);
+        }
+
+        function handleRoadmapTabClick() {
+            if (sessionStorage.getItem('roadmapUnlocked') === 'true') {
+                switchAppTab('roadmap');
+            } else {
+                document.getElementById('roadmap-pin-input').value = '';
+                document.getElementById('roadmap-pin-modal').classList.add('active');
+            }
+        }
+
+        function closeRoadmapPinModal() {
+            document.getElementById('roadmap-pin-modal').classList.remove('active');
+        }
+
+        function verifyRoadmapPin(e) {
+            e.preventDefault();
+            const pinVal = document.getElementById('roadmap-pin-input').value.trim();
+            if (pinVal === ROADMAP_PIN) {
+                sessionStorage.setItem('roadmapUnlocked', 'true');
+                closeRoadmapPinModal();
+                switchAppTab('roadmap');
+            } else {
+                showModal('❌', 'PIN Salah', 'PIN angka yang kamu masukkan salah. Coba 160323', `
+                    <button type="button" onclick="closeAllModals()" class="btn-primary" style="padding: 12px; border-radius: 12px; border:none; width:100%;">Coba Lagi</button>
+                `);
+            }
         }
 
         function startRoadmapCountdown() {
