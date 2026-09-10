@@ -232,7 +232,7 @@
         </div>
     </div>
 
-    <!-- MODAL PIN ROADMAP ERROR -->
+    <!-- MODAL PIN ROADMAP -->
     <div id="roadmap-pin-modal" class="modal-overlay" onclick="closeAllModals(event)">
         <div class="modal-box" style="max-width: 340px;" onclick="event.stopPropagation()">
             <div style="font-size: 32px; margin-bottom: 8px;">🔐</div>
@@ -1117,7 +1117,6 @@
                 saveToLocal();
                 updateUI();
                 
-                // Update di spreadsheet (hapus lalu tambah ulang baris dengan ID yang sama)
                 await deleteTransactionFromSheet(id);
                 await addTransactionToSheet(transactions[idx]);
             }
