@@ -246,7 +246,18 @@
                     <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Tipe</label>
                     <select id="edit-trx-type" onchange="handleEditTrgTypeChange()">
                         <optgroup label="Uang Harian"><option value="income">Pemasukan (+)</option><option value="expense">Pengeluaran (-)</option></optgroup>
+                        <optgroup label="Ambil Tabungan & Aset"><option value="withdraw">Ambil dari Tabungan / Aset (-)</option></optgroup>
                         <optgroup label="Tabungan & Aset"><option value="simpanan">Simpanan Wajib (+)</option><option value="pribadi">Tabungan Pribadi (+)</option><option value="tring">Emas Tring (+)</option><option value="jago">Emas Jago (- Kas, + Aset)</option></optgroup>
+                    </select>
+                </div>
+                <div id="edit-withdraw-source-container" style="display: none;">
+                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Sumber Pengambilan Dana</label>
+                    <select id="edit-withdraw-source">
+                        <option value="simpanan">Simpanan Wajib</option>
+                        <option value="pribadi">Tabungan Pribadi</option>
+                        <option value="tring">Emas Tring</option>
+                        <option value="jago">Emas Jago</option>
+                        <option value="cash">Kas Tunai</option>
                     </select>
                 </div>
                 <div class="modal-actions" style="margin-top: 10px;">
@@ -346,12 +357,23 @@
                     <div class="glass-panel" style="padding: 20px 24px;">
                         <h2 class="panel-title" id="form-panel-title">Catat Transaksi</h2>
                         <form id="form">
-                            <input type="text" id="desc" placeholder="Keterangan (Makan, Gaji, dll)" autocomplete="off" required>
+                            <input type="text" id="desc" placeholder="Keterangan (Makan, Darurat, dll)" autocomplete="off" required>
                             <input type="text" id="amount" placeholder="Nominal Rupiah / Gram" autocomplete="off" required>
                             <select id="type" onchange="handleTypeChange()">
                                 <optgroup label="Uang Harian"><option value="income">Pemasukan (+)</option><option value="expense">Pengeluaran (-)</option></optgroup>
+                                <optgroup label="Ambil Tabungan & Aset"><option value="withdraw">Ambil dari Tabungan / Aset (-)</option></optgroup>
                                 <optgroup label="Tabungan & Aset"><option value="simpanan">Simpanan Wajib (+)</option><option value="pribadi">Tabungan Pribadi (+)</option><option value="tring">Emas Tring (+)</option><option value="jago">Emas Jago (- Kas, + Aset)</option></optgroup>
                             </select>
+                            <div id="withdraw-source-container" style="display: none;">
+                                <label style="font-size: 11px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 4px;">Sumber Pengambilan Dana</label>
+                                <select id="withdraw-source">
+                                    <option value="simpanan">Simpanan Wajib</option>
+                                    <option value="pribadi">Tabungan Pribadi</option>
+                                    <option value="tring">Emas Tring</option>
+                                    <option value="jago">Emas Jago</option>
+                                    <option value="cash">Kas Tunai</option>
+                                </select>
+                            </div>
                             <button type="submit" id="form-submit-btn" class="btn-primary" style="padding: 12px; border-radius: 14px; border:none;">Simpan Catatan</button>
                         </form>
                     </div>
@@ -632,7 +654,6 @@
         const SESSION_DURATION = 5 * 60 * 1000; 
         let idleTimer;
 
-        // FUNGSI KONTROL ESC & KLIK LUAR MODAL
         function closeAllModals(e) {
             if(e) e.stopPropagation();
             document.querySelectorAll('.modal-overlay').forEach(modal => {
@@ -911,19 +932,44 @@
         }
 
         function handleTypeChange() {
-            const t = document.getElementById('type').value; const a = document.getElementById('amount');
-            if(t === 'tring') a.placeholder = "Jml Gram (Misal: 0.5)"; else a.placeholder = "Jml Rupiah (Misal: 100.000)";
+            const t = document.getElementById('type').value; 
+            const a = document.getElementById('amount');
+            const sourceContainer = document.getElementById('withdraw-source-container');
+
+            if (t === 'withdraw') {
+                sourceContainer.style.display = 'block';
+            } else {
+                sourceContainer.style.display = 'none';
+            }
+
+            if(t === 'tring' || (t === 'withdraw' && document.getElementById('withdraw-source').value === 'tring')) { 
+                a.placeholder = "Jml Gram (Misal: 0.5)"; 
+            } else { 
+                a.placeholder = "Jml Rupiah (Misal: 100.000)"; 
+            }
         }
 
         const amtInp = document.getElementById('amount');
         if(amtInp) {
             amtInp.addEventListener('input', function() {
-                if (document.getElementById('type').value !== 'tring') { let raw = this.value.replace(/[^0-9]/g, ''); this.value = raw ? new Intl.NumberFormat('id-ID').format(raw) : ''; } 
-                else { this.value = this.value.replace(/[^0-9.,]/g, '').replace(',', '.'); }
+                const t = document.getElementById('type').value;
+                const src = document.getElementById('withdraw-source').value;
+                if (t !== 'tring' && !(t === 'withdraw' && src === 'tring')) { 
+                    let raw = this.value.replace(/[^0-9]/g, ''); 
+                    this.value = raw ? new Intl.NumberFormat('id-ID').format(raw) : ''; 
+                } else { 
+                    this.value = this.value.replace(/[^0-9.,]/g, '').replace(',', '.'); 
+                }
             });
         }
 
-        // EDIT TRANSAKSI MENGGUNAKAN POP-UP MODAL MODERN
+        const withdrawSourceInp = document.getElementById('withdraw-source');
+        if(withdrawSourceInp) {
+            withdrawSourceInp.addEventListener('change', function() {
+                handleTypeChange();
+            });
+        }
+
         function editTransaction(id) {
             const trx = transactions.find(t => t.id === id);
             if(!trx) return;
@@ -931,12 +977,17 @@
             document.getElementById('edit-trx-id').value = trx.id;
             document.getElementById('edit-trx-desc').value = trx.desc;
             document.getElementById('edit-trx-type').value = trx.type;
+            handleEditTrgTypeChange();
             
             const editAmtField = document.getElementById('edit-trx-amount');
-            if (trx.type === 'tring' || trx.type === 'inv_tring') {
+            if (trx.type === 'tring' || trx.type === 'inv_tring' || (trx.type === 'withdraw' && trx.source === 'tring')) {
                 editAmtField.value = trx.amount;
             } else {
                 editAmtField.value = new Intl.NumberFormat('id-ID').format(trx.amount);
+            }
+
+            if(trx.type === 'withdraw' && trx.source) {
+                document.getElementById('edit-withdraw-source').value = trx.source;
             }
 
             document.getElementById('transaction-edit-modal').classList.add('active');
@@ -948,8 +999,12 @@
 
         function handleEditTrgTypeChange() {
             const t = document.getElementById('edit-trx-type').value;
-            const a = document.getElementById('edit-trx-amount');
-            if(t === 'tring') a.value = '';
+            const container = document.getElementById('edit-withdraw-source-container');
+            if (t === 'withdraw') {
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+            }
         }
 
         function saveEditedTransaction(e) {
@@ -958,7 +1013,10 @@
             const desc = document.getElementById('edit-trx-desc').value;
             const type = document.getElementById('edit-trx-type').value;
             let rawAmt = document.getElementById('edit-trx-amount').value;
-            let amt = type === 'tring' ? parseFloat(rawAmt.replace(',', '.')) : parseInt(rawAmt.replace(/\./g, ''));
+            let source = type === 'withdraw' ? document.getElementById('edit-withdraw-source').value : null;
+
+            let isGram = (type === 'tring' || (type === 'withdraw' && source === 'tring'));
+            let amt = isGram ? parseFloat(rawAmt.replace(',', '.')) : parseInt(rawAmt.replace(/\./g, ''));
 
             if(!amt) return;
 
@@ -967,6 +1025,7 @@
                 transactions[idx].desc = desc;
                 transactions[idx].type = type;
                 transactions[idx].amount = amt;
+                transactions[idx].source = source;
                 saveToLocal();
                 updateUI();
             }
@@ -980,12 +1039,15 @@
                 const desc = document.getElementById('desc').value; 
                 const type = document.getElementById('type').value; 
                 let rawAmt = document.getElementById('amount').value;
-                let amt = type === 'tring' ? parseFloat(rawAmt.replace(',', '.')) : parseInt(rawAmt.replace(/\./g, ''));
+                let source = type === 'withdraw' ? document.getElementById('withdraw-source').value : null;
+
+                let isGram = (type === 'tring' || (type === 'withdraw' && source === 'tring'));
+                let amt = isGram ? parseFloat(rawAmt.replace(',', '.')) : parseInt(rawAmt.replace(/\./g, ''));
                 if(!amt) return;
 
                 const d = new Date(); 
                 const dStr = String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
-                transactions.unshift({ id: 'id_' + Math.random().toString(36).substr(2, 9), desc: desc, amount: amt, type: type, date: dStr });
+                transactions.unshift({ id: 'id_' + Math.random().toString(36).substr(2, 9), desc: desc, amount: amt, type: type, source: source, date: dStr });
                 frm.reset(); 
                 handleTypeChange();
 
@@ -1146,6 +1208,13 @@
                 else if (trx.type === 'pribadi') basePri += amt;
                 else if (trx.type === 'tring' || trx.type === 'inv_tring') baseTrg += amt;
                 else if (trx.type === 'jago' || trx.type === 'inv_jago') { baseJag += amt; baseExp += amt; }
+                else if (trx.type === 'withdraw') {
+                    if (trx.source === 'simpanan') baseSim -= amt;
+                    else if (trx.source === 'pribadi') basePri -= amt;
+                    else if (trx.source === 'tring') baseTrg -= amt;
+                    else if (trx.source === 'jago') baseJag -= amt;
+                    else if (trx.source === 'cash') baseExp += amt; // Mengurangi kas
+                }
             });
 
             let plannerSimpanan = 0;
@@ -1377,6 +1446,13 @@
                     totalJagAll += amt;
                     totalExpAll += amt; 
                     if(isCurrentMonthMatch) filteredExp += amt;
+                } 
+                else if (trx.type === 'withdraw') {
+                    if (trx.source === 'simpanan') totalSimAll -= amt;
+                    else if (trx.source === 'pribadi') totalPriAll -= amt;
+                    else if (trx.source === 'tring') totalTrgAll -= amt;
+                    else if (trx.source === 'jago') totalJagAll -= amt;
+                    else if (trx.source === 'cash') { totalExpAll += amt; if(isCurrentMonthMatch) filteredExp += amt; }
                 }
 
                 if(!isCurrentMonthMatch) return;
@@ -1389,6 +1465,11 @@
                 else if (trx.type === 'pribadi') { sign='Pribadi'; tCls='text-inc'; dAmt=formatRp(amt); } 
                 else if (trx.type === 'tring' || trx.type === 'inv_tring') { sign='+'; tCls='text-inc'; dAmt=amt.toFixed(2)+' Gr'; } 
                 else if (trx.type === 'jago' || trx.type === 'inv_jago') { sign='Jago'; tCls='text-exp'; dAmt=formatRp(amt); }
+                else if (trx.type === 'withdraw') { 
+                    sign='Ambil (' + (trx.source || 'kas') + ')'; 
+                    tCls='text-exp'; 
+                    dAmt = (trx.source === 'tring' ? amt.toFixed(2)+' Gr' : formatRp(amt)); 
+                }
                 
                 li.innerHTML = `
                     <div class="history-item-left">
@@ -1396,7 +1477,7 @@
                         <span style="font-size:11px; color:var(--text-gray); display:block;">${cleanD}</span>
                     </div>
                     <div class="history-item-right">
-                        <span class="${tCls}" style="font-weight:800; font-size:13px;">${sign} ${dAmt}</span>
+                        <span class="${tCls}" style="font-weight:800; font-size:13px;">- ${dAmt}</span>
                         <button onclick="editTransaction('${trx.id}')" title="Edit" style="background:transparent; color:var(--primary); border:none; font-size:14px; cursor:pointer; padding:0; line-height:1;">✏️</button>
                         <button onclick="deleteTransaction('${trx.id}')" title="Hapus" style="background:transparent; color:var(--expense); border:none; font-size:18px; cursor:pointer; padding:0; line-height:1;">×</button>
                     </div>
