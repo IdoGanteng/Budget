@@ -833,12 +833,8 @@
         }
 
         function handleRoadmapTabClick() {
-            if (sessionStorage.getItem('roadmapUnlocked') === 'true') {
-                switchAppTab('roadmap');
-            } else {
-                document.getElementById('roadmap-pin-input').value = '';
-                document.getElementById('roadmap-pin-modal').classList.add('active');
-            }
+            document.getElementById('roadmap-pin-input').value = '';
+            document.getElementById('roadmap-pin-modal').classList.add('active');
         }
 
         function closeRoadmapPinModal() {
@@ -849,12 +845,12 @@
             e.preventDefault();
             const pinVal = document.getElementById('roadmap-pin-input').value.trim();
             if (pinVal === ROADMAP_PIN) {
-                sessionStorage.setItem('roadmapUnlocked', 'true');
                 closeRoadmapPinModal();
                 switchAppTab('roadmap');
             } else {
-                showModal('❌', 'PIN Salah', 'PIN angka yang kamu masukkan salah. Coba 160323', `
-                    <button type="button" onclick="closeAllModals()" class="btn-primary" style="padding: 12px; border-radius: 12px; border:none; width:100%;">Coba Lagi</button>
+                closeRoadmapPinModal();
+                showModal('❌', 'PIN Salah', 'PIN angka yang kamu masukkan salah. Silakan coba lagi.', `
+                    <button type="button" onclick="closeAllModals(); handleRoadmapTabClick();" class="btn-primary" style="padding: 12px; border-radius: 12px; border:none; width:100%;">Coba Lagi</button>
                 `);
             }
         }
