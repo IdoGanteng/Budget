@@ -248,18 +248,17 @@
                     <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Tipe</label>
                     <select id="edit-trx-type" onchange="handleEditTrgTypeChange()">
                         <optgroup label="Uang Harian"><option value="income">Pemasukan (+)</option><option value="expense">Pengeluaran (-)</option></optgroup>
-                        <optgroup label="Ambil Tabungan & Aset"><option value="withdraw">Ambil dari Tabungan / Aset (-)</option></optgroup>
+                        <optgroup label="Ambil Tabungan & Aset"><option value="withdraw">Ambil dari Tabungan / Aset (Masuk ke Kas) (-)</option></optgroup>
                         <optgroup label="Tabungan & Aset"><option value="simpanan">Simpanan Wajib (+)</option><option value="pribadi">Tabungan Pribadi (+)</option><option value="tring">Emas Tring (+)</option><option value="jago">Emas Jago (- Kas, + Aset)</option></optgroup>
                     </select>
                 </div>
                 <div id="edit-withdraw-source-container" style="display: none;">
-                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Sumber Pengambilan Dana</label>
+                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Sumber Pengambilan Tabungan</label>
                     <select id="edit-withdraw-source">
                         <option value="simpanan">Simpanan Wajib</option>
                         <option value="pribadi">Tabungan Pribadi</option>
                         <option value="tring">Emas Tring</option>
                         <option value="jago">Emas Jago</option>
-                        <option value="cash">Kas Tunai</option>
                     </select>
                 </div>
                 <div class="modal-actions" style="margin-top: 10px;">
@@ -363,17 +362,16 @@
                             <input type="text" id="amount" placeholder="Nominal Rupiah / Gram" autocomplete="off" required>
                             <select id="type" onchange="handleTypeChange()">
                                 <optgroup label="Uang Harian"><option value="income">Pemasukan (+)</option><option value="expense">Pengeluaran (-)</option></optgroup>
-                                <optgroup label="Ambil Tabungan & Aset"><option value="withdraw">Ambil dari Tabungan / Aset (-)</option></optgroup>
+                                <optgroup label="Ambil Tabungan & Aset"><option value="withdraw">Ambil dari Tabungan / Aset (Masuk ke Kas) (-)</option></optgroup>
                                 <optgroup label="Tabungan & Aset"><option value="simpanan">Simpanan Wajib (+)</option><option value="pribadi">Tabungan Pribadi (+)</option><option value="tring">Emas Tring (+)</option><option value="jago">Emas Jago (- Kas, + Aset)</option></optgroup>
                             </select>
                             <div id="withdraw-source-container" style="display: none;">
-                                <label style="font-size: 11px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 4px;">Sumber Pengambilan Dana</label>
+                                <label style="font-size: 11px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 4px;">Sumber Pengambilan Tabungan</label>
                                 <select id="withdraw-source">
                                     <option value="simpanan">Simpanan Wajib</option>
                                     <option value="pribadi">Tabungan Pribadi</option>
                                     <option value="tring">Emas Tring</option>
                                     <option value="jago">Emas Jago</option>
-                                    <option value="cash">Kas Tunai</option>
                                 </select>
                             </div>
                             <button type="submit" id="form-submit-btn" class="btn-primary" style="padding: 12px; border-radius: 14px; border:none;">Simpan Catatan</button>
@@ -1211,11 +1209,14 @@
                 else if (trx.type === 'tring' || trx.type === 'inv_tring') baseTrg += amt;
                 else if (trx.type === 'jago' || trx.type === 'inv_jago') { baseJag += amt; baseExp += amt; }
                 else if (trx.type === 'withdraw') {
+                    // Mengurangi saldo dari tabungan/aset asal
                     if (trx.source === 'simpanan') baseSim -= amt;
                     else if (trx.source === 'pribadi') basePri -= amt;
                     else if (trx.source === 'tring') baseTrg -= amt;
                     else if (trx.source === 'jago') baseJag -= amt;
-                    else if (trx.source === 'cash') baseExp += amt; 
+                    
+                    // Otomatis masuk ke kas tunai (sebagai penambahan dana darurat kas)
+                    baseInc += amt; 
                 }
             });
 
@@ -1454,7 +1455,8 @@
                     else if (trx.source === 'pribadi') totalPriAll -= amt;
                     else if (trx.source === 'tring') totalTrgAll -= amt;
                     else if (trx.source === 'jago') totalJagAll -= amt;
-                    else if (trx.source === 'cash') { totalExpAll += amt; if(isCurrentMonthMatch) filteredExp += amt; }
+                    
+                    totalIncAll += amt; // Masuk ke kas tunai
                 }
 
                 if(!isCurrentMonthMatch) return;
@@ -1468,9 +1470,9 @@
                 else if (trx.type === 'tring' || trx.type === 'inv_tring') { sign='+'; tCls='text-inc'; dAmt=amt.toFixed(2)+' Gr'; } 
                 else if (trx.type === 'jago' || trx.type === 'inv_jago') { sign='Jago'; tCls='text-exp'; dAmt=formatRp(amt); }
                 else if (trx.type === 'withdraw') { 
-                    sign='Ambil (' + (trx.source || 'kas') + ')'; 
-                    tCls='text-exp'; 
-                    dAmt = (trx.source === 'tring' ? amt.toFixed(2)+' Gr' : formatRp(amt)); 
+                    sign='Cairkan (' + (trx.source || 'tabungan') + ' ➔ Kas)'; 
+                    tCls='text-inc'; 
+                    dAmt = (trx.source === 'tring' ? '+' + amt.toFixed(2)+' Gr' : '+' + formatRp(amt)); 
                 }
                 
                 li.innerHTML = `
@@ -1479,7 +1481,7 @@
                         <span style="font-size:11px; color:var(--text-gray); display:block;">${cleanD}</span>
                     </div>
                     <div class="history-item-right">
-                        <span class="${tCls}" style="font-weight:800; font-size:13px;">- ${dAmt}</span>
+                        <span class="${tCls}" style="font-weight:800; font-size:13px;">${dAmt}</span>
                         <button onclick="editTransaction('${trx.id}')" title="Edit" style="background:transparent; color:var(--primary); border:none; font-size:14px; cursor:pointer; padding:0; line-height:1;">✏️</button>
                         <button onclick="deleteTransaction('${trx.id}')" title="Hapus" style="background:transparent; color:var(--expense); border:none; font-size:18px; cursor:pointer; padding:0; line-height:1;">×</button>
                     </div>
