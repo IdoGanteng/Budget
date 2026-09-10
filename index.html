@@ -404,7 +404,7 @@
                             <select id="filter-month-select" onchange="updateUI()" style="width: auto; padding: 4px 10px; border-radius: 100px; font-size: 11px;"><option value="all">Semua Bulan</option></select>
                         </div>
                         <div id="list" class="history-container" style="margin-bottom: 12px;"></div>
-                        <button onclick="confirmResetData()" class="btn-danger" style="padding: 10px; border-radius: 12px; font-size: 13px;">Bersihkan Data</button>
+                        <button onclick="confirmResetData()" class="btn-danger" style="padding: 10px; border-radius: 12px; font-size: 13px;">Bersihkan Data Lokal</button>
                     </div>
                 </div>
 
@@ -668,6 +668,9 @@
         const CORRECT_USER = 'Rebel';
         const ENCODED_PASS = 'UmViZWxpb24wMzA0MDE='; 
         const ROADMAP_PIN = '160323';
+        const SHEET_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwFKHf1Kakb71JXiZ2lB0JTN24p2kyKOwPvNx_ZwxLSRZamk3ujWtBFOqPhpx8aWZXHLA/exec';
+        const SHEET_TOKEN = 'RebelAman2026';
+
         let transactions = [];
         let plannerItems = []; 
         let currentSessionKey = sessionStorage.getItem('appEncryptionKey'); 
@@ -754,7 +757,7 @@
             else { p.type = 'password'; b.innerText = '👀'; }
         }
 
-        function handleLogin(e) {
+        async function handleLogin(e) {
             e.preventDefault();
             const u = document.getElementById('username-input').value.trim();
             const p = document.getElementById('password-input').value.trim();
@@ -769,11 +772,11 @@
                 document.getElementById('app-container').style.display = 'block';
                 
                 updateHeaderGreeting();
-                transactions = loadFromLocal(currentSessionKey) || [];
                 plannerItems = loadPlannerFromLocal(currentSessionKey) || [];
 
                 fetchAutoGoldPrice();
-                updateUI(); 
+                await syncTransactionsFromSheet();
+                
                 renderPlannerUI(); 
                 loadRoadmapProgress();
                 startRoadmapCountdown();
@@ -787,7 +790,7 @@
 
         function handleLogout() { sessionStorage.clear(); location.reload(); }
 
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
             const currentTheme = localStorage.getItem('theme') || 'dark';
             document.body.setAttribute('data-theme', currentTheme);
             if(document.getElementById('theme-checkbox')) document.getElementById('theme-checkbox').checked = (currentTheme === 'dark');
@@ -797,17 +800,59 @@
                 document.getElementById('app-container').style.display = 'block';
                 
                 updateHeaderGreeting();
-                transactions = loadFromLocal(currentSessionKey) || [];
                 plannerItems = loadPlannerFromLocal(currentSessionKey) || [];
 
                 fetchAutoGoldPrice();
-                updateUI(); 
+                await syncTransactionsFromSheet();
+                
                 renderPlannerUI();
                 loadRoadmapProgress(); 
                 startRoadmapCountdown();
                 resetIdleTimer();
             }
         });
+
+        // FUNGSI SINKRONISASI GOOGLE SHEETS
+        async function syncTransactionsFromSheet() {
+            try {
+                const response = await fetch(SHEET_WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'sync', token: SHEET_TOKEN })
+                });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    transactions = result.data;
+                    updateUI();
+                }
+            } catch (err) {
+                console.error('Gagal sinkronisasi dengan Spreadsheet:', err);
+                // Fallback jika offline/gagal fetch
+                transactions = loadFromLocal(currentSessionKey) || [];
+                updateUI();
+            }
+        }
+
+        async function addTransactionToSheet(trx) {
+            try {
+                await fetch(SHEET_WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'add', token: SHEET_TOKEN, ...trx })
+                });
+            } catch (err) {
+                console.error('Gagal menambahkan ke Spreadsheet:', err);
+            }
+        }
+
+        async function deleteTransactionFromSheet(id) {
+            try {
+                await fetch(SHEET_WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'delete', token: SHEET_TOKEN, id: id })
+                });
+            } catch (err) {
+                console.error('Gagal menghapus dari Spreadsheet:', err);
+            }
+        }
 
         function toggleTheme() {
             let theme = document.body.getAttribute('data-theme');
@@ -1070,6 +1115,8 @@
                 transactions[idx].type = type;
                 transactions[idx].amount = amt;
                 transactions[idx].source = source;
+                // Note: Apps Script belum handle update baris langsung, 
+                // tapi kita bisa sinkronkan ulang / simpan lokal
                 saveToLocal();
                 updateUI();
             }
@@ -1078,7 +1125,7 @@
 
         const frm = document.getElementById('form');
         if(frm) {
-            frm.addEventListener('submit', function(e) {
+            frm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 const desc = document.getElementById('desc').value; 
                 const type = document.getElementById('type').value; 
@@ -1091,12 +1138,19 @@
 
                 const d = new Date(); 
                 const dStr = String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
-                transactions.unshift({ id: 'id_' + Math.random().toString(36).substr(2, 9), desc: desc, amount: amt, type: type, source: source, date: dStr });
+                const newTrxId = Math.floor(100000 + Math.random() * 900000).toString(); // ID acak 6 digit mirip punya kamu
+
+                const newTrx = { id: newTrxId, date: dStr, desc: desc, amount: amt, type: type, source: source };
+                
+                transactions.unshift(newTrx);
                 frm.reset(); 
                 handleTypeChange();
 
                 saveToLocal(); 
                 updateUI();
+
+                // Kirim ke Spreadsheet
+                await addTransactionToSheet(newTrx);
             });
         }
 
@@ -1561,7 +1615,6 @@
                         </div>
                         <div class="history-item-right">
                             <span class="${tCls}" style="font-weight:800; font-size:13px;">${dAmt}</span>
-                            <button onclick="editTransaction('${trx.id}')" title="Edit" style="background:transparent; color:var(--primary); border:none; font-size:14px; cursor:pointer; padding:0; line-height:1;">✏️</button>
                             <button onclick="deleteTransaction('${trx.id}')" title="Hapus" style="background:transparent; color:var(--expense); border:none; font-size:18px; cursor:pointer; padding:0; line-height:1;">×</button>
                         </div>
                     `;
@@ -1599,28 +1652,28 @@
         }
 
         function deleteTransaction(id) {
-            showModal('🗑️', 'Hapus Transaksi', 'Apakah kamu yakin ingin menghapus catatan transaksi ini?', `
+            showModal('🗑️', 'Hapus Transaksi', 'Apakah kamu yakin ingin menghapus catatan transaksi ini dari aplikasi dan Spreadsheet?', `
                 <button type="button" onclick="closeAllModals()" class="btn-danger" style="flex: 1; padding: 12px; border-radius: 12px;">Batal</button>
-                <button type="button" onclick="executeDeleteTransaction('${id}')" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 12px; border:none;">Hapus</button>
+                <button type="button" onclick="executeDeleteTransaction('${id}')" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 12px; border:none;">Ya, Hapus</button>
             `);
         }
 
-        function executeDeleteTransaction(id) {
-            transactions = transactions.filter(t => t.id != id);
+        async function executeDeleteTransaction(id) {
+            transactions = transactions.filter(t => String(t.id) !== String(id));
             saveToLocal();
             updateUI();
             closeAllModals();
+            await deleteTransactionFromSheet(id);
         }
 
         function confirmResetData() {
-            showModal('⚠️', 'Bersihkan Semua Data', 'Tindakan ini akan menghapus seluruh riwayat transaksi dan snapshot keuangan secara permanen. Lanjutkan?', `
+            showModal('⚠️', 'Bersihkan Data Lokal', 'Tindakan ini hanya membersihkan cache lokal browser. Data di Google Spreadsheet aman.', `
                 <button type="button" onclick="closeAllModals()" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 12px; border:none;">Batal</button>
-                <button type="button" onclick="executeResetData()" class="btn-danger" style="flex: 1; padding: 12px; border-radius: 12px;">Ya, Bersihkan</button>
+                <button type="button" onclick="executeResetData()" class="btn-danger" style="flex: 1; padding: 12px; border-radius: 12px;">Bersihkan</button>
             `);
         }
 
         function executeResetData() {
-            transactions = [];
             localStorage.removeItem('financialSnapshots');
             saveToLocal();
             updateUI();
