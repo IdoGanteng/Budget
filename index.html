@@ -651,13 +651,13 @@
             </div>
         </div>
 
-        <!-- TAB 3: BUKU PIUTANG (BARU) -->
+        <!-- TAB 3: BUKU PIUTANG (DENGAN RINGKASAN KEUANGAN) -->
         <div id="wrapper-piutang" class="app-wrapper">
             <div class="dashboard-layout">
                 <div class="sidebar-col">
                     <div class="glass-panel">
                         <h2 class="panel-title">Catat Orang Ngutang</h2>
-                        <p style="font-size: 13px; color: var(--text-gray); margin-bottom: 20px;">Catat pinjaman orang lain. Kamu bisa memilih apakah uangnya memotong Kas Tunai saat ini atau tidak.</p>
+                        <p style="font-size: 13px; color: var(--text-gray); margin-bottom: 20px;">Catat pinjaman orang lain. Jika dicentang, kas berkurang dan otomatis masuk ke <b>Tabungan Pribadi</b>.</p>
                         <form id="piutang-form" onsubmit="addPiutangItem(event)">
                             <input type="text" id="piutang-name" placeholder="Nama Peminjam (Misal: Budi)" autocomplete="off" required>
                             <input type="text" id="piutang-amount" placeholder="Nominal Dipinjamkan (Rp)" autocomplete="off" required oninput="formatGoalInput(this)">
@@ -666,8 +666,8 @@
                                 <input type="date" id="piutang-duedate" required style="color-scheme: dark;">
                             </div>
                             <div style="display: flex; align-items: center; gap: 10px; background: var(--list-bg); padding: 12px; border-radius: 12px; border: 1px solid var(--border-color);">
-                                <input type="checkbox" id="piutang-deduct-cash" style="width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer;">
-                                <label for="piutang-deduct-cash" style="font-size: 13px; cursor: pointer; color: var(--text-dark); font-weight: 600;">Potong Kas Tunai Utama (-)</label>
+                                <input type="checkbox" id="piutang-deduct-cash" style="width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer;" checked>
+                                <label for="piutang-deduct-cash" style="font-size: 13px; cursor: pointer; color: var(--text-dark); font-weight: 600;">Potong Kas & Masuk Tabungan Pribadi</label>
                             </div>
                             <button type="submit" class="btn-primary" style="padding: 14px; border-radius: 14px;">Simpan Piutang</button>
                         </form>
@@ -675,6 +675,40 @@
                 </div>
 
                 <div class="main-col">
+                    <!-- KARTU RINGKASAN KEUANGAN DI TAB PIUTANG -->
+                    <div class="wealth-card">
+                        <h3>Akumulasi Dana & Aset Total</h3>
+                        <p id="piutang-total-wealth">Rp 0</p>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-box c-balance">
+                            <span id="piutang-trend-cash" class="stat-trend trend-flat">0%</span>
+                            <h3>Kas Tunai</h3>
+                            <p id="piutang-cash-balance">Rp 0</p>
+                        </div>
+                        <div class="stat-box c-simpanan">
+                            <span id="piutang-trend-simpanan" class="stat-trend trend-flat">0%</span>
+                            <h3>Simpanan</h3>
+                            <p id="piutang-total-simpanan">Rp 0</p>
+                        </div>
+                        <div class="stat-box c-pribadi">
+                            <span id="piutang-trend-pribadi" class="stat-trend trend-flat">0%</span>
+                            <h3>Pribadi</h3>
+                            <p id="piutang-total-pribadi">Rp 0</p>
+                        </div>
+                        <div class="stat-box c-tring">
+                            <span id="piutang-trend-tring" class="stat-trend trend-flat">0%</span>
+                            <h3>Emas Tring</h3>
+                            <p id="piutang-total-tring">Rp 0</p><span id="piutang-tring-gram-info" style="font-size:12px; color:var(--text-gray); font-weight:500;">0 Gr</span>
+                        </div>
+                        <div class="stat-box c-jago">
+                            <span id="piutang-trend-jago" class="stat-trend trend-flat">0%</span>
+                            <h3>Emas Jago</h3>
+                            <p id="piutang-total-jago">Rp 0</p>
+                        </div>
+                    </div>
+
                     <div class="wealth-card" style="background: linear-gradient(135deg, var(--tring), #b45309); box-shadow: 0 20px 40px -15px rgba(217, 119, 6, 0.4);">
                         <h3>Total Piutang Belum Lunas (Di Luar)</h3>
                         <p id="total-piutang-amount">Rp 0</p>
@@ -682,9 +716,7 @@
 
                     <div class="glass-panel" style="padding: 24px;">
                         <h2 class="panel-title"><span>Daftar Orang yang Ngutang</span> <span id="piutang-count-badge" class="badge">0 Orang</span></h2>
-                        <ul id="piutang-list" class="history-list" style="margin-top: 10px;">
-                            <!-- List piutang dirender lewat JS -->
-                        </ul>
+                        <ul id="piutang-list" class="history-list" style="margin-top: 10px;"></ul>
                     </div>
                 </div>
             </div>
@@ -733,7 +765,7 @@
 
         let transactions = [];
         let plannerItems = []; 
-        let piutangItems = []; // Database lokal piutang
+        let piutangItems = []; 
         let currentSessionKey = sessionStorage.getItem('appEncryptionKey'); 
 
         const SESSION_DURATION = 5 * 60 * 1000; 
@@ -775,14 +807,10 @@
 
         function closeAllModals(e) {
             if(e) e.stopPropagation();
-            document.querySelectorAll('.modal-overlay').forEach(modal => {
-                modal.classList.remove('active');
-            });
+            document.querySelectorAll('.modal-overlay').forEach(modal => { modal.classList.remove('active'); });
         }
 
-        window.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') { closeAllModals(); }
-        });
+        window.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeAllModals(); } });
 
         function showModal(icon, title, desc, buttonsHtml) {
             document.getElementById('modal-icon-el').innerText = icon;
@@ -953,7 +981,7 @@
                     b.classList.remove('active');
                 }
             });
-            if (tab === 'budget') setTimeout(updateUI, 50);
+            if (tab === 'budget' || tab === 'piutang') setTimeout(updateUI, 50);
         }
 
         function handleRoadmapTabClick() {
@@ -987,7 +1015,7 @@
             }, 1000);
         }
 
-        // ================= FUNGSI BUKU PIUTANG (BARU) ================= //
+        // ================= FUNGSI BUKU PIUTANG ================= //
         function savePiutangToLocal() {
             if(currentSessionKey) {
                 localStorage.setItem('piutang_secure_db', CryptoJS.AES.encrypt(JSON.stringify(piutangItems), currentSessionKey).toString());
@@ -1019,7 +1047,7 @@
                 name: name,
                 amount: amt,
                 dueDate: dueDate,
-                status: 'unpaid' // unpaid atau paid
+                status: 'unpaid'
             };
 
             piutangItems.push(newItem);
@@ -1027,26 +1055,28 @@
             renderPiutangUI();
             document.getElementById('piutang-form').reset();
 
-            // Jika dicentang potong kas, otomatis catat sebagai transaksi pengeluaran (expense)
+            // Jika dicentang, catat pengeluaran kas DAN penambahan ke tabungan pribadi
             if (deductCash) {
                 const d = new Date(); 
                 const dStr = String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
-                const newTrxId = Math.floor(100000 + Math.random() * 900000).toString();
-                const newTrx = {
-                    id: newTrxId,
-                    date: dStr,
-                    desc: `Piutang ke ${name}`,
-                    amount: amt,
-                    type: 'expense',
-                    source: null
-                };
-                transactions.unshift(newTrx);
+                
+                // 1. Transaksi Pengeluaran Kas
+                const newTrxId1 = Math.floor(100000 + Math.random() * 900000).toString();
+                const newTrx1 = { id: newTrxId1, date: dStr, desc: `Piutang ke ${name}`, amount: amt, type: 'expense', source: null };
+                transactions.unshift(newTrx1);
+                await addTransactionToSheet(newTrx1);
+
+                // 2. Transaksi Masuk Tabungan Pribadi
+                const newTrxId2 = Math.floor(100000 + Math.random() * 900000).toString();
+                const newTrx2 = { id: newTrxId2, date: dStr, desc: `Piutang ke ${name} (Pribadi)`, amount: amt, type: 'pribadi', source: null };
+                transactions.unshift(newTrx2);
+                await addTransactionToSheet(newTrx2);
+
                 saveToLocal();
                 updateUI();
-                await addTransactionToSheet(newTrx);
             }
 
-            showModal('✅', 'Piutang Dicatat', `Pinjaman atas nama <b>${name}</b> berhasil disimpan!`, `<button type="button" onclick="closeAllModals()" class="btn-primary" style="padding: 14px; border-radius: 14px; width:100%;">OK</button>`);
+            showModal('✅', 'Piutang Dicatat', `Pinjaman atas nama <b>${name}</b> berhasil disimpan dan otomatis dimasukkan ke Tabungan Pribadi!`, `<button type="button" onclick="closeAllModals()" class="btn-primary" style="padding: 14px; border-radius: 14px; width:100%;">OK</button>`);
         }
 
         function togglePiutangStatus(id) {
@@ -1231,7 +1261,7 @@
         }
 
         function confirmResetRoadmap() {
-            showModal('🔄', 'Reset Roadmap', 'Apakah kamu yakin ingin mereset/mengulang semua tugas roadmap kembali menjadi belum selesai?', `
+            showModal('🔄', 'Reset Roadmap', 'Apakah kamu yakin ingin mereset/mengulang semua tugas roadmap kembali belum selesai?', `
                 <button type="button" onclick="closeAllModals()" class="btn-danger" style="flex: 1; padding: 14px; border-radius: 14px;">Batal</button>
                 <button type="button" onclick="executeResetRoadmap()" class="btn-primary" style="flex: 1; padding: 14px; border-radius: 14px;">Ya, Reset</button>
             `);
@@ -1749,6 +1779,11 @@
             calculateAndRenderTrend('trend-cash', cash, prevMonthData.cash);
             calculateAndRenderTrend('trend-simpanan', simpanan, prevMonthData.simpanan);
             calculateAndRenderTrend('trend-pribadi', pribadi, prevMonthData.pribadi);
+            
+            // Sync juga untuk bagian piutang
+            calculateAndRenderTrend('piutang-trend-cash', cash, prevMonthData.cash);
+            calculateAndRenderTrend('piutang-trend-simpanan', simpanan, prevMonthData.simpanan);
+            calculateAndRenderTrend('piutang-trend-pribadi', pribadi, prevMonthData.pribadi);
 
             let yesterday = new Date(now);
             yesterday.setDate(now.getDate() - 1);
@@ -1762,11 +1797,13 @@
             let prevDayData = snapshots.daily[prevDateKey] || snapshots.daily[currentDateKey];
             calculateAndRenderTrend('trend-tring', tring, prevDayData.tring);
             calculateAndRenderTrend('trend-jago', jago, prevDayData.jago);
+            calculateAndRenderTrend('piutang-trend-tring', tring, prevDayData.tring);
+            calculateAndRenderTrend('piutang-trend-jago', jago, prevDayData.jago);
         }
 
         function updateUI() {
             const containerEl = document.getElementById('list'); 
-            containerEl.innerHTML = ''; 
+            if(containerEl) containerEl.innerHTML = ''; 
             
             const monthSelect = document.getElementById('filter-month-select');
             const selectedMonth = monthSelect ? monthSelect.value : 'all';
@@ -1819,56 +1856,59 @@
                     totalIncAll += amt; 
                 }
 
-                if(!isCurrentMonthMatch) return;
+                if(!isCurrentMonthMatch || !containerEl) return;
                 if (!groupedByDate[cleanD]) groupedByDate[cleanD] = [];
                 groupedByDate[cleanD].push(trx);
             });
 
-            Object.keys(groupedByDate).forEach(dateKey => {
-                const groupDiv = document.createElement('div');
-                groupDiv.className = 'history-date-group';
-                const headerEl = document.createElement('div');
-                headerEl.className = 'history-date-header';
-                headerEl.innerHTML = `📅 ${dateKey}`;
-                groupDiv.appendChild(headerEl);
+            if(containerEl) {
+                Object.keys(groupedByDate).forEach(dateKey => {
+                    const groupDiv = document.createElement('div');
+                    groupDiv.className = 'history-date-group';
+                    const headerEl = document.createElement('div');
+                    headerEl.className = 'history-date-header';
+                    headerEl.innerHTML = `📅 ${dateKey}`;
+                    groupDiv.appendChild(headerEl);
 
-                const ul = document.createElement('ul');
-                ul.className = 'history-list';
+                    const ul = document.createElement('ul');
+                    ul.className = 'history-list';
 
-                groupedByDate[dateKey].forEach(trx => {
-                    const amt = Number(trx.amount);
-                    const li = document.createElement('li');
-                    let tCls = '', dAmt = '';
-                    
-                    if (trx.type === 'income') { tCls='text-inc'; dAmt=formatRp(amt); } 
-                    else if (trx.type === 'expense') { tCls='text-exp'; dAmt=formatRp(amt); } 
-                    else if (trx.type === 'simpanan') { tCls='text-inc'; dAmt=formatRp(amt); } 
-                    else if (trx.type === 'pribadi') { tCls='text-inc'; dAmt=formatRp(amt); } 
-                    else if (trx.type === 'tring' || trx.type === 'inv_tring') { tCls='text-inc'; dAmt=amt.toFixed(2)+' Gr'; } 
-                    else if (trx.type === 'jago' || trx.type === 'inv_jago') { tCls='text-exp'; dAmt=formatRp(amt); }
-                    else if (trx.type === 'withdraw') { tCls='text-inc'; dAmt = (trx.source === 'tring' ? '+' + amt.toFixed(2)+' Gr' : '+' + formatRp(amt)); }
-                    
-                    li.innerHTML = `
-                        <div class="history-item-left">
-                            <strong style="font-size:14px; color:var(--text-dark); display:block;">${trx.desc}</strong>
-                            <span style="font-size:11px; color:var(--text-gray); display:block; text-transform:capitalize; margin-top:2px;">${trx.type}</span>
-                        </div>
-                        <div class="history-item-right">
-                            <span class="${tCls}" style="font-weight:800; font-size:14px;">${dAmt}</span>
-                            <button onclick="editTransaction('${trx.id}')" title="Edit" style="background:transparent; color:var(--primary); border:none; font-size:16px; cursor:pointer; padding:0; line-height:1;">✏️</button>
-                            <button onclick="deleteTransaction('${trx.id}')" title="Hapus" style="background:transparent; color:var(--expense); border:none; font-size:20px; cursor:pointer; padding:0; line-height:1;">×</button>
-                        </div>`;
-                    ul.appendChild(li);
+                    groupedByDate[dateKey].forEach(trx => {
+                        const amt = Number(trx.amount);
+                        const li = document.createElement('li');
+                        let tCls = '', dAmt = '';
+                        
+                        if (trx.type === 'income') { tCls='text-inc'; dAmt=formatRp(amt); } 
+                        else if (trx.type === 'expense') { tCls='text-exp'; dAmt=formatRp(amt); } 
+                        else if (trx.type === 'simpanan') { tCls='text-inc'; dAmt=formatRp(amt); } 
+                        else if (trx.type === 'pribadi') { tCls='text-inc'; dAmt=formatRp(amt); } 
+                        else if (trx.type === 'tring' || trx.type === 'inv_tring') { tCls='text-inc'; dAmt=amt.toFixed(2)+' Gr'; } 
+                        else if (trx.type === 'jago' || trx.type === 'inv_jago') { tCls='text-exp'; dAmt=formatRp(amt); }
+                        else if (trx.type === 'withdraw') { tCls='text-inc'; dAmt = (trx.source === 'tring' ? '+' + amt.toFixed(2)+' Gr' : '+' + formatRp(amt)); }
+                        
+                        li.innerHTML = `
+                            <div class="history-item-left">
+                                <strong style="font-size:14px; color:var(--text-dark); display:block;">${trx.desc}</strong>
+                                <span style="font-size:11px; color:var(--text-gray); display:block; text-transform:capitalize; margin-top:2px;">${trx.type}</span>
+                            </div>
+                            <div class="history-item-right">
+                                <span class="${tCls}" style="font-weight:800; font-size:14px;">${dAmt}</span>
+                                <button onclick="editTransaction('${trx.id}')" title="Edit" style="background:transparent; color:var(--primary); border:none; font-size:16px; cursor:pointer; padding:0; line-height:1;">✏️</button>
+                                <button onclick="deleteTransaction('${trx.id}')" title="Hapus" style="background:transparent; color:var(--expense); border:none; font-size:20px; cursor:pointer; padding:0; line-height:1;">×</button>
+                            </div>`;
+                        ul.appendChild(li);
+                    });
+                    groupDiv.appendChild(ul);
+                    containerEl.appendChild(groupDiv);
                 });
-                groupDiv.appendChild(ul);
-                containerEl.appendChild(groupDiv);
-            });
+            }
 
             const trgRp = totalTrgAll * goldPricePerGram; 
             const cash = totalIncAll - totalExpAll; 
             const total = cash + totalSimAll + totalPriAll + trgRp + totalJagAll; 
             const gold = trgRp + totalJagAll;
 
+            // Update UI Keuangan Utama
             document.getElementById('cash-balance').innerText = formatRp(cash); 
             document.getElementById('total-simpanan').innerText = formatRp(totalSimAll); 
             document.getElementById('total-pribadi').innerText = formatRp(totalPriAll); 
@@ -1876,6 +1916,15 @@
             document.getElementById('tring-gram-info').innerText = `${totalTrgAll.toFixed(2)} Gr`; 
             document.getElementById('total-jago').innerText = formatRp(totalJagAll); 
             document.getElementById('total-wealth').innerText = formatRp(total);
+
+            // Update UI Ringkasan Piutang
+            document.getElementById('piutang-cash-balance').innerText = formatRp(cash);
+            document.getElementById('piutang-total-simpanan').innerText = formatRp(totalSimAll);
+            document.getElementById('piutang-total-pribadi').innerText = formatRp(totalPriAll);
+            document.getElementById('piutang-total-tring').innerText = formatRp(trgRp);
+            document.getElementById('piutang-tring-gram-info').innerText = `${totalTrgAll.toFixed(2)} Gr`;
+            document.getElementById('piutang-total-jago').innerText = formatRp(totalJagAll);
+            document.getElementById('piutang-total-wealth').innerText = formatRp(total);
             
             document.getElementById('wealth-progress-bar').style.width = Math.min((total/financialGoals.wealthGoal)*100, 100) + '%'; 
             document.getElementById('wealth-progress-text').innerText = Math.min((total/financialGoals.wealthGoal)*100, 100).toFixed(1) + '%';
