@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Personal OS - Keuangan & Roadmap</title>
+    <title>Personal OS - Keuangan, Piutang & Roadmap</title>
     <!-- LOGO INISIAL ARK -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2224%22 fill=%22%234f46e5%22/><text x=%2250%22 y=%2265%22 font-family=%22'Plus Jakarta Sans', sans-serif%22 font-size=%2244%22 font-weight=%22800%22 fill=%22%23ffffff%22 text-anchor=%22middle%22>ARK</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -12,7 +12,6 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <style>
-        /* TWEAK VISUAL & KONTRAS */
         :root { 
             --bg-color: #f1f5f9; --card-bg: #ffffff; --primary: #4f46e5; --primary-hover: #4338ca; 
             --income: #059669; --expense: #e11d48; --tring: #d97706; --simpanan: #6d28d9; 
@@ -21,11 +20,11 @@
             --input-bg: #ffffff; --ring-color: rgba(79, 70, 229, 0.2);
         }
         [data-theme="dark"] { 
-            --bg-color: #0b1120; /* Biru super gelap yang lebih elegan */
-            --card-bg: rgba(30, 41, 59, 0.65); /* Card transparan slate */
+            --bg-color: #0b1120; 
+            --card-bg: rgba(30, 41, 59, 0.65); 
             --primary: #818cf8; --primary-hover: #6366f1; 
             --income: #34d399; --expense: #fb7185; --tring: #fbbf24; --simpanan: #c084fc; 
-            --jago: #fb923c; --pribadi: #38bdf8; --text-dark: #f8fafc; --text-gray: #94a3b8; /* Kontras lebih baik */
+            --jago: #fb923c; --pribadi: #38bdf8; --text-dark: #f8fafc; --text-gray: #94a3b8; 
             --border-color: rgba(255,255,255,0.08); --list-bg: rgba(15, 23, 42, 0.8); 
             --glass-border: rgba(255,255,255,0.1); --input-bg: rgba(15, 23, 42, 0.9);
             --ring-color: rgba(129, 140, 248, 0.25);
@@ -80,15 +79,15 @@
         .floating-tabs {
             background: var(--card-bg); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
             border: 1px solid var(--glass-border); padding: 6px; border-radius: 20px; 
-            display: flex; gap: 6px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.3); 
-            pointer-events: auto; width: 100%; max-width: 480px; overflow-x: auto; flex-wrap: nowrap;
+            display: flex; gap: 4px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.3); 
+            pointer-events: auto; width: 100%; max-width: 560px; overflow-x: auto; flex-wrap: nowrap;
             -webkit-overflow-scrolling: touch; justify-content: space-between;
         }
         .floating-tabs::-webkit-scrollbar { display: none; }
         
         .nav-tab-btn {
-            background: transparent; border: none; color: var(--text-gray); padding: 10px 14px; 
-            border-radius: 14px; font-weight: 600; font-size: 13px; cursor: pointer; 
+            background: transparent; border: none; color: var(--text-gray); padding: 10px 12px; 
+            border-radius: 14px; font-weight: 600; font-size: 12px; cursor: pointer; 
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); white-space: nowrap; flex: 1; text-align: center;
         }
         .nav-tab-btn:hover { color: var(--text-dark); background: rgba(148, 163, 184, 0.1); }
@@ -136,7 +135,6 @@
         input:checked + .slider { background-color: var(--primary); }
         input:checked + .slider:before { transform: translateX(22px); }
 
-        /* FORM & INPUTS REFINED */
         form { display: flex; flex-direction: column; gap: 14px; width: 100%; }
         input, select, button { 
             width: 100%; padding: 14px 16px; border: 1px solid var(--border-color); 
@@ -207,8 +205,6 @@
         .history-item-left { flex: 1; min-width: 0; }
         .history-item-left span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .history-item-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; text-align: right; white-space: nowrap; }
-        .history-item-right button { transition: all 0.2s ease; border-radius: 8px; }
-        .history-item-right button:hover { transform: scale(1.2); }
         .text-inc { color: var(--income); } .text-exp { color: var(--expense); }
 
         .modal-overlay {
@@ -299,7 +295,7 @@
         </div>
     </div>
 
-    <!-- MODAL TAMBAH TUGAS ROADMAP (BARU) -->
+    <!-- MODAL TAMBAH TUGAS ROADMAP -->
     <div id="roadmap-add-modal" class="modal-overlay" onclick="closeAllModals(event)">
         <div class="modal-box" style="text-align: left; max-width: 400px;" onclick="event.stopPropagation()">
             <div style="font-size: 32px; margin-bottom: 12px;">📝</div>
@@ -421,6 +417,7 @@
             <div class="floating-tabs">
                 <button class="nav-tab-btn active" id="btn-budget" onclick="switchAppTab('budget')">💰 Keuangan</button>
                 <button class="nav-tab-btn" id="btn-planner" onclick="switchAppTab('planner')">📅 Estimasi</button>
+                <button class="nav-tab-btn" id="btn-piutang" onclick="switchAppTab('piutang')">📌 Piutang</button>
                 <button class="nav-tab-btn" id="btn-roadmap" onclick="handleRoadmapTabClick()">🚀 Roadmap</button>
             </div>
         </div>
@@ -476,8 +473,6 @@
                         </div>
                         <div id="list" class="history-container" style="margin-bottom: 16px;"></div>
                         <button onclick="confirmResetData()" class="btn-danger" style="padding: 12px; border-radius: 14px; font-size: 13px; width: 100%;">Bersihkan Data Lokal</button>
-                        
-                        <!-- TOMBOL EXPORT CSV BARU -->
                         <button onclick="exportToCSV()" class="btn-primary" style="padding: 12px; border-radius: 14px; font-size: 13px; width: 100%; margin-top: 12px; background: linear-gradient(135deg, var(--income), #059669); border:none; color:white;">📥 Download CSV Transaksi</button>
                     </div>
                 </div>
@@ -656,7 +651,46 @@
             </div>
         </div>
 
-        <!-- TAB 3: ROADMAP 2027 -->
+        <!-- TAB 3: BUKU PIUTANG (BARU) -->
+        <div id="wrapper-piutang" class="app-wrapper">
+            <div class="dashboard-layout">
+                <div class="sidebar-col">
+                    <div class="glass-panel">
+                        <h2 class="panel-title">Catat Orang Ngutang</h2>
+                        <p style="font-size: 13px; color: var(--text-gray); margin-bottom: 20px;">Catat pinjaman orang lain. Kamu bisa memilih apakah uangnya memotong Kas Tunai saat ini atau tidak.</p>
+                        <form id="piutang-form" onsubmit="addPiutangItem(event)">
+                            <input type="text" id="piutang-name" placeholder="Nama Peminjam (Misal: Budi)" autocomplete="off" required>
+                            <input type="text" id="piutang-amount" placeholder="Nominal Dipinjamkan (Rp)" autocomplete="off" required oninput="formatGoalInput(this)">
+                            <div>
+                                <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 8px;">Estimasi Janji Bayar</label>
+                                <input type="date" id="piutang-duedate" required style="color-scheme: dark;">
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px; background: var(--list-bg); padding: 12px; border-radius: 12px; border: 1px solid var(--border-color);">
+                                <input type="checkbox" id="piutang-deduct-cash" style="width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer;">
+                                <label for="piutang-deduct-cash" style="font-size: 13px; cursor: pointer; color: var(--text-dark); font-weight: 600;">Potong Kas Tunai Utama (-)</label>
+                            </div>
+                            <button type="submit" class="btn-primary" style="padding: 14px; border-radius: 14px;">Simpan Piutang</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="main-col">
+                    <div class="wealth-card" style="background: linear-gradient(135deg, var(--tring), #b45309); box-shadow: 0 20px 40px -15px rgba(217, 119, 6, 0.4);">
+                        <h3>Total Piutang Belum Lunas (Di Luar)</h3>
+                        <p id="total-piutang-amount">Rp 0</p>
+                    </div>
+
+                    <div class="glass-panel" style="padding: 24px;">
+                        <h2 class="panel-title"><span>Daftar Orang yang Ngutang</span> <span id="piutang-count-badge" class="badge">0 Orang</span></h2>
+                        <ul id="piutang-list" class="history-list" style="margin-top: 10px;">
+                            <!-- List piutang dirender lewat JS -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: ROADMAP 2027 -->
         <div id="wrapper-roadmap" class="app-wrapper">
             <div class="roadmap-grid">
                 <div class="sidebar-col">
@@ -685,10 +719,7 @@
                     </div>
                 </div>
 
-                <!-- ROADMAP DINAMIS CONTAINER -->
-                <div class="roadmap-months" id="roadmap-months-container">
-                    <!-- Javascript akan merender card bulan disini -->
-                </div>
+                <div class="roadmap-months" id="roadmap-months-container"></div>
             </div>
         </div>
     </div>
@@ -702,12 +733,12 @@
 
         let transactions = [];
         let plannerItems = []; 
+        let piutangItems = []; // Database lokal piutang
         let currentSessionKey = sessionStorage.getItem('appEncryptionKey'); 
 
         const SESSION_DURATION = 5 * 60 * 1000; 
         let idleTimer;
 
-        // DATA DEFAULT ROADMAP DINAMIS (Jika baru pertama kali load)
         let roadmapData = [];
         const defaultRoadmap = [
             { id: 'm1', badge: 'Bulan 1', badgeColor: 'rgba(245, 158, 11, 0.15)', textColor: 'var(--tring)', title: 'Kesehatan & Dasar IT', tasks: [
@@ -783,9 +814,7 @@
             if (sessionStorage.getItem('isLoggedIn') === 'true') {
                 clearTimeout(idleTimer);
                 sessionStorage.setItem('lastActivityTime', new Date().getTime().toString());
-                idleTimer = setTimeout(() => {
-                    handleLogout();
-                }, SESSION_DURATION);
+                idleTimer = setTimeout(() => { handleLogout(); }, SESSION_DURATION);
             }
         }
 
@@ -833,11 +862,13 @@
                 
                 updateHeaderGreeting();
                 plannerItems = loadPlannerFromLocal(currentSessionKey) || [];
+                piutangItems = loadPiutangFromLocal(currentSessionKey) || [];
 
                 fetchAutoGoldPrice();
                 await syncTransactionsFromSheet();
                 
                 renderPlannerUI(); 
+                renderPiutangUI();
                 loadRoadmapProgress();
                 startRoadmapCountdown();
                 resetIdleTimer();
@@ -861,11 +892,13 @@
                 
                 updateHeaderGreeting();
                 plannerItems = loadPlannerFromLocal(currentSessionKey) || [];
+                piutangItems = loadPiutangFromLocal(currentSessionKey) || [];
 
                 fetchAutoGoldPrice();
                 await syncTransactionsFromSheet();
                 
                 renderPlannerUI();
+                renderPiutangUI();
                 loadRoadmapProgress(); 
                 startRoadmapCountdown();
                 resetIdleTimer();
@@ -908,7 +941,7 @@
         }
 
         function switchAppTab(tab) {
-            const tabs = ['budget', 'planner', 'roadmap'];
+            const tabs = ['budget', 'planner', 'piutang', 'roadmap'];
             tabs.forEach(t => {
                 const w = document.getElementById(`wrapper-${t}`);
                 const b = document.getElementById(`btn-${t}`);
@@ -954,7 +987,140 @@
             }, 1000);
         }
 
-        // ================= FUNGSI ROADMAP DINAMIS (BARU) ================= //
+        // ================= FUNGSI BUKU PIUTANG (BARU) ================= //
+        function savePiutangToLocal() {
+            if(currentSessionKey) {
+                localStorage.setItem('piutang_secure_db', CryptoJS.AES.encrypt(JSON.stringify(piutangItems), currentSessionKey).toString());
+            }
+        }
+
+        function loadPiutangFromLocal(key) {
+            try {
+                let stored = localStorage.getItem('piutang_secure_db');
+                if (stored) {
+                    return JSON.parse(CryptoJS.AES.decrypt(stored, key).toString(CryptoJS.enc.Utf8));
+                }
+            } catch(e) {}
+            return [];
+        }
+
+        async function addPiutangItem(e) {
+            e.preventDefault();
+            const name = document.getElementById('piutang-name').value.trim();
+            const rawAmt = document.getElementById('piutang-amount').value.replace(/\./g, '');
+            const dueDate = document.getElementById('piutang-duedate').value;
+            const deductCash = document.getElementById('piutang-deduct-cash').checked;
+
+            const amt = parseInt(rawAmt);
+            if (!name || !amt || !dueDate) return;
+
+            const newItem = {
+                id: 'ptg_' + Math.random().toString(36).substr(2, 9),
+                name: name,
+                amount: amt,
+                dueDate: dueDate,
+                status: 'unpaid' // unpaid atau paid
+            };
+
+            piutangItems.push(newItem);
+            savePiutangToLocal();
+            renderPiutangUI();
+            document.getElementById('piutang-form').reset();
+
+            // Jika dicentang potong kas, otomatis catat sebagai transaksi pengeluaran (expense)
+            if (deductCash) {
+                const d = new Date(); 
+                const dStr = String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
+                const newTrxId = Math.floor(100000 + Math.random() * 900000).toString();
+                const newTrx = {
+                    id: newTrxId,
+                    date: dStr,
+                    desc: `Piutang ke ${name}`,
+                    amount: amt,
+                    type: 'expense',
+                    source: null
+                };
+                transactions.unshift(newTrx);
+                saveToLocal();
+                updateUI();
+                await addTransactionToSheet(newTrx);
+            }
+
+            showModal('✅', 'Piutang Dicatat', `Pinjaman atas nama <b>${name}</b> berhasil disimpan!`, `<button type="button" onclick="closeAllModals()" class="btn-primary" style="padding: 14px; border-radius: 14px; width:100%;">OK</button>`);
+        }
+
+        function togglePiutangStatus(id) {
+            const item = piutangItems.find(p => p.id === id);
+            if (!item) return;
+
+            if (item.status === 'unpaid') {
+                item.status = 'paid';
+                showModal('🎉', 'Lunas!', `Piutang dari <b>${item.name}</b> ditandai sudah lunas.`, `<button type="button" onclick="closeAllModals()" class="btn-primary" style="padding: 14px; border-radius: 14px; width:100%;">Mantap</button>`);
+            } else {
+                item.status = 'unpaid';
+            }
+            savePiutangToLocal();
+            renderPiutangUI();
+        }
+
+        function deletePiutangItem(id) {
+            showModal('🗑️', 'Hapus Data Piutang', 'Apakah kamu yakin ingin menghapus catatan piutang ini?', `
+                <button type="button" onclick="closeAllModals()" class="btn-danger" style="flex: 1; padding: 14px; border-radius: 14px;">Batal</button>
+                <button type="button" onclick="executeDeletePiutang('${id}')" class="btn-primary" style="flex: 1; padding: 14px; border-radius: 14px;">Hapus</button>
+            `);
+        }
+
+        function executeDeletePiutang(id) {
+            piutangItems = piutangItems.filter(p => p.id !== id);
+            savePiutangToLocal();
+            renderPiutangUI();
+            closeAllModals();
+        }
+
+        function renderPiutangUI() {
+            const listEl = document.getElementById('piutang-list');
+            const totalAmountEl = document.getElementById('total-piutang-amount');
+            const countBadgeEl = document.getElementById('piutang-count-badge');
+            if (!listEl) return;
+
+            listEl.innerHTML = '';
+            let totalUnpaid = 0;
+            let unpaidCount = 0;
+
+            piutangItems.forEach(item => {
+                if (item.status === 'unpaid') {
+                    totalUnpaid += item.amount;
+                    unpaidCount++;
+                }
+
+                const li = document.createElement('li');
+                let badgeStatus = item.status === 'unpaid' 
+                    ? `<span style="background:rgba(239, 68, 68, 0.15); color:var(--expense); padding:2px 8px; border-radius:6px; font-size:11px; font-weight:700;">Belum Lunas</span>` 
+                    : `<span style="background:rgba(16, 185, 129, 0.15); color:var(--income); padding:2px 8px; border-radius:6px; font-size:11px; font-weight:700;">Lunas ✅</span>`;
+
+                li.innerHTML = `
+                    <div class="history-item-left">
+                        <strong style="font-size:14px; color:var(--text-dark); display:block;">${item.name}</strong>
+                        <span style="font-size:11px; color:var(--text-gray); display:block; margin-top:2px;">Jatuh Tempo: ${item.dueDate} | ${badgeStatus}</span>
+                    </div>
+                    <div class="history-item-right">
+                        <span style="font-weight:800; font-size:14px; color:${item.status === 'unpaid' ? 'var(--expense)' : 'var(--text-gray)'};">${formatRp(item.amount)}</span>
+                        <button onclick="togglePiutangStatus('${item.id}')" title="Ubah Status" style="background:var(--list-bg); border:1px solid var(--border-color); color:var(--text-dark); padding:6px 10px; border-radius:8px; font-size:12px; cursor:pointer; font-weight:600;">${item.status === 'unpaid' ? 'Tandai Lunas' : 'Belum Lunas'}</button>
+                        <button onclick="deletePiutangItem('${item.id}')" title="Hapus" style="background:transparent; color:var(--expense); border:none; font-size:18px; cursor:pointer; padding:0; line-height:1;">×</button>
+                    </div>
+                `;
+                listEl.appendChild(li);
+            });
+
+            if (piutangItems.length === 0) {
+                listEl.innerHTML = `<li style="justify-content: center; color: var(--text-gray); font-size: 13px; background: transparent; border: none; box-shadow: none;">Belum ada catatan piutang</li>`;
+            }
+
+            totalAmountEl.innerText = formatRp(totalUnpaid);
+            countBadgeEl.innerText = `${unpaidCount} Orang Belum Bayar`;
+        }
+
+        // ================= FUNGSI ROADMAP DINAMIS ================= //
         function saveRoadmapToLocal() {
             if(currentSessionKey) {
                 localStorage.setItem('roadmap_secure_db', CryptoJS.AES.encrypt(JSON.stringify(roadmapData), currentSessionKey).toString());
@@ -977,6 +1143,7 @@
 
         function renderRoadmapUI() {
             const container = document.getElementById('roadmap-months-container');
+            if(!container) return;
             container.innerHTML = '';
             let totalTasks = 0;
             let doneTasks = 0;
@@ -1012,8 +1179,10 @@
             });
 
             const pct = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
-            document.getElementById('roadmap-progress-bar').style.width = pct + '%';
-            document.getElementById('roadmap-progress-text').innerText = pct + '%';
+            const bar = document.getElementById('roadmap-progress-bar');
+            const txt = document.getElementById('roadmap-progress-text');
+            if(bar) bar.style.width = pct + '%';
+            if(txt) txt.innerText = pct + '%';
             if (pct === 100 && totalTasks > 0) confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
         }
 
@@ -1035,15 +1204,12 @@
             document.getElementById('roadmap-add-modal').classList.add('active');
         }
 
-        function closeRoadmapAddModal() {
-            document.getElementById('roadmap-add-modal').classList.remove('active');
-        }
+        function closeRoadmapAddModal() { document.getElementById('roadmap-add-modal').classList.remove('active'); }
 
         function saveNewRoadmapTask(e) {
             e.preventDefault();
             const monthId = document.getElementById('add-task-month-id').value;
             const text = document.getElementById('add-task-text').value.trim();
-            
             if(!text) return;
 
             const month = roadmapData.find(m => m.id === monthId);
@@ -1078,26 +1244,18 @@
             closeAllModals();
         }
 
-        // ================= FUNGSI EXPORT CSV (BARU) ================= //
         function exportToCSV() {
             if (transactions.length === 0) {
                 showModal('⚠️', 'Data Kosong', 'Belum ada data transaksi yang bisa di-download.', `<button type="button" onclick="closeAllModals()" class="btn-primary" style="padding: 14px; border-radius: 14px; width:100%;">Mengerti</button>`);
                 return;
             }
-
             let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "ID,Tanggal,Keterangan,Nominal,Tipe,Sumber\n"; // Header CSV
-
+            csvContent += "ID,Tanggal,Keterangan,Nominal,Tipe,Sumber\n";
             transactions.forEach(row => {
-                // Hapus koma pada deskripsi supaya format kolom CSV tidak hancur
                 let descClean = row.desc.replace(/,/g, " "); 
                 let source = row.source ? row.source : '-';
-                
-                let rowStr = `${row.id},${row.date},${descClean},${row.amount},${row.type},${source}`;
-                csvContent += rowStr + "\n";
+                csvContent += `${row.id},${row.date},${descClean},${row.amount},${row.type},${source}\n`;
             });
-
-            // Eksekusi download file
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
@@ -1164,9 +1322,7 @@
             document.getElementById('modal-gold-goal').value = new Intl.NumberFormat('id-ID').format(financialGoals.goldGoal);
             document.getElementById('goals-modal').classList.add('active');
         }
-        function closeGoalsModal() {
-            document.getElementById('goals-modal').classList.remove('active');
-        }
+        function closeGoalsModal() { document.getElementById('goals-modal').classList.remove('active'); }
         function formatGoalInput(el) {
             let raw = el.value.replace(/[^0-9]/g, '');
             el.value = raw ? new Intl.NumberFormat('id-ID').format(raw) : '';
@@ -1189,11 +1345,8 @@
             const a = document.getElementById('amount');
             const sourceContainer = document.getElementById('withdraw-source-container');
 
-            if (t === 'withdraw') {
-                sourceContainer.style.display = 'block';
-            } else {
-                sourceContainer.style.display = 'none';
-            }
+            if (t === 'withdraw') { sourceContainer.style.display = 'block'; } 
+            else { sourceContainer.style.display = 'none'; }
 
             if(t === 'tring' || (t === 'withdraw' && document.getElementById('withdraw-source').value === 'tring')) { 
                 a.placeholder = "Jml Gram (Misal: 0.5)"; 
@@ -1218,9 +1371,7 @@
 
         const withdrawSourceInp = document.getElementById('withdraw-source');
         if(withdrawSourceInp) {
-            withdrawSourceInp.addEventListener('change', function() {
-                handleTypeChange();
-            });
+            withdrawSourceInp.addEventListener('change', function() { handleTypeChange(); });
         }
 
         function editTransaction(id) {
@@ -1246,18 +1397,13 @@
             document.getElementById('transaction-edit-modal').classList.add('active');
         }
 
-        function closeTransactionEditModal() {
-            document.getElementById('transaction-edit-modal').classList.remove('active');
-        }
+        function closeTransactionEditModal() { document.getElementById('transaction-edit-modal').classList.remove('active'); }
 
         function handleEditTrgTypeChange() {
             const t = document.getElementById('edit-trx-type').value;
             const container = document.getElementById('edit-withdraw-source-container');
-            if (t === 'withdraw') {
-                container.style.display = 'block';
-            } else {
-                container.style.display = 'none';
-            }
+            if (t === 'withdraw') { container.style.display = 'block'; } 
+            else { container.style.display = 'none'; }
         }
 
         async function saveEditedTransaction(e) {
@@ -1346,9 +1492,7 @@
             document.getElementById('planner-edit-modal').classList.add('active');
         }
 
-        function closePlannerEditModal() {
-            document.getElementById('planner-edit-modal').classList.remove('active');
-        }
+        function closePlannerEditModal() { document.getElementById('planner-edit-modal').classList.remove('active'); }
 
         function saveEditedPlanner(e) {
             e.preventDefault();
@@ -1395,50 +1539,38 @@
             
             let totalIncome = 0;
             let totalExpense = 0;
-
             let hasIncome = false;
             let hasExpense = false;
 
             plannerItems.forEach(item => {
                 const li = document.createElement('li');
-                
                 if(item.type === 'income') {
                     hasIncome = true;
                     totalIncome += item.amount;
                     li.innerHTML = `
-                        <div class="history-item-left">
-                            <strong style="font-size:14px; color:var(--text-dark); display:block;">${item.desc}</strong>
-                        </div>
+                        <div class="history-item-left"><strong style="font-size:14px; color:var(--text-dark); display:block;">${item.desc}</strong></div>
                         <div class="history-item-right">
                             <span class="text-inc" style="font-weight:800; font-size:14px;">+ ${formatRp(item.amount)}</span>
                             <button onclick="editPlannerItem('${item.id}')" title="Edit" style="background:transparent; color:var(--primary); border:none; font-size:16px; cursor:pointer; padding:0; line-height:1;">✏️</button>
                             <button onclick="deletePlannerItem('${item.id}')" title="Hapus" style="background:transparent; color:var(--expense); border:none; font-size:20px; cursor:pointer; padding:0; line-height:1;">×</button>
-                        </div>
-                    `;
+                        </div>`;
                     incomeListEl.appendChild(li);
                 } else {
                     hasExpense = true;
                     totalExpense += item.amount;
                     li.innerHTML = `
-                        <div class="history-item-left">
-                            <strong style="font-size:14px; color:var(--text-dark); display:block;">${item.desc}</strong>
-                        </div>
+                        <div class="history-item-left"><strong style="font-size:14px; color:var(--text-dark); display:block;">${item.desc}</strong></div>
                         <div class="history-item-right">
                             <span class="text-exp" style="font-weight:800; font-size:14px;">- ${formatRp(item.amount)}</span>
                             <button onclick="editPlannerItem('${item.id}')" title="Edit" style="background:transparent; color:var(--primary); border:none; font-size:16px; cursor:pointer; padding:0; line-height:1;">✏️</button>
                             <button onclick="deletePlannerItem('${item.id}')" title="Hapus" style="background:transparent; color:var(--expense); border:none; font-size:20px; cursor:pointer; padding:0; line-height:1;">×</button>
-                        </div>
-                    `;
+                        </div>`;
                     expenseListEl.appendChild(li);
                 }
             });
 
-            if(!hasIncome) {
-                incomeListEl.innerHTML = `<li style="justify-content: center; color: var(--text-gray); font-size: 13px; background: transparent; border: none; box-shadow: none;">Belum ada pemasukan tetap</li>`;
-            }
-            if(!hasExpense) {
-                expenseListEl.innerHTML = `<li style="justify-content: center; color: var(--text-gray); font-size: 13px; background: transparent; border: none; box-shadow: none;">Belum ada pengeluaran tetap</li>`;
-            }
+            if(!hasIncome) incomeListEl.innerHTML = `<li style="justify-content: center; color: var(--text-gray); font-size: 13px; background: transparent; border: none; box-shadow: none;">Belum ada pemasukan tetap</li>`;
+            if(!hasExpense) expenseListEl.innerHTML = `<li style="justify-content: center; color: var(--text-gray); font-size: 13px; background: transparent; border: none; box-shadow: none;">Belum ada pengeluaran tetap</li>`;
 
             document.getElementById('summary-total-income').innerText = formatRp(totalIncome);
             document.getElementById('summary-total-expense').innerText = formatRp(totalExpense);
@@ -1476,27 +1608,17 @@
                     else if (trx.source === 'pribadi') basePri -= amt;
                     else if (trx.source === 'tring') baseTrg -= amt;
                     else if (trx.source === 'jago') baseJag -= amt;
-                    
                     baseInc += amt; 
                 }
             });
 
-            let plannerSimpanan = 0;
-            let plannerJago = 0;
-            let plannerPribadi = 0;
-            let plannerTring = 0;
-
+            let plannerSimpanan = 0, plannerJago = 0, plannerPribadi = 0, plannerTring = 0;
             plannerItems.forEach(item => {
                 const descLower = item.desc.toLowerCase();
-                if (descLower.includes('simpanan')) {
-                    plannerSimpanan += item.amount;
-                } else if (descLower.includes('jago')) {
-                    plannerJago += item.amount;
-                } else if (descLower.includes('pribadi') || descLower.includes('dev')) {
-                    plannerPribadi += item.amount;
-                } else if (descLower.includes('emas') || descLower.includes('tring')) {
-                    plannerTring += item.amount;
-                }
+                if (descLower.includes('simpanan')) plannerSimpanan += item.amount;
+                else if (descLower.includes('jago')) plannerJago += item.amount;
+                else if (descLower.includes('pribadi') || descLower.includes('dev')) plannerPribadi += item.amount;
+                else if (descLower.includes('emas') || descLower.includes('tring')) plannerTring += item.amount;
             });
 
             const baseCash = (baseInc + totalIncome) - (baseExp + totalExpense);
@@ -1504,7 +1626,6 @@
             const finalPribadi = basePri + plannerPribadi;
             const finalJago = baseJag + plannerJago;
             const finalTring = (baseTrg * goldPricePerGram) + (plannerTring * goldPricePerGram);
-
             const totalPortfolioProj = (baseCash > 0 ? baseCash : 0) + finalSimpanan + finalPribadi + finalTring + finalJago;
 
             document.getElementById('proj-cash').innerText = formatRp(baseCash > 0 ? baseCash : 0);
@@ -1519,9 +1640,7 @@
                     let pctVal = (val / totalPortfolioProj) * 100;
                     el.innerText = `${pctVal.toFixed(1)}%`;
                     el.className = 'stat-trend trend-flat';
-                } else if(el) {
-                    el.innerText = '0%';
-                }
+                } else if(el) { el.innerText = '0%'; }
             };
 
             setPct('proj-cash-pct', baseCash > 0 ? baseCash : 0);
@@ -1537,9 +1656,7 @@
             if (!dateStr) return 0;
             if (dateStr.includes('/')) {
                 let parts = dateStr.split('/');
-                if (parts.length === 3) {
-                    return new Date(parts[2], parts[1] - 1, parts[0]).getTime();
-                }
+                if (parts.length === 3) return new Date(parts[2], parts[1] - 1, parts[0]).getTime();
             }
             let d = new Date(dateStr);
             return isNaN(d.getTime()) ? 0 : d.getTime();
@@ -1550,9 +1667,7 @@
             if (dateStr.includes('T')) {
                 try {
                     let d = new Date(dateStr);
-                    if (!isNaN(d.getTime())) {
-                        return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
-                    }
+                    if (!isNaN(d.getTime())) return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
                 } catch(e) {}
             }
             return dateStr;
@@ -1584,17 +1699,8 @@
 
             const netCashflow = totalInc - totalExp;
             const savingsRate = totalInc > 0 ? Math.max(0, ((totalInc - totalExp) / totalInc) * 100) : 0;
-            
-            let statusBadge = '';
-            let advice = '';
-
-            if (netCashflow >= 0) {
-                statusBadge = `<span style="color: var(--income); font-weight: 800;">🟢 SURPLUS (Sehat)</span>`;
-                advice = `Arus kas positif. Pertahankan kedisiplinan menabung dan alokasikan sebagian ke aset emas atau instrumen investasi target 2027.`;
-            } else {
-                statusBadge = `<span style="color: var(--expense); font-weight: 800;">🔴 DEFISIT (Perlu Evaluasi)</span>`;
-                advice = `Pengeluaran melebihi pemasukan bulan ini. Kurangi pengeluaran tersier dan tinjau kembali pos anggaran harian.`;
-            }
+            let statusBadge = netCashflow >= 0 ? `<span style="color: var(--income); font-weight: 800;">🟢 SURPLUS (Sehat)</span>` : `<span style="color: var(--expense); font-weight: 800;">🔴 DEFISIT (Perlu Evaluasi)</span>`;
+            let advice = netCashflow >= 0 ? `Arus kas positif. Pertahankan kedisiplinan menabung dan alokasikan sebagian ke aset emas atau instrumen investasi target 2027.` : `Pengeluaran melebihi pemasukan bulan ini. Kurangi pengeluaran tersier dan tinjau kembali pos anggaran harian.`;
 
             analysisEl.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
@@ -1615,24 +1721,14 @@
         function calculateAndRenderTrend(elementId, currentVal, prevVal) {
             const el = document.getElementById(elementId);
             if(!el) return;
-            
-            if (!prevVal || prevVal === 0) {
-                el.innerText = '0%';
-                el.className = 'stat-trend trend-flat';
-                return;
-            }
+            if (!prevVal || prevVal === 0) { el.innerText = '0%'; el.className = 'stat-trend trend-flat'; return; }
 
             let diff = ((currentVal - prevVal) / prevVal) * 100;
             let sign = diff > 0 ? '+' : '';
             el.innerText = `${sign}${diff.toFixed(1)}%`;
-            
-            if (diff > 0) {
-                el.className = 'stat-trend trend-up';
-            } else if (diff < 0) {
-                el.className = 'stat-trend trend-down';
-            } else {
-                el.className = 'stat-trend trend-flat';
-            }
+            if (diff > 0) el.className = 'stat-trend trend-up';
+            else if (diff < 0) el.className = 'stat-trend trend-down';
+            else el.className = 'stat-trend trend-flat';
         }
 
         function checkAndUpdateSnapshots(cash, simpanan, pribadi, tring, jago) {
@@ -1640,11 +1736,7 @@
             const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
             const currentDateKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
 
-            let snapshots = JSON.parse(localStorage.getItem('financialSnapshots')) || {
-                monthly: {},
-                daily: {}
-            };
-
+            let snapshots = JSON.parse(localStorage.getItem('financialSnapshots')) || { monthly: {}, daily: {} };
             let lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
             let prevMonthKey = `${lastMonthDate.getFullYear()}-${String(lastMonthDate.getMonth()+1).padStart(2,'0')}`;
             
@@ -1701,21 +1793,16 @@
 
             let totalIncAll = 0, totalExpAll = 0, totalSimAll = 0, totalPriAll = 0, totalTrgAll = 0, totalJagAll = 0;
             let filteredInc = 0, filteredExp = 0;
-
             let sortedTrx = [...transactions].sort((a, b) => parseDateToTime(b.date) - parseDateToTime(a.date));
-
             let groupedByDate = {};
 
             sortedTrx.forEach((trx) => {
                 const amt = Number(trx.amount);
                 let cleanD = cleanDateStr(trx.date);
-                
                 let isCurrentMonthMatch = true;
                 if(selectedMonth !== 'all' && cleanD) {
                     let parts = cleanD.split('/');
-                    if(parts.length === 3 && (parts[1] + '/' + parts[2]) !== selectedMonth) {
-                        isCurrentMonthMatch = false;
-                    }
+                    if(parts.length === 3 && (parts[1] + '/' + parts[2]) !== selectedMonth) isCurrentMonthMatch = false;
                 }
 
                 if (trx.type === 'income') { totalIncAll += amt; if(isCurrentMonthMatch) filteredInc += amt; } 
@@ -1723,32 +1810,23 @@
                 else if (trx.type === 'simpanan') totalSimAll += amt; 
                 else if (trx.type === 'pribadi') totalPriAll += amt; 
                 else if (trx.type === 'tring' || trx.type === 'inv_tring') totalTrgAll += amt; 
-                else if (trx.type === 'jago' || trx.type === 'inv_jago') {
-                    totalJagAll += amt;
-                    totalExpAll += amt; 
-                    if(isCurrentMonthMatch) filteredExp += amt;
-                } 
+                else if (trx.type === 'jago' || trx.type === 'inv_jago') { totalJagAll += amt; totalExpAll += amt; if(isCurrentMonthMatch) filteredExp += amt; } 
                 else if (trx.type === 'withdraw') {
                     if (trx.source === 'simpanan') totalSimAll -= amt;
                     else if (trx.source === 'pribadi') totalPriAll -= amt;
                     else if (trx.source === 'tring') totalTrgAll -= amt;
                     else if (trx.source === 'jago') totalJagAll -= amt;
-                    
                     totalIncAll += amt; 
                 }
 
                 if(!isCurrentMonthMatch) return;
-
-                if (!groupedByDate[cleanD]) {
-                    groupedByDate[cleanD] = [];
-                }
+                if (!groupedByDate[cleanD]) groupedByDate[cleanD] = [];
                 groupedByDate[cleanD].push(trx);
             });
 
             Object.keys(groupedByDate).forEach(dateKey => {
                 const groupDiv = document.createElement('div');
                 groupDiv.className = 'history-date-group';
-                
                 const headerEl = document.createElement('div');
                 headerEl.className = 'history-date-header';
                 headerEl.innerHTML = `📅 ${dateKey}`;
@@ -1768,10 +1846,7 @@
                     else if (trx.type === 'pribadi') { tCls='text-inc'; dAmt=formatRp(amt); } 
                     else if (trx.type === 'tring' || trx.type === 'inv_tring') { tCls='text-inc'; dAmt=amt.toFixed(2)+' Gr'; } 
                     else if (trx.type === 'jago' || trx.type === 'inv_jago') { tCls='text-exp'; dAmt=formatRp(amt); }
-                    else if (trx.type === 'withdraw') { 
-                        tCls='text-inc'; 
-                        dAmt = (trx.source === 'tring' ? '+' + amt.toFixed(2)+' Gr' : '+' + formatRp(amt)); 
-                    }
+                    else if (trx.type === 'withdraw') { tCls='text-inc'; dAmt = (trx.source === 'tring' ? '+' + amt.toFixed(2)+' Gr' : '+' + formatRp(amt)); }
                     
                     li.innerHTML = `
                         <div class="history-item-left">
@@ -1782,11 +1857,9 @@
                             <span class="${tCls}" style="font-weight:800; font-size:14px;">${dAmt}</span>
                             <button onclick="editTransaction('${trx.id}')" title="Edit" style="background:transparent; color:var(--primary); border:none; font-size:16px; cursor:pointer; padding:0; line-height:1;">✏️</button>
                             <button onclick="deleteTransaction('${trx.id}')" title="Hapus" style="background:transparent; color:var(--expense); border:none; font-size:20px; cursor:pointer; padding:0; line-height:1;">×</button>
-                        </div>
-                    `;
+                        </div>`;
                     ul.appendChild(li);
                 });
-
                 groupDiv.appendChild(ul);
                 containerEl.appendChild(groupDiv);
             });
@@ -1806,12 +1879,10 @@
             
             document.getElementById('wealth-progress-bar').style.width = Math.min((total/financialGoals.wealthGoal)*100, 100) + '%'; 
             document.getElementById('wealth-progress-text').innerText = Math.min((total/financialGoals.wealthGoal)*100, 100).toFixed(1) + '%';
-            
             document.getElementById('gold-progress-bar').style.width = Math.min((gold/financialGoals.goldGoal)*100, 100) + '%'; 
             document.getElementById('gold-progress-text').innerText = Math.min((gold/financialGoals.goldGoal)*100, 100).toFixed(1) + '%';
             
             checkAndUpdateSnapshots(cash, totalSimAll, totalPriAll, trgRp, totalJagAll);
-
             updateCharts(cash, totalSimAll, totalPriAll, trgRp, totalJagAll, totalIncAll, totalExpAll);
             updateFinancialAnalysis(filteredInc, filteredExp);
             renderPlannerUI(); 
