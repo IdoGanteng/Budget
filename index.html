@@ -651,13 +651,13 @@
             </div>
         </div>
 
-        <!-- TAB 3: BUKU PIUTANG (DENGAN RINGKASAN KEUANGAN) -->
+        <!-- TAB 3: BUKU PIUTANG (KHUSUS AKUMULASI PRIBADI & PIUTANG) -->
         <div id="wrapper-piutang" class="app-wrapper">
             <div class="dashboard-layout">
                 <div class="sidebar-col">
                     <div class="glass-panel">
                         <h2 class="panel-title">Catat Orang Ngutang</h2>
-                        <p style="font-size: 13px; color: var(--text-gray); margin-bottom: 20px;">Catat pinjaman orang lain. Jika dicentang, kas berkurang dan otomatis masuk ke <b>Tabungan Pribadi</b>.</p>
+                        <p style="font-size: 13px; color: var(--text-gray); margin-bottom: 20px;">Catat piutang lama. Total piutang yang belum lunas akan otomatis diakumulasikan ke Tabungan Pribadi khusus di tab ini.</p>
                         <form id="piutang-form" onsubmit="addPiutangItem(event)">
                             <input type="text" id="piutang-name" placeholder="Nama Peminjam (Misal: Budi)" autocomplete="off" required>
                             <input type="text" id="piutang-amount" placeholder="Nominal Dipinjamkan (Rp)" autocomplete="off" required oninput="formatGoalInput(this)">
@@ -665,19 +665,15 @@
                                 <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 8px;">Estimasi Janji Bayar</label>
                                 <input type="date" id="piutang-duedate" required style="color-scheme: dark;">
                             </div>
-                            <div style="display: flex; align-items: center; gap: 10px; background: var(--list-bg); padding: 12px; border-radius: 12px; border: 1px solid var(--border-color);">
-                                <input type="checkbox" id="piutang-deduct-cash" style="width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer;" checked>
-                                <label for="piutang-deduct-cash" style="font-size: 13px; cursor: pointer; color: var(--text-dark); font-weight: 600;">Potong Kas & Masuk Tabungan Pribadi</label>
-                            </div>
                             <button type="submit" class="btn-primary" style="padding: 14px; border-radius: 14px;">Simpan Piutang</button>
                         </form>
                     </div>
                 </div>
 
                 <div class="main-col">
-                    <!-- KARTU RINGKASAN KEUANGAN DI TAB PIUTANG -->
+                    <!-- KARTU RINGKASAN KEUANGAN KHUSUS PIUTANG -->
                     <div class="wealth-card">
-                        <h3>Akumulasi Dana & Aset Total</h3>
+                        <h3>Akumulasi Dana & Aset Total (Termasuk Piutang)</h3>
                         <p id="piutang-total-wealth">Rp 0</p>
                     </div>
 
@@ -694,7 +690,7 @@
                         </div>
                         <div class="stat-box c-pribadi">
                             <span id="piutang-trend-pribadi" class="stat-trend trend-flat">0%</span>
-                            <h3>Pribadi</h3>
+                            <h3>Pribadi (+ Piutang)</h3>
                             <p id="piutang-total-pribadi">Rp 0</p>
                         </div>
                         <div class="stat-box c-tring">
@@ -1037,7 +1033,6 @@
             const name = document.getElementById('piutang-name').value.trim();
             const rawAmt = document.getElementById('piutang-amount').value.replace(/\./g, '');
             const dueDate = document.getElementById('piutang-duedate').value;
-            const deductCash = document.getElementById('piutang-deduct-cash').checked;
 
             const amt = parseInt(rawAmt);
             if (!name || !amt || !dueDate) return;
@@ -1055,28 +1050,7 @@
             renderPiutangUI();
             document.getElementById('piutang-form').reset();
 
-            // Jika dicentang, catat pengeluaran kas DAN penambahan ke tabungan pribadi
-            if (deductCash) {
-                const d = new Date(); 
-                const dStr = String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
-                
-                // 1. Transaksi Pengeluaran Kas
-                const newTrxId1 = Math.floor(100000 + Math.random() * 900000).toString();
-                const newTrx1 = { id: newTrxId1, date: dStr, desc: `Piutang ke ${name}`, amount: amt, type: 'expense', source: null };
-                transactions.unshift(newTrx1);
-                await addTransactionToSheet(newTrx1);
-
-                // 2. Transaksi Masuk Tabungan Pribadi
-                const newTrxId2 = Math.floor(100000 + Math.random() * 900000).toString();
-                const newTrx2 = { id: newTrxId2, date: dStr, desc: `Piutang ke ${name} (Pribadi)`, amount: amt, type: 'pribadi', source: null };
-                transactions.unshift(newTrx2);
-                await addTransactionToSheet(newTrx2);
-
-                saveToLocal();
-                updateUI();
-            }
-
-            showModal('✅', 'Piutang Dicatat', `Pinjaman atas nama <b>${name}</b> berhasil disimpan dan otomatis dimasukkan ke Tabungan Pribadi!`, `<button type="button" onclick="closeAllModals()" class="btn-primary" style="padding: 14px; border-radius: 14px; width:100%;">OK</button>`);
+            showModal('✅', 'Piutang Dicatat', `Pinjaman atas nama <b>${name}</b> berhasil disimpan dan otomatis diakumulasikan ke Tabungan Pribadi khusus tab Piutang!`, `<button type="button" onclick="closeAllModals()" class="btn-primary" style="padding: 14px; border-radius: 14px; width:100%;">OK</button>`);
         }
 
         function togglePiutangStatus(id) {
@@ -1148,6 +1122,44 @@
 
             totalAmountEl.innerText = formatRp(totalUnpaid);
             countBadgeEl.innerText = `${unpaidCount} Orang Belum Bayar`;
+
+            // Update nilai tabungan pribadi khusus di tab piutang dengan menambahkan total piutang belum lunas
+            updatePiutangTabWealth(totalUnpaid);
+        }
+
+        function updatePiutangTabWealth(totalUnpaidPiutang) {
+            let totalIncAll = 0, totalExpAll = 0, totalSimAll = 0, totalPriAll = 0, totalTrgAll = 0, totalJagAll = 0;
+            transactions.forEach(trx => {
+                const amt = Number(trx.amount);
+                if (trx.type === 'income') totalIncAll += amt; 
+                else if (trx.type === 'expense') totalExpAll += amt; 
+                else if (trx.type === 'simpanan') totalSimAll += amt; 
+                else if (trx.type === 'pribadi') totalPriAll += amt; 
+                else if (trx.type === 'tring' || trx.type === 'inv_tring') totalTrgAll += amt; 
+                else if (trx.type === 'jago' || trx.type === 'inv_jago') { totalJagAll += amt; totalExpAll += amt; } 
+                else if (trx.type === 'withdraw') {
+                    if (trx.source === 'simpanan') totalSimAll -= amt;
+                    else if (trx.source === 'pribadi') totalPriAll -= amt;
+                    else if (trx.source === 'tring') totalTrgAll -= amt;
+                    else if (trx.source === 'jago') totalJagAll -= amt;
+                    totalIncAll += amt; 
+                }
+            });
+
+            const trgRp = totalTrgAll * goldPricePerGram; 
+            const cash = totalIncAll - totalExpAll; 
+
+            // Akumulasikan piutang ke Tabungan Pribadi khusus di tab piutang
+            const adjustedPriAll = totalPriAll + totalUnpaidPiutang;
+            const adjustedTotal = cash + totalSimAll + adjustedPriAll + trgRp + totalJagAll;
+
+            document.getElementById('piutang-cash-balance').innerText = formatRp(cash); 
+            document.getElementById('piutang-total-simpanan').innerText = formatRp(totalSimAll); 
+            document.getElementById('piutang-total-pribadi').innerText = formatRp(adjustedPriAll); 
+            document.getElementById('piutang-total-tring').innerText = formatRp(trgRp); 
+            document.getElementById('piutang-tring-gram-info').innerText = `${totalTrgAll.toFixed(2)} Gr`; 
+            document.getElementById('piutang-total-jago').innerText = formatRp(totalJagAll); 
+            document.getElementById('piutang-total-wealth').innerText = formatRp(adjustedTotal);
         }
 
         // ================= FUNGSI ROADMAP DINAMIS ================= //
@@ -1780,7 +1792,6 @@
             calculateAndRenderTrend('trend-simpanan', simpanan, prevMonthData.simpanan);
             calculateAndRenderTrend('trend-pribadi', pribadi, prevMonthData.pribadi);
             
-            // Sync juga untuk bagian piutang
             calculateAndRenderTrend('piutang-trend-cash', cash, prevMonthData.cash);
             calculateAndRenderTrend('piutang-trend-simpanan', simpanan, prevMonthData.simpanan);
             calculateAndRenderTrend('piutang-trend-pribadi', pribadi, prevMonthData.pribadi);
@@ -1917,14 +1928,8 @@
             document.getElementById('total-jago').innerText = formatRp(totalJagAll); 
             document.getElementById('total-wealth').innerText = formatRp(total);
 
-            // Update UI Ringkasan Piutang
-            document.getElementById('piutang-cash-balance').innerText = formatRp(cash);
-            document.getElementById('piutang-total-simpanan').innerText = formatRp(totalSimAll);
-            document.getElementById('piutang-total-pribadi').innerText = formatRp(totalPriAll);
-            document.getElementById('piutang-total-tring').innerText = formatRp(trgRp);
-            document.getElementById('piutang-tring-gram-info').innerText = `${totalTrgAll.toFixed(2)} Gr`;
-            document.getElementById('piutang-total-jago').innerText = formatRp(totalJagAll);
-            document.getElementById('piutang-total-wealth').innerText = formatRp(total);
+            // Render ulang piutang agar nilai akumulasinya otomatis sinkron
+            renderPiutangUI();
             
             document.getElementById('wealth-progress-bar').style.width = Math.min((total/financialGoals.wealthGoal)*100, 100) + '%'; 
             document.getElementById('wealth-progress-text').innerText = Math.min((total/financialGoals.wealthGoal)*100, 100).toFixed(1) + '%';
