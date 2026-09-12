@@ -919,9 +919,13 @@
             return await response.json();
         }
 
+        // ================= KONEKSI MURNI APPS SCRIPT (ANTI CORS) ================= //
         async function syncAllDataFromSheet() {
             try {
-                const result = await postDataToAppsScript({ action: 'syncAll' });
+                // MENGGUNAKAN METODE GET: Dijamin 100% masuk tanpa diblokir CORS browser!
+                const url = `${SHEET_WEB_APP_URL}?action=syncAll&token=${SHEET_TOKEN}`;
+                const response = await fetch(url);
+                const result = await response.json();
                 
                 if (result.status === 'success') {
                     transactions = result.transactions || [];
@@ -935,15 +939,27 @@
                     renderRoadmapUI();
                 } else {
                     console.error("Gagal sinkron:", result.message);
+                    alert("Error dari Server: " + result.message);
                 }
             } catch (err) {
-                console.error('Koneksi Spreadsheet gagal:', err);
-                roadmapData = JSON.parse(JSON.stringify(defaultRoadmap)); // fallback UI Roadmap
-                updateUI();
-                renderPlannerUI();
-                renderPiutangUI();
-                renderRoadmapUI();
-                showModal('⚠️', 'Offline Mode', 'Tidak dapat terhubung ke Google Spreadsheet.', '<button onclick="closeAllModals()" class="btn-primary" style="width:100%; padding:14px; border-radius:14px;">OK</button>');
+                console.error('Koneksi GET gagal:', err);
+                roadmapData = JSON.parse(JSON.stringify(defaultRoadmap));
+                updateUI(); renderPlannerUI(); renderPiutangUI(); renderRoadmapUI();
+                showModal('⚠️', 'Gagal Terhubung', 'Gagal narik data dari Google Sheet. Cek koneksi atau URL Web App.', '<button onclick="closeAllModals()" class="btn-primary" style="width:100%; padding:14px; border-radius:14px;">OK</button>');
+            }
+        }
+
+        async function postToSheet(payload) {
+            try {
+                // MENGIRIM SEBAGAI TEKS POLOS: Cara ampuh untuk bypass preflight OPTIONS Google
+                await fetch(SHEET_WEB_APP_URL, {
+                    method: 'POST',
+                    redirect: 'follow',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ token: SHEET_TOKEN, ...payload })
+                });
+            } catch (err) {
+                console.error('Gagal mengirim data ke Spreadsheet:', err);
             }
         }
 
