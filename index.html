@@ -179,11 +179,6 @@
         .stat-box h3 { font-size: 12px; color: var(--text-gray); font-weight: 700; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
         .stat-box p { font-size: 17px; font-weight: 800; color: var(--text-dark); }
         
-        .stat-trend { position: absolute; top: 16px; right: 16px; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 100px; }
-        .trend-up { background: rgba(52, 211, 153, 0.15); color: var(--income); }
-        .trend-down { background: rgba(251, 113, 133, 0.15); color: var(--expense); }
-        .trend-flat { background: rgba(148, 163, 184, 0.15); color: var(--text-gray); }
-
         .c-balance p { color: var(--income); } .c-simpanan p { color: var(--simpanan); } 
         .c-pribadi p { color: var(--pribadi); } .c-tring p { color: var(--tring); } .c-jago p { color: var(--jago); }
 
@@ -484,27 +479,22 @@
 
                     <div class="stats-grid">
                         <div class="stat-box c-balance">
-                            <span id="trend-cash" class="stat-trend trend-flat">0%</span>
                             <h3>Kas Tunai</h3>
                             <p id="cash-balance">Rp 0</p>
                         </div>
                         <div class="stat-box c-simpanan">
-                            <span id="trend-simpanan" class="stat-trend trend-flat">0%</span>
                             <h3>Simpanan</h3>
                             <p id="total-simpanan">Rp 0</p>
                         </div>
                         <div class="stat-box c-pribadi">
-                            <span id="trend-pribadi" class="stat-trend trend-flat">0%</span>
                             <h3>Pribadi</h3>
                             <p id="total-pribadi">Rp 0</p>
                         </div>
                         <div class="stat-box c-tring">
-                            <span id="trend-tring" class="stat-trend trend-flat">0%</span>
                             <h3>Emas Tring</h3>
                             <p id="total-tring">Rp 0</p><span id="tring-gram-info" style="font-size:12px; color:var(--text-gray); font-weight:500;">0 Gr</span>
                         </div>
                         <div class="stat-box c-jago">
-                            <span id="trend-jago" class="stat-trend trend-flat">0%</span>
                             <h3>Emas Jago</h3>
                             <p id="total-jago">Rp 0</p>
                         </div>
@@ -677,27 +667,22 @@
 
                     <div class="stats-grid">
                         <div class="stat-box c-balance">
-                            <span id="piutang-trend-cash" class="stat-trend trend-flat">0%</span>
                             <h3>Kas Tunai</h3>
                             <p id="piutang-cash-balance">Rp 0</p>
                         </div>
                         <div class="stat-box c-simpanan">
-                            <span id="piutang-trend-simpanan" class="stat-trend trend-flat">0%</span>
                             <h3>Simpanan</h3>
                             <p id="piutang-total-simpanan">Rp 0</p>
                         </div>
                         <div class="stat-box c-pribadi">
-                            <span id="piutang-trend-pribadi" class="stat-trend trend-flat">0%</span>
                             <h3>Pribadi (+ Piutang)</h3>
                             <p id="piutang-total-pribadi">Rp 0</p>
                         </div>
                         <div class="stat-box c-tring">
-                            <span id="piutang-trend-tring" class="stat-trend trend-flat">0%</span>
                             <h3>Emas Tring</h3>
                             <p id="piutang-total-tring">Rp 0</p><span id="piutang-tring-gram-info" style="font-size:12px; color:var(--text-gray); font-weight:500;">0 Gr</span>
                         </div>
                         <div class="stat-box c-jago">
-                            <span id="piutang-trend-jago" class="stat-trend trend-flat">0%</span>
                             <h3>Emas Jago</h3>
                             <p id="piutang-total-jago">Rp 0</p>
                         </div>
@@ -754,6 +739,7 @@
         const CORRECT_USER = 'Rebel';
         const ENCODED_PASS = 'UmViZWxpb24wMzA0MDE='; 
         const ROADMAP_PIN = '160323';
+        // PASTE URL DEPLOYMENT APPS SCRIPT TERBARU KAMU DI SINI:
         const SHEET_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwFKHf1Kakb71JXiZ2lB0JTN24p2kyKOwPvNx_ZwxLSRZamk3ujWtBFOqPhpx8aWZXHLA/exec';
         const SHEET_TOKEN = 'RebelAman2026';
 
@@ -761,7 +747,7 @@
         let plannerItems = []; 
         let piutangItems = []; 
         let roadmapData = [];
-        let currentSessionKey = sessionStorage.getItem('appEncryptionKey'); 
+        let currentSessionKey = null; 
 
         const SESSION_DURATION = 5 * 60 * 1000; 
         let idleTimer;
@@ -875,9 +861,7 @@
 
             if (u === CORRECT_USER && btoa(p) === ENCODED_PASS) {
                 sessionStorage.setItem('isLoggedIn', 'true');
-                sessionStorage.setItem('appEncryptionKey', p); 
                 sessionStorage.setItem('lastActivityTime', new Date().getTime().toString());
-                currentSessionKey = p;
                 
                 document.getElementById('login-wrapper').style.display = 'none';
                 document.getElementById('app-container').style.display = 'block';
@@ -890,7 +874,7 @@
                 startRoadmapCountdown();
                 resetIdleTimer();
             } else {
-                showModal('❌', 'Akses Ditolak', 'Username atau password yang kamu masukkan salah. Silakan coba lagi.', `
+                showModal('❌', 'Akses Ditolak', 'Username atau password salah.', `
                     <button type="button" onclick="closeAllModals()" class="btn-primary" style="padding: 14px; border-radius: 14px; width:100%;">Mengerti</button>
                 `);
             }
@@ -903,7 +887,7 @@
             document.body.setAttribute('data-theme', currentTheme);
             if(document.getElementById('theme-checkbox')) document.getElementById('theme-checkbox').checked = (currentTheme === 'dark');
 
-            if (sessionStorage.getItem('isLoggedIn') === 'true' && currentSessionKey) {
+            if (sessionStorage.getItem('isLoggedIn') === 'true') {
                 document.getElementById('login-wrapper').style.display = 'none';
                 document.getElementById('app-container').style.display = 'block';
                 
@@ -917,58 +901,115 @@
             }
         });
 
-        // ================= SINKRONISASI MURNI GOOGLE SPREADSHEET ================= //
-       // ================= SINKRONISASI MURNI GOOGLE SPREADSHEET ================= //
-async function syncAllDataFromSheet() {
-    try {
-        const response = await fetch(SHEET_WEB_APP_URL, {
-            method: 'POST',
-            redirect: 'follow', // Wajib untuk melewati redirect Google
-            headers: {
-                'Content-Type': 'text/plain;charset=utf-8', // Wajib untuk bypass blokir CORS Google
-            },
-            body: JSON.stringify({ action: 'syncAll', token: SHEET_TOKEN })
-        });
+        // ================= KONEKSI MURNI APPS SCRIPT (ANTI CORS) ================= //
         
-        const result = await response.json();
-        if (result.status === 'success') {
-            transactions = result.transactions || [];
-            plannerItems = result.planners || [];
-            piutangItems = result.piutangs || [];
-            roadmapData = (result.roadmaps && result.roadmaps.length > 0) ? result.roadmaps : JSON.parse(JSON.stringify(defaultRoadmap));
-            
-            updateUI();
-            renderPlannerUI();
-            renderPiutangUI();
-            renderRoadmapUI();
-        } else {
-            console.error("Gagal sinkron dari server:", result.message);
-        }
-    } catch (err) {
-        console.error('Koneksi Spreadsheet gagal / Error CORS:', err);
-        // Fallback default jika gagal terhubung
-        roadmapData = JSON.parse(JSON.stringify(defaultRoadmap));
-        updateUI();
-        renderPlannerUI();
-        renderPiutangUI();
-        renderRoadmapUI();
-    }
-}
+        async function postDataToAppsScript(payload) {
+            // URLSearchParams memaksa browser mengirim format application/x-www-form-urlencoded
+            // Ini adalah satu-satunya cara resmi agar bebas dari blokir CORS Google Apps Script
+            const urlParams = new URLSearchParams();
+            urlParams.append('data', JSON.stringify({ token: SHEET_TOKEN, ...payload }));
 
-async function postToSheet(payload) {
-    try {
-        await fetch(SHEET_WEB_APP_URL, {
-            method: 'POST',
-            redirect: 'follow', // Wajib
-            headers: {
-                'Content-Type': 'text/plain;charset=utf-8', // Wajib
-            },
-            body: JSON.stringify({ token: SHEET_TOKEN, ...payload })
-        });
-    } catch (err) {
-        console.error('Gagal mengirim data ke Spreadsheet:', err);
-    }
-}
+            const response = await fetch(SHEET_WEB_APP_URL, {
+                method: 'POST',
+                redirect: 'follow', // Wajib untuk mengikuti redirect script.googleusercontent.com
+                body: urlParams
+            });
+
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return await response.json();
+        }
+
+        async function syncAllDataFromSheet() {
+            try {
+                const result = await postDataToAppsScript({ action: 'syncAll' });
+                
+                if (result.status === 'success') {
+                    transactions = result.transactions || [];
+                    plannerItems = result.planners || [];
+                    piutangItems = result.piutangs || [];
+                    roadmapData = (result.roadmaps && result.roadmaps.length > 0) ? result.roadmaps : JSON.parse(JSON.stringify(defaultRoadmap));
+                    
+                    updateUI();
+                    renderPlannerUI();
+                    renderPiutangUI();
+                    renderRoadmapUI();
+                } else {
+                    console.error("Gagal sinkron:", result.message);
+                }
+            } catch (err) {
+                console.error('Koneksi Spreadsheet gagal:', err);
+                roadmapData = JSON.parse(JSON.stringify(defaultRoadmap)); // fallback UI Roadmap
+                updateUI();
+                renderPlannerUI();
+                renderPiutangUI();
+                renderRoadmapUI();
+                showModal('⚠️', 'Offline Mode', 'Tidak dapat terhubung ke Google Spreadsheet.', '<button onclick="closeAllModals()" class="btn-primary" style="width:100%; padding:14px; border-radius:14px;">OK</button>');
+            }
+        }
+
+        async function postToSheet(payload) {
+            try {
+                await postDataToAppsScript(payload);
+            } catch (err) {
+                console.error('Gagal mengirim data ke Spreadsheet:', err);
+            }
+        }
+
+        // ========================================================================= //
+
+        function toggleTheme() {
+            let theme = document.body.getAttribute('data-theme');
+            if(theme === 'light') { document.body.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); } 
+            else { document.body.setAttribute('data-theme', 'light'); localStorage.setItem('theme', 'light'); }
+            setTimeout(updateUI, 50);
+        }
+
+        function switchAppTab(tab) {
+            const tabs = ['budget', 'planner', 'piutang', 'roadmap'];
+            tabs.forEach(t => {
+                const w = document.getElementById(`wrapper-${t}`);
+                const b = document.getElementById(`btn-${t}`);
+                if (t === tab) {
+                    w.classList.add('active');
+                    b.classList.add('active');
+                } else {
+                    w.classList.remove('active');
+                    b.classList.remove('active');
+                }
+            });
+            if (tab === 'budget' || tab === 'piutang') setTimeout(updateUI, 50);
+        }
+
+        function handleRoadmapTabClick() {
+            document.getElementById('roadmap-pin-input').value = '';
+            document.getElementById('roadmap-pin-modal').classList.add('active');
+        }
+        function closeRoadmapPinModal() { document.getElementById('roadmap-pin-modal').classList.remove('active'); }
+
+        function verifyRoadmapPin(e) {
+            e.preventDefault();
+            const pinVal = document.getElementById('roadmap-pin-input').value.trim();
+            if (pinVal === ROADMAP_PIN) {
+                closeRoadmapPinModal();
+                switchAppTab('roadmap');
+            } else {
+                closeRoadmapPinModal();
+                showModal('❌', 'PIN Salah', 'PIN angka yang kamu masukkan salah. Silakan coba lagi.', `
+                    <button type="button" onclick="closeAllModals(); handleRoadmapTabClick();" class="btn-primary" style="padding: 14px; border-radius: 14px; width:100%;">Coba Lagi</button>
+                `);
+            }
+        }
+
+        function startRoadmapCountdown() {
+            const target = new Date("March 1, 2027 00:00:00").getTime();
+            setInterval(() => {
+                const distance = target - new Date().getTime();
+                if (distance < 0) return;
+                document.getElementById("days").innerText = String(Math.floor(distance / (1000 * 60 * 60 * 24))).padStart(2, '0');
+                document.getElementById("hours").innerText = String(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
+                document.getElementById("minutes").innerText = String(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+            }, 1000);
+        }
 
         // ================= FUNGSI BUKU PIUTANG ================= //
         async function addPiutangItem(e) {
@@ -1587,21 +1628,6 @@ async function postToSheet(payload) {
             document.getElementById('proj-pribadi').innerText = formatRp(finalPribadi);
             document.getElementById('proj-gold').innerText = formatRp(finalTring);
             document.getElementById('proj-jago').innerText = formatRp(finalJago);
-
-            const setPct = (elId, val) => {
-                const el = document.getElementById(elId);
-                if(el && totalPortfolioProj > 0) {
-                    let pctVal = (val / totalPortfolioProj) * 100;
-                    el.innerText = `${pctVal.toFixed(1)}%`;
-                    el.className = 'stat-trend trend-flat';
-                } else if(el) { el.innerText = '0%'; }
-            };
-
-            setPct('proj-cash-pct', baseCash > 0 ? baseCash : 0);
-            setPct('proj-simpanan-pct', finalSimpanan);
-            setPct('proj-pribadi-pct', finalPribadi);
-            setPct('proj-gold-pct', finalTring);
-            setPct('proj-jago-pct', finalJago);
         }
 
         function formatRp(angka) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka); }
@@ -1654,7 +1680,7 @@ async function postToSheet(payload) {
             const netCashflow = totalInc - totalExp;
             const savingsRate = totalInc > 0 ? Math.max(0, ((totalInc - totalExp) / totalInc) * 100) : 0;
             let statusBadge = netCashflow >= 0 ? `<span style="color: var(--income); font-weight: 800;">🟢 SURPLUS (Sehat)</span>` : `<span style="color: var(--expense); font-weight: 800;">🔴 DEFISIT (Perlu Evaluasi)</span>`;
-            let advice = netCashflow >= 0 ? `Arus kas positif. Pertahankan kedisiplinan menabung dan alokasikan sebagian ke aset emas atau instrumen investasi target 2027.` : `Pengeluaran melebihi pemasukan bulan ini. Kurangi pengeluaran tersier dan tinjau kembali pos anggaran harian.`;
+            let advice = netCashflow >= 0 ? `Arus kas positif. Pertahankan kedisiplinan menabung dan alokasikan sebagian ke aset emas atau instrumen investasi.` : `Pengeluaran melebihi pemasukan bulan ini. Kurangi pengeluaran tersier dan tinjau kembali pos anggaran harian.`;
 
             analysisEl.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
@@ -1670,19 +1696,6 @@ async function postToSheet(payload) {
                     <p style="color: var(--text-gray); line-height: 1.6;">${advice}</p>
                 </div>
             `;
-        }
-
-        function calculateAndRenderTrend(elementId, currentVal, prevVal) {
-            const el = document.getElementById(elementId);
-            if(!el) return;
-            if (!prevVal || prevVal === 0) { el.innerText = '0%'; el.className = 'stat-trend trend-flat'; return; }
-
-            let diff = ((currentVal - prevVal) / prevVal) * 100;
-            let sign = diff > 0 ? '+' : '';
-            el.innerText = `${sign}${diff.toFixed(1)}%`;
-            if (diff > 0) el.className = 'stat-trend trend-up';
-            else if (diff < 0) el.className = 'stat-trend trend-down';
-            else el.className = 'stat-trend trend-flat';
         }
 
         function updateUI() {
