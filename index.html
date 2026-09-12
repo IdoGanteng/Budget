@@ -335,15 +335,15 @@
                     <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 8px;">Tipe</label>
                     <select id="edit-trx-type" onchange="handleEditTrgTypeChange()">
                         <optgroup label="Uang Harian"><option value="income">Pemasukan (+)</option><option value="expense">Pengeluaran (-)</option></optgroup>
-                        <optgroup label="Ambil Tabungan & Aset"><option value="withdraw">Ambil dari Tabungan / Aset (-)</option></optgroup>
+                        <optgroup label="Ambil Tabungan & Aset"><option value="withdraw">Ambil dari Tabungan Pribadi (-)</option></optgroup>
                         <optgroup label="Tabungan & Aset"><option value="simpanan">Simpanan Wajib (+)</option><option value="pribadi">Tabungan Pribadi (+)</option><option value="tring">Emas Tring (+)</option><option value="jago">Emas Jago (- Kas)</option></optgroup>
                     </select>
                 </div>
                 <div id="edit-withdraw-source-container" style="display: none;">
                     <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 8px;">Sumber Tabungan</label>
                     <select id="edit-withdraw-source">
-                        <option value="simpanan">Simpanan Wajib</option>
                         <option value="pribadi">Tabungan Pribadi</option>
+                        <option value="simpanan">Simpanan Wajib</option>
                         <option value="tring">Emas Tring</option>
                         <option value="jago">Emas Jago</option>
                     </select>
@@ -450,14 +450,14 @@
                             <input type="text" id="amount" placeholder="Nominal Rupiah / Gram" autocomplete="off" required>
                             <select id="type" onchange="handleTypeChange()">
                                 <optgroup label="Uang Harian"><option value="income">Pemasukan (+)</option><option value="expense">Pengeluaran (-)</option></optgroup>
-                                <optgroup label="Ambil Tabungan & Aset"><option value="withdraw">Ambil dari Tabungan (-)</option></optgroup>
+                                <optgroup label="Ambil Tabungan & Aset"><option value="withdraw">Ambil dari Tabungan Pribadi (-)</option></optgroup>
                                 <optgroup label="Tabungan & Aset"><option value="simpanan">Simpanan Wajib (+)</option><option value="pribadi">Tabungan Pribadi (+)</option><option value="tring">Emas Tring (+)</option><option value="jago">Emas Jago (- Kas)</option></optgroup>
                             </select>
                             <div id="withdraw-source-container" style="display: none;">
                                 <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Sumber Pengambilan Tabungan</label>
                                 <select id="withdraw-source">
+                                    <option value="pribadi" selected>Tabungan Pribadi</option>
                                     <option value="simpanan">Simpanan Wajib</option>
-                                    <option value="pribadi">Tabungan Pribadi</option>
                                     <option value="tring">Emas Tring</option>
                                     <option value="jago">Emas Jago</option>
                                 </select>
@@ -1123,7 +1123,6 @@
             totalAmountEl.innerText = formatRp(totalUnpaid);
             countBadgeEl.innerText = `${unpaidCount} Orang Belum Bayar`;
 
-            // Update nilai tabungan pribadi khusus di tab piutang dengan menambahkan total piutang belum lunas
             updatePiutangTabWealth(totalUnpaid);
         }
 
@@ -1149,7 +1148,6 @@
             const trgRp = totalTrgAll * goldPricePerGram; 
             const cash = totalIncAll - totalExpAll; 
 
-            // Akumulasikan piutang ke Tabungan Pribadi khusus di tab piutang
             const adjustedPriAll = totalPriAll + totalUnpaidPiutang;
             const adjustedTotal = cash + totalSimAll + adjustedPriAll + trgRp + totalJagAll;
 
@@ -1456,7 +1454,7 @@
             const desc = document.getElementById('edit-trx-desc').value;
             const type = document.getElementById('edit-trx-type').value;
             let rawAmt = document.getElementById('edit-trx-amount').value;
-            let source = type === 'withdraw' ? document.getElementById('edit-withdraw-source').value : null;
+            let source = type === 'withdraw' ? document.getElementById('edit-withdraw-source').value : 'pribadi';
 
             let isGram = (type === 'tring' || (type === 'withdraw' && source === 'tring'));
             let amt = isGram ? parseFloat(rawAmt.replace(',', '.')) : parseInt(rawAmt.replace(/\./g, ''));
@@ -1484,7 +1482,7 @@
                 const desc = document.getElementById('desc').value; 
                 const type = document.getElementById('type').value; 
                 let rawAmt = document.getElementById('amount').value;
-                let source = type === 'withdraw' ? document.getElementById('withdraw-source').value : null;
+                let source = type === 'withdraw' ? document.getElementById('withdraw-source').value : 'pribadi';
 
                 let isGram = (type === 'tring' || (type === 'withdraw' && source === 'tring'));
                 let amt = isGram ? parseFloat(rawAmt.replace(',', '.')) : parseInt(rawAmt.replace(/\./g, ''));
@@ -1646,10 +1644,11 @@
                 else if (trx.type === 'tring' || trx.type === 'inv_tring') baseTrg += amt;
                 else if (trx.type === 'jago' || trx.type === 'inv_jago') { baseJag += amt; baseExp += amt; }
                 else if (trx.type === 'withdraw') {
-                    if (trx.source === 'simpanan') baseSim -= amt;
-                    else if (trx.source === 'pribadi') basePri -= amt;
-                    else if (trx.source === 'tring') baseTrg -= amt;
-                    else if (trx.source === 'jago') baseJag -= amt;
+                    const src = trx.source || 'pribadi';
+                    if (src === 'simpanan') baseSim -= amt;
+                    else if (src === 'pribadi') basePri -= amt;
+                    else if (src === 'tring') baseTrg -= amt;
+                    else if (src === 'jago') baseJag -= amt;
                     baseInc += amt; 
                 }
             });
@@ -1860,10 +1859,11 @@
                 else if (trx.type === 'tring' || trx.type === 'inv_tring') totalTrgAll += amt; 
                 else if (trx.type === 'jago' || trx.type === 'inv_jago') { totalJagAll += amt; totalExpAll += amt; if(isCurrentMonthMatch) filteredExp += amt; } 
                 else if (trx.type === 'withdraw') {
-                    if (trx.source === 'simpanan') totalSimAll -= amt;
-                    else if (trx.source === 'pribadi') totalPriAll -= amt;
-                    else if (trx.source === 'tring') totalTrgAll -= amt;
-                    else if (trx.source === 'jago') totalJagAll -= amt;
+                    const src = trx.source || 'pribadi';
+                    if (src === 'simpanan') totalSimAll -= amt;
+                    else if (src === 'pribadi') totalPriAll -= amt;
+                    else if (src === 'tring') totalTrgAll -= amt;
+                    else if (src === 'jago') totalJagAll -= amt;
                     totalIncAll += amt; 
                 }
 
@@ -1895,12 +1895,15 @@
                         else if (trx.type === 'pribadi') { tCls='text-inc'; dAmt=formatRp(amt); } 
                         else if (trx.type === 'tring' || trx.type === 'inv_tring') { tCls='text-inc'; dAmt=amt.toFixed(2)+' Gr'; } 
                         else if (trx.type === 'jago' || trx.type === 'inv_jago') { tCls='text-exp'; dAmt=formatRp(amt); }
-                        else if (trx.type === 'withdraw') { tCls='text-inc'; dAmt = (trx.source === 'tring' ? '+' + amt.toFixed(2)+' Gr' : '+' + formatRp(amt)); }
+                        else if (trx.type === 'withdraw') { 
+                            tCls='text-inc'; 
+                            dAmt = (trx.source === 'tring' ? '+' + amt.toFixed(2)+' Gr' : '+' + formatRp(amt)); 
+                        }
                         
                         li.innerHTML = `
                             <div class="history-item-left">
                                 <strong style="font-size:14px; color:var(--text-dark); display:block;">${trx.desc}</strong>
-                                <span style="font-size:11px; color:var(--text-gray); display:block; text-transform:capitalize; margin-top:2px;">${trx.type}</span>
+                                <span style="font-size:11px; color:var(--text-gray); display:block; text-transform:capitalize; margin-top:2px;">${trx.type} ${trx.source ? '('+trx.source+')' : ''}</span>
                             </div>
                             <div class="history-item-right">
                                 <span class="${tCls}" style="font-weight:800; font-size:14px;">${dAmt}</span>
@@ -1919,7 +1922,6 @@
             const total = cash + totalSimAll + totalPriAll + trgRp + totalJagAll; 
             const gold = trgRp + totalJagAll;
 
-            // Update UI Keuangan Utama
             document.getElementById('cash-balance').innerText = formatRp(cash); 
             document.getElementById('total-simpanan').innerText = formatRp(totalSimAll); 
             document.getElementById('total-pribadi').innerText = formatRp(totalPriAll); 
@@ -1928,7 +1930,6 @@
             document.getElementById('total-jago').innerText = formatRp(totalJagAll); 
             document.getElementById('total-wealth').innerText = formatRp(total);
 
-            // Render ulang piutang agar nilai akumulasinya otomatis sinkron
             renderPiutangUI();
             
             document.getElementById('wealth-progress-bar').style.width = Math.min((total/financialGoals.wealthGoal)*100, 100) + '%'; 
