@@ -918,13 +918,18 @@
         });
 
         // ================= SINKRONISASI MURNI GOOGLE SPREADSHEET ================= //
-        async function syncAllDataFromSheet() 
-    {
-         try {
+       // ================= SINKRONISASI MURNI GOOGLE SPREADSHEET ================= //
+async function syncAllDataFromSheet() {
+    try {
         const response = await fetch(SHEET_WEB_APP_URL, {
             method: 'POST',
+            redirect: 'follow', // Wajib untuk melewati redirect Google
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8', // Wajib untuk bypass blokir CORS Google
+            },
             body: JSON.stringify({ action: 'syncAll', token: SHEET_TOKEN })
         });
+        
         const result = await response.json();
         if (result.status === 'success') {
             transactions = result.transactions || [];
@@ -939,15 +944,31 @@
         } else {
             console.error("Gagal sinkron dari server:", result.message);
         }
-        } catch (err) {
-        console.error('Koneksi Spreadsheet gagal:', err);
+    } catch (err) {
+        console.error('Koneksi Spreadsheet gagal / Error CORS:', err);
+        // Fallback default jika gagal terhubung
         roadmapData = JSON.parse(JSON.stringify(defaultRoadmap));
         updateUI();
         renderPlannerUI();
         renderPiutangUI();
         renderRoadmapUI();
-          }
     }
+}
+
+async function postToSheet(payload) {
+    try {
+        await fetch(SHEET_WEB_APP_URL, {
+            method: 'POST',
+            redirect: 'follow', // Wajib
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8', // Wajib
+            },
+            body: JSON.stringify({ token: SHEET_TOKEN, ...payload })
+        });
+    } catch (err) {
+        console.error('Gagal mengirim data ke Spreadsheet:', err);
+    }
+}
 
         // ================= FUNGSI BUKU PIUTANG ================= //
         async function addPiutangItem(e) {
