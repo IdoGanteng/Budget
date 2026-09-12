@@ -472,8 +472,7 @@
                             <select id="filter-month-select" onchange="updateUI()" style="width: auto; padding: 6px 12px; border-radius: 100px; font-size: 12px; border-color: var(--border-color); background: var(--list-bg);"><option value="all">Semua Bulan</option></select>
                         </div>
                         <div id="list" class="history-container" style="margin-bottom: 16px;"></div>
-                        <button onclick="confirmResetData()" class="btn-danger" style="padding: 12px; border-radius: 14px; font-size: 13px; width: 100%;">Bersihkan Data Lokal</button>
-                        <button onclick="exportToCSV()" class="btn-primary" style="padding: 12px; border-radius: 14px; font-size: 13px; width: 100%; margin-top: 12px; background: linear-gradient(135deg, var(--income), #059669); border:none; color:white;">📥 Download CSV Transaksi</button>
+                        <button onclick="exportToCSV()" class="btn-primary" style="padding: 12px; border-radius: 14px; font-size: 13px; width: 100%; background: linear-gradient(135deg, var(--income), #059669); border:none; color:white;">📥 Download CSV Transaksi</button>
                     </div>
                 </div>
 
@@ -651,7 +650,7 @@
             </div>
         </div>
 
-        <!-- TAB 3: BUKU PIUTANG (KHUSUS AKUMULASI PRIBADI & PIUTANG) -->
+        <!-- TAB 3: BUKU PIUTANG -->
         <div id="wrapper-piutang" class="app-wrapper">
             <div class="dashboard-layout">
                 <div class="sidebar-col">
@@ -671,7 +670,6 @@
                 </div>
 
                 <div class="main-col">
-                    <!-- KARTU RINGKASAN KEUANGAN KHUSUS PIUTANG -->
                     <div class="wealth-card">
                         <h3>Akumulasi Dana & Aset Total (Termasuk Piutang)</h3>
                         <p id="piutang-total-wealth">Rp 0</p>
@@ -762,12 +760,12 @@
         let transactions = [];
         let plannerItems = []; 
         let piutangItems = []; 
+        let roadmapData = [];
         let currentSessionKey = sessionStorage.getItem('appEncryptionKey'); 
 
         const SESSION_DURATION = 5 * 60 * 1000; 
         let idleTimer;
 
-        let roadmapData = [];
         const defaultRoadmap = [
             { id: 'm1', badge: 'Bulan 1', badgeColor: 'rgba(245, 158, 11, 0.15)', textColor: 'var(--tring)', title: 'Kesehatan & Dasar IT', tasks: [
                 {id: 't1_1', text: 'Konsultasi sisa akar gigi di faskes BPJS.', done: false},
@@ -885,15 +883,10 @@
                 document.getElementById('app-container').style.display = 'block';
                 
                 updateHeaderGreeting();
-                plannerItems = loadPlannerFromLocal(currentSessionKey) || [];
-                piutangItems = loadPiutangFromLocal(currentSessionKey) || [];
-
                 fetchAutoGoldPrice();
-                await syncTransactionsFromSheet();
                 
-                renderPlannerUI(); 
-                renderPiutangUI();
-                loadRoadmapProgress();
+                await syncAllDataFromSheet();
+                
                 startRoadmapCountdown();
                 resetIdleTimer();
             } else {
@@ -915,46 +908,53 @@
                 document.getElementById('app-container').style.display = 'block';
                 
                 updateHeaderGreeting();
-                plannerItems = loadPlannerFromLocal(currentSessionKey) || [];
-                piutangItems = loadPiutangFromLocal(currentSessionKey) || [];
-
                 fetchAutoGoldPrice();
-                await syncTransactionsFromSheet();
                 
-                renderPlannerUI();
-                renderPiutangUI();
-                loadRoadmapProgress(); 
+                await syncAllDataFromSheet();
+                
                 startRoadmapCountdown();
                 resetIdleTimer();
             }
         });
 
-        async function syncTransactionsFromSheet() {
+        // ================= SINKRONISASI MURNI GOOGLE SPREADSHEET ================= //
+        async function syncAllDataFromSheet() {
             try {
                 const response = await fetch(SHEET_WEB_APP_URL, {
                     method: 'POST',
-                    body: JSON.stringify({ action: 'sync', token: SHEET_TOKEN })
+                    body: JSON.stringify({ action: 'syncAll', token: SHEET_TOKEN })
                 });
                 const result = await response.json();
                 if (result.status === 'success') {
-                    transactions = result.data;
+                    transactions = result.transactions || [];
+                    plannerItems = result.planners || [];
+                    piutangItems = result.piutangs || [];
+                    roadmapData = result.roadmaps && result.roadmaps.length > 0 ? result.roadmaps : JSON.parse(JSON.stringify(defaultRoadmap));
+                    
                     updateUI();
+                    renderPlannerUI();
+                    renderPiutangUI();
+                    renderRoadmapUI();
                 }
             } catch (err) {
-                console.error('Gagal sinkronisasi dengan Spreadsheet:', err);
-                transactions = loadFromLocal(currentSessionKey) || [];
+                console.error('Gagal sinkronisasi data dari Spreadsheet:', err);
+                roadmapData = JSON.parse(JSON.stringify(defaultRoadmap));
                 updateUI();
+                renderPlannerUI();
+                renderPiutangUI();
+                renderRoadmapUI();
             }
         }
 
-        async function addTransactionToSheet(trx) {
-            try { await fetch(SHEET_WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'add', token: SHEET_TOKEN, ...trx }) });
-            } catch (err) { console.error('Gagal menambahkan ke Spreadsheet:', err); }
-        }
-
-        async function deleteTransactionFromSheet(id) {
-            try { await fetch(SHEET_WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', token: SHEET_TOKEN, id: id }) });
-            } catch (err) { console.error('Gagal menghapus dari Spreadsheet:', err); }
+        async function postToSheet(payload) {
+            try {
+                await fetch(SHEET_WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ token: SHEET_TOKEN, ...payload })
+                });
+            } catch (err) {
+                console.error('Gagal mengirim data ke Spreadsheet:', err);
+            }
         }
 
         function toggleTheme() {
@@ -1012,22 +1012,6 @@
         }
 
         // ================= FUNGSI BUKU PIUTANG ================= //
-        function savePiutangToLocal() {
-            if(currentSessionKey) {
-                localStorage.setItem('piutang_secure_db', CryptoJS.AES.encrypt(JSON.stringify(piutangItems), currentSessionKey).toString());
-            }
-        }
-
-        function loadPiutangFromLocal(key) {
-            try {
-                let stored = localStorage.getItem('piutang_secure_db');
-                if (stored) {
-                    return JSON.parse(CryptoJS.AES.decrypt(stored, key).toString(CryptoJS.enc.Utf8));
-                }
-            } catch(e) {}
-            return [];
-        }
-
         async function addPiutangItem(e) {
             e.preventDefault();
             const name = document.getElementById('piutang-name').value.trim();
@@ -1046,14 +1030,14 @@
             };
 
             piutangItems.push(newItem);
-            savePiutangToLocal();
             renderPiutangUI();
             document.getElementById('piutang-form').reset();
 
             showModal('✅', 'Piutang Dicatat', `Pinjaman atas nama <b>${name}</b> berhasil disimpan dan otomatis diakumulasikan ke Tabungan Pribadi khusus tab Piutang!`, `<button type="button" onclick="closeAllModals()" class="btn-primary" style="padding: 14px; border-radius: 14px; width:100%;">OK</button>`);
+            await postToSheet({ action: 'addPiutang', ...newItem });
         }
 
-        function togglePiutangStatus(id) {
+        async function togglePiutangStatus(id) {
             const item = piutangItems.find(p => p.id === id);
             if (!item) return;
 
@@ -1063,8 +1047,8 @@
             } else {
                 item.status = 'unpaid';
             }
-            savePiutangToLocal();
             renderPiutangUI();
+            await postToSheet({ action: 'updatePiutang', id: item.id, status: item.status });
         }
 
         function deletePiutangItem(id) {
@@ -1074,11 +1058,11 @@
             `);
         }
 
-        function executeDeletePiutang(id) {
+        async function executeDeletePiutang(id) {
             piutangItems = piutangItems.filter(p => p.id !== id);
-            savePiutangToLocal();
             renderPiutangUI();
             closeAllModals();
+            await postToSheet({ action: 'deletePiutang', id: id });
         }
 
         function renderPiutangUI() {
@@ -1161,26 +1145,6 @@
         }
 
         // ================= FUNGSI ROADMAP DINAMIS ================= //
-        function saveRoadmapToLocal() {
-            if(currentSessionKey) {
-                localStorage.setItem('roadmap_secure_db', CryptoJS.AES.encrypt(JSON.stringify(roadmapData), currentSessionKey).toString());
-            }
-        }
-
-        function loadRoadmapProgress() {
-            try { 
-                const stored = localStorage.getItem('roadmap_secure_db');
-                if (stored) {
-                    roadmapData = JSON.parse(CryptoJS.AES.decrypt(stored, currentSessionKey).toString(CryptoJS.enc.Utf8));
-                } else {
-                    roadmapData = JSON.parse(JSON.stringify(defaultRoadmap));
-                }
-            } catch(e) { 
-                roadmapData = JSON.parse(JSON.stringify(defaultRoadmap));
-            }
-            renderRoadmapUI();
-        }
-
         function renderRoadmapUI() {
             const container = document.getElementById('roadmap-months-container');
             if(!container) return;
@@ -1226,14 +1190,14 @@
             if (pct === 100 && totalTasks > 0) confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
         }
 
-        function toggleRoadmapTask(monthId, taskId, isChecked) {
+        async function toggleRoadmapTask(monthId, taskId, isChecked) {
             const month = roadmapData.find(m => m.id === monthId);
             if(month) {
                 const task = month.tasks.find(t => t.id === taskId);
                 if(task) {
                     task.done = isChecked;
-                    saveRoadmapToLocal();
                     renderRoadmapUI();
+                    await postToSheet({ action: 'updateRoadmap', roadmap: JSON.stringify(roadmapData) });
                 }
             }
         }
@@ -1246,7 +1210,7 @@
 
         function closeRoadmapAddModal() { document.getElementById('roadmap-add-modal').classList.remove('active'); }
 
-        function saveNewRoadmapTask(e) {
+        async function saveNewRoadmapTask(e) {
             e.preventDefault();
             const monthId = document.getElementById('add-task-month-id').value;
             const text = document.getElementById('add-task-text').value.trim();
@@ -1255,18 +1219,18 @@
             const month = roadmapData.find(m => m.id === monthId);
             if(month) {
                 month.tasks.push({ id: 't_' + Math.random().toString(36).substr(2, 9), text: text, done: false });
-                saveRoadmapToLocal();
                 renderRoadmapUI();
+                await postToSheet({ action: 'updateRoadmap', roadmap: JSON.stringify(roadmapData) });
             }
             closeRoadmapAddModal();
         }
 
-        function deleteRoadmapTask(monthId, taskId) {
+        async function deleteRoadmapTask(monthId, taskId) {
             const month = roadmapData.find(m => m.id === monthId);
             if(month) {
                 month.tasks = month.tasks.filter(t => t.id !== taskId);
-                saveRoadmapToLocal();
                 renderRoadmapUI();
+                await postToSheet({ action: 'updateRoadmap', roadmap: JSON.stringify(roadmapData) });
             }
         }
 
@@ -1277,11 +1241,11 @@
             `);
         }
 
-        function executeResetRoadmap() {
+        async function executeResetRoadmap() {
             roadmapData.forEach(month => { month.tasks.forEach(task => task.done = false); });
-            saveRoadmapToLocal();
             renderRoadmapUI();
             closeAllModals();
+            await postToSheet({ action: 'updateRoadmap', roadmap: JSON.stringify(roadmapData) });
         }
 
         function exportToCSV() {
@@ -1305,14 +1269,8 @@
             document.body.removeChild(link);
         }
 
-        function saveToLocal() { if(currentSessionKey) localStorage.setItem('keuangan_secure_db', CryptoJS.AES.encrypt(JSON.stringify(transactions), currentSessionKey).toString()); }
-        function loadFromLocal(key) { try { return JSON.parse(CryptoJS.AES.decrypt(localStorage.getItem('keuangan_secure_db'), key).toString(CryptoJS.enc.Utf8)); } catch(e) { return null; } }
-
-        function savePlannerToLocal() { if(currentSessionKey) localStorage.setItem('keuangan_planner_db', CryptoJS.AES.encrypt(JSON.stringify(plannerItems), currentSessionKey).toString()); }
-        function loadPlannerFromLocal(key) { try { return JSON.parse(CryptoJS.AES.decrypt(localStorage.getItem('keuangan_planner_db'), key).toString(CryptoJS.enc.Utf8)); } catch(e) { return null; } }
-
-        let financialGoals = JSON.parse(localStorage.getItem('financialGoals')) || { wealthGoal: 50000000, goldGoal: 10000000 };
-        let goldPricePerGram = parseFloat(localStorage.getItem('goldPricePerGram')) || 1250000;
+        let financialGoals = { wealthGoal: 50000000, goldGoal: 10000000 };
+        let goldPricePerGram = 1250000;
         
         if(document.getElementById('gold-price-input')) {
             document.getElementById('gold-price-input').value = new Intl.NumberFormat('id-ID').format(goldPricePerGram);
@@ -1332,7 +1290,6 @@
 
                     if (calculatedIDR > 500000) {
                         goldPricePerGram = calculatedIDR;
-                        localStorage.setItem('goldPricePerGram', goldPricePerGram);
                         if(document.getElementById('gold-price-input')) {
                             document.getElementById('gold-price-input').value = new Intl.NumberFormat('id-ID').format(goldPricePerGram);
                         }
@@ -1350,7 +1307,6 @@
             const rawVal = document.getElementById('gold-price-input').value.replace(/\./g, '');
             if(rawVal && !isNaN(rawVal)) { 
                 goldPricePerGram = parseFloat(rawVal); 
-                localStorage.setItem('goldPricePerGram', goldPricePerGram); 
                 const statusEl = document.getElementById('api-status');
                 if(statusEl) statusEl.innerText = "(Manual Update)";
                 updateUI(); 
@@ -1374,7 +1330,6 @@
             if(wRaw && gRaw) {
                 financialGoals.wealthGoal = parseInt(wRaw);
                 financialGoals.goldGoal = parseInt(gRaw);
-                localStorage.setItem('financialGoals', JSON.stringify(financialGoals));
                 closeGoalsModal();
                 updateUI();
             }
@@ -1467,11 +1422,10 @@
                 transactions[idx].type = type;
                 transactions[idx].amount = amt;
                 transactions[idx].source = source;
-                saveToLocal();
                 updateUI();
                 
-                await deleteTransactionFromSheet(id);
-                await addTransactionToSheet(transactions[idx]);
+                await postToSheet({ action: 'delete', id: id });
+                await postToSheet({ action: 'add', ...transactions[idx] });
             }
         }
 
@@ -1498,14 +1452,12 @@
                 frm.reset(); 
                 handleTypeChange();
 
-                saveToLocal(); 
                 updateUI();
-
-                await addTransactionToSheet(newTrx);
+                await postToSheet({ action: 'add', ...newTrx });
             });
         }
 
-        function addPlannerItem(e) {
+        async function addPlannerItem(e) {
             e.preventDefault();
             const desc = document.getElementById('planner-desc').value;
             const type = document.getElementById('planner-type').value;
@@ -1514,10 +1466,11 @@
             
             if(!amt) return;
 
-            plannerItems.push({ id: 'pln_' + Math.random().toString(36).substr(2, 9), desc: desc, type: type, amount: amt });
-            savePlannerToLocal();
+            const newItem = { id: 'pln_' + Math.random().toString(36).substr(2, 9), desc: desc, type: type, amount: amt };
+            plannerItems.push(newItem);
             renderPlannerUI();
             document.getElementById('planner-form').reset();
+            await postToSheet({ action: 'addPlanner', ...newItem });
         }
 
         function editPlannerItem(id) {
@@ -1534,7 +1487,7 @@
 
         function closePlannerEditModal() { document.getElementById('planner-edit-modal').classList.remove('active'); }
 
-        function saveEditedPlanner(e) {
+        async function saveEditedPlanner(e) {
             e.preventDefault();
             const id = document.getElementById('edit-planner-id').value;
             const desc = document.getElementById('edit-planner-desc').value;
@@ -1549,8 +1502,9 @@
                 plannerItems[idx].desc = desc;
                 plannerItems[idx].type = type;
                 plannerItems[idx].amount = amt;
-                savePlannerToLocal();
                 renderPlannerUI();
+                await postToSheet({ action: 'deletePlanner', id: id });
+                await postToSheet({ action: 'addPlanner', ...plannerItems[idx] });
             }
             closePlannerEditModal();
         }
@@ -1562,11 +1516,11 @@
             `);
         }
 
-        function executeDeletePlanner(id) {
+        async function executeDeletePlanner(id) {
             plannerItems = plannerItems.filter(item => item.id !== id);
-            savePlannerToLocal();
             renderPlannerUI();
             closeAllModals();
+            await postToSheet({ action: 'deletePlanner', id: id });
         }
 
         function renderPlannerUI() {
@@ -1772,45 +1726,6 @@
             else el.className = 'stat-trend trend-flat';
         }
 
-        function checkAndUpdateSnapshots(cash, simpanan, pribadi, tring, jago) {
-            const now = new Date();
-            const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-            const currentDateKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-
-            let snapshots = JSON.parse(localStorage.getItem('financialSnapshots')) || { monthly: {}, daily: {} };
-            let lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-            let prevMonthKey = `${lastMonthDate.getFullYear()}-${String(lastMonthDate.getMonth()+1).padStart(2,'0')}`;
-            
-            if(!snapshots.monthly[currentMonthKey]) {
-                snapshots.monthly[currentMonthKey] = { cash, simpanan, pribadi };
-                localStorage.setItem('financialSnapshots', JSON.stringify(snapshots));
-            }
-
-            let prevMonthData = snapshots.monthly[prevMonthKey] || snapshots.monthly[currentMonthKey];
-            calculateAndRenderTrend('trend-cash', cash, prevMonthData.cash);
-            calculateAndRenderTrend('trend-simpanan', simpanan, prevMonthData.simpanan);
-            calculateAndRenderTrend('trend-pribadi', pribadi, prevMonthData.pribadi);
-            
-            calculateAndRenderTrend('piutang-trend-cash', cash, prevMonthData.cash);
-            calculateAndRenderTrend('piutang-trend-simpanan', simpanan, prevMonthData.simpanan);
-            calculateAndRenderTrend('piutang-trend-pribadi', pribadi, prevMonthData.pribadi);
-
-            let yesterday = new Date(now);
-            yesterday.setDate(now.getDate() - 1);
-            let prevDateKey = `${yesterday.getFullYear()}-${String(yesterday.getMonth()+1).padStart(2,'0')}-${String(yesterday.getDate()).padStart(2,'0')}`;
-
-            if(!snapshots.daily[currentDateKey]) {
-                snapshots.daily[currentDateKey] = { tring, jago };
-                localStorage.setItem('financialSnapshots', JSON.stringify(snapshots));
-            }
-
-            let prevDayData = snapshots.daily[prevDateKey] || snapshots.daily[currentDateKey];
-            calculateAndRenderTrend('trend-tring', tring, prevDayData.tring);
-            calculateAndRenderTrend('trend-jago', jago, prevDayData.jago);
-            calculateAndRenderTrend('piutang-trend-tring', tring, prevDayData.tring);
-            calculateAndRenderTrend('piutang-trend-jago', jago, prevDayData.jago);
-        }
-
         function updateUI() {
             const containerEl = document.getElementById('list'); 
             if(containerEl) containerEl.innerHTML = ''; 
@@ -1937,14 +1852,13 @@
             document.getElementById('gold-progress-bar').style.width = Math.min((gold/financialGoals.goldGoal)*100, 100) + '%'; 
             document.getElementById('gold-progress-text').innerText = Math.min((gold/financialGoals.goldGoal)*100, 100).toFixed(1) + '%';
             
-            checkAndUpdateSnapshots(cash, totalSimAll, totalPriAll, trgRp, totalJagAll);
             updateCharts(cash, totalSimAll, totalPriAll, trgRp, totalJagAll, totalIncAll, totalExpAll);
             updateFinancialAnalysis(filteredInc, filteredExp);
             renderPlannerUI(); 
         }
 
         function deleteTransaction(id) {
-            showModal('🗑️', 'Hapus Transaksi', 'Apakah kamu yakin ingin menghapus catatan transaksi ini dari aplikasi dan Spreadsheet?', `
+            showModal('🗑️', 'Hapus Transaksi', 'Apakah kamu yakin ingin menghapus catatan transaksi ini dari Spreadsheet?', `
                 <button type="button" onclick="closeAllModals()" class="btn-danger" style="flex: 1; padding: 14px; border-radius: 14px;">Batal</button>
                 <button type="button" onclick="executeDeleteTransaction('${id}')" class="btn-primary" style="flex: 1; padding: 14px; border-radius: 14px;">Ya, Hapus</button>
             `);
@@ -1952,24 +1866,9 @@
 
         async function executeDeleteTransaction(id) {
             transactions = transactions.filter(t => String(t.id) !== String(id));
-            saveToLocal();
             updateUI();
             closeAllModals();
-            await deleteTransactionFromSheet(id);
-        }
-
-        function confirmResetData() {
-            showModal('⚠️', 'Bersihkan Data Lokal', 'Tindakan ini hanya membersihkan cache lokal browser. Data di Google Spreadsheet aman.', `
-                <button type="button" onclick="closeAllModals()" class="btn-primary" style="flex: 1; padding: 14px; border-radius: 14px;">Batal</button>
-                <button type="button" onclick="executeResetData()" class="btn-danger" style="flex: 1; padding: 14px; border-radius: 14px;">Bersihkan</button>
-            `);
-        }
-
-        function executeResetData() {
-            localStorage.removeItem('financialSnapshots');
-            saveToLocal();
-            updateUI();
-            closeAllModals();
+            await postToSheet({ action: 'delete', id: id });
         }
     </script>
 </body>
