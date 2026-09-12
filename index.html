@@ -920,12 +920,25 @@
         }
 
         // ================= KONEKSI MURNI APPS SCRIPT (ANTI CORS) ================= //
+        
+        // Fungsi utama buat ngirim data pakai URLSearchParams (Tembus blokir browser)
+        async function apiCall(payload) {
+            const params = new URLSearchParams();
+            for (const key in payload) {
+                params.append(key, payload[key]);
+            }
+            
+            const response = await fetch(SHEET_WEB_APP_URL, {
+                method: 'POST',
+                body: params // Browser otomatis set ke format form-urlencoded yg aman dari CORS
+            });
+            return await response.json();
+        }
+
         async function syncAllDataFromSheet() {
             try {
-                // MENGGUNAKAN METODE GET: Dijamin 100% masuk tanpa diblokir CORS browser!
-                const url = `${SHEET_WEB_APP_URL}?action=syncAll&token=${SHEET_TOKEN}`;
-                const response = await fetch(url);
-                const result = await response.json();
+                // Tarik semua data waktu aplikasi baru kebuka
+                const result = await apiCall({ action: 'syncAll', token: SHEET_TOKEN });
                 
                 if (result.status === 'success') {
                     transactions = result.transactions || [];
@@ -938,17 +951,25 @@
                     renderPiutangUI();
                     renderRoadmapUI();
                 } else {
-                    console.error("Gagal sinkron:", result.message);
-                    alert("Error dari Server: " + result.message);
+                    console.error("Gagal sinkron dari sheet:", result.message);
                 }
             } catch (err) {
-                console.error('Koneksi GET gagal:', err);
+                console.error('Koneksi Fetch gagal total:', err);
+                // Fallback kalau offline atau error
                 roadmapData = JSON.parse(JSON.stringify(defaultRoadmap));
                 updateUI(); renderPlannerUI(); renderPiutangUI(); renderRoadmapUI();
-                showModal('⚠️', 'Gagal Terhubung', 'Gagal narik data dari Google Sheet. Cek koneksi atau URL Web App.', '<button onclick="closeAllModals()" class="btn-primary" style="width:100%; padding:14px; border-radius:14px;">OK</button>');
             }
         }
 
+        async function postToSheet(payload) {
+            try {
+                // Fungsi otomatis kirim data ke sheet setiap ada action (Add/Delete)
+                await apiCall({ token: SHEET_TOKEN, ...payload });
+            } catch (err) {
+                console.error('Gagal mengirim data ke Spreadsheet:', err);
+            }
+        }
+        // ========================================================================= //
         async function postToSheet(payload) {
             try {
                 // MENGIRIM SEBAGAI TEKS POLOS: Cara ampuh untuk bypass preflight OPTIONS Google
