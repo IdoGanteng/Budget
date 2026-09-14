@@ -454,26 +454,27 @@
 
                     <div class="glass-panel" style="padding: 24px;">
                         <h2 class="panel-title" id="form-panel-title">Catat Transaksi</h2>
-                        <form id="form">
-                            <input type="text" id="desc" placeholder="Keterangan (Makan, Darurat, dll)" autocomplete="off" required>
-                            <input type="text" id="amount" placeholder="Nominal Rupiah / Gram" autocomplete="off" required>
-                            <select id="type" onchange="handleTypeChange()">
-                                <optgroup label="Uang Harian"><option value="income">Pemasukan (+)</option><option value="expense">Pengeluaran (-)</option></optgroup>
-                                <optgroup label="Ambil Tabungan & Aset"><option value="withdraw">Ambil dari Tabungan Pribadi (-)</option></optgroup>
-                                <optgroup label="Tabungan & Aset"><option value="simpanan">Simpanan Wajib (+)</option><option value="pribadi">Tabungan Pribadi (+)</option><option value="tring">Emas Tring (+)</option><option value="jago">Emas Jago (- Kas)</option></optgroup>
-                            </select>
-                            <div id="withdraw-source-container" style="display: none;">
-                                <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Sumber Pengambilan Tabungan</label>
-                                <select id="withdraw-source">
-                                    <option value="pribadi" selected>Tabungan Pribadi</option>
-                                    <option value="simpanan">Simpanan Wajib</option>
-                                    <option value="tring">Emas Tring</option>
-                                    <option value="jago">Emas Jago</option>
+                        <!-- Ganti bagian form catat transaksi di HTML lu dengan ini -->
+                                <form id="form">
+                                <input type="text" id="desc" placeholder="Keterangan (Makan, Darurat, dll)" autocomplete="off" required>
+                                <input type="text" id="amount" placeholder="Nominal Rupiah / Gram" autocomplete="off" required>
+                                <select id="type" onchange="handleTypeChange()">
+                                    <optgroup label="Uang Harian"><option value="income">Pemasukan (+)</option><option value="expense">Pengeluaran (-)</option></optgroup>
+                                    <optgroup label="Ambil Tabungan & Aset"><option value="withdraw">Ambil dari Tabungan Pribadi (-)</option></optgroup>
+                                    <optgroup label="Tabungan & Aset"><option value="simpanan">Simpanan Wajib (+)</option><option value="pribadi">Tabungan Pribadi (+)</option><option value="tring">Emas Tring (+)</option><option value="jago">Emas Jago (- Kas)</option></optgroup>
                                 </select>
-                            </div>
-                            <button type="submit" id="form-submit-btn" class="btn-primary" style="padding: 14px; border-radius: 14px;">Simpan Catatan</button>
-                        </form>
-                    </div>
+                                <div id="withdraw-source-container" style="display: none;">
+                                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Sumber Pengambilan Tabungan</label>
+                                    <select id="withdraw-source">
+                                        <option value="pribadi" selected>Tabungan Pribadi</option>
+                                        <option value="simpanan">Simpanan Wajib</option>
+                                        <option value="tring">Emas Tring</option>
+                                        <option value="jago">Emas Jago</option>
+                                    </select>
+                                </div>
+                                <button type="submit" id="form-submit-btn" class="btn-primary" style="padding: 14px; border-radius: 14px;">Simpan Catatan (Enter ↵)</button>
+                            </form>
+                        </div>
 
                     <div class="glass-panel" style="padding: 24px;">
                         <div class="panel-title" style="margin-bottom: 16px;">
@@ -775,7 +776,35 @@
 
         const SESSION_DURATION = 5 * 60 * 1000; 
         let idleTimer;
+            // Tambahkan event listener untuk support Enter key yang smooth
+            const amountInputEl = document.getElementById('amount');
+            if (amountInputEl) {
+                amountInputEl.addEventListener('input', function (e) {
+                    const t = document.getElementById('type').value;
+                    const src = document.getElementById('withdraw-source').value;
+                    if (t !== 'tring' && !(t === 'withdraw' && src === 'tring')) {
+                        let raw = this.value.replace(/[^0-9]/g, '');
+                        this.value = raw ? new Intl.NumberFormat('id-ID').format(raw) : '';
+                    } else {
+                        this.value = this.value.replace(/[^0-9.,]/g, '').replace(',', '.');
+                    }
+                });
 
+                // Fitur Enter: Pindah fokus atau langsung submit kalau di input terakhir
+                const formInputs = document.querySelectorAll('#form input');
+                formInputs.forEach((input, index) => {
+                    input.addEventListener('keydown', function (e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (index < formInputs.length - 1) {
+                                formInputs[index + 1].focus();
+                            } else {
+                                document.getElementById('form').dispatchEvent(new Event('submit'));
+                            }
+                        }
+                    });
+                });
+            }
         let roadmapData = [];
         const defaultRoadmap = [
             { id: 'm1', badge: 'Bulan 1', badgeColor: 'rgba(245, 158, 11, 0.15)', textColor: 'var(--tring)', title: 'Kesehatan & Dasar IT', tasks: [
@@ -810,6 +839,7 @@
             ]}
         ];
 
+        
         function closeAllModals(e) {
             if(e) e.stopPropagation();
             document.querySelectorAll('.modal-overlay').forEach(modal => { modal.classList.remove('active'); });
