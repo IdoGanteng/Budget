@@ -789,7 +789,68 @@
                         this.value = this.value.replace(/[^0-9.,]/g, '').replace(',', '.');
                     }
                 });
+                    // ================= IMPROVE KEYBOARD & ENTER SUPPORT ================= //
 
+                    // 1. Support Enter di Form Login
+                    const loginPasswordInput = document.getElementById('password-input');
+                    const loginUsernameInput = document.getElementById('username-input');
+
+                    if (loginPasswordInput && loginUsernameInput) {
+                        [loginUsernameInput, loginPasswordInput].forEach(input => {
+                            input.addEventListener('keydown', function(e) {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    // Panggil fungsi login yang sudah ada
+                                    const loginForm = document.querySelector('#login-container form');
+                                    if (loginForm) loginForm.dispatchEvent(new Event('submit'));
+                                }
+                            });
+                        });
+                    }
+
+                    // 2. Support Enter & Navigasi di Form Transaksi Utama
+                    const descInput = document.getElementById('desc');
+                    const amountInput = document.getElementById('amount');
+
+                    if (descInput && amountInput) {
+                        descInput.addEventListener('keydown', function(e) {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                amountInput.focus(); // Pindah otomatis ke kolom nominal
+                                amountInput.select(); // Highlight angka kalau ada
+                            }
+                        });
+
+                        amountInput.addEventListener('keydown', function(e) {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                const mainForm = document.getElementById('form');
+                                if (mainForm) mainForm.dispatchEvent(new Event('submit'));
+                            }
+                        });
+                    }
+
+                    // 3. Support Enter di Modal Edit Transaksi
+                    const editDesc = document.getElementById('edit-trx-desc');
+                    const editAmount = document.getElementById('edit-trx-amount');
+
+                    if (editDesc && editAmount) {
+                        editDesc.addEventListener('keydown', function(e) {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                editAmount.focus();
+                                editAmount.select();
+                            }
+                        });
+
+                        editAmount.addEventListener('keydown', function(e) {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                const editForm = document.querySelector('#transaction-edit-modal form');
+                                if (editForm) editForm.dispatchEvent(new Event('submit'));
+                            }
+                        });
+                    }
                 // Fitur Enter: Pindah fokus atau langsung submit kalau di input terakhir
                 const formInputs = document.querySelectorAll('#form input');
                 formInputs.forEach((input, index) => {
