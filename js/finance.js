@@ -200,7 +200,12 @@ function saveToLocal() {
 function loadFromLocal(sessionKey) {
     const key = getUserStorageKey();
     const sk = sessionKey || getAppSessionKey();
-    const stored = localStorage.getItem(key);
+    let stored = localStorage.getItem(key);
+    
+    // Fallback ke legacy key 'keuangan_secure_db' jika key per-user belum terisi
+    if (!stored) {
+        stored = localStorage.getItem('keuangan_secure_db');
+    }
     if (!stored) return [];
 
     const trimmed = stored.trim();
@@ -286,13 +291,11 @@ async function processOfflineQueue() {
         const item = queue[0];
         try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 8000);
+            const timeoutId = setTimeout(() => controller.abort(), 20000);
 
             const payload = {
                 action: item.action,
                 token: config.token,
-                user_email: config.email,
-                user_id: config.userId,
                 ...item.trx
             };
 
@@ -332,6 +335,14 @@ async function syncTransactionsFromSheet(manual = false) {
     const config = getUserSpreadsheetConfig();
     const sessionKey = getAppSessionKey();
 
+    // 1. Muat data lokal seketika agar antarmuka tidak kosong
+    if (!transactions || transactions.length === 0) {
+        transactions = loadFromLocal(sessionKey) || [];
+        if (transactions.length > 0 && typeof updateUI === 'function') {
+            updateUI();
+        }
+    }
+
     if (!navigator.onLine) {
         transactions = loadFromLocal(sessionKey) || [];
         if (typeof updateUI === 'function') updateUI();
@@ -346,11 +357,11 @@ async function syncTransactionsFromSheet(manual = false) {
 
     try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 8000);
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
 
         const response = await fetch(config.url, {
             method: 'POST',
-            body: JSON.stringify({ action: 'sync', token: config.token, user_email: config.email, user_id: config.userId }),
+            body: JSON.stringify({ action: 'sync', token: config.token }),
             signal: controller.signal
         });
         clearTimeout(timeoutId);
@@ -359,10 +370,15 @@ async function syncTransactionsFromSheet(manual = false) {
         if (result && result.status === 'success' && Array.isArray(result.data)) {
             transactions = result.data;
             saveToLocal();
+            // Backup ke legacy key agar selalu tersimpan di browser
+            try {
+                localStorage.setItem('keuangan_secure_db', JSON.stringify(transactions));
+            } catch(e) {}
+
             if (typeof updateUI === 'function') updateUI();
             updateSyncIndicator();
             if (manual && typeof showToast === 'function') {
-                showToast('Data berhasil disinkronkan dari Google Spreadsheet ⚡', 'success', '☁️');
+                showToast(`Data berhasil disinkronkan (${transactions.length} transaksi) ⚡`, 'success', '☁️');
             }
         } else {
             transactions = loadFromLocal(sessionKey) || [];
@@ -370,10 +386,13 @@ async function syncTransactionsFromSheet(manual = false) {
             updateSyncIndicator();
         }
     } catch (err) {
-        console.warn('Gagal mengambil data Spreadsheet (offline/timeout), gunakan data lokal.');
+        console.warn('Gagal mengambil data Spreadsheet, gunakan data lokal:', err);
         transactions = loadFromLocal(sessionKey) || [];
         if (typeof updateUI === 'function') updateUI();
         updateSyncIndicator();
+        if (manual && typeof showToast === 'function') {
+            showToast('Tidak dapat menghubungi Spreadsheet, menggunakan data lokal.', 'warning', '⚠️');
+        }
     }
 }
 
@@ -461,19 +480,20 @@ async function testSpreadsheetConnection() {
 
     try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        const timeoutId = setTimeout(() => controller.abort(), 20000);
 
         const res = await fetch(url, {
             method: 'POST',
-            body: JSON.stringify({ action: 'ping', token: token }),
+            body: JSON.stringify({ action: 'sync', token: token }),
             signal: controller.signal
         });
         clearTimeout(timeoutId);
 
         const json = await res.json();
-        if (json && (json.status === 'success' || json.message)) {
+        if (json && json.status === 'success') {
+            const count = Array.isArray(json.data) ? json.data.length : 0;
             if (typeof showToast === 'function') {
-                showToast('✅ Berhasil terhubung ke Google Spreadsheet Anda!', 'success', '🎉');
+                showToast(`✅ Berhasil terhubung ke Google Spreadsheet! (${count} transaksi ditemukan)`, 'success', '🎉');
             }
         } else {
             if (typeof showToast === 'function') {

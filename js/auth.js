@@ -397,6 +397,8 @@ function executeGoogleLoginSuccess(googleUser) {
     if (typeof populateSpreadsheetSettingsInputs === 'function') populateSpreadsheetSettingsInputs();
     if (typeof updateSyncIndicator === 'function') updateSyncIndicator();
 
+    if (typeof updateUI === 'function') updateUI();
+
     if (typeof fetchAutoGoldPrice === 'function') fetchAutoGoldPrice();
     if (typeof syncTransactionsFromSheet === 'function') syncTransactionsFromSheet();
     resetIdleTimer();
@@ -455,6 +457,8 @@ async function handleLogin(e) {
         renderUserInterfaceWidgets();
         if (typeof populateSpreadsheetSettingsInputs === 'function') populateSpreadsheetSettingsInputs();
         if (typeof updateSyncIndicator === 'function') updateSyncIndicator();
+
+        if (typeof updateUI === 'function') updateUI();
 
         if (typeof fetchAutoGoldPrice === 'function') fetchAutoGoldPrice();
         if (typeof syncTransactionsFromSheet === 'function') await syncTransactionsFromSheet();
@@ -599,7 +603,11 @@ function renderUserInterfaceWidgets() {
             opt.innerText = `${u.avatar || '👤'} ${u.name}`;
             userFilterSelect.appendChild(opt);
         });
-        userFilterSelect.value = curVal;
+        if (Array.from(userFilterSelect.options).some(opt => opt.value === curVal)) {
+            userFilterSelect.value = curVal;
+        } else {
+            userFilterSelect.value = 'all';
+        }
     }
 
     // 5. Update Mobile Profile Hero Card & Switcher

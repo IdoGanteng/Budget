@@ -475,7 +475,7 @@ function updateUI() {
     });
 
     if (monthSelect) {
-        let currentVal = monthSelect.value;
+        let currentVal = monthSelect.value || 'all';
         monthSelect.innerHTML = '<option value="all">Semua Bulan</option>';
         Array.from(monthsSet).sort().forEach(m => {
             let opt = document.createElement('option');
@@ -483,7 +483,11 @@ function updateUI() {
             opt.innerText = m;
             monthSelect.appendChild(opt);
         });
-        monthSelect.value = currentVal;
+        if (Array.from(monthSelect.options).some(opt => opt.value === currentVal)) {
+            monthSelect.value = currentVal;
+        } else {
+            monthSelect.value = 'all';
+        }
     }
 
     let totalIncAll = 0, totalExpAll = 0, totalSimAll = 0, totalPriAll = 0, totalTrgAll = 0, totalJagAll = 0;
@@ -501,16 +505,24 @@ function updateUI() {
         
         // Cek filter bulan
         let isMonthMatch = true;
-        if (selectedMonth !== 'all' && cleanD) {
+        if (selectedMonth && selectedMonth !== 'all' && cleanD) {
             let parts = cleanD.split('/');
             if (parts.length === 3 && (parts[1] + '/' + parts[2]) !== selectedMonth) isMonthMatch = false;
         }
 
         // Cek filter user
         let isUserMatch = true;
-        if (selectedUser !== 'all') {
-            if (trx.userId && trx.userId !== selectedUser) isUserMatch = false;
-            else if (!trx.userId && selectedUser !== 'user_rebel') isUserMatch = false;
+        if (selectedUser && selectedUser !== 'all') {
+            if (trx.userId) {
+                if (trx.userId !== selectedUser) isUserMatch = false;
+            } else {
+                // Transaksi dari spreadsheet yang belum memiliki tag userId khusus
+                const active = (typeof getActiveUser === 'function') ? getActiveUser() : null;
+                const activeId = active ? active.id : 'user_rebel';
+                if (selectedUser !== 'user_rebel' && selectedUser !== activeId) {
+                    isUserMatch = false;
+                }
+            }
         }
 
         // Hitung total keseluruhan (Global Vault Total)
@@ -547,7 +559,8 @@ function updateUI() {
 
         // Multi-User Analytics (Kompilasi pengeluaran per user pada filter bulan ini)
         if (isMonthMatch && (trx.type === 'expense' || trx.type === 'jago' || trx.type === 'inv_jago')) {
-            const uName = trx.userName || 'Rebel';
+            const activeUser = (typeof getActiveUser === 'function') ? getActiveUser() : null;
+            const uName = trx.userName || (activeUser ? activeUser.name : 'Rebel');
             userExpensesMap[uName] = (userExpensesMap[uName] || 0) + amt;
             userCountsMap[uName] = (userCountsMap[uName] || 0) + 1;
         }
@@ -634,7 +647,9 @@ function updateUI() {
                         typeColor = 'var(--pribadi)'; 
                     }
                     
-                    const userLabel = trx.userName ? escapeHtml(trx.userName) : 'Rebel';
+                    const activeUser = (typeof getActiveUser === 'function') ? getActiveUser() : null;
+                    const fallbackName = activeUser ? activeUser.name : 'Rebel';
+                    const userLabel = trx.userName ? escapeHtml(trx.userName) : escapeHtml(fallbackName);
                     const catLabel = trx.category ? ` • ${escapeHtml(trx.category)}` : '';
 
                     li.innerHTML = `

@@ -186,12 +186,22 @@ window.addEventListener('DOMContentLoaded', async () => {
     initGoogleAuth();
 
     // 5. Cek Sesi Login yang Aktif
-    if (sessionStorage.getItem('isLoggedIn') === 'true' && currentSessionKey) {
+    const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
+    if (isLoggedIn) {
+        if (!currentSessionKey) {
+            currentSessionKey = sessionStorage.getItem('appEncryptionKey') || 'default_key';
+        }
         const loginWrapper = document.getElementById('login-wrapper');
         const appContainer = document.getElementById('app-container');
         if (loginWrapper) loginWrapper.style.display = 'none';
         if (appContainer) appContainer.style.display = 'block';
         if (typeof switchAppTab === 'function') switchAppTab('home');
+
+        // Segera muat transaksi lokal agar UI langsung tampil seketika
+        if (typeof loadFromLocal === 'function') {
+            transactions = loadFromLocal(currentSessionKey) || [];
+            if (typeof updateUI === 'function') updateUI();
+        }
         
         updateHeaderGreeting();
         renderUserInterfaceWidgets();
