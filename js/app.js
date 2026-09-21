@@ -191,10 +191,12 @@ window.addEventListener('DOMContentLoaded', async () => {
         const appContainer = document.getElementById('app-container');
         if (loginWrapper) loginWrapper.style.display = 'none';
         if (appContainer) appContainer.style.display = 'block';
-        if (typeof switchMobileTab === 'function') switchMobileTab('home');
+        if (typeof switchAppTab === 'function') switchAppTab('home');
         
         updateHeaderGreeting();
         renderUserInterfaceWidgets();
+        if (typeof populateSpreadsheetSettingsInputs === 'function') populateSpreadsheetSettingsInputs();
+        if (typeof updateSyncIndicator === 'function') updateSyncIndicator();
 
         fetchAutoGoldPrice();
         await syncTransactionsFromSheet();

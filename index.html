@@ -34,7 +34,7 @@
     <!-- FLOATING TOAST NOTIFICATIONS -->
     <div id="toast-container"></div>
 
-    <!-- ================= LOGIN SCREEN (INSPIRED BY MEMFINANCE & INSTAGRAM GOOGLE LOGIN) ================= -->
+    <!-- ================= LOGIN SCREEN (INSTAGRAM-STYLE GOOGLE SIGN IN & SIGN UP) ================= -->
     <div id="login-wrapper">
         <div id="login-container">
             <div class="login-brand-header">
@@ -45,24 +45,24 @@
 
             <div class="login-box-card">
                 <div style="text-align: left;">
-                    <h2 style="font-size: 19px; font-weight: 800; color: var(--text-dark);">Selamat datang</h2>
-                    <p style="font-size: 13px; color: var(--text-gray); margin-top: 2px;">Pilih cara yang paling nyaman untuk masuk.</p>
+                    <h2 style="font-size: 19px; font-weight: 800; color: var(--text-dark);">Selamat Datang</h2>
+                    <p style="font-size: 13px; color: var(--text-gray); margin-top: 2px;">Setiap akun Google memiliki ruang vault mandiri &amp; database spreadsheet tersendiri.</p>
                 </div>
 
-                <!-- TOMBOL LOGIN GOOGLE RESMI & TERPERCAYA (ALA INSTAGRAM) -->
-                <button type="button" class="btn-google-primary" onclick="triggerGoogleLogin()" title="Masuk menggunakan Akun Google">
+                <!-- TOMBOL LOGIN / BUAT AKUN GOOGLE RESMI & AMAN (ALA INSTAGRAM) -->
+                <button type="button" class="btn-google-primary" onclick="triggerGoogleLogin()" title="Masuk / Buat Akun menggunakan Google">
                     <svg viewBox="0 0 24 24">
                         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                         <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                         <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
                         <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
                     </svg>
-                    <span>Login dengan Google</span>
+                    <span>Masuk / Buat Akun dengan Google</span>
                 </button>
 
                 <div class="or-divider">
                     <hr>
-                    <span>atau dengan password</span>
+                    <span>atau dengan password vault</span>
                     <hr>
                 </div>
 
@@ -155,6 +155,75 @@
         </div>
     </div>
 
+    <!-- ================= TRANSACTION BOTTOM SHEET / MODAL (TOP-LEVEL FOR 100% RELIABILITY ON HP & PC) ================= -->
+    <div id="sheet-backdrop" class="sheet-backdrop" onclick="closeAddTransactionSheet()"></div>
+    <div id="record-transaction-sheet" class="transaction-sheet-wrapper">
+        <div class="sheet-handle" onclick="closeAddTransactionSheet()"></div>
+        <div class="sheet-header">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 20px;">✍️</span>
+                <h2 class="panel-title" id="form-panel-title" style="margin: 0;">Catat Transaksi</h2>
+            </div>
+            <button type="button" class="sheet-close-btn" onclick="closeAddTransactionSheet()" aria-label="Tutup Formulir">✕</button>
+        </div>
+        <form id="form">
+            <!-- SELECTOR PENGGUNA UNTUK TRANSAKSI -->
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+                <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray);">Pengguna:</label>
+                <div class="form-user-chips" id="form-user-chips"></div>
+            </div>
+
+            <!-- SELECTOR KATEGORI CEPAT (MEMFINANCE STYLE) -->
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+                <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray);">Kategori:</label>
+                <div class="category-chips-row" id="form-category-chips" data-selected-category="makan">
+                    <button type="button" class="cat-btn selected" data-cat="makan">🍔 Makan</button>
+                    <button type="button" class="cat-btn" data-cat="transport">🚗 Transport</button>
+                    <button type="button" class="cat-btn" data-cat="belanja">🛍️ Belanja</button>
+                    <button type="button" class="cat-btn" data-cat="tagihan">🏠 Tagihan</button>
+                    <button type="button" class="cat-btn" data-cat="hiburan">🎮 Hiburan</button>
+                    <button type="button" class="cat-btn" data-cat="kesehatan">💊 Kesehatan</button>
+                    <button type="button" class="cat-btn" data-cat="gaji">💼 Gaji</button>
+                    <button type="button" class="cat-btn" data-cat="investasi">🪙 Emas</button>
+                </div>
+            </div>
+
+            <div>
+                <input type="text" id="desc" placeholder="Keterangan (Makan siang, Gaji, dll)" autocomplete="off" required>
+            </div>
+
+            <div>
+                <input type="text" id="amount" placeholder="Nominal Rupiah / Gram" autocomplete="off" required>
+            </div>
+
+            <!-- TOMBOL QUICK AMOUNTS -->
+            <div class="quick-amount-row">
+                <button type="button" class="quick-amt-btn" onclick="addQuickAmount(20000)">+20rb</button>
+                <button type="button" class="quick-amt-btn" onclick="addQuickAmount(50000)">+50rb</button>
+                <button type="button" class="quick-amt-btn" onclick="addQuickAmount(100000)">+100rb</button>
+                <button type="button" class="quick-amt-btn" onclick="addQuickAmount(500000)">+500rb</button>
+                <button type="button" class="quick-amt-btn" onclick="addQuickAmount(1000000)">+1jt</button>
+            </div>
+
+            <select id="type" onchange="handleTypeChange()">
+                <optgroup label="Uang Harian"><option value="expense" selected>Pengeluaran (-)</option><option value="income">Pemasukan (+)</option></optgroup>
+                <optgroup label="Ambil Tabungan & Aset"><option value="withdraw">Ambil dari Tabungan Pribadi (-)</option></optgroup>
+                <optgroup label="Tabungan & Aset"><option value="simpanan">Simpanan Wajib (+)</option><option value="pribadi">Tabungan Pribadi (+)</option><option value="tring">Emas Tring (+)</option><option value="jago">Emas Jago (- Kas)</option></optgroup>
+            </select>
+            
+            <div id="withdraw-source-container" style="display: none;">
+                <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 4px;">Sumber Pengambilan</label>
+                <select id="withdraw-source">
+                    <option value="pribadi" selected>Tabungan Pribadi</option>
+                    <option value="simpanan">Simpanan Wajib</option>
+                    <option value="tring">Emas Tring</option>
+                    <option value="jago">Emas Jago</option>
+                </select>
+            </div>
+            <button type="submit" id="form-submit-btn" class="btn-primary">Simpan Transaksi (Enter ↵)</button>
+        </form>
+    </div>
+
     <!-- ================= MAIN APP CONTAINER ================= -->
     <div id="app-container" style="display: none;">
         
@@ -166,9 +235,31 @@
                     <div class="brand-title">Personal <span>OS</span></div>
                 </div>
 
+                <!-- DESKTOP NAV TABS -->
+                <div class="desktop-nav-tabs">
+                    <button type="button" class="desktop-tab-btn active" id="desktop-tab-home" onclick="switchAppTab('home')">
+                        <span>🏠</span> Beranda
+                    </button>
+                    <button type="button" class="desktop-tab-btn" id="desktop-tab-analytics" onclick="switchAppTab('analytics')">
+                        <span>📊</span> Analisa
+                    </button>
+                    <button type="button" class="desktop-tab-btn" id="desktop-tab-users" onclick="switchAppTab('users')">
+                        <span>👥</span> Pengguna &amp; Database
+                    </button>
+                    <button type="button" class="desktop-catat-btn" onclick="openAddTransactionModal()" title="Catat Transaksi Cepat">
+                        <span>＋</span> Catat
+                    </button>
+                </div>
+
                 <div class="nav-actions">
+                    <!-- SYNC STATUS INDICATOR PILL (OFFLINE / ONLINE / SYNCING) -->
+                    <div id="sync-status-indicator" class="sync-status-pill online" onclick="triggerManualSync()" title="Status Sinkronisasi Google Sheets. Klik untuk sinkronisasi manual.">
+                        <span class="status-dot green"></span>
+                        <span>Cloud Sync</span>
+                    </div>
+
                     <!-- MULTI-USER PROFILE SWITCHER BADGE -->
-                    <div class="nav-user-switcher" onclick="if(window.innerWidth <= 768){ switchMobileTab('users'); } else { openManageUsersModal(); }" title="Klik untuk Kelola / Ganti Pengguna">
+                    <div class="nav-user-switcher" onclick="switchAppTab('users')" title="Klik untuk Kelola / Ganti Pengguna">
                         <div class="user-avatar-badge" id="nav-user-avatar">👤</div>
                         <span class="user-name-label" id="nav-user-name">Memuat...</span>
                         <span class="user-role-badge" id="nav-user-role">User</span>
@@ -186,404 +277,354 @@
             </div>
         </div>
 
-        <!-- HERO OVERVIEW CARD (INSPIRED BY MEMFINANCE) -->
-        <div class="mem-hero-card tab-home-section">
-            <div class="mem-hero-top">
-                <div>
-                    <span class="mem-hero-label">Sisa untuk bulan ini</span>
-                    <div class="mem-hero-amount" id="mem-hero-amount">Rp 0</div>
-                    <div class="mem-hero-badge" id="mem-hero-badge">
-                        <span>●</span> Terkendali • Cloud Sync
-                    </div>
-                </div>
-                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
-                    <span class="badge" style="background: rgba(255,255,255,0.2); color:#ffffff; font-size:10px;">Fintech View</span>
-                    <button type="button" class="btn-hero-quick-add" onclick="openAddTransactionSheet()" title="Catat Transaksi Cepat">＋ Catat</button>
-                </div>
-            </div>
-
-            <div class="mem-mini-grid">
-                <div class="mem-mini-box">
-                    <div class="mem-mini-label">Pemasukan</div>
-                    <div class="mem-mini-val mem-mini-inc" id="mem-mini-inc">Rp 0</div>
-                </div>
-                <div class="mem-mini-box">
-                    <div class="mem-mini-label">Pengeluaran</div>
-                    <div class="mem-mini-val mem-mini-exp" id="mem-mini-exp">Rp 0</div>
-                </div>
-            </div>
-
-            <div class="mem-insight-banner" id="mem-insight-banner">
-                <span>✦</span>
-                <span>Anda masih punya ruang untuk menikmati akhir pekan. Keuangan terkendali!</span>
-            </div>
-        </div>
-
-        <!-- DASHBOARD KEUANGAN UTAMA -->
-        <div id="wrapper-budget" class="app-wrapper">
-            <div class="dashboard-layout">
+        <!-- ================= MAIN CONTENT APP TABS ================= -->
+        <main class="app-main-content">
+            
+            <!-- ================= TAB 1: BERANDA (HOME VIEW) ================= -->
+            <div id="view-home" class="dashboard-tab-view active">
                 
-                <!-- SIDEBAR COLUMN -->
-                <div class="sidebar-col">
-                    
-                    <!-- USER GREETING & MULTI-USER BAR (DESKTOP) -->
-                    <div class="glass-panel desktop-only" style="padding: 20px; position: relative; overflow: hidden; border-top: 4px solid var(--primary);">
-                        <div class="header-glow"></div>
-                        <div class="profile-header">
-                            <div class="profile-info">
-                                <div class="greeting-text dynamic-greeting">Halo, Rebel! ✨</div>
-                                <div class="date-text dynamic-date">📅 Sedang memuat tanggal...</div>
+                <!-- HERO OVERVIEW CARD (INSPIRED BY MEMFINANCE) -->
+                <div class="mem-hero-card">
+                    <div class="mem-hero-top">
+                        <div>
+                            <span class="mem-hero-label">Sisa untuk bulan ini</span>
+                            <div class="mem-hero-amount" id="mem-hero-amount">Rp 0</div>
+                            <div class="mem-hero-badge" id="mem-hero-badge">
+                                <span>●</span> Terkendali • Cloud Sync
                             </div>
                         </div>
-
-                        <!-- MULTI-USER QUICK SWITCHER STRIP -->
-                        <div class="multi-user-strip">
-                            <div class="user-strip-header">
-                                <span>👥 Profil Pengguna:</span>
-                                <button type="button" onclick="openManageUsersModal()" style="background: none; border: none; color: #14b8a6; font-size: 11px; font-weight: 700; cursor: pointer;">+ Kelola</button>
-                            </div>
-                            <div class="user-chips-row" id="sidebar-user-chips"></div>
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
+                            <span class="badge" style="background: rgba(255,255,255,0.2); color:#ffffff; font-size:10px;">Fintech View</span>
+                            <button type="button" class="btn-hero-quick-add" onclick="openAddTransactionModal()" title="Catat Transaksi Cepat">＋ Catat</button>
                         </div>
                     </div>
 
-                    <!-- TRANSACTION BOTTOM SHEET (MOBILE) / SIDEBAR FORM (DESKTOP) -->
-                    <div id="sheet-backdrop" class="sheet-backdrop" onclick="closeAddTransactionSheet()"></div>
-                    <div id="record-transaction-sheet" class="glass-panel transaction-sheet-wrapper" style="padding: 22px;">
-                        <div class="sheet-handle" onclick="closeAddTransactionSheet()"></div>
-                        <div class="sheet-header">
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <span style="font-size: 20px;">✍️</span>
-                                <h2 class="panel-title" id="form-panel-title" style="margin: 0;">Catat Transaksi</h2>
-                            </div>
-                            <button type="button" class="sheet-close-btn" onclick="closeAddTransactionSheet()" aria-label="Tutup Formulir">✕</button>
+                    <div class="mem-mini-grid">
+                        <div class="mem-mini-box">
+                            <div class="mem-mini-label">Pemasukan</div>
+                            <div class="mem-mini-val mem-mini-inc" id="mem-mini-inc">Rp 0</div>
                         </div>
-                        <form id="form">
-                            <!-- SELECTOR PENGGUNA UNTUK TRANSAKSI -->
-                            <div style="display: flex; flex-direction: column; gap: 6px;">
-                                <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray);">Pengguna:</label>
-                                <div class="form-user-chips" id="form-user-chips"></div>
-                            </div>
-
-                            <!-- SELECTOR KATEGORI CEPAT (MEMFINANCE STYLE) -->
-                            <div style="display: flex; flex-direction: column; gap: 6px;">
-                                <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray);">Kategori:</label>
-                                <div class="category-chips-row" id="form-category-chips" data-selected-category="makan">
-                                    <button type="button" class="cat-btn selected" data-cat="makan">🍔 Makan</button>
-                                    <button type="button" class="cat-btn" data-cat="transport">🚗 Transport</button>
-                                    <button type="button" class="cat-btn" data-cat="belanja">🛍️ Belanja</button>
-                                    <button type="button" class="cat-btn" data-cat="tagihan">🏠 Tagihan</button>
-                                    <button type="button" class="cat-btn" data-cat="hiburan">🎮 Hiburan</button>
-                                    <button type="button" class="cat-btn" data-cat="kesehatan">💊 Kesehatan</button>
-                                    <button type="button" class="cat-btn" data-cat="gaji">💼 Gaji</button>
-                                    <button type="button" class="cat-btn" data-cat="investasi">🪙 Emas</button>
-                                </div>
-                            </div>
-
-                            <div>
-                                <input type="text" id="desc" placeholder="Keterangan (Makan siang, Gaji, dll)" autocomplete="off" required>
-                            </div>
-
-                            <div>
-                                <input type="text" id="amount" placeholder="Nominal Rupiah / Gram" autocomplete="off" required>
-                            </div>
-
-                            <!-- TOMBOL QUICK AMOUNTS -->
-                            <div class="quick-amount-row">
-                                <button type="button" class="quick-amt-btn" onclick="addQuickAmount(20000)">+20rb</button>
-                                <button type="button" class="quick-amt-btn" onclick="addQuickAmount(50000)">+50rb</button>
-                                <button type="button" class="quick-amt-btn" onclick="addQuickAmount(100000)">+100rb</button>
-                                <button type="button" class="quick-amt-btn" onclick="addQuickAmount(500000)">+500rb</button>
-                                <button type="button" class="quick-amt-btn" onclick="addQuickAmount(1000000)">+1jt</button>
-                            </div>
-
-                            <select id="type" onchange="handleTypeChange()">
-                                <optgroup label="Uang Harian"><option value="expense" selected>Pengeluaran (-)</option><option value="income">Pemasukan (+)</option></optgroup>
-                                <optgroup label="Ambil Tabungan & Aset"><option value="withdraw">Ambil dari Tabungan Pribadi (-)</option></optgroup>
-                                <optgroup label="Tabungan & Aset"><option value="simpanan">Simpanan Wajib (+)</option><option value="pribadi">Tabungan Pribadi (+)</option><option value="tring">Emas Tring (+)</option><option value="jago">Emas Jago (- Kas)</option></optgroup>
-                            </select>
-                            
-                            <div id="withdraw-source-container" style="display: none;">
-                                <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 4px;">Sumber Pengambilan</label>
-                                <select id="withdraw-source">
-                                    <option value="pribadi" selected>Tabungan Pribadi</option>
-                                    <option value="simpanan">Simpanan Wajib</option>
-                                    <option value="tring">Emas Tring</option>
-                                    <option value="jago">Emas Jago</option>
-                                </select>
-                            </div>
-                            <button type="submit" id="form-submit-btn" class="btn-primary">Simpan Transaksi (Enter ↵)</button>
-                        </form>
+                        <div class="mem-mini-box">
+                            <div class="mem-mini-label">Pengeluaran</div>
+                            <div class="mem-mini-val mem-mini-exp" id="mem-mini-exp">Rp 0</div>
+                        </div>
                     </div>
 
-                    <!-- RIWAYAT TRANSAKSI, SEARCH & FILTER -->
-                    <div class="glass-panel tab-home-section section-history" style="padding: 22px;">
-                        <div class="panel-title" style="margin-bottom: 12px; flex-direction: column; align-items: flex-start; gap: 10px;">
-                            <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
-                                <span>Riwayat Transaksi</span>
-                                <span class="badge" style="font-size: 10px;">Live Data</span>
-                            </div>
-
-                            <!-- SEARCH BAR TRANSAKSI -->
-                            <div class="search-input-wrapper">
-                                <span class="search-icon">🔍</span>
-                                <input type="text" id="transaction-search-input" placeholder="Cari transaksi, makanan, tagihan..." autocomplete="off">
-                                <button type="button" class="clear-search-btn" onclick="clearSearch()" title="Hapus pencarian">✕</button>
-                            </div>
-
-                            <!-- DUAL FILTER: BULAN & PENGGUNA -->
-                            <div style="display: flex; gap: 6px; width: 100%; flex-wrap: wrap;">
-                                <select id="filter-month-select" onchange="updateUI()" style="flex: 1; padding: 6px 10px; border-radius: 100px; font-size: 11.5px; border-color: var(--border-color); background: var(--list-bg); min-height: 36px;">
-                                    <option value="all">Semua Bulan</option>
-                                </select>
-                                <select id="filter-user-select" onchange="updateUI()" style="flex: 1; padding: 6px 10px; border-radius: 100px; font-size: 11.5px; border-color: var(--border-color); background: var(--list-bg); min-height: 36px;">
-                                    <option value="all">Semua Pengguna</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div id="list" class="history-container" style="margin-bottom: 14px;"></div>
-                        <div style="display: flex; gap: 8px;">
-                            <button onclick="confirmResetData()" class="btn-danger" style="padding: 10px; border-radius: 12px; font-size: 12px; flex: 1;">Bersihkan Cache</button>
-                            <button onclick="exportToCSV()" class="btn-primary" style="padding: 10px; border-radius: 12px; font-size: 12px; flex: 1; background: linear-gradient(135deg, var(--income), #059669); border:none; color:white;">📥 Export CSV</button>
-                        </div>
+                    <div class="mem-insight-banner" id="mem-insight-banner">
+                        <span>✦</span>
+                        <span>Anda masih punya ruang untuk menikmati akhir pekan. Keuangan terkendali!</span>
                     </div>
                 </div>
 
-                <!-- MAIN COLUMN -->
-                <div class="main-col">
-                    
-                    <!-- ANGGARAN KATEGORI (INSPIRED BY MEMFINANCE) -->
-                    <div class="glass-panel tab-home-section section-budgets">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-                            <h2 class="panel-title" style="margin: 0;">📊 Anggaran Kategori Bulan Ini</h2>
-                            <button type="button" onclick="openCategoryBudgetsModal()" style="background: var(--list-bg); border: 1px solid var(--border-color); color: #14b8a6; font-size: 11.5px; font-weight: 700; padding: 4px 12px; border-radius: 100px; cursor: pointer;">Atur Batas</button>
-                        </div>
-                        <div class="budget-categories-list" id="category-budgets-container"></div>
+                <!-- KARTU TOTAL KEKAYAAN -->
+                <div class="glass-panel section-total-wealth" style="background: linear-gradient(135deg, rgba(15, 118, 110, 0.35), rgba(30, 41, 59, 0.7)); border-color: rgba(20, 184, 166, 0.3);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: #14b8a6; letter-spacing: 1px;">Akumulasi Portofolio Total</span>
+                        <span style="font-size: 16px;">🏦</span>
                     </div>
+                    <p id="total-wealth" style="font-size: 30px; font-weight: 800; letter-spacing: -0.5px;">Rp 0</p>
+                </div>
 
-                    <!-- KARTU TOTAL KEKAYAAN -->
-                    <div class="glass-panel tab-home-section section-total-wealth" style="background: linear-gradient(135deg, rgba(15, 118, 110, 0.35), rgba(30, 41, 59, 0.7)); border-color: rgba(20, 184, 166, 0.3);">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                            <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: #14b8a6; letter-spacing: 1px;">Akumulasi Portofolio Total</span>
-                            <span style="font-size: 16px;">🏦</span>
-                        </div>
-                        <p id="total-wealth" style="font-size: 30px; font-weight: 800; letter-spacing: -0.5px;">Rp 0</p>
-                    </div>
-
-                    <!-- STATS GRID -->
-                    <div class="stats-grid tab-home-section section-stats">
-                        <div class="stat-box c-balance">
-                            <div class="stat-header">
-                                <div class="stat-icon-title">
-                                    <div class="stat-icon">💵</div>
-                                    <h3>Kas Tunai</h3>
-                                </div>
-                                <span id="trend-cash" class="stat-trend trend-flat">0%</span>
+                <!-- STATS GRID (CLEAN 2x2 GRID ON MOBILE, KAS TUNAI SPANS 2) -->
+                <div class="stats-grid section-stats">
+                    <div class="stat-box c-balance">
+                        <div class="stat-header">
+                            <div class="stat-icon-title">
+                                <div class="stat-icon">💵</div>
+                                <h3>Kas Tunai</h3>
                             </div>
-                            <p id="cash-balance">Rp 0</p>
+                            <span id="trend-cash" class="stat-trend trend-flat">0%</span>
                         </div>
-                        <div class="stat-box c-simpanan">
-                            <div class="stat-header">
-                                <div class="stat-icon-title">
-                                    <div class="stat-icon">🏦</div>
-                                    <h3>Simpanan</h3>
-                                </div>
-                                <span id="trend-simpanan" class="stat-trend trend-flat">0%</span>
+                        <p id="cash-balance">Rp 0</p>
+                    </div>
+                    <div class="stat-box c-simpanan">
+                        <div class="stat-header">
+                            <div class="stat-icon-title">
+                                <div class="stat-icon">🏦</div>
+                                <h3>Simpanan</h3>
                             </div>
-                            <p id="total-simpanan">Rp 0</p>
+                            <span id="trend-simpanan" class="stat-trend trend-flat">0%</span>
                         </div>
-                        <div class="stat-box c-pribadi">
-                            <div class="stat-header">
-                                <div class="stat-icon-title">
-                                    <div class="stat-icon">👤</div>
-                                    <h3>Pribadi</h3>
-                                </div>
-                                <span id="trend-pribadi" class="stat-trend trend-flat">0%</span>
+                        <p id="total-simpanan">Rp 0</p>
+                    </div>
+                    <div class="stat-box c-pribadi">
+                        <div class="stat-header">
+                            <div class="stat-icon-title">
+                                <div class="stat-icon">👤</div>
+                                <h3>Pribadi</h3>
                             </div>
-                            <p id="total-pribadi">Rp 0</p>
+                            <span id="trend-pribadi" class="stat-trend trend-flat">0%</span>
                         </div>
-                        <div class="stat-box c-tring">
-                            <div class="stat-header">
-                                <div class="stat-icon-title">
-                                    <div class="stat-icon">🪙</div>
-                                    <h3>Emas Tring</h3>
-                                </div>
-                                <span id="trend-tring" class="stat-trend trend-flat">0%</span>
+                        <p id="total-pribadi">Rp 0</p>
+                    </div>
+                    <div class="stat-box c-tring">
+                        <div class="stat-header">
+                            <div class="stat-icon-title">
+                                <div class="stat-icon">🪙</div>
+                                <h3>Emas Tring</h3>
                             </div>
-                            <div>
-                                <p id="total-tring">Rp 0</p>
-                                <span id="tring-gram-info" style="font-size:11.5px; color:var(--text-gray); font-weight:600;">0 Gr</span>
+                            <span id="trend-tring" class="stat-trend trend-flat">0%</span>
+                        </div>
+                        <div>
+                            <p id="total-tring">Rp 0</p>
+                            <span id="tring-gram-info" style="font-size:11.5px; color:var(--text-gray); font-weight:600;">0 Gr</span>
+                        </div>
+                    </div>
+                    <div class="stat-box c-jago">
+                        <div class="stat-header">
+                            <div class="stat-icon-title">
+                                <div class="stat-icon">🦁</div>
+                                <h3>Emas Jago</h3>
                             </div>
+                            <span id="trend-jago" class="stat-trend trend-flat">0%</span>
                         </div>
-                        <div class="stat-box c-jago">
-                            <div class="stat-header">
-                                <div class="stat-icon-title">
-                                    <div class="stat-icon">🦁</div>
-                                    <h3>Emas Jago</h3>
-                                </div>
-                                <span id="trend-jago" class="stat-trend trend-flat">0%</span>
-                            </div>
-                            <p id="total-jago">Rp 0</p>
+                        <p id="total-jago">Rp 0</p>
+                    </div>
+                </div>
+
+                <!-- ANGGARAN KATEGORI (INSPIRED BY MEMFINANCE) -->
+                <div class="glass-panel section-budgets">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                        <h2 class="panel-title" style="margin: 0;">📊 Anggaran Kategori Bulan Ini</h2>
+                        <button type="button" onclick="openCategoryBudgetsModal()" style="background: var(--list-bg); border: 1px solid var(--border-color); color: #14b8a6; font-size: 11.5px; font-weight: 700; padding: 4px 12px; border-radius: 100px; cursor: pointer;">Atur Batas</button>
+                    </div>
+                    <div class="budget-categories-list" id="category-budgets-container"></div>
+                </div>
+
+                <!-- RIWAYAT TRANSAKSI, SEARCH & FILTER -->
+                <div class="glass-panel section-history" style="padding: 22px;">
+                    <div class="panel-title" style="margin-bottom: 12px; flex-direction: column; align-items: flex-start; gap: 10px;">
+                        <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                            <span>Riwayat Transaksi</span>
+                            <span class="badge" style="font-size: 10px;">Live Data</span>
+                        </div>
+
+                        <!-- SEARCH BAR TRANSAKSI -->
+                        <div class="search-input-wrapper">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="transaction-search-input" placeholder="Cari transaksi, makanan, tagihan..." autocomplete="off">
+                            <button type="button" class="clear-search-btn" onclick="clearSearch()" title="Hapus pencarian">✕</button>
+                        </div>
+
+                        <!-- DUAL FILTER: BULAN & PENGGUNA -->
+                        <div style="display: flex; gap: 6px; width: 100%; flex-wrap: wrap;">
+                            <select id="filter-month-select" onchange="updateUI()" style="flex: 1; padding: 6px 10px; border-radius: 100px; font-size: 11.5px; border-color: var(--border-color); background: var(--list-bg); min-height: 36px;">
+                                <option value="all">Semua Bulan</option>
+                            </select>
+                            <select id="filter-user-select" onchange="updateUI()" style="flex: 1; padding: 6px 10px; border-radius: 100px; font-size: 11.5px; border-color: var(--border-color); background: var(--list-bg); min-height: 36px;">
+                                <option value="all">Semua Pengguna</option>
+                            </select>
                         </div>
                     </div>
 
-                    <!-- ================= ANALISA SECTION ================= -->
-                    <div class="mobile-section-header tab-analytics-section">
-                        <h2>📊 Laporan &amp; Analisa</h2>
-                        <p>Visualisasi arus kas bulanan, alokasi portofolio, dan pengeluaran.</p>
+                    <div id="list" class="history-container" style="margin-bottom: 14px;"></div>
+                    <div style="display: flex; gap: 8px;">
+                        <button onclick="confirmResetData()" class="btn-danger" style="padding: 10px; border-radius: 12px; font-size: 12px; flex: 1;">Bersihkan Cache</button>
+                        <button onclick="exportToCSV()" class="btn-primary" style="padding: 10px; border-radius: 12px; font-size: 12px; flex: 1; background: linear-gradient(135deg, var(--income), #059669); border:none; color:white;">📥 Export CSV</button>
                     </div>
+                </div>
 
-                    <!-- CHARTS GRID -->
-                    <div class="tab-analytics-section section-charts" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
-                        <div class="glass-panel">
-                            <h2 class="panel-title">Alokasi Portofolio</h2>
-                            <div style="height: 180px; position: relative;"><canvas id="financeChart"></canvas></div>
-                        </div>
-                        <div class="glass-panel">
-                            <h2 class="panel-title">Arus Kas (Bulan Ini)</h2>
-                            <div style="height: 180px; position: relative;"><canvas id="comparisonChart"></canvas></div>
-                        </div>
+            </div>
+
+            <!-- ================= TAB 2: ANALISA (ANALYTICS VIEW) ================= -->
+            <div id="view-analytics" class="dashboard-tab-view">
+                <div class="mobile-section-header">
+                    <h2>📊 Laporan &amp; Analisa Finansial</h2>
+                    <p>Visualisasi arus kas bulanan, alokasi portofolio, dan evaluasi pengeluaran.</p>
+                </div>
+
+                <!-- CHARTS GRID -->
+                <div class="section-charts" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+                    <div class="glass-panel">
+                        <h2 class="panel-title">Alokasi Portofolio</h2>
+                        <div style="height: 180px; position: relative;"><canvas id="financeChart"></canvas></div>
                     </div>
-
-                    <!-- MULTI-USER EXPENSE COMPARISON SECTION -->
-                    <div class="glass-panel tab-analytics-section section-user-spending">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-                            <h2 class="panel-title" style="margin: 0;">👥 Pengeluaran Antar Pengguna</h2>
-                            <span class="badge">Multi-User</span>
-                        </div>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; align-items: center;">
-                            <div style="height: 170px; position: relative;">
-                                <canvas id="userExpenseChart"></canvas>
-                            </div>
-                            <div class="user-spending-grid" id="user-spending-container"></div>
-                        </div>
+                    <div class="glass-panel">
+                        <h2 class="panel-title">Arus Kas (Bulan Ini)</h2>
+                        <div style="height: 180px; position: relative;"><canvas id="comparisonChart"></canvas></div>
                     </div>
+                </div>
 
-                    <!-- FINANCIAL ANALYSIS CARD -->
-                    <div class="glass-panel tab-analytics-section section-insights">
-                        <h2 class="panel-title">📈 Analisa Keuangan &amp; Rekomendasi</h2>
-                        <div id="financial-analysis-content" style="display: flex; flex-direction: column; gap: 12px; font-size: 13.5px; color: var(--text-dark);">
-                            <p style="color: var(--text-gray);">Belum ada data transaksi yang cukup untuk dianalisa pada bulan ini.</p>
-                        </div>
+                <!-- MULTI-USER EXPENSE COMPARISON SECTION -->
+                <div class="glass-panel section-user-spending">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                        <h2 class="panel-title" style="margin: 0;">👥 Pengeluaran Antar Pengguna</h2>
+                        <span class="badge">Multi-User</span>
                     </div>
-
-                    <!-- ================= PENGGUNA & SETTINGS SECTION ================= -->
-                    <div class="mobile-section-header tab-users-section">
-                        <h2>👥 Profil &amp; Pengaturan</h2>
-                        <p>Kelola profil pengguna, target finansial, dan pemeliharaan vault.</p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; align-items: center;">
+                        <div style="height: 170px; position: relative;">
+                            <canvas id="userExpenseChart"></canvas>
+                        </div>
+                        <div class="user-spending-grid" id="user-spending-container"></div>
                     </div>
+                </div>
 
-                    <!-- MOBILE ACTIVE PROFILE HERO CARD -->
-                    <div class="glass-panel tab-users-section mobile-user-only mobile-profile-card">
-                        <div class="mobile-profile-top">
-                            <div class="mobile-profile-avatar" id="mobile-hero-avatar">👤</div>
-                            <div class="mobile-profile-info">
-                                <h3 id="mobile-hero-name">Rebel</h3>
-                                <span class="user-role-badge" id="mobile-hero-role">Owner</span>
-                                <div class="mobile-profile-email" id="mobile-hero-email">rebel@personal.os</div>
-                            </div>
-                        </div>
-                        <div class="mobile-profile-badges">
-                            <span class="profile-status-badge">🛡️ Vault Terenkripsi AES-256</span>
-                            <span class="profile-status-badge google-status-badge">
-                                <svg viewBox="0 0 24 24" style="width:13px;height:13px;"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
-                                Google Terhubung
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- MOBILE MULTI-USER SWITCHER -->
-                    <div class="glass-panel tab-users-section mobile-user-only">
-                        <div class="panel-title">
-                            <span>Ganti Profil Pengguna</span>
-                            <button type="button" onclick="openManageUsersModal()" style="background:none; border:none; color:#14b8a6; font-size:12px; font-weight:700; cursor:pointer;">+ Kelola</button>
-                        </div>
-                        <div class="user-chips-row" id="mobile-user-chips"></div>
-                    </div>
-
-                    <!-- HARGA EMAS SPOT API -->
-                    <div class="glass-panel section-gold tab-users-section" style="display: flex; justify-content: space-between; align-items: center; gap:14px; flex-wrap: wrap;">
-                        <span style="font-weight: 700; font-size: 13.5px; display: flex; align-items: center; gap: 8px;">
-                            <span>🏷️ Harga Emas Tring / Gram:</span>
-                            <small id="api-status" style="color:#10b981; font-weight:600; font-size:11.5px;"></small>
-                        </span>
-                        <div style="display: flex; gap: 8px; flex:1; max-width: 300px;">
-                            <input type="text" id="gold-price-input" placeholder="1.250.000" oninput="formatGoldPriceInput(this)" style="margin:0; min-height: 38px;">
-                            <button onclick="saveGoldPrice()" class="btn-primary" style="width: auto; padding: 8px 16px; border-radius: 12px; min-height: 38px; font-size: 13px;">Update</button>
-                        </div>
-                    </div>
-
-                    <!-- TARGET 2026 PROGRESS CARD -->
-                    <div class="glass-panel section-goals tab-users-section">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; width: 100%;">
-                            <h2 style="font-size: 16px; font-weight: 800; color: var(--text-dark); margin: 0;">🎯 Progress Target 2026</h2>
-                            <button onclick="openGoalsModal()" style="width: auto; font-size: 11.5px; font-weight: 700; padding: 6px 14px; border-radius: 100px; border: 1px solid var(--border-color); cursor: pointer; background: var(--list-bg); color: #14b8a6;">Edit Target</button>
-                        </div>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; width: 100%;">
-                            <div style="background: var(--list-bg); padding: 16px; border-radius: 16px; border: 1px solid var(--border-color);">
-                                <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; margin-bottom: 8px;">
-                                    <span style="color: var(--text-gray);">Kekayaan Total</span>
-                                    <span id="wealth-progress-text" style="color: #14b8a6; font-weight: 800;">0%</span>
-                                </div>
-                                <div class="budget-bar-track">
-                                    <div id="wealth-progress-bar" class="budget-bar-fill" style="width: 0%; background: linear-gradient(90deg, #0f766e, #14b8a6);"></div>
-                                </div>
-                            </div>
-                            
-                            <div style="background: var(--list-bg); padding: 16px; border-radius: 16px; border: 1px solid var(--border-color);">
-                                <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; margin-bottom: 8px;">
-                                    <span style="color: var(--text-gray);">Aset Emas</span>
-                                    <span id="gold-progress-text" style="color: var(--tring); font-weight: 800;">0%</span>
-                                </div>
-                                <div class="budget-bar-track">
-                                    <div id="gold-progress-bar" class="budget-bar-fill" style="width: 0%; background: linear-gradient(90deg, var(--tring), #f59e0b);"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- MOBILE DATA MANAGEMENT & BACKUP -->
-                    <div class="glass-panel tab-users-section mobile-user-only">
-                        <div class="panel-title">Cadangan &amp; Pemeliharaan</div>
-                        <div style="display:flex; flex-direction:column; gap:10px;">
-                            <button type="button" onclick="exportToCSV()" class="btn-primary" style="padding:12px; border-radius:14px; display:flex; align-items:center; justify-content:center; gap:8px;">📥 Ekspor Transaksi (CSV)</button>
-                            <button type="button" onclick="confirmResetData()" class="btn-danger" style="padding:12px; border-radius:14px;">🗑️ Bersihkan Cache Lokal</button>
-                        </div>
-                    </div>
-
-                    <!-- MOBILE PREFERENCES & LOGOUT -->
-                    <div class="glass-panel tab-users-section mobile-user-only">
-                        <div class="panel-title">Tampilan &amp; Keamanan</div>
-                        <div style="display:flex; flex-direction:column; gap:10px;">
-                            <div style="display:flex; justify-content:space-between; align-items:center; background:var(--list-bg); padding:12px 14px; border-radius:14px; border:1px solid var(--border-color);">
-                                <span style="font-weight:700; font-size:13px; display:flex; align-items:center; gap:8px;"><span>🌗</span> Mode Gelap</span>
-                                <label class="theme-switch" title="Ganti Tema">
-                                    <input type="checkbox" id="mobile-theme-checkbox" onchange="toggleTheme()">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                            <button type="button" onclick="handleLogout()" class="btn-danger" style="padding:12px; border-radius:14px; display:flex; align-items:center; justify-content:center; gap:8px; border-color:var(--expense); background:var(--expense-light);">🚪 Keluar dari Vault (Logout)</button>
-                        </div>
+                <!-- FINANCIAL ANALYSIS CARD -->
+                <div class="glass-panel section-insights">
+                    <h2 class="panel-title">📈 Analisa Keuangan &amp; Rekomendasi</h2>
+                    <div id="financial-analysis-content" style="display: flex; flex-direction: column; gap: 12px; font-size: 13.5px; color: var(--text-dark);">
+                        <p style="color: var(--text-gray);">Belum ada data transaksi yang cukup untuk dianalisa pada bulan ini.</p>
                     </div>
                 </div>
             </div>
-        </div>
+
+            <!-- ================= TAB 3: PENGGUNA & DATABASE (USERS & SPREADSHEET SETTINGS) ================= -->
+            <div id="view-users" class="dashboard-tab-view">
+                <div class="mobile-section-header">
+                    <h2>👥 Profil Pengguna &amp; Database</h2>
+                    <p>Kelola profil akun, koneksi database Google Spreadsheet pribadi, dan preferensi.</p>
+                </div>
+
+                <!-- ACTIVE PROFILE HERO CARD -->
+                <div class="glass-panel mobile-profile-card">
+                    <div class="mobile-profile-top">
+                        <div class="mobile-profile-avatar" id="mobile-hero-avatar">👤</div>
+                        <div class="mobile-profile-info">
+                            <h3 id="mobile-hero-name">Rebel</h3>
+                            <span class="user-role-badge" id="mobile-hero-role">Owner</span>
+                            <div class="mobile-profile-email" id="mobile-hero-email">rebel@personal.os</div>
+                        </div>
+                    </div>
+                    <div class="mobile-profile-badges">
+                        <span class="profile-status-badge">🛡️ Vault Terenkripsi AES-256</span>
+                        <span class="profile-status-badge google-status-badge">
+                            <svg viewBox="0 0 24 24" style="width:13px;height:13px;"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+                            Akun Google Terhubung
+                        </span>
+                    </div>
+                </div>
+
+                <!-- MULTI-USER SWITCHER -->
+                <div class="glass-panel">
+                    <div class="panel-title">
+                        <span>Ganti Profil Pengguna</span>
+                        <button type="button" onclick="openManageUsersModal()" style="background:none; border:none; color:#14b8a6; font-size:12px; font-weight:700; cursor:pointer;">+ Kelola Profil</button>
+                    </div>
+                    <div class="user-chips-row" id="mobile-user-chips"></div>
+                </div>
+
+                <!-- ================= DATABASE GOOGLE SPREADSHEET PRIBADI (MULTI-TENANT) ================= -->
+                <div class="glass-panel section-spreadsheet-db" style="border: 1px solid rgba(20, 184, 166, 0.35);">
+                    <div class="panel-title" style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-size:20px;">🗄️</span>
+                            <span>Database Google Spreadsheet Pribadi</span>
+                        </div>
+                        <span id="sheet-conn-badge" class="badge" style="font-size:10.5px; background:rgba(16,185,129,0.15); color:#10b981;">Template Standar</span>
+                    </div>
+                    <p style="font-size:12.5px; color:var(--text-gray); margin-bottom:12px; line-height:1.5;">
+                        Setiap akun dapat memiliki database Google Spreadsheet pribadi. Masukkan URL Web App Apps Script Anda agar riwayat keuangan otomatis tersimpan di Spreadsheet pribadi Anda saat online.
+                    </p>
+                    
+                    <div style="background:var(--list-bg); padding:10px 14px; border-radius:12px; margin-bottom:12px; font-size:12px; color:var(--text-gray); display:flex; align-items:center; justify-content:space-between;">
+                        <span>👤 Akun Pemilik Database:</span>
+                        <strong id="user-sheet-email-info" style="color:var(--text-dark);">aldianridhoku@gmail.com</strong>
+                    </div>
+
+                    <form onsubmit="saveUserSpreadsheetSettings(event)" style="gap:12px;">
+                        <div>
+                            <label style="font-size:12px; font-weight:700; color:var(--text-gray); display:block; margin-bottom:6px;">URL Web App Google Apps Script</label>
+                            <input type="url" id="user-sheet-url" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off" style="font-size:13px; padding:10px 14px;">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; font-weight:700; color:var(--text-gray); display:block; margin-bottom:6px;">Token Akses (Opsional)</label>
+                            <input type="text" id="user-sheet-token" placeholder="RebelAman2026" autocomplete="off" style="font-size:13px; padding:10px 14px;">
+                        </div>
+                        <div style="display:flex; gap:8px; margin-top:4px; flex-wrap:wrap;">
+                            <button type="button" onclick="testSpreadsheetConnection()" class="btn-primary" style="flex:1; background:#0284c7; padding:11px; border-radius:12px; font-size:12.5px;">🔍 Tes Koneksi</button>
+                            <button type="submit" class="btn-primary" style="flex:1; padding:11px; border-radius:12px; font-size:12.5px;">💾 Simpan Konfigurasi</button>
+                        </div>
+                    </form>
+
+                    <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;">
+                        <button type="button" onclick="openAppsScriptTemplateModal()" class="btn-secondary" style="flex:1; padding:10px; border-radius:12px; font-size:12px; border:1px dashed var(--primary); background:transparent; color:#14b8a6; cursor:pointer;">📜 Lihat Petunjuk &amp; Kode Script</button>
+                        <button type="button" onclick="triggerManualSync()" class="btn-secondary" style="flex:1; padding:10px; border-radius:12px; font-size:12px; border:1px solid var(--border-color); background:var(--list-bg); color:var(--text-dark); cursor:pointer;">🔄 Sinkronkan Sekarang</button>
+                    </div>
+                </div>
+
+                <!-- HARGA EMAS SPOT API -->
+                <div class="glass-panel section-gold" style="display: flex; justify-content: space-between; align-items: center; gap:14px; flex-wrap: wrap;">
+                    <span style="font-weight: 700; font-size: 13.5px; display: flex; align-items: center; gap: 8px;">
+                        <span>🏷️ Harga Emas Tring / Gram:</span>
+                        <small id="api-status" style="color:#10b981; font-weight:600; font-size:11.5px;"></small>
+                    </span>
+                    <div style="display: flex; gap: 8px; flex:1; max-width: 300px;">
+                        <input type="text" id="gold-price-input" placeholder="1.250.000" oninput="formatGoldPriceInput(this)" style="margin:0; min-height: 38px;">
+                        <button onclick="saveGoldPrice()" class="btn-primary" style="width: auto; padding: 8px 16px; border-radius: 12px; min-height: 38px; font-size: 13px;">Update</button>
+                    </div>
+                </div>
+
+                <!-- TARGET 2026 PROGRESS CARD -->
+                <div class="glass-panel section-goals">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; width: 100%;">
+                        <h2 style="font-size: 16px; font-weight: 800; color: var(--text-dark); margin: 0;">🎯 Progress Target 2026</h2>
+                        <button onclick="openGoalsModal()" style="width: auto; font-size: 11.5px; font-weight: 700; padding: 6px 14px; border-radius: 100px; border: 1px solid var(--border-color); cursor: pointer; background: var(--list-bg); color: #14b8a6;">Edit Target</button>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; width: 100%;">
+                        <div style="background: var(--list-bg); padding: 16px; border-radius: 16px; border: 1px solid var(--border-color);">
+                            <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; margin-bottom: 8px;">
+                                <span style="color: var(--text-gray);">Kekayaan Total</span>
+                                <span id="wealth-progress-text" style="color: #14b8a6; font-weight: 800;">0%</span>
+                            </div>
+                            <div class="budget-bar-track">
+                                <div id="wealth-progress-bar" class="budget-bar-fill" style="width: 0%; background: linear-gradient(90deg, #0f766e, #14b8a6);"></div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: var(--list-bg); padding: 16px; border-radius: 16px; border: 1px solid var(--border-color);">
+                            <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; margin-bottom: 8px;">
+                                <span style="color: var(--text-gray);">Aset Emas</span>
+                                <span id="gold-progress-text" style="color: var(--tring); font-weight: 800;">0%</span>
+                            </div>
+                            <div class="budget-bar-track">
+                                <div id="gold-progress-bar" class="budget-bar-fill" style="width: 0%; background: linear-gradient(90deg, var(--tring), #f59e0b);"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CADANGAN & BACKUP -->
+                <div class="glass-panel">
+                    <div class="panel-title">Cadangan &amp; Pemeliharaan Data</div>
+                    <div style="display:flex; flex-direction:column; gap:10px;">
+                        <button type="button" onclick="exportToCSV()" class="btn-primary" style="padding:12px; border-radius:14px; display:flex; align-items:center; justify-content:center; gap:8px;">📥 Ekspor Transaksi ke CSV</button>
+                        <button type="button" onclick="confirmResetData()" class="btn-danger" style="padding:12px; border-radius:14px;">🗑️ Bersihkan Cache Lokal</button>
+                    </div>
+                </div>
+
+                <!-- PREFERENCES & LOGOUT -->
+                <div class="glass-panel">
+                    <div class="panel-title">Tampilan &amp; Keamanan</div>
+                    <div style="display:flex; flex-direction:column; gap:10px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; background:var(--list-bg); padding:12px 14px; border-radius:14px; border:1px solid var(--border-color);">
+                            <span style="font-weight:700; font-size:13px; display:flex; align-items:center; gap:8px;"><span>🌗</span> Mode Gelap</span>
+                            <label class="theme-switch" title="Ganti Tema">
+                                <input type="checkbox" id="mobile-theme-checkbox" onchange="toggleTheme()">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <button type="button" onclick="handleLogout()" class="btn-danger" style="padding:12px; border-radius:14px; display:flex; align-items:center; justify-content:center; gap:8px; border-color:var(--expense); background:var(--expense-light);">🚪 Keluar dari Vault (Logout)</button>
+                    </div>
+                </div>
+
+            </div>
+        </main>
 
         <!-- ================= MOBILE STICKY BOTTOM BAR (HP) ================= -->
         <nav class="mobile-bottom-bar" aria-label="Navigasi Bawah Mobile">
-            <button type="button" class="mobile-tab-btn active" id="mobile-tab-home" onclick="switchMobileTab('home')">
+            <button type="button" class="mobile-tab-btn active" id="mobile-tab-home" onclick="switchAppTab('home')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
                 <span>Beranda</span>
             </button>
-            <button type="button" class="mobile-tab-btn" onclick="openAddTransactionSheet()">
+            <button type="button" class="mobile-tab-btn" onclick="openAddTransactionModal()" title="Catat Transaksi">
                 <div class="mobile-fab-center">＋</div>
                 <span>Catat</span>
             </button>
-            <button type="button" class="mobile-tab-btn" id="mobile-tab-analytics" onclick="switchMobileTab('analytics')">
+            <button type="button" class="mobile-tab-btn" id="mobile-tab-analytics" onclick="switchAppTab('analytics')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
                 <span>Analisa</span>
             </button>
-            <button type="button" class="mobile-tab-btn" id="mobile-tab-users" onclick="switchMobileTab('users')">
+            <button type="button" class="mobile-tab-btn" id="mobile-tab-users" onclick="switchAppTab('users')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                 <span>Pengguna</span>
             </button>

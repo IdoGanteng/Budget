@@ -63,6 +63,18 @@ function setActiveUser(userId) {
     localStorage.setItem('app_active_user_id', user.id);
     sessionStorage.setItem('appUsername', user.name);
 
+    // Reload transaksi dari database lokal milik user yang dipilih
+    if (typeof loadFromLocal === 'function') {
+        transactions = loadFromLocal(currentSessionKey) || [];
+    }
+
+    if (typeof populateSpreadsheetSettingsInputs === 'function') {
+        populateSpreadsheetSettingsInputs();
+    }
+    if (typeof updateSyncIndicator === 'function') {
+        updateSyncIndicator();
+    }
+
     if (typeof showToast === 'function') {
         showToast(`Profil aktif diubah ke <b>${escapeHtml(user.name)}</b>`, 'success', user.avatar || '👤');
     }
@@ -70,6 +82,10 @@ function setActiveUser(userId) {
     if (typeof updateUI === 'function') updateUI();
     if (typeof updateHeaderGreeting === 'function') updateHeaderGreeting();
     renderUserInterfaceWidgets();
+
+    if (typeof syncTransactionsFromSheet === 'function') {
+        syncTransactionsFromSheet();
+    }
 }
 
 function addNewUser(userData) {
@@ -81,14 +97,16 @@ function addNewUser(userData) {
         avatar: userData.avatar || '👤',
         color: userData.color || '#818cf8',
         role: userData.role || 'Member',
-        email: userData.email || `${userData.name.toLowerCase().replace(/\s+/g, '')}@personal.os`
+        email: userData.email || `${userData.name.toLowerCase().replace(/\s+/g, '')}@personal.os`,
+        spreadsheetUrl: userData.spreadsheetUrl || '',
+        spreadsheetToken: userData.spreadsheetToken || ''
     };
     users.push(newUser);
     saveUsersList(users);
     setActiveUser(newId);
 
     if (typeof showToast === 'function') {
-        showToast(`Pengguna <b>${escapeHtml(newUser.name)}</b> berhasil ditambahkan!`, 'success', '🎉');
+        showToast(`Pengguna <b>${escapeHtml(newUser.name)}</b> berhasil dibuat dengan ruang database tersendiri!`, 'success', '🎉');
     }
     return newUser;
 }
@@ -158,10 +176,44 @@ function triggerGoogleLogin() {
     openGoogleAccountPicker();
 }
 
-// Dialog Pemilih Akun Google ala Instagram
+// Dialog Pemilih Akun Google ala Instagram & Top Apps
 function openGoogleAccountPicker() {
     const pickerModal = document.getElementById('custom-modal');
     if (!pickerModal) return;
+
+    const users = getUsersList();
+    const googleUsers = users.filter(u => u.email && (u.role === 'Google Account' || u.email.includes('@') || u.picture));
+
+    let accountItemsHtml = '';
+
+    if (googleUsers.length > 0) {
+        googleUsers.forEach(u => {
+            const avHtml = u.picture 
+                ? `<img src="${escapeHtml(u.picture)}" class="google-avatar-img" alt="${escapeHtml(u.name)}">`
+                : `<div class="google-avatar-placeholder" style="background:${u.color || '#0f766e'}">${escapeHtml(u.avatar || u.name.charAt(0))}</div>`;
+
+            accountItemsHtml += `
+                <button type="button" class="google-account-item" onclick="selectGoogleAccount('${escapeHtml(u.name)}', '${escapeHtml(u.email)}', '${escapeHtml(u.picture || '')}')">
+                    ${avHtml}
+                    <div class="google-acc-details">
+                        <div class="google-acc-name">${escapeHtml(u.name)} <span style="color:#10b981; font-size:11px;">✓ Tersimpan</span></div>
+                        <div class="google-acc-email">${escapeHtml(u.email)}</div>
+                    </div>
+                </button>
+            `;
+        });
+    } else {
+        // Akun default starter
+        accountItemsHtml += `
+            <button type="button" class="google-account-item" onclick="selectGoogleAccount('Ido Ganteng', 'aldianridhoku@gmail.com', 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=face')">
+                <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=face" class="google-avatar-img" alt="Ido">
+                <div class="google-acc-details">
+                    <div class="google-acc-name">Ido Ganteng <span style="color:#10b981; font-size:11px;">✓ Akun Utama</span></div>
+                    <div class="google-acc-email">aldianridhoku@gmail.com</div>
+                </div>
+            </button>
+        `;
+    }
 
     const modalContent = `
         <div class="google-picker-card" onclick="event.stopPropagation()">
@@ -175,40 +227,26 @@ function openGoogleAccountPicker() {
                 <span>Google</span>
             </div>
             
-            <h3 class="google-picker-title">Pilih akun</h3>
-            <p class="google-picker-subtitle">untuk melanjutkan ke <b>Personal OS</b></p>
+            <h3 class="google-picker-title">Pilih atau Buat Akun</h3>
+            <p class="google-picker-subtitle">Setiap akun memiliki vault mandiri &amp; database Google Spreadsheet tersendiri.</p>
 
             <div class="google-account-list">
-                <button type="button" class="google-account-item" onclick="selectGoogleAccount('Ido Ganteng', 'aldianridhoku@gmail.com', 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=face')">
-                    <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=face" class="google-avatar-img" alt="Ido">
-                    <div class="google-acc-details">
-                        <div class="google-acc-name">Ido Ganteng <span style="color:#10b981; font-size:12px;">✓ Terhubung</span></div>
-                        <div class="google-acc-email">aldianridhoku@gmail.com</div>
-                    </div>
-                </button>
-
-                <button type="button" class="google-account-item" onclick="selectGoogleAccount('Rebel Vault', 'rebel.rebellion@gmail.com', '')">
-                    <div class="google-avatar-placeholder">R</div>
-                    <div class="google-acc-details">
-                        <div class="google-acc-name">Rebel Vault</div>
-                        <div class="google-acc-email">rebel.rebellion@gmail.com</div>
-                    </div>
-                </button>
+                ${accountItemsHtml}
 
                 <button type="button" class="google-account-item" onclick="promptCustomGoogleAccount()">
-                    <div class="google-avatar-placeholder" style="background:#e5e7eb; color:#4b5563;">+</div>
+                    <div class="google-avatar-placeholder" style="background:#0284c7; color:#ffffff; font-weight:800;">＋</div>
                     <div class="google-acc-details">
-                        <div class="google-acc-name" style="color:#1a73e8; font-weight:600;">Gunakan akun Google lain</div>
-                        <div class="google-acc-email">Masuk dengan email Google Anda</div>
+                        <div class="google-acc-name" style="color:#0284c7; font-weight:700;">Masuk / Buat Akun Google Baru</div>
+                        <div class="google-acc-email">Daftar dengan email Google Anda</div>
                     </div>
                 </button>
             </div>
 
             <div class="google-picker-footer">
-                Untuk melanjutkan, Google akan membagikan nama, alamat email, dan preferensi bahasa Anda dengan Personal OS. Lihat Kebijakan Privasi dan Ketentuan Layanan Personal OS.
+                Data Anda diamankan dengan enkripsi lokal AES-256. Setiap akun Google memiliki basis data terpisah dan dapat dihubungkan ke spreadsheet masing-masing.
             </div>
 
-            <button type="button" onclick="closeAllModals()" class="btn-danger" style="width: 100%; margin-top: 16px; border-radius: 12px; font-size: 13px;">Batal</button>
+            <button type="button" onclick="closeAllModals()" class="btn-danger" style="width: 100%; margin-top: 14px; border-radius: 12px; font-size: 13px;">Batal</button>
         </div>
     `;
 
@@ -230,9 +268,10 @@ function promptCustomGoogleAccount() {
                     <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
                 </svg>
-                <span>Login Akun Google</span>
+                <span>Daftar Akun Google Baru</span>
             </div>
-            <form onsubmit="handleCustomGoogleSubmit(event)" style="gap: 12px; margin-top: 14px;">
+            <p style="font-size:12.5px; color:var(--text-gray); margin-top:2px;">Akun baru Anda akan memiliki database vault lokal &amp; spreadsheet sendiri.</p>
+            <form onsubmit="handleCustomGoogleSubmit(event)" style="gap: 12px; margin-top: 14px; text-align: left;">
                 <div>
                     <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 6px;">Nama Lengkap</label>
                     <input type="text" id="custom-google-name" placeholder="Misal: Aldian Ridho" required autocomplete="name" style="padding: 11px 14px;">
@@ -243,7 +282,7 @@ function promptCustomGoogleAccount() {
                 </div>
                 <div style="display: flex; gap: 8px; margin-top: 8px;">
                     <button type="button" onclick="openGoogleAccountPicker()" class="btn-danger" style="flex: 1; border-radius: 12px;">Kembali</button>
-                    <button type="submit" class="btn-primary" style="flex: 1; border-radius: 12px;">Masuk</button>
+                    <button type="submit" class="btn-primary" style="flex: 1; border-radius: 12px;">Daftar &amp; Masuk</button>
                 </div>
             </form>
         </div>
@@ -263,7 +302,7 @@ function handleCustomGoogleSubmit(e) {
 function selectGoogleAccount(name, email, picture) {
     closeAllModals();
     if (typeof showToast === 'function') {
-        showToast(`Menghubungkan ke Google sebagai <b>${escapeHtml(name)}</b>...`, 'info', '🔒');
+        showToast(`Membuka vault Google untuk <b>${escapeHtml(name)}</b>...`, 'info', '🔒');
     }
 
     setTimeout(() => {
@@ -298,7 +337,7 @@ function handleGoogleCredentialResponse(response) {
     }
 }
 
-// Login Sukses dengan Akun Google
+// Login Sukses dengan Akun Google (Mendukung Multi-Tenant & Database Terisolasi)
 function executeGoogleLoginSuccess(googleUser) {
     const name = googleUser.name || googleUser.given_name || 'Google User';
     const email = googleUser.email || '';
@@ -317,7 +356,7 @@ function executeGoogleLoginSuccess(googleUser) {
 
     // Sinkronisasi dengan list pengguna
     const users = getUsersList();
-    let existing = users.find(u => u.email === email || u.name === name);
+    let existing = users.find(u => (email && u.email === email) || u.name === name);
     if (!existing) {
         existing = {
             id: 'user_g_' + Math.random().toString(36).substring(2, 8),
@@ -326,7 +365,9 @@ function executeGoogleLoginSuccess(googleUser) {
             picture: picture,
             color: '#0f766e',
             role: 'Google Account',
-            email: email
+            email: email,
+            spreadsheetUrl: '',
+            spreadsheetToken: ''
         };
         users.unshift(existing);
         saveUsersList(users);
@@ -338,13 +379,23 @@ function executeGoogleLoginSuccess(googleUser) {
 
     localStorage.setItem('app_active_user_id', existing.id);
 
+    // Muat data transaksi terisolasi milik akun Google ini
+    if (typeof loadFromLocal === 'function') {
+        transactions = loadFromLocal(sub) || [];
+    }
+
     // Buka aplikasi
-    document.getElementById('login-wrapper').style.display = 'none';
-    document.getElementById('app-container').style.display = 'block';
-    if (typeof switchMobileTab === 'function') switchMobileTab('home');
+    const loginWrapper = document.getElementById('login-wrapper');
+    const appContainer = document.getElementById('app-container');
+    if (loginWrapper) loginWrapper.style.display = 'none';
+    if (appContainer) appContainer.style.display = 'block';
+
+    if (typeof switchAppTab === 'function') switchAppTab('home');
 
     if (typeof updateHeaderGreeting === 'function') updateHeaderGreeting();
     renderUserInterfaceWidgets();
+    if (typeof populateSpreadsheetSettingsInputs === 'function') populateSpreadsheetSettingsInputs();
+    if (typeof updateSyncIndicator === 'function') updateSyncIndicator();
 
     if (typeof fetchAutoGoldPrice === 'function') fetchAutoGoldPrice();
     if (typeof syncTransactionsFromSheet === 'function') syncTransactionsFromSheet();
@@ -355,7 +406,7 @@ function executeGoogleLoginSuccess(googleUser) {
     }
 
     if (typeof showToast === 'function') {
-        showToast(`Selamat datang, <b>${escapeHtml(name)}</b>! Terhubung dengan Akun Google.`, 'success', '✨');
+        showToast(`Selamat datang, <b>${escapeHtml(name)}</b>! Terhubung dengan Akun Google &amp; Database Mandiri.`, 'success', '✨');
     }
 }
 
@@ -391,12 +442,19 @@ async function handleLogin(e) {
         sessionStorage.setItem('lastActivityTime', Date.now().toString());
         currentSessionKey = p;
         
+        // Muat transaksi vault lokal
+        if (typeof loadFromLocal === 'function') {
+            transactions = loadFromLocal(p) || [];
+        }
+
         document.getElementById('login-wrapper').style.display = 'none';
         document.getElementById('app-container').style.display = 'block';
-        if (typeof switchMobileTab === 'function') switchMobileTab('home');
+        if (typeof switchAppTab === 'function') switchAppTab('home');
         
         updateHeaderGreeting();
         renderUserInterfaceWidgets();
+        if (typeof populateSpreadsheetSettingsInputs === 'function') populateSpreadsheetSettingsInputs();
+        if (typeof updateSyncIndicator === 'function') updateSyncIndicator();
 
         if (typeof fetchAutoGoldPrice === 'function') fetchAutoGoldPrice();
         if (typeof syncTransactionsFromSheet === 'function') await syncTransactionsFromSheet();

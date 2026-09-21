@@ -144,30 +144,213 @@ function cleanDateStr(dateStr) {
     return dateStr;
 }
 
-// ================= STORAGE ENCRYPTED DB ================= //
-function saveToLocal() { 
-    if (currentSessionKey) {
-        localStorage.setItem('keuangan_secure_db', CryptoJS.AES.encrypt(JSON.stringify(transactions), currentSessionKey).toString()); 
+// ================= USER STORAGE & OFFLINE QUEUE KEYS ================= //
+function getUserStorageKey() {
+    const active = (typeof getActiveUser === 'function') ? getActiveUser() : null;
+    return active ? `keuangan_db_${active.id}` : 'keuangan_secure_db';
+}
+
+function getOfflineQueueKey() {
+    const active = (typeof getActiveUser === 'function') ? getActiveUser() : null;
+    return active ? `offline_queue_${active.id}` : 'offline_queue_default';
+}
+
+function getUserSpreadsheetConfig() {
+    const active = (typeof getActiveUser === 'function') ? getActiveUser() : null;
+    const customUrl = active && active.spreadsheetUrl ? active.spreadsheetUrl.trim() : '';
+    const customToken = active && active.spreadsheetToken ? active.spreadsheetToken.trim() : '';
+
+    return {
+        url: customUrl || SHEET_WEB_APP_URL,
+        token: customToken || SHEET_TOKEN,
+        isCustom: Boolean(customUrl),
+        email: active && active.email ? active.email : 'default@personal.os',
+        userId: active ? active.id : 'user_default',
+        userName: active ? active.name : 'User'
+    };
+}
+
+function getAppSessionKey() {
+    if (typeof currentSessionKey !== 'undefined' && currentSessionKey) {
+        return currentSessionKey;
+    }
+    try {
+        return sessionStorage.getItem('appEncryptionKey') || null;
+    } catch (e) {
+        return null;
     }
 }
 
-function loadFromLocal(key) { 
-    try { 
-        const stored = localStorage.getItem('keuangan_secure_db');
-        if (stored && key) return JSON.parse(CryptoJS.AES.decrypt(stored, key).toString(CryptoJS.enc.Utf8)); 
-    } catch(e) {}
-    return null;
+// ================= STORAGE ENCRYPTED DB (PER USER) ================= //
+function saveToLocal() {
+    const key = getUserStorageKey();
+    const sessionKey = getAppSessionKey();
+    if (sessionKey && typeof CryptoJS !== 'undefined' && CryptoJS && CryptoJS.AES) {
+        try {
+            const encrypted = CryptoJS.AES.encrypt(JSON.stringify(transactions), sessionKey).toString();
+            localStorage.setItem(key, encrypted);
+        } catch (e) {
+            localStorage.setItem(key, JSON.stringify(transactions));
+        }
+    } else {
+        localStorage.setItem(key, JSON.stringify(transactions));
+    }
+}
+
+function loadFromLocal(sessionKey) {
+    const key = getUserStorageKey();
+    const sk = sessionKey || getAppSessionKey();
+    const stored = localStorage.getItem(key);
+    if (!stored) return [];
+
+    const trimmed = stored.trim();
+    // 1. Jika data berupa JSON biasa (array / object)
+    if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+        try {
+            return JSON.parse(trimmed);
+        } catch (e) {}
+    }
+
+    // 2. Jika data terenkripsi AES
+    if (typeof CryptoJS !== 'undefined' && CryptoJS && CryptoJS.AES && sk) {
+        try {
+            const bytes = CryptoJS.AES.decrypt(stored, sk);
+            const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+            if (decrypted) return JSON.parse(decrypted);
+        } catch (e) {}
+    }
+
+    // 3. Fallback
+    try {
+        return JSON.parse(stored);
+    } catch (e) {
+        return [];
+    }
+}
+
+// ================= OFFLINE SYNC QUEUE & BACKGROUND UPLOAD ================= //
+function getOfflineQueue() {
+    try {
+        const stored = localStorage.getItem(getOfflineQueueKey());
+        if (stored) return JSON.parse(stored) || [];
+    } catch (e) {}
+    return [];
+}
+
+function saveOfflineQueue(queue) {
+    localStorage.setItem(getOfflineQueueKey(), JSON.stringify(queue));
+    updateSyncIndicator();
+}
+
+function enqueueOfflineAction(action, trx) {
+    const queue = getOfflineQueue();
+    const queueItem = {
+        id: 'sync_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+        action: action,
+        trx: trx,
+        timestamp: Date.now()
+    };
+    queue.push(queueItem);
+    saveOfflineQueue(queue);
+
+    if (navigator.onLine) {
+        processOfflineQueue();
+    } else {
+        if (typeof showToast === 'function') {
+            showToast('💾 Transaksi disimpan di perangkat (Offline). Akan otomatis diunggah saat ada internet.', 'warning', '📡');
+        }
+    }
+}
+
+let isProcessingQueue = false;
+async function processOfflineQueue() {
+    if (isProcessingQueue) return;
+    if (!navigator.onLine) {
+        updateSyncIndicator();
+        return;
+    }
+
+    const queue = getOfflineQueue();
+    if (queue.length === 0) {
+        updateSyncIndicator();
+        return;
+    }
+
+    isProcessingQueue = true;
+    updateSyncIndicator(true);
+
+    const config = getUserSpreadsheetConfig();
+    let successCount = 0;
+
+    while (queue.length > 0 && navigator.onLine) {
+        const item = queue[0];
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+            const payload = {
+                action: item.action,
+                token: config.token,
+                user_email: config.email,
+                user_id: config.userId,
+                ...item.trx
+            };
+
+            const res = await fetch(config.url, {
+                method: 'POST',
+                body: JSON.stringify(payload),
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+
+            if (res.ok) {
+                queue.shift();
+                saveOfflineQueue(queue);
+                successCount++;
+            } else {
+                console.warn('Gagal upload item offline, status:', res.status);
+                break;
+            }
+        } catch (err) {
+            console.warn('Koneksi terputus saat upload antrian offline:', err);
+            break;
+        }
+    }
+
+    isProcessingQueue = false;
+    updateSyncIndicator();
+
+    if (successCount > 0 && queue.length === 0) {
+        if (typeof showToast === 'function') {
+            showToast(`✅ ${successCount} transaksi offline berhasil diunggah ke Google Spreadsheet!`, 'success', '☁️');
+        }
+    }
 }
 
 // ================= SINKRONISASI GOOGLE SHEETS ================= //
-async function syncTransactionsFromSheet() {
+async function syncTransactionsFromSheet(manual = false) {
+    const config = getUserSpreadsheetConfig();
+    const sessionKey = getAppSessionKey();
+
+    if (!navigator.onLine) {
+        transactions = loadFromLocal(sessionKey) || [];
+        if (typeof updateUI === 'function') updateUI();
+        updateSyncIndicator();
+        if (manual && typeof showToast === 'function') {
+            showToast('Mode Offline: Memuat data tersimpan di perangkat.', 'info', '📡');
+        }
+        return;
+    }
+
+    await processOfflineQueue();
+
     try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 8000);
 
-        const response = await fetch(SHEET_WEB_APP_URL, {
+        const response = await fetch(config.url, {
             method: 'POST',
-            body: JSON.stringify({ action: 'sync', token: SHEET_TOKEN }),
+            body: JSON.stringify({ action: 'sync', token: config.token, user_email: config.email, user_id: config.userId }),
             signal: controller.signal
         });
         clearTimeout(timeoutId);
@@ -177,41 +360,283 @@ async function syncTransactionsFromSheet() {
             transactions = result.data;
             saveToLocal();
             if (typeof updateUI === 'function') updateUI();
-            if (typeof showToast === 'function') {
-                showToast('Data tersinkronisasi dari Cloud Spreadsheet ⚡', 'info', '☁️');
+            updateSyncIndicator();
+            if (manual && typeof showToast === 'function') {
+                showToast('Data berhasil disinkronkan dari Google Spreadsheet ⚡', 'success', '☁️');
             }
         } else {
-            transactions = loadFromLocal(currentSessionKey) || [];
+            transactions = loadFromLocal(sessionKey) || [];
             if (typeof updateUI === 'function') updateUI();
+            updateSyncIndicator();
         }
     } catch (err) {
-        console.warn('Gagal sinkronisasi dengan Spreadsheet (offline), memuat data lokal terenkripsi.');
-        transactions = loadFromLocal(currentSessionKey) || [];
+        console.warn('Gagal mengambil data Spreadsheet (offline/timeout), gunakan data lokal.');
+        transactions = loadFromLocal(sessionKey) || [];
         if (typeof updateUI === 'function') updateUI();
+        updateSyncIndicator();
     }
 }
 
 async function addTransactionToSheet(trx) {
-    try { 
-        await fetch(SHEET_WEB_APP_URL, { 
-            method: 'POST', 
-            body: JSON.stringify({ action: 'add', token: SHEET_TOKEN, ...trx }) 
-        });
-    } catch (err) { 
-        console.error('Gagal menambahkan ke Spreadsheet:', err); 
-    }
+    enqueueOfflineAction('add', trx);
 }
 
 async function deleteTransactionFromSheet(id) {
-    try { 
-        await fetch(SHEET_WEB_APP_URL, { 
-            method: 'POST', 
-            body: JSON.stringify({ action: 'delete', token: SHEET_TOKEN, id: id }) 
-        });
-    } catch (err) { 
-        console.error('Gagal menghapus dari Spreadsheet:', err); 
+    enqueueOfflineAction('delete', { id: id });
+}
+
+// ================= SYNC STATUS INDICATOR ================= //
+function updateSyncIndicator(uploading = false) {
+    const queue = getOfflineQueue();
+    const isOnline = navigator.onLine;
+    const config = getUserSpreadsheetConfig();
+
+    const indicatorEl = document.getElementById('sync-status-indicator');
+    const heroBadgeEl = document.getElementById('mem-hero-badge');
+    const sheetConnBadge = document.getElementById('sheet-conn-badge');
+
+    let text = 'Tersinkron';
+    let dotClass = 'green';
+    let statusClass = 'online';
+
+    if (uploading) {
+        text = `Mengunggah (${queue.length})...`;
+        dotClass = 'blue rotating';
+        statusClass = 'syncing';
+    } else if (!isOnline) {
+        text = queue.length > 0 ? `Offline (${queue.length} antri)` : 'Offline';
+        dotClass = 'yellow';
+        statusClass = 'offline';
+    } else if (queue.length > 0) {
+        text = `Ada ${queue.length} antri`;
+        dotClass = 'yellow';
+        statusClass = 'pending';
+    } else {
+        text = config.isCustom ? 'Spreadsheet Pribadi' : 'Cloud Sync Aktif';
+        dotClass = 'green';
+        statusClass = 'online';
+    }
+
+    if (indicatorEl) {
+        indicatorEl.className = `sync-status-pill ${statusClass}`;
+        indicatorEl.innerHTML = `<span class="status-dot ${dotClass}"></span><span>${escapeHtml(text)}</span>`;
+    }
+
+    if (heroBadgeEl) {
+        heroBadgeEl.innerHTML = `<span style="color:${isOnline ? '#34d399' : '#fbbf24'};">●</span> ${escapeHtml(text)}`;
+    }
+
+    if (sheetConnBadge) {
+        sheetConnBadge.innerText = config.isCustom ? 'Spreadsheet Pribadi' : 'Template Standar';
+        sheetConnBadge.style.color = config.isCustom ? '#34d399' : '#38bdf8';
     }
 }
+
+function triggerManualSync() {
+    if (!navigator.onLine) {
+        if (typeof showToast === 'function') {
+            showToast('Tidak ada koneksi internet. Cek jaringan Anda.', 'error', '📡');
+        }
+        return;
+    }
+    if (typeof showToast === 'function') {
+        showToast('Menghubungi Google Spreadsheet...', 'info', '🔄');
+    }
+    syncTransactionsFromSheet(true);
+}
+
+// ================= TEST & SAVE PERSONAL SPREADSHEET DATABASE ================= //
+async function testSpreadsheetConnection() {
+    const urlInput = document.getElementById('user-sheet-url');
+    const tokenInput = document.getElementById('user-sheet-token');
+    const url = urlInput ? urlInput.value.trim() : '';
+    const token = tokenInput ? tokenInput.value.trim() : SHEET_TOKEN;
+
+    if (!url) {
+        if (typeof showToast === 'function') showToast('Masukkan URL Web App Google Apps Script Anda terlebih dahulu.', 'warning', '⚠️');
+        return;
+    }
+
+    if (typeof showToast === 'function') showToast('Menguji koneksi ke Google Spreadsheet...', 'info', '⏳');
+
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+        const res = await fetch(url, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'ping', token: token }),
+            signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        const json = await res.json();
+        if (json && (json.status === 'success' || json.message)) {
+            if (typeof showToast === 'function') {
+                showToast('✅ Berhasil terhubung ke Google Spreadsheet Anda!', 'success', '🎉');
+            }
+        } else {
+            if (typeof showToast === 'function') {
+                showToast('Respon diterima dari Spreadsheet: ' + (json.message || 'OK'), 'info', '📊');
+            }
+        }
+    } catch (err) {
+        console.error('Test connection error:', err);
+        if (typeof showModal === 'function') {
+            showModal('❌', 'Gagal Menghubungi Spreadsheet', `Pastikan Web App sudah di-deploy dengan akses <b>"Anyone" (Siapa saja)</b>.<br><br><small style="color:var(--text-gray)">Error: ${escapeHtml(err.message)}</small>`, `
+                <button type="button" onclick="closeAllModals()" class="btn-primary" style="padding:12px;border-radius:12px;width:100%;">Tutup</button>
+            `);
+        }
+    }
+}
+
+function saveUserSpreadsheetSettings(e) {
+    if (e) e.preventDefault();
+    const urlInput = document.getElementById('user-sheet-url');
+    const tokenInput = document.getElementById('user-sheet-token');
+    const url = urlInput ? urlInput.value.trim() : '';
+    const token = tokenInput ? tokenInput.value.trim() : '';
+
+    const users = (typeof getUsersList === 'function') ? getUsersList() : [];
+    const active = (typeof getActiveUser === 'function') ? getActiveUser() : null;
+
+    if (active) {
+        const found = users.find(u => u.id === active.id);
+        if (found) {
+            found.spreadsheetUrl = url;
+            found.spreadsheetToken = token;
+            saveUsersList(users);
+        }
+    }
+
+    updateSyncIndicator();
+    if (typeof showToast === 'function') {
+        showToast('Konfigurasi database Google Spreadsheet disimpan!', 'success', '💾');
+    }
+    if (url) {
+        syncTransactionsFromSheet(true);
+    }
+}
+
+function populateSpreadsheetSettingsInputs() {
+    const config = getUserSpreadsheetConfig();
+    const urlInput = document.getElementById('user-sheet-url');
+    const tokenInput = document.getElementById('user-sheet-token');
+    const emailInfo = document.getElementById('user-sheet-email-info');
+
+    if (urlInput) urlInput.value = config.isCustom ? config.url : '';
+    if (tokenInput) tokenInput.value = config.token || '';
+    if (emailInfo) emailInfo.innerText = config.email;
+}
+
+function openAppsScriptTemplateModal() {
+    const code = `function doPost(e) {
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var action = data.action;
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    
+    // Inisialisasi Header bila masih kosong
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow(["ID", "Tanggal", "Keterangan", "Nominal", "Tipe", "Sumber", "Kategori", "User ID", "User Name"]);
+    }
+    
+    if (action === "ping") {
+      return ContentService.createTextOutput(JSON.stringify({ status: "success", message: "Terkoneksi!" })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    if (action === "sync") {
+      var rows = sheet.getDataRange().getValues();
+      var result = [];
+      for (var i = 1; i < rows.length; i++) {
+        var r = rows[i];
+        if (r[0] && r[1]) {
+          result.push({
+            id: String(r[0]),
+            date: String(r[1]),
+            desc: String(r[2]),
+            amount: Number(r[3]),
+            type: String(r[4]),
+            source: String(r[5] || 'pribadi'),
+            category: String(r[6] || 'makan'),
+            userId: String(r[7] || ''),
+            userName: String(r[8] || '')
+          });
+        }
+      }
+      return ContentService.createTextOutput(JSON.stringify({ status: "success", data: result })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    if (action === "add") {
+      sheet.appendRow([data.id, data.date, data.desc, data.amount, data.type, data.source, data.category, data.userId, data.userName]);
+      return ContentService.createTextOutput(JSON.stringify({ status: "success" })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    if (action === "delete") {
+      var rows = sheet.getDataRange().getValues();
+      for (var i = 1; i < rows.length; i++) {
+        if (String(rows[i][0]) === String(data.id)) {
+          sheet.deleteRow(i + 1);
+          break;
+        }
+      }
+      return ContentService.createTextOutput(JSON.stringify({ status: "success" })).setMimeType(ContentService.MimeType.JSON);
+    }
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({ status: "error", message: err.toString() })).setMimeType(ContentService.MimeType.JSON);
+  }
+}`;
+
+    const modalContent = `
+        <div style="font-size:32px; margin-bottom:8px;">📜</div>
+        <h3>Kode Google Apps Script</h3>
+        <p style="font-size:12.5px; color:var(--text-gray); margin-bottom:12px;">Salin kode di bawah ke menu <b>Extensions &gt; Apps Script</b> di Google Sheets Anda, lalu Deploy sebagai Web App (Who has access: <b>Anyone</b>).</p>
+        <div style="position:relative; text-align:left;">
+            <textarea id="apps-script-code-area" readonly style="width:100%; height:200px; font-family:monospace; font-size:11px; padding:10px; background:var(--input-bg); border:1px solid var(--border-color); border-radius:12px; resize:none;">${escapeHtml(code)}</textarea>
+            <button type="button" onclick="copyAppsScriptCode()" class="btn-primary" style="margin-top:8px; width:100%; border-radius:12px; padding:10px; font-size:13px;">📋 Salin Semua Kode</button>
+        </div>
+        <button type="button" onclick="closeAllModals()" class="btn-danger" style="margin-top:10px; width:100%; border-radius:12px; padding:10px; font-size:12px;">Tutup</button>
+    `;
+
+    document.getElementById('modal-icon-el').innerText = '';
+    document.getElementById('modal-title').innerText = '';
+    document.getElementById('modal-desc').innerHTML = modalContent;
+    document.getElementById('modal-actions-container').innerHTML = '';
+    document.getElementById('custom-modal').classList.add('active');
+}
+
+function copyAppsScriptCode() {
+    const area = document.getElementById('apps-script-code-area');
+    if (area) {
+        area.select();
+        navigator.clipboard.writeText(area.value).then(() => {
+            if (typeof showToast === 'function') {
+                showToast('Kode Google Apps Script berhasil disalin ke clipboard!', 'success', '📋');
+            }
+        });
+    }
+}
+
+// Event listener online / offline
+window.addEventListener('online', () => {
+    updateSyncIndicator();
+    if (typeof showToast === 'function') {
+        showToast('🌐 Terhubung kembali ke internet! Mengunggah transaksi otomatis...', 'info', '🔄');
+    }
+    processOfflineQueue();
+});
+window.addEventListener('offline', () => {
+    updateSyncIndicator();
+    if (typeof showToast === 'function') {
+        showToast('📡 Anda dalam Mode Offline. Input transaksi tetap disimpan dan aman!', 'warning', '⚠️');
+    }
+});
+setInterval(() => {
+    if (navigator.onLine) {
+        const q = getOfflineQueue();
+        if (q.length > 0) processOfflineQueue();
+    }
+}, 15000);
 
 // ================= LIVE GOLD SPOT PRICE ================= //
 async function fetchAutoGoldPrice() {

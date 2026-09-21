@@ -323,45 +323,81 @@ function renderUserSpendingBreakdown(userExpensesMap, userCountsMap) {
     });
 }
 
-// ================= MOBILE NAVIGATION & BOTTOM SHEET (HP) ================= //
-function switchMobileTab(tab) {
+// ================= APPLICATION TAB NAVIGATION & TRANSACTION MODAL ================= //
+function switchAppTab(tab) {
+    const validTabs = ['home', 'analytics', 'users'];
+    if (!validTabs.includes(tab)) tab = 'home';
+
     const appContainer = document.getElementById('app-container');
     if (appContainer) {
         appContainer.setAttribute('data-active-tab', tab);
     }
-    
+
+    // 1. Toggle Tab Views
+    document.querySelectorAll('.dashboard-tab-view').forEach(view => {
+        view.classList.remove('active');
+    });
+    const targetView = document.getElementById(`view-${tab}`);
+    if (targetView) targetView.classList.add('active');
+
+    // 2. Toggle Desktop Tab Buttons
+    document.querySelectorAll('.desktop-tab-btn').forEach(btn => btn.classList.remove('active'));
+    const desktopBtn = document.getElementById(`desktop-tab-${tab}`);
+    if (desktopBtn) desktopBtn.classList.add('active');
+
+    // 3. Toggle Mobile Tab Buttons
     document.querySelectorAll('.mobile-tab-btn').forEach(btn => btn.classList.remove('active'));
-    const clickedBtn = document.getElementById(`mobile-tab-${tab}`);
-    if (clickedBtn) clickedBtn.classList.add('active');
+    const mobileBtn = document.getElementById(`mobile-tab-${tab}`);
+    if (mobileBtn) mobileBtn.classList.add('active');
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
+    // 4. Tab specific actions
     if (tab === 'analytics') {
         setTimeout(() => {
             if (financeChart) financeChart.resize();
             if (comparisonChart) comparisonChart.resize();
             if (userComparisonChart) userComparisonChart.resize();
-        }, 60);
+        }, 80);
+    } else if (tab === 'users') {
+        if (typeof populateSpreadsheetSettingsInputs === 'function') {
+            populateSpreadsheetSettingsInputs();
+        }
     }
 }
 
-function openAddTransactionSheet() {
+function switchMobileTab(tab) {
+    switchAppTab(tab);
+}
+
+function openAddTransactionModal() {
     const sheet = document.getElementById('record-transaction-sheet');
     const backdrop = document.getElementById('sheet-backdrop');
     if (sheet) sheet.classList.add('open');
     if (backdrop) backdrop.classList.add('active');
-    
+
     setTimeout(() => {
         const amt = document.getElementById('amount');
-        if (amt && window.innerWidth <= 768) amt.focus();
-    }, 280);
+        if (amt) {
+            amt.focus();
+            if (amt.select) amt.select();
+        }
+    }, 200);
 }
 
-function closeAddTransactionSheet() {
+function closeAddTransactionModal() {
     const sheet = document.getElementById('record-transaction-sheet');
     const backdrop = document.getElementById('sheet-backdrop');
     if (sheet) sheet.classList.remove('open');
     if (backdrop) backdrop.classList.remove('active');
+}
+
+function openAddTransactionSheet() {
+    openAddTransactionModal();
+}
+
+function closeAddTransactionSheet() {
+    closeAddTransactionModal();
 }
 
 // ================= RENDER CATEGORY BUDGET TRACKERS (MEMFINANCE STYLE) ================= //
