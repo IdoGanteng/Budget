@@ -72,7 +72,27 @@ function initInputListeners() {
         });
     }
 
-    // Submit handler untuk Form Transaksi Utama (Mendukung Multi-User Tagging)
+    // Category Selection buttons in Form
+    const catBtns = document.querySelectorAll('.cat-btn');
+    catBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const parent = this.parentElement;
+            parent.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+            this.classList.add('selected');
+            parent.setAttribute('data-selected-category', this.getAttribute('data-cat') || 'makan');
+        });
+    });
+
+    // Search bar listener in history
+    const searchInput = document.getElementById('transaction-search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            setSearchQuery(this.value);
+        });
+    }
+
+    // Submit handler untuk Form Transaksi Utama (Mendukung Multi-User & Kategori)
     const frm = document.getElementById('form');
     if (frm) {
         frm.addEventListener('submit', async function(e) {
@@ -85,6 +105,10 @@ function initInputListeners() {
             let isGram = (type === 'tring' || (type === 'withdraw' && source === 'tring'));
             let amt = isGram ? parseFloat(rawAmt.replace(',', '.')) : parseInt(rawAmt.replace(/\./g, ''), 10);
             if (!amt || isNaN(amt) || amt <= 0) return;
+
+            // Dapatkan kategori yang dipilih
+            const catContainer = document.getElementById('form-category-chips');
+            let chosenCat = catContainer ? (catContainer.getAttribute('data-selected-category') || 'makan') : 'makan';
 
             // Dapatkan pengguna yang dipilih di formulir atau fallback ke active user
             const formUserChipsContainer = document.getElementById('form-user-chips');
@@ -105,6 +129,7 @@ function initInputListeners() {
                 amount: amt, 
                 type: type, 
                 source: source,
+                category: chosenCat,
                 userId: chosenUser.id,
                 userName: chosenUser.name
             };

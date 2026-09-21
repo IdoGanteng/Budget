@@ -2,13 +2,17 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta name="referrer" content="strict-origin-when-cross-origin">
-    <title>Personal OS - Financial Vault & Multi-User</title>
+    <meta name="theme-color" content="#0f766e">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="PersonalOS">
+    <title>Personal OS — Keuangan Pribadi & Multi-User</title>
     
     <!-- LOGO INISIAL ARK -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2224%22 fill=%22%234f46e5%22/><text x=%2250%22 y=%2265%22 font-family=%22'Plus Jakarta Sans', sans-serif%22 font-size=%2244%22 font-weight=%22800%22 fill=%22%23ffffff%22 text-anchor=%22middle%22>ARK</text></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2224%22 fill=%22%230f766e%22/><text x=%2250%22 y=%2265%22 font-family=%22'Plus Jakarta Sans', sans-serif%22 font-size=%2244%22 font-weight=%22800%22 fill=%22%23ffffff%22 text-anchor=%22middle%22>ARK</text></svg>">
     
     <!-- FONTS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,63 +34,50 @@
     <!-- FLOATING TOAST NOTIFICATIONS -->
     <div id="toast-container"></div>
 
-    <!-- ================= LOGIN SCREEN ================= -->
+    <!-- ================= LOGIN SCREEN (INSPIRED BY MEMFINANCE & INSTAGRAM GOOGLE LOGIN) ================= -->
     <div id="login-wrapper">
         <div id="login-container">
-            <div class="login-logo-badge">🔐</div>
-            <h1>Personal OS</h1>
-            <p class="subtitle">Vault Finansial Multi-Pengguna</p>
-            
-            <!-- AUTH TABS -->
-            <div class="auth-tabs">
-                <button type="button" class="auth-tab-btn active" id="tab-btn-google" onclick="switchAuthTab('google')">
-                    <svg width="18" height="18" viewBox="0 0 24 24">
+            <div class="login-brand-header">
+                <div class="login-logo-badge">🔐</div>
+                <h1>Personal OS</h1>
+                <p class="subtitle">Keuangan lebih jelas, keputusan lebih tenang.</p>
+            </div>
+
+            <div class="login-box-card">
+                <div style="text-align: left;">
+                    <h2 style="font-size: 19px; font-weight: 800; color: var(--text-dark);">Selamat datang</h2>
+                    <p style="font-size: 13px; color: var(--text-gray); margin-top: 2px;">Pilih cara yang paling nyaman untuk masuk.</p>
+                </div>
+
+                <!-- TOMBOL LOGIN GOOGLE RESMI & TERPERCAYA (ALA INSTAGRAM) -->
+                <button type="button" class="btn-google-primary" onclick="triggerGoogleLogin()" title="Masuk menggunakan Akun Google">
+                    <svg viewBox="0 0 24 24">
                         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                         <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                         <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
                         <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
                     </svg>
-                    Google
+                    <span>Login dengan Google</span>
                 </button>
-                <button type="button" class="auth-tab-btn" id="tab-btn-vault" onclick="switchAuthTab('vault')">
-                    🔑 Master Key
-                </button>
-            </div>
 
-            <!-- PANEL 1: GOOGLE SIGN-IN -->
-            <div id="auth-panel-google" class="auth-panel active">
-                <div class="google-login-box">
-                    <div id="google-signin-btn-container" style="display: flex; justify-content: center;"></div>
-                    
-                    <button type="button" class="btn-google" onclick="loginWithGoogleDemo()">
-                        <svg viewBox="0 0 24 24">
-                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-                        </svg>
-                        Masuk dengan Akun Google
-                    </button>
-
-                    <p class="google-auth-note">
-                        🔒 Autentikasi aman terintegrasi dengan Google Identity Services. Data vault tetap terisolasi dan terenkripsi.
-                    </p>
+                <div class="or-divider">
+                    <hr>
+                    <span>atau dengan password</span>
+                    <hr>
                 </div>
-            </div>
 
-            <!-- PANEL 2: MASTER KEY VAULT FORM -->
-            <div id="auth-panel-vault" class="auth-panel">
-                <form onsubmit="handleLogin(event)">
-                    <input type="text" id="username-input" placeholder="Username" autocomplete="username" required style="margin-bottom: 12px;">
+                <!-- FORM LOGIN MASTER KEY -->
+                <form onsubmit="handleLogin(event)" style="gap: 12px;">
+                    <input type="text" id="username-input" placeholder="Username (misal: Rebel)" autocomplete="username" required>
                     <div class="password-wrapper">
-                        <input type="password" id="password-input" placeholder="Password" autocomplete="current-password" required>
+                        <input type="password" id="password-input" placeholder="Password Vault" autocomplete="current-password" required>
                         <button type="button" class="toggle-password" onclick="togglePasswordVisibility()" aria-label="Toggle Password Visibility">👀</button>
                     </div>
                     <button type="submit">Buka Vault</button>
                 </form>
             </div>
 
-            <div id="session-warning" style="margin-top: 16px; font-size: 12px; color: var(--text-gray); font-weight: 500;"></div>
+            <div id="session-warning" style="margin-top: 14px; font-size: 11.5px; color: var(--text-gray); font-weight: 500;"></div>
         </div>
     </div>
 
@@ -106,18 +97,18 @@
             <div style="font-size: 32px; margin-bottom: 12px;">✏️</div>
             <h3>Edit Transaksi</h3>
             <p>Perbarui keterangan, nominal, atau tipe transaksi.</p>
-            <form onsubmit="saveEditedTransaction(event)" style="gap: 16px;">
+            <form onsubmit="saveEditedTransaction(event)" style="gap: 14px;">
                 <input type="hidden" id="edit-trx-id">
                 <div>
-                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 8px;">Keterangan</label>
+                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Keterangan</label>
                     <input type="text" id="edit-trx-desc" required autocomplete="off">
                 </div>
                 <div>
-                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 8px;">Nominal / Gram</label>
+                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Nominal / Gram</label>
                     <input type="text" id="edit-trx-amount" required autocomplete="off">
                 </div>
                 <div>
-                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 8px;">Tipe</label>
+                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Tipe</label>
                     <select id="edit-trx-type" onchange="handleEditTrgTypeChange()">
                         <optgroup label="Uang Harian"><option value="income">Pemasukan (+)</option><option value="expense">Pengeluaran (-)</option></optgroup>
                         <optgroup label="Ambil Tabungan & Aset"><option value="withdraw">Ambil dari Tabungan Pribadi (-)</option></optgroup>
@@ -125,7 +116,7 @@
                     </select>
                 </div>
                 <div id="edit-withdraw-source-container" style="display: none;">
-                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 8px;">Sumber Tabungan</label>
+                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Sumber Tabungan</label>
                     <select id="edit-withdraw-source">
                         <option value="pribadi">Tabungan Pribadi</option>
                         <option value="simpanan">Simpanan Wajib</option>
@@ -133,9 +124,9 @@
                         <option value="jago">Emas Jago</option>
                     </select>
                 </div>
-                <div class="modal-actions" style="margin-top: 12px;">
-                    <button type="button" onclick="closeTransactionEditModal()" class="btn-danger" style="flex: 1; padding: 14px; border-radius: 14px;">Batal</button>
-                    <button type="submit" class="btn-primary" style="flex: 1; padding: 14px; border-radius: 14px;">Simpan</button>
+                <div class="modal-actions" style="margin-top: 10px;">
+                    <button type="button" onclick="closeTransactionEditModal()" class="btn-danger" style="flex: 1; padding: 12px; border-radius: 14px;">Batal</button>
+                    <button type="submit" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 14px;">Simpan</button>
                 </div>
             </form>
         </div>
@@ -147,18 +138,18 @@
             <div style="font-size: 32px; margin-bottom: 12px;">🎯</div>
             <h3>Pengaturan Target 2026</h3>
             <p>Tentukan target finansial impian kamu tahun ini.</p>
-            <form onsubmit="saveGoals(event)" style="gap: 18px;">
+            <form onsubmit="saveGoals(event)" style="gap: 16px;">
                 <div>
-                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 8px;">Target Kekayaan Total (Rp)</label>
+                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Target Kekayaan Total (Rp)</label>
                     <input type="text" id="modal-wealth-goal" placeholder="50.000.000" oninput="formatGoalInput(this)" required>
                 </div>
                 <div>
-                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 8px;">Target Aset Emas (Rp)</label>
+                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Target Aset Emas (Rp)</label>
                     <input type="text" id="modal-gold-goal" placeholder="10.000.000" oninput="formatGoalInput(this)" required>
                 </div>
-                <div class="modal-actions" style="margin-top: 12px;">
-                    <button type="button" onclick="closeGoalsModal()" class="btn-danger" style="flex: 1; padding: 14px; border-radius: 14px;">Batal</button>
-                    <button type="submit" class="btn-primary" style="flex: 1; padding: 14px; border-radius: 14px;">Simpan</button>
+                <div class="modal-actions" style="margin-top: 10px;">
+                    <button type="button" onclick="closeGoalsModal()" class="btn-danger" style="flex: 1; padding: 12px; border-radius: 14px;">Batal</button>
+                    <button type="submit" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 14px;">Simpan</button>
                 </div>
             </form>
         </div>
@@ -195,6 +186,36 @@
             </div>
         </div>
 
+        <!-- HERO OVERVIEW CARD (INSPIRED BY MEMFINANCE) -->
+        <div class="mem-hero-card">
+            <div class="mem-hero-top">
+                <div>
+                    <span class="mem-hero-label">Sisa untuk bulan ini</span>
+                    <div class="mem-hero-amount" id="mem-hero-amount">Rp 0</div>
+                    <div class="mem-hero-badge" id="mem-hero-badge">
+                        <span>●</span> Terkendali • Cloud Sync
+                    </div>
+                </div>
+                <span class="badge" style="background: rgba(255,255,255,0.2); color:#ffffff; font-size:10px;">Fintech View</span>
+            </div>
+
+            <div class="mem-mini-grid">
+                <div class="mem-mini-box">
+                    <div class="mem-mini-label">Pemasukan</div>
+                    <div class="mem-mini-val mem-mini-inc" id="mem-mini-inc">Rp 0</div>
+                </div>
+                <div class="mem-mini-box">
+                    <div class="mem-mini-label">Pengeluaran</div>
+                    <div class="mem-mini-val mem-mini-exp" id="mem-mini-exp">Rp 0</div>
+                </div>
+            </div>
+
+            <div class="mem-insight-banner" id="mem-insight-banner">
+                <span>✦</span>
+                <span>Anda masih punya ruang untuk menikmati akhir pekan. Keuangan terkendali!</span>
+            </div>
+        </div>
+
         <!-- DASHBOARD KEUANGAN UTAMA -->
         <div id="wrapper-budget" class="app-wrapper">
             <div class="dashboard-layout">
@@ -203,7 +224,7 @@
                 <div class="sidebar-col">
                     
                     <!-- USER GREETING & MULTI-USER BAR -->
-                    <div class="glass-panel" style="padding: 24px; position: relative; overflow: hidden; border-top: 4px solid var(--primary);">
+                    <div class="glass-panel" style="padding: 20px; position: relative; overflow: hidden; border-top: 4px solid var(--primary);">
                         <div class="header-glow"></div>
                         <div class="profile-header">
                             <div class="profile-info">
@@ -215,32 +236,63 @@
                         <!-- MULTI-USER QUICK SWITCHER STRIP -->
                         <div class="multi-user-strip">
                             <div class="user-strip-header">
-                                <span>👥 Profil Aktif:</span>
-                                <button type="button" onclick="openManageUsersModal()" style="background: none; border: none; color: var(--primary); font-size: 11px; font-weight: 700; cursor: pointer;">+ Kelola</button>
+                                <span>👥 Profil Pengguna:</span>
+                                <button type="button" onclick="openManageUsersModal()" style="background: none; border: none; color: #14b8a6; font-size: 11px; font-weight: 700; cursor: pointer;">+ Kelola</button>
                             </div>
                             <div class="user-chips-row" id="sidebar-user-chips"></div>
                         </div>
                     </div>
 
-                    <!-- CATAT TRANSAKSI -->
-                    <div class="glass-panel" style="padding: 24px;">
+                    <!-- CATAT TRANSAKSI DENGAN KATEGORI & QUICK AMOUNTS -->
+                    <div class="glass-panel" style="padding: 22px;">
                         <h2 class="panel-title" id="form-panel-title">Catat Transaksi</h2>
                         <form id="form">
                             <!-- SELECTOR PENGGUNA UNTUK TRANSAKSI -->
-                            <div class="form-user-select-group">
-                                <label>Dicatat Untuk Pengguna:</label>
+                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                                <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray);">Pengguna:</label>
                                 <div class="form-user-chips" id="form-user-chips"></div>
                             </div>
 
-                            <input type="text" id="desc" placeholder="Keterangan (Makan, Gaji, dll)" autocomplete="off" required>
-                            <input type="text" id="amount" placeholder="Nominal Rupiah / Gram" autocomplete="off" required>
+                            <!-- SELECTOR KATEGORI CEPAT (MEMFINANCE STYLE) -->
+                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                                <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray);">Kategori:</label>
+                                <div class="category-chips-row" id="form-category-chips" data-selected-category="makan">
+                                    <button type="button" class="cat-btn selected" data-cat="makan">🍔 Makan</button>
+                                    <button type="button" class="cat-btn" data-cat="transport">🚗 Transport</button>
+                                    <button type="button" class="cat-btn" data-cat="belanja">🛍️ Belanja</button>
+                                    <button type="button" class="cat-btn" data-cat="tagihan">🏠 Tagihan</button>
+                                    <button type="button" class="cat-btn" data-cat="hiburan">🎮 Hiburan</button>
+                                    <button type="button" class="cat-btn" data-cat="kesehatan">💊 Kesehatan</button>
+                                    <button type="button" class="cat-btn" data-cat="gaji">💼 Gaji</button>
+                                    <button type="button" class="cat-btn" data-cat="investasi">🪙 Emas</button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <input type="text" id="desc" placeholder="Keterangan (Makan siang, Gaji, dll)" autocomplete="off" required>
+                            </div>
+
+                            <div>
+                                <input type="text" id="amount" placeholder="Nominal Rupiah / Gram" autocomplete="off" required>
+                            </div>
+
+                            <!-- TOMBOL QUICK AMOUNTS -->
+                            <div class="quick-amount-row">
+                                <button type="button" class="quick-amt-btn" onclick="addQuickAmount(20000)">+20rb</button>
+                                <button type="button" class="quick-amt-btn" onclick="addQuickAmount(50000)">+50rb</button>
+                                <button type="button" class="quick-amt-btn" onclick="addQuickAmount(100000)">+100rb</button>
+                                <button type="button" class="quick-amt-btn" onclick="addQuickAmount(500000)">+500rb</button>
+                                <button type="button" class="quick-amt-btn" onclick="addQuickAmount(1000000)">+1jt</button>
+                            </div>
+
                             <select id="type" onchange="handleTypeChange()">
-                                <optgroup label="Uang Harian"><option value="income">Pemasukan (+)</option><option value="expense">Pengeluaran (-)</option></optgroup>
+                                <optgroup label="Uang Harian"><option value="expense" selected>Pengeluaran (-)</option><option value="income">Pemasukan (+)</option></optgroup>
                                 <optgroup label="Ambil Tabungan & Aset"><option value="withdraw">Ambil dari Tabungan Pribadi (-)</option></optgroup>
                                 <optgroup label="Tabungan & Aset"><option value="simpanan">Simpanan Wajib (+)</option><option value="pribadi">Tabungan Pribadi (+)</option><option value="tring">Emas Tring (+)</option><option value="jago">Emas Jago (- Kas)</option></optgroup>
                             </select>
+                            
                             <div id="withdraw-source-container" style="display: none;">
-                                <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Sumber Pengambilan Tabungan</label>
+                                <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 4px;">Sumber Pengambilan</label>
                                 <select id="withdraw-source">
                                     <option value="pribadi" selected>Tabungan Pribadi</option>
                                     <option value="simpanan">Simpanan Wajib</option>
@@ -248,50 +300,63 @@
                                     <option value="jago">Emas Jago</option>
                                 </select>
                             </div>
-                            <button type="submit" id="form-submit-btn" class="btn-primary" style="padding: 14px; border-radius: 14px;">Simpan Catatan (Enter ↵)</button>
+                            <button type="submit" id="form-submit-btn" class="btn-primary">Simpan Transaksi (Enter ↵)</button>
                         </form>
                     </div>
 
-                    <!-- RIWAYAT TRANSAKSI & FILTER -->
-                    <div class="glass-panel" style="padding: 24px;">
-                        <div class="panel-title" style="margin-bottom: 16px; flex-direction: column; align-items: flex-start; gap: 10px;">
+                    <!-- RIWAYAT TRANSAKSI, SEARCH & FILTER -->
+                    <div class="glass-panel" style="padding: 22px;">
+                        <div class="panel-title" style="margin-bottom: 12px; flex-direction: column; align-items: flex-start; gap: 10px;">
                             <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
-                                <span>Riwayat</span>
-                                <span class="badge" style="font-size: 10px;">Tersinkron Cloud</span>
+                                <span>Riwayat Transaksi</span>
+                                <span class="badge" style="font-size: 10px;">Live Data</span>
                             </div>
-                            <!-- FILTER DUAL: BULAN & PENGGUNA -->
-                            <div style="display: flex; gap: 8px; width: 100%; flex-wrap: wrap;">
-                                <select id="filter-month-select" onchange="updateUI()" style="flex: 1; padding: 6px 12px; border-radius: 100px; font-size: 12px; border-color: var(--border-color); background: var(--list-bg);">
+
+                            <!-- SEARCH BAR TRANSAKSI -->
+                            <div class="search-input-wrapper">
+                                <span class="search-icon">🔍</span>
+                                <input type="text" id="transaction-search-input" placeholder="Cari transaksi, makanan, tagihan..." autocomplete="off">
+                                <button type="button" class="clear-search-btn" onclick="clearSearch()" title="Hapus pencarian">✕</button>
+                            </div>
+
+                            <!-- DUAL FILTER: BULAN & PENGGUNA -->
+                            <div style="display: flex; gap: 6px; width: 100%; flex-wrap: wrap;">
+                                <select id="filter-month-select" onchange="updateUI()" style="flex: 1; padding: 6px 10px; border-radius: 100px; font-size: 11.5px; border-color: var(--border-color); background: var(--list-bg); min-height: 36px;">
                                     <option value="all">Semua Bulan</option>
                                 </select>
-                                <select id="filter-user-select" onchange="updateUI()" style="flex: 1; padding: 6px 12px; border-radius: 100px; font-size: 12px; border-color: var(--border-color); background: var(--list-bg);">
+                                <select id="filter-user-select" onchange="updateUI()" style="flex: 1; padding: 6px 10px; border-radius: 100px; font-size: 11.5px; border-color: var(--border-color); background: var(--list-bg); min-height: 36px;">
                                     <option value="all">Semua Pengguna</option>
                                 </select>
                             </div>
                         </div>
 
-                        <div id="list" class="history-container" style="margin-bottom: 16px;"></div>
-                        <button onclick="confirmResetData()" class="btn-danger" style="padding: 12px; border-radius: 14px; font-size: 13px; width: 100%;">Bersihkan Cache Snapshot</button>
-                        <button onclick="exportToCSV()" class="btn-primary" style="padding: 12px; border-radius: 14px; font-size: 13px; width: 100%; margin-top: 12px; background: linear-gradient(135deg, var(--income), #059669); border:none; color:white;">📥 Download CSV Transaksi</button>
+                        <div id="list" class="history-container" style="margin-bottom: 14px;"></div>
+                        <div style="display: flex; gap: 8px;">
+                            <button onclick="confirmResetData()" class="btn-danger" style="padding: 10px; border-radius: 12px; font-size: 12px; flex: 1;">Bersihkan Cache</button>
+                            <button onclick="exportToCSV()" class="btn-primary" style="padding: 10px; border-radius: 12px; font-size: 12px; flex: 1; background: linear-gradient(135deg, var(--income), #059669); border:none; color:white;">📥 Export CSV</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- MAIN COLUMN -->
                 <div class="main-col">
                     
-                    <!-- KARTU TOTAL KEKAYAAN -->
-                    <div class="wealth-card">
-                        <div class="wealth-card-inner">
-                            <div class="wealth-chip-badge">
-                                <svg width="28" height="22" viewBox="0 0 28 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <rect width="28" height="22" rx="4" fill="rgba(255,255,255,0.25)" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
-                                    <path d="M0 11H28M14 0V22M7 0V22M21 0V22" stroke="rgba(255,255,255,0.3)" stroke-width="0.75"/>
-                                </svg>
-                                <span style="font-size: 11px; font-weight: 800; letter-spacing: 1.5px; opacity: 0.85; text-transform: uppercase;">Personal OS Vault</span>
-                            </div>
-                            <h3>Akumulasi Dana &amp; Aset Total</h3>
-                            <p id="total-wealth">Rp 0</p>
+                    <!-- ANGGARAN KATEGORI (INSPIRED BY MEMFINANCE) -->
+                    <div class="glass-panel">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                            <h2 class="panel-title" style="margin: 0;">📊 Anggaran Kategori Bulan Ini</h2>
+                            <button type="button" onclick="openCategoryBudgetsModal()" style="background: var(--list-bg); border: 1px solid var(--border-color); color: #14b8a6; font-size: 11.5px; font-weight: 700; padding: 4px 12px; border-radius: 100px; cursor: pointer;">Atur Batas</button>
                         </div>
+                        <div class="budget-categories-list" id="category-budgets-container"></div>
+                    </div>
+
+                    <!-- KARTU TOTAL KEKAYAAN -->
+                    <div class="glass-panel" style="background: linear-gradient(135deg, rgba(15, 118, 110, 0.35), rgba(30, 41, 59, 0.7)); border-color: rgba(20, 184, 166, 0.3);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: #14b8a6; letter-spacing: 1px;">Akumulasi Portofolio Total</span>
+                            <span style="font-size: 16px;">🏦</span>
+                        </div>
+                        <p id="total-wealth" style="font-size: 30px; font-weight: 800; letter-spacing: -0.5px;">Rp 0</p>
                     </div>
 
                     <!-- STATS GRID -->
@@ -336,7 +401,7 @@
                             </div>
                             <div>
                                 <p id="total-tring">Rp 0</p>
-                                <span id="tring-gram-info" style="font-size:12px; color:var(--text-gray); font-weight:500;">0 Gr</span>
+                                <span id="tring-gram-info" style="font-size:11.5px; color:var(--text-gray); font-weight:600;">0 Gr</span>
                             </div>
                         </div>
                         <div class="stat-box c-jago">
@@ -351,67 +416,67 @@
                         </div>
                     </div>
 
-                    <!-- HARGA EMAS TRING SPOT API -->
-                    <div class="glass-panel" style="display: flex; justify-content: space-between; align-items: center; gap:16px; flex-wrap: wrap;">
-                        <span style="font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px;">
+                    <!-- HARGA EMAS SPOT API -->
+                    <div class="glass-panel" style="display: flex; justify-content: space-between; align-items: center; gap:14px; flex-wrap: wrap;">
+                        <span style="font-weight: 700; font-size: 13.5px; display: flex; align-items: center; gap: 8px;">
                             <span>🏷️ Harga Emas Tring / Gram:</span>
-                            <small id="api-status" style="color:var(--income); font-weight:600; font-size:12px;"></small>
+                            <small id="api-status" style="color:#10b981; font-weight:600; font-size:11.5px;"></small>
                         </span>
-                        <div style="display: flex; gap: 10px; flex:1; max-width: 320px;">
-                            <input type="text" id="gold-price-input" placeholder="1.250.000" oninput="formatGoldPriceInput(this)" style="margin:0;">
-                            <button onclick="saveGoldPrice()" class="btn-primary" style="width: auto; padding: 12px 20px; border-radius: 14px;">Update</button>
+                        <div style="display: flex; gap: 8px; flex:1; max-width: 300px;">
+                            <input type="text" id="gold-price-input" placeholder="1.250.000" oninput="formatGoldPriceInput(this)" style="margin:0; min-height: 38px;">
+                            <button onclick="saveGoldPrice()" class="btn-primary" style="width: auto; padding: 8px 16px; border-radius: 12px; min-height: 38px; font-size: 13px;">Update</button>
                         </div>
                     </div>
 
                     <!-- TARGET 2026 PROGRESS CARD -->
                     <div class="glass-panel">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; width: 100%;">
-                            <h2 style="font-size: 18px; font-weight: 800; color: var(--text-dark); margin: 0;">🎯 Progress Target 2026</h2>
-                            <button onclick="openGoalsModal()" style="width: auto; font-size: 12px; font-weight: 700; padding: 8px 18px; border-radius: 100px; border: 1px solid var(--border-color); cursor: pointer; background: var(--list-bg); color: var(--primary); transition: all 0.25s ease;">Edit Target</button>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; width: 100%;">
+                            <h2 style="font-size: 16px; font-weight: 800; color: var(--text-dark); margin: 0;">🎯 Progress Target 2026</h2>
+                            <button onclick="openGoalsModal()" style="width: auto; font-size: 11.5px; font-weight: 700; padding: 6px 14px; border-radius: 100px; border: 1px solid var(--border-color); cursor: pointer; background: var(--list-bg); color: #14b8a6;">Edit Target</button>
                         </div>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; width: 100%;">
-                            <div style="background: var(--list-bg); padding: 20px; border-radius: 20px; border: 1px solid var(--border-color);">
-                                <div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: 700; margin-bottom: 12px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; width: 100%;">
+                            <div style="background: var(--list-bg); padding: 16px; border-radius: 16px; border: 1px solid var(--border-color);">
+                                <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; margin-bottom: 8px;">
                                     <span style="color: var(--text-gray);">Kekayaan Total</span>
-                                    <span id="wealth-progress-text" style="color: var(--primary); font-weight: 800;">0%</span>
+                                    <span id="wealth-progress-text" style="color: #14b8a6; font-weight: 800;">0%</span>
                                 </div>
-                                <div class="progress-wrapper" style="background: var(--input-bg);">
-                                    <div id="wealth-progress-bar" class="progress-fill" style="width: 0%; background: linear-gradient(90deg, var(--primary), #8b5cf6); box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);"></div>
+                                <div class="budget-bar-track">
+                                    <div id="wealth-progress-bar" class="budget-bar-fill" style="width: 0%; background: linear-gradient(90deg, #0f766e, #14b8a6);"></div>
                                 </div>
                             </div>
                             
-                            <div style="background: var(--list-bg); padding: 20px; border-radius: 20px; border: 1px solid var(--border-color);">
-                                <div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: 700; margin-bottom: 12px;">
+                            <div style="background: var(--list-bg); padding: 16px; border-radius: 16px; border: 1px solid var(--border-color);">
+                                <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; margin-bottom: 8px;">
                                     <span style="color: var(--text-gray);">Aset Emas</span>
                                     <span id="gold-progress-text" style="color: var(--tring); font-weight: 800;">0%</span>
                                 </div>
-                                <div class="progress-wrapper" style="background: var(--input-bg);">
-                                    <div id="gold-progress-bar" class="progress-fill" style="width: 0%; background: linear-gradient(90deg, var(--tring), #f59e0b); box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);"></div>
+                                <div class="budget-bar-track">
+                                    <div id="gold-progress-bar" class="budget-bar-fill" style="width: 0%; background: linear-gradient(90deg, var(--tring), #f59e0b);"></div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- CHARTS GRID -->
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
                         <div class="glass-panel">
                             <h2 class="panel-title">Alokasi Portofolio</h2>
-                            <div style="height: 190px; position: relative;"><canvas id="financeChart"></canvas></div>
+                            <div style="height: 180px; position: relative;"><canvas id="financeChart"></canvas></div>
                         </div>
                         <div class="glass-panel">
                             <h2 class="panel-title">Arus Kas (Bulan Ini)</h2>
-                            <div style="height: 190px; position: relative;"><canvas id="comparisonChart"></canvas></div>
+                            <div style="height: 180px; position: relative;"><canvas id="comparisonChart"></canvas></div>
                         </div>
                     </div>
 
                     <!-- MULTI-USER EXPENSE COMPARISON SECTION -->
                     <div class="glass-panel">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
                             <h2 class="panel-title" style="margin: 0;">👥 Pengeluaran Antar Pengguna</h2>
                             <span class="badge">Multi-User</span>
                         </div>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; align-items: center;">
-                            <div style="height: 180px; position: relative;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; align-items: center;">
+                            <div style="height: 170px; position: relative;">
                                 <canvas id="userExpenseChart"></canvas>
                             </div>
                             <div class="user-spending-grid" id="user-spending-container"></div>
@@ -421,13 +486,33 @@
                     <!-- FINANCIAL ANALYSIS CARD -->
                     <div class="glass-panel">
                         <h2 class="panel-title">📈 Analisa Keuangan &amp; Rekomendasi</h2>
-                        <div id="financial-analysis-content" style="display: flex; flex-direction: column; gap: 14px; font-size: 14px; color: var(--text-dark);">
+                        <div id="financial-analysis-content" style="display: flex; flex-direction: column; gap: 12px; font-size: 13.5px; color: var(--text-dark);">
                             <p style="color: var(--text-gray);">Belum ada data transaksi yang cukup untuk dianalisa pada bulan ini.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- ================= MOBILE STICKY BOTTOM BAR (HP) ================= -->
+        <nav class="mobile-bottom-bar" aria-label="Navigasi Bawah Mobile">
+            <button type="button" class="mobile-tab-btn active" id="mobile-tab-home" onclick="switchMobileTab('home')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                <span>Beranda</span>
+            </button>
+            <button type="button" class="mobile-tab-btn" onclick="switchMobileTab('add')">
+                <div class="mobile-fab-center">＋</div>
+                <span>Catat</span>
+            </button>
+            <button type="button" class="mobile-tab-btn" id="mobile-tab-analytics" onclick="switchMobileTab('analytics')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                <span>Analisa</span>
+            </button>
+            <button type="button" class="mobile-tab-btn" id="mobile-tab-users" onclick="switchMobileTab('users')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                <span>Pengguna</span>
+            </button>
+        </nav>
     </div>
 
     <!-- ================= MODULAR JAVASCRIPT MODULES ================= -->

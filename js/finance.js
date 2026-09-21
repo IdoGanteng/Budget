@@ -6,7 +6,99 @@ let transactions = [];
 let financialGoals = JSON.parse(localStorage.getItem('financialGoals')) || { wealthGoal: 50000000, goldGoal: 10000000 };
 let goldPricePerGram = parseFloat(localStorage.getItem('goldPricePerGram')) || 1250000;
 
-// ================= SANITASI INPUT / PENCEGAHAN XSS ================= //
+const CATEGORIES = {
+    makan: { name: 'Makan & Minum', icon: '🍔', color: '#f59e0b' },
+    transport: { name: 'Transportasi', icon: '🚗', color: '#06b6d4' },
+    belanja: { name: 'Belanja', icon: '🛍️', color: '#ec4899' },
+    tagihan: { name: 'Tagihan', icon: '🏠', color: '#8b5cf6' },
+    hiburan: { name: 'Hiburan', icon: '🎮', color: '#f43f5e' },
+    kesehatan: { name: 'Kesehatan', icon: '💊', color: '#10b981' },
+    gaji: { name: 'Gaji / Bisnis', icon: '💼', color: '#059669' },
+    investasi: { name: 'Investasi / Emas', icon: '🪙', color: '#eab308' },
+    lainnya: { name: 'Lainnya', icon: '📦', color: '#64748b' }
+};
+
+let categoryBudgets = JSON.parse(localStorage.getItem('categoryBudgets')) || {
+    makan: 1200000,
+    belanja: 800000,
+    transport: 500000,
+    tagihan: 750000
+};
+
+let searchQuery = '';
+
+function addQuickAmount(delta) {
+    const amtInp = document.getElementById('amount');
+    if (!amtInp) return;
+    let cur = parseInt(amtInp.value.replace(/\./g, ''), 10) || 0;
+    cur += delta;
+    amtInp.value = new Intl.NumberFormat('id-ID').format(cur);
+}
+
+function setSearchQuery(val) {
+    searchQuery = val.trim().toLowerCase();
+    if (typeof updateUI === 'function') updateUI();
+}
+
+function clearSearch() {
+    searchQuery = '';
+    const inp = document.getElementById('transaction-search-input');
+    if (inp) inp.value = '';
+    if (typeof updateUI === 'function') updateUI();
+}
+
+function openCategoryBudgetsModal() {
+    const b = categoryBudgets;
+    const modalContent = `
+        <div style="font-size: 32px; margin-bottom: 12px;">📊</div>
+        <h3>Atur Anggaran Kategori</h3>
+        <p>Tentukan batas pengeluaran bulanan per kategori untuk mengontrol keuangan.</p>
+        <form onsubmit="saveCategoryBudgets(event)" style="gap: 12px; text-align: left;">
+            <div>
+                <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">🍔 Anggaran Makan (Rp)</label>
+                <input type="text" id="budget-makan" value="${new Intl.NumberFormat('id-ID').format(b.makan || 1200000)}" oninput="formatGoalInput(this)" required>
+            </div>
+            <div>
+                <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">🛍️ Anggaran Belanja (Rp)</label>
+                <input type="text" id="budget-belanja" value="${new Intl.NumberFormat('id-ID').format(b.belanja || 800000)}" oninput="formatGoalInput(this)" required>
+            </div>
+            <div>
+                <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">🚗 Anggaran Transportasi (Rp)</label>
+                <input type="text" id="budget-transport" value="${new Intl.NumberFormat('id-ID').format(b.transport || 500000)}" oninput="formatGoalInput(this)" required>
+            </div>
+            <div>
+                <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">🏠 Anggaran Tagihan (Rp)</label>
+                <input type="text" id="budget-tagihan" value="${new Intl.NumberFormat('id-ID').format(b.tagihan || 750000)}" oninput="formatGoalInput(this)" required>
+            </div>
+            <div class="modal-actions" style="margin-top: 8px;">
+                <button type="button" onclick="closeAllModals()" class="btn-danger" style="flex: 1; border-radius: 12px;">Batal</button>
+                <button type="submit" class="btn-primary" style="flex: 1; border-radius: 12px;">Simpan Anggaran</button>
+            </div>
+        </form>
+    `;
+    document.getElementById('modal-icon-el').innerText = '';
+    document.getElementById('modal-title').innerText = '';
+    document.getElementById('modal-desc').innerHTML = modalContent;
+    document.getElementById('modal-actions-container').innerHTML = '';
+    document.getElementById('custom-modal').classList.add('active');
+}
+
+function saveCategoryBudgets(e) {
+    if (e) e.preventDefault();
+    const parseVal = id => parseInt(document.getElementById(id).value.replace(/\./g, ''), 10) || 0;
+    categoryBudgets = {
+        makan: parseVal('budget-makan'),
+        belanja: parseVal('budget-belanja'),
+        transport: parseVal('budget-transport'),
+        tagihan: parseVal('budget-tagihan')
+    };
+    localStorage.setItem('categoryBudgets', JSON.stringify(categoryBudgets));
+    closeAllModals();
+    if (typeof updateUI === 'function') updateUI();
+    if (typeof showToast === 'function') {
+        showToast('Anggaran bulanan berhasil diperbarui!', 'success', '📊');
+    }
+}
 function escapeHtml(str) {
     if (str === null || str === undefined) return '';
     return String(str)

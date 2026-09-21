@@ -1,7 +1,4 @@
-- Fitur piutang, Estimasi, Roadmap hilangkan
-- buat web ini lebih interactive untuk beberapa user
-- buat fitur login menggunakan google account
-- saya bebaskan kamu menambahkan file baru atau folder baru pada folder ini
-- tidak usah minta permission di setiap hal baru yang kamu buat
-- pisahkan file antara css, java script, html dan lain lain
-- commit dan push semua yang telah kamu buat
+-rapihkan tampilan hp
+- fitur login google seperti login login pada umumnya dong, kek contoh login Instagram dengan akun google, biar tetep amann
+-serta tambahin fitur fitur menarik biar lebih interative lagi
+- buat seperti ini web disini https://mem-finance.kevadamarg.space/

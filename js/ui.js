@@ -320,6 +320,86 @@ function renderUserSpendingBreakdown(userExpensesMap, userCountsMap) {
     });
 }
 
+// ================= MOBILE NAVIGATION (HP) ================= //
+function switchMobileTab(tab) {
+    document.querySelectorAll('.mobile-tab-btn').forEach(btn => btn.classList.remove('active'));
+    const clickedBtn = document.getElementById(`mobile-tab-${tab}`);
+    if (clickedBtn) clickedBtn.classList.add('active');
+
+    if (tab === 'home') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (tab === 'add') {
+        const formEl = document.getElementById('form');
+        if (formEl) {
+            formEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => {
+                const desc = document.getElementById('desc');
+                if (desc) desc.focus();
+            }, 300);
+        }
+    } else if (tab === 'analytics') {
+        const chartEl = document.getElementById('financeChart');
+        if (chartEl) {
+            chartEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    } else if (tab === 'users') {
+        if (typeof openManageUsersModal === 'function') openManageUsersModal();
+    }
+}
+
+// ================= RENDER CATEGORY BUDGET TRACKERS (MEMFINANCE STYLE) ================= //
+function renderCategoryBudgets(catExpensesMap) {
+    const container = document.getElementById('category-budgets-container');
+    if (!container) return;
+
+    const b = (typeof categoryBudgets !== 'undefined') ? categoryBudgets : { makan: 1200000, belanja: 800000, transport: 500000, tagihan: 750000 };
+    const cats = (typeof CATEGORIES !== 'undefined') ? CATEGORIES : {};
+
+    const monitored = [
+        { key: 'makan', label: 'Anggaran Makan', icon: '🍔' },
+        { key: 'belanja', label: 'Anggaran Belanja', icon: '🛍️' },
+        { key: 'transport', label: 'Anggaran Transport', icon: '🚗' },
+        { key: 'tagihan', label: 'Anggaran Tagihan', icon: '🏠' }
+    ];
+
+    container.innerHTML = '';
+    monitored.forEach(m => {
+        const budget = b[m.key] || 1000000;
+        const spent = catExpensesMap[m.key] || 0;
+        const pct = budget > 0 ? Math.min(Math.round((spent / budget) * 100), 100) : 0;
+
+        let barColor = '#10b981'; // Green
+        let statusColor = 'var(--income)';
+        if (pct >= 85) {
+            barColor = '#f43f5e'; // Red
+            statusColor = 'var(--expense)';
+        } else if (pct >= 65) {
+            barColor = '#f59e0b'; // Amber
+            statusColor = 'var(--tring)';
+        }
+
+        const item = document.createElement('div');
+        item.className = 'budget-cat-item';
+        item.innerHTML = `
+            <div class="budget-cat-top">
+                <div class="budget-cat-info">
+                    <span>${m.icon}</span>
+                    <span>${escapeHtml(m.label)}</span>
+                </div>
+                <span class="budget-cat-pct" style="color: ${statusColor};">${pct}%</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:11.5px; color:var(--text-gray);">
+                <span>${formatRp(spent)} terpakai</span>
+                <span>Batas: ${formatRp(budget)}</span>
+            </div>
+            <div class="budget-bar-track">
+                <div class="budget-bar-fill" style="width: ${pct}%; background: ${barColor};"></div>
+            </div>
+        `;
+        container.appendChild(item);
+    });
+}
+
 // ================= UPDATE UI MAIN ================= //
 function updateUI() {
     const containerEl = document.getElementById('list'); 
@@ -357,6 +437,7 @@ function updateUI() {
     let filteredInc = 0, filteredExp = 0;
     let userExpensesMap = {};
     let userCountsMap = {};
+    let catExpensesMap = { makan: 0, belanja: 0, transport: 0, tagihan: 0 };
 
     let sortedTrx = [...transactions].sort((a, b) => parseDateToTime(b.date) - parseDateToTime(a.date));
     let groupedByDate = {};
@@ -398,7 +479,17 @@ function updateUI() {
         // Hitung total untuk filter yang sedang aktif
         if (isMonthMatch && isUserMatch) {
             if (trx.type === 'income' || trx.type === 'withdraw') filteredInc += amt;
-            if (trx.type === 'expense' || trx.type === 'jago' || trx.type === 'inv_jago') filteredExp += amt;
+            if (trx.type === 'expense' || trx.type === 'jago' || trx.type === 'inv_jago') {
+                filteredExp += amt;
+                
+                // Track category spending
+                const cat = (trx.category || '').toLowerCase();
+                const descLower = (trx.desc || '').toLowerCase();
+                if (cat === 'makan' || descLower.includes('makan') || descLower.includes('kopi') || descLower.includes('cafe')) catExpensesMap.makan += amt;
+                else if (cat === 'belanja' || descLower.includes('belanja') || descLower.includes('beli')) catExpensesMap.belanja += amt;
+                else if (cat === 'transport' || descLower.includes('bensin') || descLower.includes('ojek') || descLower.includes('tol')) catExpensesMap.transport += amt;
+                else if (cat === 'tagihan' || descLower.includes('listrik') || descLower.includes('wifi') || descLower.includes('pulsa')) catExpensesMap.tagihan += amt;
+            }
         }
 
         // Multi-User Analytics (Kompilasi pengeluaran per user pada filter bulan ini)
@@ -406,6 +497,14 @@ function updateUI() {
             const uName = trx.userName || 'Rebel';
             userExpensesMap[uName] = (userExpensesMap[uName] || 0) + amt;
             userCountsMap[uName] = (userCountsMap[uName] || 0) + 1;
+        }
+
+        // Cek filter search keyword
+        if (typeof searchQuery !== 'undefined' && searchQuery) {
+            const descMatch = (trx.desc || '').toLowerCase().includes(searchQuery);
+            const userMatch = (trx.userName || '').toLowerCase().includes(searchQuery);
+            const catMatch = (trx.category || '').toLowerCase().includes(searchQuery);
+            if (!descMatch && !userMatch && !catMatch) return;
         }
 
         if (!isMonthMatch || !isUserMatch || !containerEl) return;
@@ -483,6 +582,7 @@ function updateUI() {
                     }
                     
                     const userLabel = trx.userName ? escapeHtml(trx.userName) : 'Rebel';
+                    const catLabel = trx.category ? ` • ${escapeHtml(trx.category)}` : '';
 
                     li.innerHTML = `
                         <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0;">
@@ -490,15 +590,15 @@ function updateUI() {
                                 ${typeIcon}
                             </div>
                             <div class="history-item-left">
-                                <strong style="font-size:14px; color:var(--text-dark); display:block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(trx.desc)}</strong>
+                                <strong style="font-size:13.5px; color:var(--text-dark); display:block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(trx.desc)}</strong>
                                 <div style="display:flex; align-items:center; gap:6px; margin-top:2px; flex-wrap:wrap;">
-                                    <span style="font-size:11px; color:var(--text-gray); text-transform:capitalize;">${escapeHtml(trx.type)} ${trx.source ? '('+escapeHtml(trx.source)+')' : ''}</span>
+                                    <span style="font-size:11px; color:var(--text-gray); text-transform:capitalize;">${escapeHtml(trx.type)}${catLabel}</span>
                                     <span class="user-tag-badge">👤 ${userLabel}</span>
                                 </div>
                             </div>
                         </div>
                         <div class="history-item-right">
-                            <span class="${tCls}" style="font-weight:800; font-size:14px;">${dAmt}</span>
+                            <span class="${tCls}" style="font-weight:800; font-size:13.5px;">${dAmt}</span>
                             <button onclick="editTransaction('${escapeHtml(String(trx.id))}')" title="Edit" class="icon-btn edit-btn">✏️</button>
                             <button onclick="deleteTransaction('${escapeHtml(String(trx.id))}')" title="Hapus" class="icon-btn delete-btn">🗑️</button>
                         </div>`;
@@ -514,6 +614,23 @@ function updateUI() {
     const cash = totalIncAll - totalExpAll; 
     const total = cash + totalSimAll + totalPriAll + trgRp + totalJagAll; 
     const gold = trgRp + totalJagAll;
+
+    // Update MemFinance Hero Card
+    const memHeroAmt = document.getElementById('mem-hero-amount');
+    const memMiniInc = document.getElementById('mem-mini-inc');
+    const memMiniExp = document.getElementById('mem-mini-exp');
+    const memInsight = document.getElementById('mem-insight-banner');
+
+    if (memHeroAmt) memHeroAmt.innerText = formatRp(cash);
+    if (memMiniInc) memMiniInc.innerText = formatRp(filteredInc);
+    if (memMiniExp) memMiniExp.innerText = formatRp(filteredExp);
+    if (memInsight) {
+        if (filteredInc >= filteredExp) {
+            memInsight.innerHTML = `<span>✦</span> <span>Anda masih punya ruang untuk menikmati akhir pekan. Keuangan terkendali!</span>`;
+        } else {
+            memInsight.innerHTML = `<span style="color:var(--expense);">⚠️</span> <span>Pengeluaran melampaui pemasukan bulan ini. Pertimbangkan mengevaluasi pos tersier.</span>`;
+        }
+    }
 
     const cashEl = document.getElementById('cash-balance');
     const simEl = document.getElementById('total-simpanan');
@@ -551,4 +668,5 @@ function updateUI() {
     updateCharts(cash, totalSimAll, totalPriAll, trgRp, totalJagAll, filteredInc, filteredExp, userExpensesMap);
     updateFinancialAnalysis(filteredInc, filteredExp);
     renderUserSpendingBreakdown(userExpensesMap, userCountsMap);
+    renderCategoryBudgets(catExpensesMap);
 }
