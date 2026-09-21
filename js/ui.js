@@ -4,13 +4,15 @@ let financeChart, comparisonChart, userComparisonChart;
 // ================= THEME TOGGLE ================= //
 function toggleTheme() {
     let theme = document.body.getAttribute('data-theme');
-    if (theme === 'light') { 
-        document.body.setAttribute('data-theme', 'dark'); 
-        localStorage.setItem('theme', 'dark'); 
-    } else { 
-        document.body.setAttribute('data-theme', 'light'); 
-        localStorage.setItem('theme', 'light'); 
-    }
+    const newTheme = (theme === 'light') ? 'dark' : 'light';
+    document.body.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    
+    const cb1 = document.getElementById('theme-checkbox');
+    const cb2 = document.getElementById('mobile-theme-checkbox');
+    if (cb1) cb1.checked = (newTheme === 'dark');
+    if (cb2) cb2.checked = (newTheme === 'dark');
+
     setTimeout(updateUI, 50);
 }
 
@@ -39,6 +41,7 @@ function closeAllModals(e) {
     if (e) e.stopPropagation();
     document.querySelectorAll('.modal-overlay').forEach(modal => { 
         modal.classList.remove('active'); 
+        modal.classList.remove('google-picker-mode');
     });
 }
 
@@ -320,31 +323,45 @@ function renderUserSpendingBreakdown(userExpensesMap, userCountsMap) {
     });
 }
 
-// ================= MOBILE NAVIGATION (HP) ================= //
+// ================= MOBILE NAVIGATION & BOTTOM SHEET (HP) ================= //
 function switchMobileTab(tab) {
+    const appContainer = document.getElementById('app-container');
+    if (appContainer) {
+        appContainer.setAttribute('data-active-tab', tab);
+    }
+    
     document.querySelectorAll('.mobile-tab-btn').forEach(btn => btn.classList.remove('active'));
     const clickedBtn = document.getElementById(`mobile-tab-${tab}`);
     if (clickedBtn) clickedBtn.classList.add('active');
 
-    if (tab === 'home') {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else if (tab === 'add') {
-        const formEl = document.getElementById('form');
-        if (formEl) {
-            formEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            setTimeout(() => {
-                const desc = document.getElementById('desc');
-                if (desc) desc.focus();
-            }, 300);
-        }
-    } else if (tab === 'analytics') {
-        const chartEl = document.getElementById('financeChart');
-        if (chartEl) {
-            chartEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-    } else if (tab === 'users') {
-        if (typeof openManageUsersModal === 'function') openManageUsersModal();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    if (tab === 'analytics') {
+        setTimeout(() => {
+            if (financeChart) financeChart.resize();
+            if (comparisonChart) comparisonChart.resize();
+            if (userComparisonChart) userComparisonChart.resize();
+        }, 60);
     }
+}
+
+function openAddTransactionSheet() {
+    const sheet = document.getElementById('record-transaction-sheet');
+    const backdrop = document.getElementById('sheet-backdrop');
+    if (sheet) sheet.classList.add('open');
+    if (backdrop) backdrop.classList.add('active');
+    
+    setTimeout(() => {
+        const amt = document.getElementById('amount');
+        if (amt && window.innerWidth <= 768) amt.focus();
+    }, 280);
+}
+
+function closeAddTransactionSheet() {
+    const sheet = document.getElementById('record-transaction-sheet');
+    const backdrop = document.getElementById('sheet-backdrop');
+    if (sheet) sheet.classList.remove('open');
+    if (backdrop) backdrop.classList.remove('active');
 }
 
 // ================= RENDER CATEGORY BUDGET TRACKERS (MEMFINANCE STYLE) ================= //

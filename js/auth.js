@@ -217,6 +217,7 @@ function openGoogleAccountPicker() {
     document.getElementById('modal-desc').innerHTML = modalContent;
     document.getElementById('modal-actions-container').innerHTML = '';
     pickerModal.classList.add('active');
+    pickerModal.classList.add('google-picker-mode');
 }
 
 function promptCustomGoogleAccount() {
@@ -340,6 +341,7 @@ function executeGoogleLoginSuccess(googleUser) {
     // Buka aplikasi
     document.getElementById('login-wrapper').style.display = 'none';
     document.getElementById('app-container').style.display = 'block';
+    if (typeof switchMobileTab === 'function') switchMobileTab('home');
 
     if (typeof updateHeaderGreeting === 'function') updateHeaderGreeting();
     renderUserInterfaceWidgets();
@@ -391,6 +393,7 @@ async function handleLogin(e) {
         
         document.getElementById('login-wrapper').style.display = 'none';
         document.getElementById('app-container').style.display = 'block';
+        if (typeof switchMobileTab === 'function') switchMobileTab('home');
         
         updateHeaderGreeting();
         renderUserInterfaceWidgets();
@@ -539,6 +542,42 @@ function renderUserInterfaceWidgets() {
             userFilterSelect.appendChild(opt);
         });
         userFilterSelect.value = curVal;
+    }
+
+    // 5. Update Mobile Profile Hero Card & Switcher
+    const mobileHeroAvatar = document.getElementById('mobile-hero-avatar');
+    const mobileHeroName = document.getElementById('mobile-hero-name');
+    const mobileHeroRole = document.getElementById('mobile-hero-role');
+    const mobileHeroEmail = document.getElementById('mobile-hero-email');
+    const mobileUserChips = document.getElementById('mobile-user-chips');
+
+    if (mobileHeroAvatar) {
+        if (activeUser.picture) {
+            mobileHeroAvatar.innerHTML = `<img src="${escapeHtml(activeUser.picture)}" alt="${escapeHtml(activeUser.name)}" style="width:100%;height:100%;border-radius:16px;object-fit:cover;">`;
+        } else {
+            mobileHeroAvatar.innerHTML = activeUser.avatar || '👤';
+            mobileHeroAvatar.style.background = activeUser.color || 'var(--primary)';
+        }
+    }
+    if (mobileHeroName) mobileHeroName.innerText = activeUser.name;
+    if (mobileHeroRole) mobileHeroRole.innerText = activeUser.role || 'Member';
+    if (mobileHeroEmail) mobileHeroEmail.innerText = activeUser.email || `${activeUser.name.toLowerCase().replace(/\s+/g, '')}@personal.os`;
+
+    if (mobileUserChips) {
+        mobileUserChips.innerHTML = '';
+        users.forEach(u => {
+            const chip = document.createElement('button');
+            chip.type = 'button';
+            chip.className = `user-chip ${u.id === activeUser.id ? 'active' : ''}`;
+            chip.onclick = () => setActiveUser(u.id);
+
+            let avHtml = u.picture 
+                ? `<div class="user-chip-avatar"><img src="${escapeHtml(u.picture)}"></div>` 
+                : `<div class="user-chip-avatar" style="background:${u.color || 'var(--primary)'}">${u.avatar || '👤'}</div>`;
+
+            chip.innerHTML = `${avHtml}<span>${escapeHtml(u.name)}</span>`;
+            mobileUserChips.appendChild(chip);
+        });
     }
 }
 

@@ -137,6 +137,7 @@ function initInputListeners() {
             transactions.unshift(newTrx);
             frm.reset(); 
             handleTypeChange();
+            if (typeof closeAddTransactionSheet === 'function') closeAddTransactionSheet();
 
             saveToLocal(); 
             updateUI();
@@ -154,6 +155,7 @@ function initInputListeners() {
 window.addEventListener('keydown', function(e) { 
     if (e.key === 'Escape') { 
         closeAllModals(); 
+        if (typeof closeAddTransactionSheet === 'function') closeAddTransactionSheet();
     } 
 });
 
@@ -163,8 +165,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     const currentTheme = localStorage.getItem('theme') || 'dark';
     document.body.setAttribute('data-theme', currentTheme);
     const themeCheckbox = document.getElementById('theme-checkbox');
+    const mobileThemeCheckbox = document.getElementById('mobile-theme-checkbox');
     if (themeCheckbox) {
         themeCheckbox.checked = (currentTheme === 'dark');
+    }
+    if (mobileThemeCheckbox) {
+        mobileThemeCheckbox.checked = (currentTheme === 'dark');
     }
 
     // 2. Inisialisasi Reset Timer saat User Beraktivitas
@@ -185,6 +191,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         const appContainer = document.getElementById('app-container');
         if (loginWrapper) loginWrapper.style.display = 'none';
         if (appContainer) appContainer.style.display = 'block';
+        if (typeof switchMobileTab === 'function') switchMobileTab('home');
         
         updateHeaderGreeting();
         renderUserInterfaceWidgets();

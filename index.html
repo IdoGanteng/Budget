@@ -168,7 +168,7 @@
 
                 <div class="nav-actions">
                     <!-- MULTI-USER PROFILE SWITCHER BADGE -->
-                    <div class="nav-user-switcher" onclick="openManageUsersModal()" title="Klik untuk Kelola / Ganti Pengguna">
+                    <div class="nav-user-switcher" onclick="if(window.innerWidth <= 768){ switchMobileTab('users'); } else { openManageUsersModal(); }" title="Klik untuk Kelola / Ganti Pengguna">
                         <div class="user-avatar-badge" id="nav-user-avatar">👤</div>
                         <span class="user-name-label" id="nav-user-name">Memuat...</span>
                         <span class="user-role-badge" id="nav-user-role">User</span>
@@ -187,7 +187,7 @@
         </div>
 
         <!-- HERO OVERVIEW CARD (INSPIRED BY MEMFINANCE) -->
-        <div class="mem-hero-card">
+        <div class="mem-hero-card tab-home-section">
             <div class="mem-hero-top">
                 <div>
                     <span class="mem-hero-label">Sisa untuk bulan ini</span>
@@ -196,7 +196,10 @@
                         <span>●</span> Terkendali • Cloud Sync
                     </div>
                 </div>
-                <span class="badge" style="background: rgba(255,255,255,0.2); color:#ffffff; font-size:10px;">Fintech View</span>
+                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
+                    <span class="badge" style="background: rgba(255,255,255,0.2); color:#ffffff; font-size:10px;">Fintech View</span>
+                    <button type="button" class="btn-hero-quick-add" onclick="openAddTransactionSheet()" title="Catat Transaksi Cepat">＋ Catat</button>
+                </div>
             </div>
 
             <div class="mem-mini-grid">
@@ -223,8 +226,8 @@
                 <!-- SIDEBAR COLUMN -->
                 <div class="sidebar-col">
                     
-                    <!-- USER GREETING & MULTI-USER BAR -->
-                    <div class="glass-panel" style="padding: 20px; position: relative; overflow: hidden; border-top: 4px solid var(--primary);">
+                    <!-- USER GREETING & MULTI-USER BAR (DESKTOP) -->
+                    <div class="glass-panel desktop-only" style="padding: 20px; position: relative; overflow: hidden; border-top: 4px solid var(--primary);">
                         <div class="header-glow"></div>
                         <div class="profile-header">
                             <div class="profile-info">
@@ -243,9 +246,17 @@
                         </div>
                     </div>
 
-                    <!-- CATAT TRANSAKSI DENGAN KATEGORI & QUICK AMOUNTS -->
-                    <div class="glass-panel" style="padding: 22px;">
-                        <h2 class="panel-title" id="form-panel-title">Catat Transaksi</h2>
+                    <!-- TRANSACTION BOTTOM SHEET (MOBILE) / SIDEBAR FORM (DESKTOP) -->
+                    <div id="sheet-backdrop" class="sheet-backdrop" onclick="closeAddTransactionSheet()"></div>
+                    <div id="record-transaction-sheet" class="glass-panel transaction-sheet-wrapper" style="padding: 22px;">
+                        <div class="sheet-handle" onclick="closeAddTransactionSheet()"></div>
+                        <div class="sheet-header">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 20px;">✍️</span>
+                                <h2 class="panel-title" id="form-panel-title" style="margin: 0;">Catat Transaksi</h2>
+                            </div>
+                            <button type="button" class="sheet-close-btn" onclick="closeAddTransactionSheet()" aria-label="Tutup Formulir">✕</button>
+                        </div>
                         <form id="form">
                             <!-- SELECTOR PENGGUNA UNTUK TRANSAKSI -->
                             <div style="display: flex; flex-direction: column; gap: 6px;">
@@ -305,7 +316,7 @@
                     </div>
 
                     <!-- RIWAYAT TRANSAKSI, SEARCH & FILTER -->
-                    <div class="glass-panel" style="padding: 22px;">
+                    <div class="glass-panel tab-home-section section-history" style="padding: 22px;">
                         <div class="panel-title" style="margin-bottom: 12px; flex-direction: column; align-items: flex-start; gap: 10px;">
                             <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
                                 <span>Riwayat Transaksi</span>
@@ -342,7 +353,7 @@
                 <div class="main-col">
                     
                     <!-- ANGGARAN KATEGORI (INSPIRED BY MEMFINANCE) -->
-                    <div class="glass-panel">
+                    <div class="glass-panel tab-home-section section-budgets">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
                             <h2 class="panel-title" style="margin: 0;">📊 Anggaran Kategori Bulan Ini</h2>
                             <button type="button" onclick="openCategoryBudgetsModal()" style="background: var(--list-bg); border: 1px solid var(--border-color); color: #14b8a6; font-size: 11.5px; font-weight: 700; padding: 4px 12px; border-radius: 100px; cursor: pointer;">Atur Batas</button>
@@ -351,7 +362,7 @@
                     </div>
 
                     <!-- KARTU TOTAL KEKAYAAN -->
-                    <div class="glass-panel" style="background: linear-gradient(135deg, rgba(15, 118, 110, 0.35), rgba(30, 41, 59, 0.7)); border-color: rgba(20, 184, 166, 0.3);">
+                    <div class="glass-panel tab-home-section section-total-wealth" style="background: linear-gradient(135deg, rgba(15, 118, 110, 0.35), rgba(30, 41, 59, 0.7)); border-color: rgba(20, 184, 166, 0.3);">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                             <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: #14b8a6; letter-spacing: 1px;">Akumulasi Portofolio Total</span>
                             <span style="font-size: 16px;">🏦</span>
@@ -360,7 +371,7 @@
                     </div>
 
                     <!-- STATS GRID -->
-                    <div class="stats-grid">
+                    <div class="stats-grid tab-home-section section-stats">
                         <div class="stat-box c-balance">
                             <div class="stat-header">
                                 <div class="stat-icon-title">
@@ -416,8 +427,82 @@
                         </div>
                     </div>
 
+                    <!-- ================= ANALISA SECTION ================= -->
+                    <div class="mobile-section-header tab-analytics-section">
+                        <h2>📊 Laporan &amp; Analisa</h2>
+                        <p>Visualisasi arus kas bulanan, alokasi portofolio, dan pengeluaran.</p>
+                    </div>
+
+                    <!-- CHARTS GRID -->
+                    <div class="tab-analytics-section section-charts" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                        <div class="glass-panel">
+                            <h2 class="panel-title">Alokasi Portofolio</h2>
+                            <div style="height: 180px; position: relative;"><canvas id="financeChart"></canvas></div>
+                        </div>
+                        <div class="glass-panel">
+                            <h2 class="panel-title">Arus Kas (Bulan Ini)</h2>
+                            <div style="height: 180px; position: relative;"><canvas id="comparisonChart"></canvas></div>
+                        </div>
+                    </div>
+
+                    <!-- MULTI-USER EXPENSE COMPARISON SECTION -->
+                    <div class="glass-panel tab-analytics-section section-user-spending">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                            <h2 class="panel-title" style="margin: 0;">👥 Pengeluaran Antar Pengguna</h2>
+                            <span class="badge">Multi-User</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; align-items: center;">
+                            <div style="height: 170px; position: relative;">
+                                <canvas id="userExpenseChart"></canvas>
+                            </div>
+                            <div class="user-spending-grid" id="user-spending-container"></div>
+                        </div>
+                    </div>
+
+                    <!-- FINANCIAL ANALYSIS CARD -->
+                    <div class="glass-panel tab-analytics-section section-insights">
+                        <h2 class="panel-title">📈 Analisa Keuangan &amp; Rekomendasi</h2>
+                        <div id="financial-analysis-content" style="display: flex; flex-direction: column; gap: 12px; font-size: 13.5px; color: var(--text-dark);">
+                            <p style="color: var(--text-gray);">Belum ada data transaksi yang cukup untuk dianalisa pada bulan ini.</p>
+                        </div>
+                    </div>
+
+                    <!-- ================= PENGGUNA & SETTINGS SECTION ================= -->
+                    <div class="mobile-section-header tab-users-section">
+                        <h2>👥 Profil &amp; Pengaturan</h2>
+                        <p>Kelola profil pengguna, target finansial, dan pemeliharaan vault.</p>
+                    </div>
+
+                    <!-- MOBILE ACTIVE PROFILE HERO CARD -->
+                    <div class="glass-panel tab-users-section mobile-user-only mobile-profile-card">
+                        <div class="mobile-profile-top">
+                            <div class="mobile-profile-avatar" id="mobile-hero-avatar">👤</div>
+                            <div class="mobile-profile-info">
+                                <h3 id="mobile-hero-name">Rebel</h3>
+                                <span class="user-role-badge" id="mobile-hero-role">Owner</span>
+                                <div class="mobile-profile-email" id="mobile-hero-email">rebel@personal.os</div>
+                            </div>
+                        </div>
+                        <div class="mobile-profile-badges">
+                            <span class="profile-status-badge">🛡️ Vault Terenkripsi AES-256</span>
+                            <span class="profile-status-badge google-status-badge">
+                                <svg viewBox="0 0 24 24" style="width:13px;height:13px;"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+                                Google Terhubung
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- MOBILE MULTI-USER SWITCHER -->
+                    <div class="glass-panel tab-users-section mobile-user-only">
+                        <div class="panel-title">
+                            <span>Ganti Profil Pengguna</span>
+                            <button type="button" onclick="openManageUsersModal()" style="background:none; border:none; color:#14b8a6; font-size:12px; font-weight:700; cursor:pointer;">+ Kelola</button>
+                        </div>
+                        <div class="user-chips-row" id="mobile-user-chips"></div>
+                    </div>
+
                     <!-- HARGA EMAS SPOT API -->
-                    <div class="glass-panel" style="display: flex; justify-content: space-between; align-items: center; gap:14px; flex-wrap: wrap;">
+                    <div class="glass-panel section-gold tab-users-section" style="display: flex; justify-content: space-between; align-items: center; gap:14px; flex-wrap: wrap;">
                         <span style="font-weight: 700; font-size: 13.5px; display: flex; align-items: center; gap: 8px;">
                             <span>🏷️ Harga Emas Tring / Gram:</span>
                             <small id="api-status" style="color:#10b981; font-weight:600; font-size:11.5px;"></small>
@@ -429,7 +514,7 @@
                     </div>
 
                     <!-- TARGET 2026 PROGRESS CARD -->
-                    <div class="glass-panel">
+                    <div class="glass-panel section-goals tab-users-section">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; width: 100%;">
                             <h2 style="font-size: 16px; font-weight: 800; color: var(--text-dark); margin: 0;">🎯 Progress Target 2026</h2>
                             <button onclick="openGoalsModal()" style="width: auto; font-size: 11.5px; font-weight: 700; padding: 6px 14px; border-radius: 100px; border: 1px solid var(--border-color); cursor: pointer; background: var(--list-bg); color: #14b8a6;">Edit Target</button>
@@ -457,37 +542,27 @@
                         </div>
                     </div>
 
-                    <!-- CHARTS GRID -->
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
-                        <div class="glass-panel">
-                            <h2 class="panel-title">Alokasi Portofolio</h2>
-                            <div style="height: 180px; position: relative;"><canvas id="financeChart"></canvas></div>
-                        </div>
-                        <div class="glass-panel">
-                            <h2 class="panel-title">Arus Kas (Bulan Ini)</h2>
-                            <div style="height: 180px; position: relative;"><canvas id="comparisonChart"></canvas></div>
+                    <!-- MOBILE DATA MANAGEMENT & BACKUP -->
+                    <div class="glass-panel tab-users-section mobile-user-only">
+                        <div class="panel-title">Cadangan &amp; Pemeliharaan</div>
+                        <div style="display:flex; flex-direction:column; gap:10px;">
+                            <button type="button" onclick="exportToCSV()" class="btn-primary" style="padding:12px; border-radius:14px; display:flex; align-items:center; justify-content:center; gap:8px;">📥 Ekspor Transaksi (CSV)</button>
+                            <button type="button" onclick="confirmResetData()" class="btn-danger" style="padding:12px; border-radius:14px;">🗑️ Bersihkan Cache Lokal</button>
                         </div>
                     </div>
 
-                    <!-- MULTI-USER EXPENSE COMPARISON SECTION -->
-                    <div class="glass-panel">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-                            <h2 class="panel-title" style="margin: 0;">👥 Pengeluaran Antar Pengguna</h2>
-                            <span class="badge">Multi-User</span>
-                        </div>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; align-items: center;">
-                            <div style="height: 170px; position: relative;">
-                                <canvas id="userExpenseChart"></canvas>
+                    <!-- MOBILE PREFERENCES & LOGOUT -->
+                    <div class="glass-panel tab-users-section mobile-user-only">
+                        <div class="panel-title">Tampilan &amp; Keamanan</div>
+                        <div style="display:flex; flex-direction:column; gap:10px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; background:var(--list-bg); padding:12px 14px; border-radius:14px; border:1px solid var(--border-color);">
+                                <span style="font-weight:700; font-size:13px; display:flex; align-items:center; gap:8px;"><span>🌗</span> Mode Gelap</span>
+                                <label class="theme-switch" title="Ganti Tema">
+                                    <input type="checkbox" id="mobile-theme-checkbox" onchange="toggleTheme()">
+                                    <span class="slider"></span>
+                                </label>
                             </div>
-                            <div class="user-spending-grid" id="user-spending-container"></div>
-                        </div>
-                    </div>
-
-                    <!-- FINANCIAL ANALYSIS CARD -->
-                    <div class="glass-panel">
-                        <h2 class="panel-title">📈 Analisa Keuangan &amp; Rekomendasi</h2>
-                        <div id="financial-analysis-content" style="display: flex; flex-direction: column; gap: 12px; font-size: 13.5px; color: var(--text-dark);">
-                            <p style="color: var(--text-gray);">Belum ada data transaksi yang cukup untuk dianalisa pada bulan ini.</p>
+                            <button type="button" onclick="handleLogout()" class="btn-danger" style="padding:12px; border-radius:14px; display:flex; align-items:center; justify-content:center; gap:8px; border-color:var(--expense); background:var(--expense-light);">🚪 Keluar dari Vault (Logout)</button>
                         </div>
                     </div>
                 </div>
@@ -500,7 +575,7 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
                 <span>Beranda</span>
             </button>
-            <button type="button" class="mobile-tab-btn" onclick="switchMobileTab('add')">
+            <button type="button" class="mobile-tab-btn" onclick="openAddTransactionSheet()">
                 <div class="mobile-fab-center">＋</div>
                 <span>Catat</span>
             </button>
