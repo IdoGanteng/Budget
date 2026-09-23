@@ -52,11 +52,15 @@
     </button>
 
     <!-- 3. FLOATING ACTION '+' (CENTER) -->
-    <div class="mobile-fab-column">
+    <div
+        class="mobile-fab-column"
+        on:click={() => openAddTxModal({ type: 'expense', category: 'makan', title: 'Catat Pengeluaran' })}
+        role="button"
+        tabindex="0"
+    >
         <button
             type="button"
             class="mobile-fab-center"
-            on:click={() => openAddTxModal({ type: 'expense', category: 'makan', title: 'Catat Pengeluaran' })}
             title="Catat Transaksi Cepat"
             aria-label="Catat Transaksi"
         >
