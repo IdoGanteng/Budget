@@ -45,27 +45,28 @@ function resolveActiveUser() {
 
 export const activeUser = writable(resolveActiveUser());
 
-// Session stores with reliable localStorage persistence across reloads
+// Session stores: always authenticated directly without login wall
+const DEFAULT_ENCRYPTION_KEY = 'Rebellion030401';
+
 function getInitialAuthState() {
-    const isLoggedLocal = typeof localStorage !== 'undefined' && localStorage.getItem('isLoggedIn') === 'true';
-    const isLoggedSession = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('isLoggedIn') === 'true';
-    const isLogged = isLoggedLocal || isLoggedSession;
-
-    const provider = (typeof localStorage !== 'undefined' && localStorage.getItem('authProvider')) ||
-                     (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('authProvider')) || 'vault';
-
-    const sessionKey = (typeof localStorage !== 'undefined' && localStorage.getItem('appEncryptionKey')) ||
-                       (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('appEncryptionKey')) || null;
+    const provider = (typeof localStorage !== 'undefined' && localStorage.getItem('authProvider')) || 'vault';
+    let sessionKey = (typeof localStorage !== 'undefined' && localStorage.getItem('appEncryptionKey')) ||
+                     (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('appEncryptionKey'));
+    if (!sessionKey) {
+        sessionKey = DEFAULT_ENCRYPTION_KEY;
+        if (typeof localStorage !== 'undefined') localStorage.setItem('appEncryptionKey', DEFAULT_ENCRYPTION_KEY);
+    }
+    if (typeof localStorage !== 'undefined') localStorage.setItem('isLoggedIn', 'true');
 
     return {
-        isLoggedIn: isLogged,
+        isLoggedIn: true,
         authProvider: provider,
         currentSessionKey: sessionKey
     };
 }
 
 const initialAuth = getInitialAuthState();
-export const isLoggedIn = writable(initialAuth.isLoggedIn);
+export const isLoggedIn = writable(true);
 export const authProvider = writable(initialAuth.authProvider);
 export const currentSessionKey = writable(initialAuth.currentSessionKey);
 
@@ -74,15 +75,7 @@ let loginFailedAttempts = 0;
 let loginLockUntil = 0;
 
 export function resetIdleTimer() {
-    if (get(isLoggedIn)) {
-        if (idleTimer) clearTimeout(idleTimer);
-        const nowStr = Date.now().toString();
-        if (typeof localStorage !== 'undefined') localStorage.setItem('lastActivityTime', nowStr);
-        if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('lastActivityTime', nowStr);
-        idleTimer = setTimeout(() => {
-            handleLogout();
-        }, SESSION_DURATION);
-    }
+    // Idle timer disabled: login screen removed, dashboard session is permanent
 }
 
 export function setActiveUser(userId) {
@@ -267,16 +260,6 @@ export function handleLogout() {
     localStorage.removeItem('appUserAvatar');
     localStorage.removeItem('lastActivityTime');
     sessionStorage.clear();
-    isLoggedIn.set(false);
-    currentSessionKey.set(null);
-    if (idleTimer) clearTimeout(idleTimer);
-    showToast('Anda telah keluar dari vault.', 'info', '🚪');
+    isLoggedIn.set(true);
 }
 
-// Global user activity listener to reset idle timer
-if (typeof window !== 'undefined') {
-    const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
-    events.forEach(ev => {
-        window.addEventListener(ev, resetIdleTimer, true);
-    });
-}

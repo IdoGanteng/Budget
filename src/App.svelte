@@ -1,6 +1,5 @@
 <script>
     import { onMount } from 'svelte';
-    import { isLoggedIn, resetIdleTimer } from './lib/stores/authStore.js';
     import { activeTab } from './lib/stores/uiStore.js';
     import { fetchLiveGoldPrice, syncTransactionsFromSheet } from './lib/stores/financeStore.js';
 
@@ -13,7 +12,6 @@
     import AnalyticsView from './lib/components/AnalyticsView.svelte';
     import UsersSettingsView from './lib/components/UsersSettingsView.svelte';
     import MobileBottomBar from './lib/components/MobileBottomBar.svelte';
-    import LoginScreen from './lib/components/LoginScreen.svelte';
 
     // Modals
     import ToastContainer from './lib/modals/ToastContainer.svelte';
@@ -28,11 +26,8 @@
     import ConfirmModal from './lib/modals/ConfirmModal.svelte';
 
     onMount(() => {
-        if ($isLoggedIn) {
-            resetIdleTimer();
-            fetchLiveGoldPrice();
-            syncTransactionsFromSheet();
-        }
+        fetchLiveGoldPrice();
+        syncTransactionsFromSheet();
     });
 </script>
 
@@ -50,27 +45,23 @@
 <ManageUsersModal />
 <ConfirmModal />
 
-{#if !$isLoggedIn}
-    <LoginScreen />
-{:else}
-    <div id="app-container" data-active-tab={$activeTab} style="display: block;">
-        <Navbar />
+<div id="app-container" data-active-tab={$activeTab} style="display: block;">
+    <Navbar />
 
-        <main class="app-main-content">
-            {#if $activeTab === 'home'}
-                <div class="dashboard-tab-view active">
-                    <HeroBalanceCard />
-                    <PocketsGrid />
-                    <CategoryBudgets />
-                    <TransactionHistory />
-                </div>
-            {:else if $activeTab === 'analytics'}
-                <AnalyticsView />
-            {:else if $activeTab === 'users'}
-                <UsersSettingsView />
-            {/if}
-        </main>
+    <main class="app-main-content">
+        {#if $activeTab === 'home'}
+            <div class="dashboard-tab-view active">
+                <HeroBalanceCard />
+                <PocketsGrid />
+                <CategoryBudgets />
+                <TransactionHistory />
+            </div>
+        {:else if $activeTab === 'analytics'}
+            <AnalyticsView />
+        {:else if $activeTab === 'users'}
+            <UsersSettingsView />
+        {/if}
+    </main>
 
-        <MobileBottomBar />
-    </div>
-{/if}
+    <MobileBottomBar />
+</div>

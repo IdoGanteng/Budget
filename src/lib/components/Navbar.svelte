@@ -1,6 +1,6 @@
 <script>
     import { activeTab, theme, toggleTheme, openAddTxModal } from '../stores/uiStore.js';
-    import { activeUser, handleLogout } from '../stores/authStore.js';
+    import { activeUser } from '../stores/authStore.js';
     import { syncStatus, syncTransactionsFromSheet } from '../stores/financeStore.js';
 
     function handleSyncClick() {
@@ -90,16 +90,6 @@
                 >
                 <span class="slider"></span>
             </label>
-
-            <!-- LOGOUT -->
-            <button
-                type="button"
-                class="action-btn"
-                on:click={handleLogout}
-                title="Keluar Vault"
-            >
-                🚪
-            </button>
         </div>
     </div>
 </div>

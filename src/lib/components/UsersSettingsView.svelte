@@ -1,5 +1,5 @@
 <script>
-    import { activeUser, usersList, setActiveUser, handleLogout, saveUsers } from '../stores/authStore.js';
+    import { activeUser, usersList, setActiveUser, saveUsers } from '../stores/authStore.js';
     import {
         financialGoals,
         goldPricePerGram,
@@ -334,9 +334,9 @@
         </div>
     </div>
 
-    <!-- PREFERENCES & LOGOUT -->
+    <!-- PREFERENCES -->
     <div class="glass-panel">
-        <div class="panel-title">Tampilan &amp; Keamanan</div>
+        <div class="panel-title">Tampilan &amp; Preferensi</div>
         <div style="display:flex; flex-direction:column; gap:10px;">
             <div style="display:flex; justify-content:space-between; align-items:center; background:var(--list-bg); padding:12px 14px; border-radius:14px; border:1px solid var(--border-color);">
                 <span style="font-weight:700; font-size:13px; display:flex; align-items:center; gap:8px;">
@@ -351,14 +351,6 @@
                     <span class="slider"></span>
                 </label>
             </div>
-            <button
-                type="button"
-                on:click={handleLogout}
-                class="btn-danger"
-                style="padding:12px; border-radius:14px; display:flex; align-items:center; justify-content:center; gap:8px; border-color:var(--expense); background:var(--expense-light);"
-            >
-                🚪 Keluar dari Vault (Logout)
-            </button>
         </div>
     </div>
 </div>
