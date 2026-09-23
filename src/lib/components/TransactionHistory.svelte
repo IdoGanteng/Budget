@@ -97,7 +97,7 @@
     }
 </script>
 
-<div class="glass-panel section-history" style="padding: 22px;">
+<div class="glass-panel section-history" id="section-history" style="padding: 22px;">
     <div class="panel-title" style="margin-bottom: 12px; flex-direction: column; align-items: flex-start; gap: 10px;">
         <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
             <span>Riwayat Transaksi</span>

@@ -10,7 +10,7 @@
     }
 </script>
 
-<div class="jago-pockets-section">
+<div class="jago-pockets-section" id="kantong-section">
     <div class="jago-section-header">
         <div class="jago-header-title">
             <div class="jago-title-row">

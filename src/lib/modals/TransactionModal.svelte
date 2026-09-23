@@ -133,24 +133,33 @@
                 </div>
             </div>
 
-            <div>
+            <div class="form-group-field">
                 <input
                     type="text"
+                    class="tx-input tx-desc-input"
                     bind:value={desc}
                     placeholder="Keterangan (Makan siang, Gaji, dll)"
                     autocomplete="off"
+                    autocorrect="off"
+                    autocapitalize="sentences"
+                    spellcheck="false"
+                    inputmode="text"
                     required
+                    style="pointer-events: auto; user-select: text; -webkit-user-select: text; font-size: 16px; position: relative; z-index: 10;"
                 >
             </div>
 
-            <div>
+            <div class="form-group-field">
                 <input
                     type="text"
+                    inputmode="decimal"
+                    class="tx-input tx-amount-input"
                     value={amountStr}
                     on:input={handleAmountInput}
                     placeholder={selectedType === 'tring' || (selectedType === 'withdraw' && withdrawSource === 'tring') ? 'Jml Gram (Misal: 0.5)' : 'Nominal Rupiah (Misal: 100.000)'}
                     autocomplete="off"
                     required
+                    style="pointer-events: auto; user-select: text; -webkit-user-select: text; font-size: 16px; position: relative; z-index: 10;"
                 >
             </div>
 
