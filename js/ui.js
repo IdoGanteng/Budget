@@ -400,53 +400,84 @@ function closeAddTransactionSheet() {
     closeAddTransactionModal();
 }
 
-// ================= RENDER CATEGORY BUDGET TRACKERS (MEMFINANCE STYLE) ================= //
+// ================= RENDER CATEGORY BUDGET TRACKERS (BANK JAGO STYLE) ================= //
 function renderCategoryBudgets(catExpensesMap) {
     const container = document.getElementById('category-budgets-container');
     if (!container) return;
 
     const b = (typeof categoryBudgets !== 'undefined') ? categoryBudgets : { makan: 1200000, belanja: 800000, transport: 500000, tagihan: 750000 };
-    const cats = (typeof CATEGORIES !== 'undefined') ? CATEGORIES : {};
 
     const monitored = [
-        { key: 'makan', label: 'Anggaran Makan', icon: '🍔' },
+        { key: 'makan', label: 'Anggaran Makan & Minum', icon: '🍔' },
         { key: 'belanja', label: 'Anggaran Belanja', icon: '🛍️' },
-        { key: 'transport', label: 'Anggaran Transport', icon: '🚗' },
-        { key: 'tagihan', label: 'Anggaran Tagihan', icon: '🏠' }
+        { key: 'transport', label: 'Anggaran Transportasi', icon: '🚗' },
+        { key: 'tagihan', label: 'Anggaran Tagihan & Utilitas', icon: '🏠' }
     ];
 
     container.innerHTML = '';
     monitored.forEach(m => {
         const budget = b[m.key] || 1000000;
         const spent = catExpensesMap[m.key] || 0;
-        const pct = budget > 0 ? Math.min(Math.round((spent / budget) * 100), 100) : 0;
+        const remaining = budget - spent;
+        const pct = budget > 0 ? Math.round((spent / budget) * 100) : 0;
 
-        let barColor = '#10b981'; // Green
-        let statusColor = 'var(--income)';
-        if (pct >= 85) {
-            barColor = '#f43f5e'; // Red
-            statusColor = 'var(--expense)';
-        } else if (pct >= 65) {
-            barColor = '#f59e0b'; // Amber
-            statusColor = 'var(--tring)';
+        // Dynamic Color Coding: Safe (<70%), Warning (70-90%), Danger (>90%)
+        let statusBadge = '';
+        let barClass = 'bar-safe';
+        let statusClass = 'text-safe';
+
+        if (pct > 90) {
+            barClass = 'bar-danger';
+            statusClass = 'text-danger';
+            const label = pct > 100 ? 'Melebihi Batas' : 'Kritis (>90%)';
+            statusBadge = `<span class="jago-status-pill pill-danger">⚠️ ${label}</span>`;
+        } else if (pct >= 70) {
+            barClass = 'bar-warning';
+            statusClass = 'text-warning';
+            statusBadge = `<span class="jago-status-pill pill-warning">▲ Waspada (70-90%)</span>`;
+        } else {
+            barClass = 'bar-safe';
+            statusClass = 'text-safe';
+            statusBadge = `<span class="jago-status-pill pill-safe">● Aman (&lt;70%)</span>`;
         }
 
         const item = document.createElement('div');
-        item.className = 'budget-cat-item';
+        item.className = 'jago-budget-item';
         item.innerHTML = `
-            <div class="budget-cat-top">
-                <div class="budget-cat-info">
-                    <span>${m.icon}</span>
-                    <span>${escapeHtml(m.label)}</span>
+            <div class="jago-budget-top">
+                <div class="jago-budget-info">
+                    <span class="jago-budget-icon">${m.icon}</span>
+                    <span class="jago-budget-name">${escapeHtml(m.label)}</span>
                 </div>
-                <span class="budget-cat-pct" style="color: ${statusColor};">${pct}%</span>
+                <div class="jago-budget-status-row">
+                    ${statusBadge}
+                    <span class="jago-budget-pct ${statusClass}">${pct}%</span>
+                </div>
             </div>
-            <div style="display:flex; justify-content:space-between; font-size:11.5px; color:var(--text-gray);">
-                <span>${formatRp(spent)} terpakai</span>
-                <span>Batas: ${formatRp(budget)}</span>
+
+            <!-- JAGO PROGRESS BAR TRACK -->
+            <div class="jago-budget-bar-track">
+                <div class="jago-budget-bar-fill ${barClass}" style="width: ${Math.min(pct, 100)}%;"></div>
             </div>
-            <div class="budget-bar-track">
-                <div class="budget-bar-fill" style="width: ${pct}%; background: ${barColor};"></div>
+
+            <!-- ADJACENT BUDGET METRICS: SPENT / REMAINING / LIMIT -->
+            <div class="jago-budget-metrics">
+                <div class="metric-item">
+                    <span class="metric-label">Terpakai</span>
+                    <span class="metric-value font-mono">${formatRp(spent)}</span>
+                </div>
+                <div class="metric-divider"></div>
+                <div class="metric-item">
+                    <span class="metric-label">Sisa</span>
+                    <span class="metric-value font-mono ${remaining < 0 ? 'metric-over' : 'metric-left'}">
+                        ${remaining >= 0 ? formatRp(remaining) : '−' + formatRp(Math.abs(remaining))}
+                    </span>
+                </div>
+                <div class="metric-divider"></div>
+                <div class="metric-item text-right">
+                    <span class="metric-label">Batas</span>
+                    <span class="metric-value font-mono">${formatRp(budget)}</span>
+                </div>
             </div>
         `;
         container.appendChild(item);
@@ -726,6 +757,46 @@ function updateUI() {
     if (wTxt) wTxt.innerText = Math.min((total / financialGoals.wealthGoal) * 100, 100).toFixed(1) + '%';
     if (gBar) gBar.style.width = Math.min((gold / financialGoals.goldGoal) * 100, 100) + '%'; 
     if (gTxt) gTxt.innerText = Math.min((gold / financialGoals.goldGoal) * 100, 100).toFixed(1) + '%';
+
+    // Bank Jago Kantong Grid: Progress Bars & Portfolio Share Calculations
+    const safeTotal = total > 0 ? total : 1;
+    const cashShare = cash > 0 ? Math.min(Math.round((cash / safeTotal) * 100), 100) : 0;
+    const simShare = totalSimAll > 0 ? Math.min(Math.round((totalSimAll / safeTotal) * 100), 100) : 0;
+    const priShare = totalPriAll > 0 ? Math.min(Math.round((totalPriAll / safeTotal) * 100), 100) : 0;
+    const trgShare = trgRp > 0 ? Math.min(Math.round((trgRp / safeTotal) * 100), 100) : 0;
+    const jagShare = totalJagAll > 0 ? Math.min(Math.round((totalJagAll / safeTotal) * 100), 100) : 0;
+
+    const pBarCash = document.getElementById('pocket-bar-cash');
+    const pShareCash = document.getElementById('pocket-share-cash');
+    const pBarSim = document.getElementById('pocket-bar-simpanan');
+    const pShareSim = document.getElementById('pocket-share-simpanan');
+    const pBarPri = document.getElementById('pocket-bar-pribadi');
+    const pSharePri = document.getElementById('pocket-share-pribadi');
+    const pBarTrg = document.getElementById('pocket-bar-tring');
+    const pShareTrg = document.getElementById('pocket-share-tring');
+    const pBarJag = document.getElementById('pocket-bar-jago');
+    const pShareJag = document.getElementById('pocket-share-jago');
+
+    if (pBarCash) pBarCash.style.width = cashShare + '%';
+    if (pShareCash) pShareCash.innerText = cashShare + '% alokasi';
+    if (pBarSim) pBarSim.style.width = simShare + '%';
+    if (pShareSim) pShareSim.innerText = simShare + '% alokasi';
+    if (pBarPri) pBarPri.style.width = priShare + '%';
+    if (pSharePri) pSharePri.innerText = priShare + '% alokasi';
+    if (pBarTrg) pBarTrg.style.width = trgShare + '%';
+    if (pShareTrg) pShareTrg.innerText = trgShare + '% alokasi';
+    if (pBarJag) pBarJag.style.width = jagShare + '%';
+    if (pShareJag) pShareJag.innerText = jagShare + '% alokasi';
+
+    // Composition Chips in Hero Card (View 2)
+    const mShareCash = document.getElementById('mini-share-cash');
+    const mShareSim = document.getElementById('mini-share-simpanan');
+    const mSharePri = document.getElementById('mini-share-pribadi');
+    const mShareGold = document.getElementById('mini-share-gold');
+    if (mShareCash) mShareCash.innerText = cashShare + '%';
+    if (mShareSim) mShareSim.innerText = simShare + '%';
+    if (mSharePri) mSharePri.innerText = priShare + '%';
+    if (mShareGold) mShareGold.innerText = (trgShare + jagShare) + '%';
     
     // Snapshots trend
     if (typeof checkAndUpdateSnapshots === 'function') {
@@ -737,4 +808,250 @@ function updateUI() {
     updateFinancialAnalysis(filteredInc, filteredExp);
     renderUserSpendingBreakdown(userExpensesMap, userCountsMap);
     renderCategoryBudgets(catExpensesMap);
+}
+
+// ================= BANK JAGO HERO VIEW & PRIVACY SYSTEM ================= //
+function switchHeroBalanceView(view) {
+    const sisaBtn = document.getElementById('tab-hero-sisa');
+    const wealthBtn = document.getElementById('tab-hero-wealth');
+    const sisaView = document.getElementById('hero-view-sisa');
+    const wealthView = document.getElementById('hero-view-wealth');
+
+    if (view === 'wealth') {
+        if (sisaBtn) sisaBtn.classList.remove('active');
+        if (wealthBtn) wealthBtn.classList.add('active');
+        if (sisaView) sisaView.style.display = 'none';
+        if (wealthView) wealthView.style.display = 'block';
+        localStorage.setItem('hero_balance_view', 'wealth');
+    } else {
+        if (wealthBtn) wealthBtn.classList.remove('active');
+        if (sisaBtn) sisaBtn.classList.add('active');
+        if (wealthView) wealthView.style.display = 'none';
+        if (sisaView) sisaView.style.display = 'block';
+        localStorage.setItem('hero_balance_view', 'sisa');
+    }
+}
+
+function toggleBalancePrivacy() {
+    const isPrivacy = document.body.classList.toggle('privacy-mode');
+    localStorage.setItem('balance_privacy', isPrivacy ? 'true' : 'false');
+    const icon = document.getElementById('privacy-icon');
+    if (icon) icon.innerText = isPrivacy ? '🙈' : '👁️';
+    if (typeof showToast === 'function') {
+        showToast(isPrivacy ? 'Saldo disembunyikan' : 'Saldo ditampilkan', 'info', isPrivacy ? '🙈' : '👁️');
+    }
+}
+
+function initPrivacyState() {
+    const isPrivacy = localStorage.getItem('balance_privacy') === 'true';
+    if (isPrivacy) {
+        document.body.classList.add('privacy-mode');
+        const icon = document.getElementById('privacy-icon');
+        if (icon) icon.innerText = '🙈';
+    }
+    const savedView = localStorage.getItem('hero_balance_view');
+    if (savedView === 'wealth') {
+        switchHeroBalanceView('wealth');
+    }
+}
+
+// ================= BANK JAGO QUICK ACTIONS ================= //
+function openQuickExpense() {
+    const t = document.getElementById('type');
+    if (t) {
+        t.value = 'expense';
+        if (typeof handleTypeChange === 'function') handleTypeChange();
+    }
+    const catContainer = document.getElementById('form-category-chips');
+    if (catContainer) {
+        catContainer.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+        const defBtn = catContainer.querySelector('[data-cat="makan"]') || catContainer.querySelector('.cat-btn');
+        if (defBtn) defBtn.classList.add('selected');
+        catContainer.setAttribute('data-selected-category', 'makan');
+    }
+    const title = document.getElementById('form-panel-title');
+    if (title) title.innerText = 'Catat Pengeluaran';
+    openAddTransactionModal();
+}
+
+function openQuickIncome() {
+    const t = document.getElementById('type');
+    if (t) {
+        t.value = 'income';
+        if (typeof handleTypeChange === 'function') handleTypeChange();
+    }
+    const catContainer = document.getElementById('form-category-chips');
+    if (catContainer) {
+        catContainer.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+        const defBtn = catContainer.querySelector('[data-cat="gaji"]') || catContainer.querySelector('.cat-btn');
+        if (defBtn) defBtn.classList.add('selected');
+        catContainer.setAttribute('data-selected-category', 'gaji');
+    }
+    const title = document.getElementById('form-panel-title');
+    if (title) title.innerText = 'Catat Pemasukan';
+    openAddTransactionModal();
+}
+
+function openPocketQuickDeposit(pocketKey) {
+    const t = document.getElementById('type');
+    if (!t) return;
+    
+    if (pocketKey === 'simpanan' || pocketKey === 'pribadi' || pocketKey === 'tring' || pocketKey === 'jago') {
+        t.value = pocketKey;
+    } else {
+        t.value = 'income';
+    }
+    if (typeof handleTypeChange === 'function') handleTypeChange();
+    const title = document.getElementById('form-panel-title');
+    if (title) title.innerText = `Tambah Saldo: ${pocketKey.toUpperCase()}`;
+    openAddTransactionModal();
+}
+
+// ================= BANK JAGO POCKET TRANSFER SYSTEM ================= //
+function openPocketTransferModal() {
+    const modal = document.getElementById('pocket-transfer-modal');
+    if (modal) modal.classList.add('active');
+    updateTransferFormLabels();
+}
+
+function closePocketTransferModal() {
+    const modal = document.getElementById('pocket-transfer-modal');
+    if (modal) modal.classList.remove('active');
+}
+
+function addTransferQuickAmount(delta) {
+    const amtInp = document.getElementById('transfer-amount');
+    if (!amtInp) return;
+    let cur = parseInt(amtInp.value.replace(/\./g, ''), 10) || 0;
+    cur += delta;
+    amtInp.value = new Intl.NumberFormat('id-ID').format(cur);
+}
+
+function updateTransferFormLabels() {
+    const fromPocket = document.getElementById('transfer-from-pocket') ? document.getElementById('transfer-from-pocket').value : 'cash';
+    const toPocket = document.getElementById('transfer-to-pocket') ? document.getElementById('transfer-to-pocket').value : 'pribadi';
+    const label = document.getElementById('transfer-amount-label');
+    const input = document.getElementById('transfer-amount');
+
+    if (!label || !input) return;
+
+    if (fromPocket === 'tring' && toPocket === 'cash') {
+        label.innerText = 'Jumlah Gram Emas yang Dijual (Gr)';
+        input.placeholder = 'Contoh: 0.5';
+    } else if (fromPocket === 'cash' && toPocket === 'tring') {
+        label.innerText = 'Jumlah Gram Emas yang Dibeli (Gr)';
+        input.placeholder = 'Contoh: 1.0';
+    } else {
+        label.innerText = 'Nominal Transfer (Rp)';
+        input.placeholder = 'Contoh: 100.000';
+    }
+}
+
+async function handlePocketTransferSubmit(e) {
+    if (e) e.preventDefault();
+    const fromP = document.getElementById('transfer-from-pocket').value;
+    const toP = document.getElementById('transfer-to-pocket').value;
+    const rawAmt = document.getElementById('transfer-amount').value.trim();
+    const customDesc = document.getElementById('transfer-desc').value.trim();
+
+    if (fromP === toP) {
+        showToast('Kantong sumber dan tujuan tidak boleh sama!', 'error', '⚠️');
+        return;
+    }
+
+    const isGram = (fromP === 'tring' || toP === 'tring');
+    const amt = isGram ? parseFloat(rawAmt.replace(',', '.')) : parseInt(rawAmt.replace(/\./g, ''), 10);
+
+    if (!amt || isNaN(amt) || amt <= 0) {
+        showToast('Masukkan nominal transfer yang valid!', 'error', '⚠️');
+        return;
+    }
+
+    const pocketNames = {
+        cash: 'Kas Tunai',
+        pribadi: 'Tabungan Pribadi',
+        simpanan: 'Simpanan Wajib',
+        tring: 'Emas Tring',
+        jago: 'Emas Jago'
+    };
+
+    const d = new Date();
+    const dStr = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
+    const active = (typeof getActiveUser === 'function') ? getActiveUser() : { id: 'user_rebel', name: 'Rebel' };
+
+    let newTransactions = [];
+
+    // Transfer mapping logic
+    if (fromP === 'cash') {
+        const defaultDesc = customDesc || `Pindah ke ${pocketNames[toP]}`;
+        const newTrx = {
+            id: Math.floor(100000 + Math.random() * 900000).toString(),
+            date: dStr,
+            desc: defaultDesc,
+            amount: amt,
+            type: toP,
+            source: 'cash',
+            category: 'investasi',
+            userId: active.id,
+            userName: active.name
+        };
+        newTransactions.push(newTrx);
+    } else if (toP === 'cash') {
+        const defaultDesc = customDesc || `Ambil dari ${pocketNames[fromP]}`;
+        const newTrx = {
+            id: Math.floor(100000 + Math.random() * 900000).toString(),
+            date: dStr,
+            desc: defaultDesc,
+            amount: amt,
+            type: 'withdraw',
+            source: fromP,
+            category: 'investasi',
+            userId: active.id,
+            userName: active.name
+        };
+        newTransactions.push(newTrx);
+    } else {
+        const desc1 = customDesc ? `${customDesc} (Ambil dari ${pocketNames[fromP]})` : `Pindah dari ${pocketNames[fromP]}`;
+        const trx1 = {
+            id: Math.floor(100000 + Math.random() * 900000).toString(),
+            date: dStr,
+            desc: desc1,
+            amount: amt,
+            type: 'withdraw',
+            source: fromP,
+            category: 'investasi',
+            userId: active.id,
+            userName: active.name
+        };
+        const desc2 = customDesc ? `${customDesc} (Setor ke ${pocketNames[toP]})` : `Alokasi ke ${pocketNames[toP]}`;
+        const trx2 = {
+            id: Math.floor(100000 + Math.random() * 900000).toString(),
+            date: dStr,
+            desc: desc2,
+            amount: amt,
+            type: toP,
+            source: 'cash',
+            category: 'investasi',
+            userId: active.id,
+            userName: active.name
+        };
+        newTransactions.push(trx1, trx2);
+    }
+
+    newTransactions.forEach(trx => transactions.unshift(trx));
+
+    document.getElementById('transfer-amount').value = '';
+    document.getElementById('transfer-desc').value = '';
+    closePocketTransferModal();
+
+    if (typeof saveToLocal === 'function') saveToLocal();
+    updateUI();
+
+    showToast(`Transfer dari <b>${pocketNames[fromP]}</b> ke <b>${pocketNames[toP]}</b> berhasil!`, 'success', '⇄');
+
+    for (const trx of newTransactions) {
+        if (typeof addTransactionToSheet === 'function') {
+            await addTransactionToSheet(trx);
+        }
+    }
 }

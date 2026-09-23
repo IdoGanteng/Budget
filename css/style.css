@@ -1,33 +1,45 @@
 :root { 
-    --bg-color: #080e1a; 
-    --card-bg: rgba(20, 30, 48, 0.75); 
-    --card-bg-solid: #131d2e;
-    --card-hover: rgba(30, 45, 70, 0.75);
-    --primary: #0f766e; 
-    --primary-hover: #0d9488; 
-    --primary-light: rgba(20, 184, 166, 0.15);
-    --primary-glow: rgba(15, 118, 110, 0.35);
+    --bg-color: #0f172a; 
+    --card-bg: rgba(22, 32, 50, 0.78); 
+    --card-bg-solid: #162032;
+    --card-hover: rgba(30, 44, 70, 0.85);
+
+    /* Signature Bank Jago Yellow & Orange */
+    --jago-orange: #FF7A00; 
+    --jago-orange-hover: #e66e00; 
+    --jago-orange-light: rgba(255, 122, 0, 0.16);
+    --jago-yellow: #FDB813; 
+    --jago-yellow-light: rgba(253, 184, 19, 0.16);
+    --jago-gradient: linear-gradient(135deg, #FF7A00 0%, #FDB813 100%);
+    --jago-gradient-card: linear-gradient(145deg, #182338 0%, #101826 100%);
+
+    --primary: #FF7A00; 
+    --primary-hover: #e66e00; 
+    --primary-light: rgba(255, 122, 0, 0.15);
+    --primary-glow: rgba(255, 122, 0, 0.35);
+
     --income: #10b981; 
     --income-light: rgba(16, 185, 129, 0.15);
     --expense: #f43f5e; 
     --expense-light: rgba(244, 63, 94, 0.15);
-    --tring: #f59e0b; 
-    --tring-light: rgba(245, 158, 11, 0.15);
+    --tring: #FDB813; 
+    --tring-light: rgba(253, 184, 19, 0.15);
     --simpanan: #8b5cf6; 
     --simpanan-light: rgba(139, 92, 246, 0.15);
     --jago: #ea580c; 
     --jago-light: rgba(234, 88, 12, 0.15);
-    --pribadi: #06b6d4; 
-    --pribadi-light: rgba(6, 182, 212, 0.15);
+    --pribadi: #00C49F; 
+    --pribadi-light: rgba(0, 196, 159, 0.15);
+
     --text-dark: #f8fafc; 
     --text-gray: #94a3b8; 
     --text-muted: #64748b;
     --border-color: rgba(255, 255, 255, 0.08); 
     --glass-border: rgba(255, 255, 255, 0.08); 
     --glass-border-top: rgba(255, 255, 255, 0.15);
-    --list-bg: rgba(15, 23, 42, 0.65); 
-    --input-bg: rgba(15, 23, 42, 0.85);
-    --ring-color: rgba(20, 184, 166, 0.35);
+    --list-bg: rgba(18, 26, 42, 0.65); 
+    --input-bg: rgba(18, 26, 42, 0.85);
+    --ring-color: rgba(255, 122, 0, 0.35);
     --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.25);
     --radius-lg: 24px;
     --radius-md: 18px;
@@ -35,14 +47,24 @@
 }
 
 [data-theme="light"] { 
-    --bg-color: #f7faf9; 
-    --card-bg: rgba(255, 255, 255, 0.92); 
+    --bg-color: #f8fafc; 
+    --card-bg: rgba(255, 255, 255, 0.94); 
     --card-bg-solid: #ffffff;
-    --card-hover: rgba(244, 247, 246, 0.98);
-    --primary: #0f766e; 
-    --primary-hover: #115e59; 
-    --primary-light: rgba(15, 118, 110, 0.1);
-    --primary-glow: rgba(15, 118, 110, 0.2);
+    --card-hover: rgba(248, 250, 252, 0.98);
+
+    --jago-orange: #FF7A00; 
+    --jago-orange-hover: #e66e00; 
+    --jago-orange-light: rgba(255, 122, 0, 0.12);
+    --jago-yellow: #d97706; 
+    --jago-yellow-light: rgba(217, 119, 6, 0.12);
+    --jago-gradient: linear-gradient(135deg, #FF7A00 0%, #FDB813 100%);
+    --jago-gradient-card: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+
+    --primary: #FF7A00; 
+    --primary-hover: #ea580c; 
+    --primary-light: rgba(255, 122, 0, 0.1);
+    --primary-glow: rgba(255, 122, 0, 0.2);
+
     --income: #059669; 
     --income-light: rgba(5, 150, 105, 0.1);
     --expense: #e11d48; 
@@ -53,17 +75,18 @@
     --simpanan-light: rgba(124, 58, 237, 0.1);
     --jago: #ea580c; 
     --jago-light: rgba(234, 88, 12, 0.1);
-    --pribadi: #0284c7; 
-    --pribadi-light: rgba(2, 132, 199, 0.1);
+    --pribadi: #008770; 
+    --pribadi-light: rgba(0, 135, 112, 0.1);
+
     --text-dark: #0f172a; 
     --text-gray: #64748b; 
     --text-muted: #94a3b8;
     --border-color: #e2e8f0; 
     --glass-border: rgba(0, 0, 0, 0.06); 
     --glass-border-top: rgba(255, 255, 255, 0.9);
-    --list-bg: #f8fafc; 
+    --list-bg: #f1f5f9; 
     --input-bg: #ffffff; 
-    --ring-color: rgba(15, 118, 110, 0.2);
+    --ring-color: rgba(255, 122, 0, 0.2);
     --shadow-card: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 4px 6px -4px rgba(15, 23, 42, 0.03);
 }
 
@@ -426,14 +449,14 @@ body {
     width: 34px;
     height: 34px;
     border-radius: 10px;
-    background: linear-gradient(135deg, var(--primary), #14b8a6);
+    background: linear-gradient(135deg, #FF7A00, #FDB813);
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 800;
     font-size: 13px;
-    box-shadow: 0 4px 10px var(--primary-glow);
+    box-shadow: 0 4px 10px rgba(255, 122, 0, 0.35);
 }
 .brand-title {
     font-size: 14.5px;
@@ -442,7 +465,7 @@ body {
     color: var(--text-dark);
 }
 .brand-title span {
-    color: #14b8a6;
+    color: #FF7A00;
 }
 .nav-actions {
     display: flex;
@@ -503,101 +526,440 @@ body {
     color: #14b8a6;
 }
 
-/* ================= MEMFINANCE-INSPIRED HERO OVERVIEW CARD ================= */
-.mem-hero-card {
-    background: linear-gradient(135deg, #091a18 0%, #0f2b27 50%, #115e59 100%);
+/* ================= UNIFIED BANK JAGO HERO BALANCE CARD ================= */
+.jago-hero-card, .mem-hero-card {
+    background: linear-gradient(145deg, #131d2e 0%, #0d1522 55%, #181f2f 100%);
     color: #ffffff;
-    padding: 26px 24px;
+    padding: 24px 22px;
     border-radius: var(--radius-lg);
-    border: 1px solid rgba(20, 184, 166, 0.25);
-    box-shadow: 0 16px 36px -10px rgba(15, 118, 110, 0.45);
+    border: 1px solid rgba(255, 122, 0, 0.25);
+    box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.04);
     position: relative;
     overflow: hidden;
-    margin-bottom: 20px;
+    margin-bottom: 22px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
-[data-theme="light"] .mem-hero-card {
-    background: linear-gradient(135deg, #0f766e 0%, #115e59 50%, #134e4a 100%);
-}
-.mem-hero-card::after {
+.jago-hero-card::before {
     content: "";
     position: absolute;
-    top: -50px;
-    right: -50px;
-    width: 200px;
-    height: 200px;
-    background: radial-gradient(circle, rgba(20, 184, 166, 0.3) 0%, transparent 70%);
+    top: -60px;
+    right: -40px;
+    width: 220px;
+    height: 220px;
+    background: radial-gradient(circle, rgba(255, 122, 0, 0.16) 0%, rgba(253, 184, 19, 0.08) 50%, transparent 70%);
     border-radius: 50%;
     pointer-events: none;
 }
-.mem-hero-top {
+.jago-hero-card::after {
+    content: "";
+    position: absolute;
+    bottom: -60px;
+    left: -40px;
+    width: 180px;
+    height: 180px;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+[data-theme="light"] .jago-hero-card, [data-theme="light"] .mem-hero-card {
+    background: linear-gradient(145deg, #ffffff 0%, #fff7ed 55%, #fef3c7 100%);
+    color: #0f172a;
+    border-color: rgba(255, 122, 0, 0.3);
+    box-shadow: 0 16px 36px -10px rgba(255, 122, 0, 0.15), 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+[data-theme="light"] .jago-hero-card::before {
+    background: radial-gradient(circle, rgba(255, 122, 0, 0.15) 0%, transparent 70%);
+}
+
+/* JAGO HERO HEADER & SEGMENTED TABS */
+.jago-hero-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 12px;
+    align-items: center;
+    margin-bottom: 18px;
+    position: relative;
+    z-index: 2;
 }
-.mem-hero-label {
-    font-size: 12.5px;
-    color: rgba(255, 255, 255, 0.8);
-    font-weight: 600;
+.jago-hero-tabs {
+    display: inline-flex;
+    background: rgba(15, 23, 42, 0.65);
+    padding: 3px;
+    border-radius: 100px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
-.mem-hero-amount {
-    font-size: 32px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    line-height: 1.15;
+[data-theme="light"] .jago-hero-tabs {
+    background: rgba(241, 245, 249, 0.9);
+    border-color: rgba(0, 0, 0, 0.08);
 }
-.mem-hero-badge {
+.jago-hero-tab {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 4px 10px;
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(10px);
+    border: none;
+    background: transparent;
+    color: var(--text-gray);
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+}
+.jago-hero-tab.active {
+    background: var(--jago-gradient);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(255, 122, 0, 0.35);
+}
+[data-theme="light"] .jago-hero-tab {
+    color: #64748b;
+}
+[data-theme="light"] .jago-hero-tab.active {
+    color: #ffffff;
+}
+
+/* PRIVACY TOGGLE BUTTON */
+.jago-privacy-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 15px;
+    transition: all 0.2s ease;
+}
+.jago-privacy-btn:hover {
+    background: rgba(255, 122, 0, 0.2);
+    border-color: var(--jago-orange);
+    color: #ffffff;
+    transform: scale(1.05);
+}
+[data-theme="light"] .jago-privacy-btn {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.08);
+    color: #475569;
+}
+
+/* JAGO HERO BODY & AMOUNTS */
+.jago-hero-body {
+    position: relative;
+    z-index: 2;
+    animation: fadeIn 0.25s ease;
+}
+.jago-hero-caption {
+    font-size: 12px;
+    color: var(--text-gray);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-bottom: 4px;
+}
+[data-theme="light"] .jago-hero-caption {
+    color: #64748b;
+}
+.jago-hero-balance-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+.jago-hero-amount {
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: -0.8px;
+    line-height: 1.15;
+    color: #ffffff;
+    font-feature-settings: "tnum";
+}
+[data-theme="light"] .jago-hero-amount {
+    color: #0f172a;
+}
+.jago-hero-amount.jago-wealth-accent {
+    background: linear-gradient(135deg, #ffffff 40%, #FDB813 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+[data-theme="light"] .jago-hero-amount.jago-wealth-accent {
+    background: linear-gradient(135deg, #ea580c 0%, #b45309 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.jago-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
     border-radius: 100px;
     font-size: 11px;
     font-weight: 700;
-    color: #ffffff;
-    margin-top: 6px;
+    color: #34d399;
 }
-.mem-mini-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-top: 18px;
-    padding-top: 16px;
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
+.jago-badge-wealth {
+    background: rgba(253, 184, 19, 0.15);
+    border-color: rgba(253, 184, 19, 0.3);
+    color: #FDB813;
 }
-.mem-mini-box {
-    background: rgba(0, 0, 0, 0.2);
-    padding: 10px 14px;
-    border-radius: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+.pulse-dot {
+    display: inline-block;
+    animation: pulseDot 2s infinite ease-in-out;
 }
-.mem-mini-label {
-    font-size: 11px;
-    color: rgba(255, 255, 255, 0.7);
-    font-weight: 600;
+@keyframes pulseDot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
 }
-.mem-mini-val {
-    font-size: 15px;
-    font-weight: 800;
-    margin-top: 2px;
-}
-.mem-mini-inc { color: #34d399; }
-.mem-mini-exp { color: #fb7185; }
 
-.mem-insight-banner {
+/* JAGO CASHFLOW MINI STATS (PEMASUKAN & PENGELUARAN) */
+.jago-hero-cashflow {
+    display: flex;
+    align-items: center;
+    background: rgba(10, 16, 26, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+}
+[data-theme="light"] .jago-hero-cashflow {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: rgba(0, 0, 0, 0.06);
+}
+.jago-flow-box {
+    flex: 1;
     display: flex;
     align-items: center;
     gap: 10px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 14px;
+}
+.jago-flow-divider {
+    width: 1px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.08);
+    margin: 0 10px;
+}
+[data-theme="light"] .jago-flow-divider {
+    background: rgba(0, 0, 0, 0.08);
+}
+.jago-flow-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+.jago-flow-inc .jago-flow-icon {
+    background: rgba(16, 185, 129, 0.18);
+    color: #10b981;
+}
+.jago-flow-exp .jago-flow-icon {
+    background: rgba(244, 63, 94, 0.18);
+    color: #f43f5e;
+}
+.jago-flow-info {
+    display: flex;
+    flex-direction: column;
+}
+.jago-flow-label {
+    font-size: 10.5px;
+    color: var(--text-gray);
+    font-weight: 700;
+    text-transform: uppercase;
+}
+.jago-flow-val {
+    font-size: 14.5px;
+    font-weight: 800;
+    margin-top: 1px;
+}
+.jago-flow-inc .jago-flow-val { color: #34d399; }
+.jago-flow-exp .jago-flow-val { color: #fb7185; }
+
+/* WEALTH COMPOSITION CHIPS */
+.jago-wealth-composition {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    background: rgba(10, 16, 26, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
     padding: 10px 14px;
-    margin-top: 14px;
-    font-size: 12px;
-    color: #e2e8f0;
+    margin-bottom: 12px;
+}
+[data-theme="light"] .jago-wealth-composition {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: rgba(0, 0, 0, 0.06);
+}
+.wealth-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+.wealth-chip strong {
+    color: #ffffff;
+    font-weight: 800;
+}
+[data-theme="light"] .wealth-chip strong {
+    color: #0f172a;
+}
+.dot-chip {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+/* JAGO INSIGHT BANNER */
+.jago-insight-banner, .mem-insight-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 8px 12px;
+    font-size: 11.5px;
+    color: #cbd5e1;
     font-weight: 500;
     line-height: 1.4;
+}
+[data-theme="light"] .jago-insight-banner, [data-theme="light"] .mem-insight-banner {
+    background: rgba(255, 255, 255, 0.6);
+    border-color: rgba(0, 0, 0, 0.06);
+    color: #475569;
+}
+
+/* ================= PROMINENT QUICK ACTIONS BAR ================= */
+.jago-quick-actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 18px;
+    position: relative;
+    z-index: 2;
+}
+.jago-action-btn {
+    border: none;
+    border-radius: 16px;
+    padding: 12px 10px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 6px;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+}
+.jago-action-btn:hover {
+    transform: translateY(-2px);
+}
+.jago-action-btn:active {
+    transform: scale(0.97);
+}
+.action-icon-wrap {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    transition: transform 0.2s ease;
+}
+.jago-action-btn:hover .action-icon-wrap {
+    transform: scale(1.1);
+}
+.action-text-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+.action-text-wrap strong {
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1.25;
+}
+.action-text-wrap small {
+    font-size: 9.5px;
+    color: var(--text-gray);
+    margin-top: 2px;
+    line-height: 1.2;
+    display: block;
+}
+
+/* Quick Action Themes */
+.jago-action-btn.action-expense {
+    background: rgba(255, 122, 0, 0.12);
+    border: 1px solid rgba(255, 122, 0, 0.32);
+    color: #ffffff;
+}
+.jago-action-btn.action-expense .action-icon-wrap {
+    background: rgba(255, 122, 0, 0.2);
+    color: #FF7A00;
+}
+.jago-action-btn.action-expense:hover {
+    background: rgba(255, 122, 0, 0.2);
+    box-shadow: 0 8px 20px rgba(255, 122, 0, 0.25);
+}
+
+.jago-action-btn.action-income {
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.32);
+    color: #ffffff;
+}
+.jago-action-btn.action-income .action-icon-wrap {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+}
+.jago-action-btn.action-income:hover {
+    background: rgba(16, 185, 129, 0.2);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.25);
+}
+
+.jago-action-btn.action-transfer {
+    background: rgba(253, 184, 19, 0.12);
+    border: 1px solid rgba(253, 184, 19, 0.32);
+    color: #ffffff;
+}
+.jago-action-btn.action-transfer .action-icon-wrap {
+    background: rgba(253, 184, 19, 0.2);
+    color: #FDB813;
+}
+.jago-action-btn.action-transfer:hover {
+    background: rgba(253, 184, 19, 0.2);
+    box-shadow: 0 8px 20px rgba(253, 184, 19, 0.25);
+}
+
+[data-theme="light"] .jago-action-btn.action-expense {
+    background: #fff7ed;
+    color: #9a3412;
+}
+[data-theme="light"] .jago-action-btn.action-income {
+    background: #ecfdf5;
+    color: #065f46;
+}
+[data-theme="light"] .jago-action-btn.action-transfer {
+    background: #fefce8;
+    color: #854d0e;
 }
 
 /* ================= DASHBOARD LAYOUT ================= */
@@ -921,71 +1283,227 @@ button.btn-danger:hover {
     border-color: var(--expense); 
 }
 
-/* ================= STATS GRID ================= */
-.stats-grid { 
+/* ================= BANK JAGO "KANTONG" GRID SECTION ================= */
+.jago-pockets-section {
+    margin-bottom: 22px;
+}
+.jago-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 14px;
+    padding: 0 2px;
+}
+.jago-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.jago-section-header h2 {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-dark);
+    margin: 0;
+    letter-spacing: -0.3px;
+}
+.jago-pockets-count-badge {
+    background: rgba(253, 184, 19, 0.16);
+    color: #FDB813;
+    border: 1px solid rgba(253, 184, 19, 0.3);
+    font-size: 11px;
+    font-weight: 800;
+    padding: 3px 9px;
+    border-radius: 100px;
+}
+[data-theme="light"] .jago-pockets-count-badge {
+    background: #fef3c7;
+    color: #b45309;
+}
+.jago-section-header p {
+    font-size: 12px;
+    color: var(--text-gray);
+    margin: 2px 0 0 0;
+}
+.btn-jago-ghost {
+    background: var(--list-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-dark);
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 100px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+.btn-jago-ghost:hover {
+    border-color: var(--jago-orange);
+    color: var(--jago-orange);
+    background: rgba(255, 122, 0, 0.1);
+}
+
+/* STATS GRID / JAGO POCKETS GRID */
+.stats-grid, .jago-pockets-grid { 
     display: grid; 
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
     gap: 12px; 
     width: 100%; 
 }
-.stat-box { 
+.stat-box, .jago-pocket-card { 
     background: var(--card-bg); 
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    padding: 16px 14px; 
-    border-radius: var(--radius-md); 
+    padding: 16px 16px; 
+    border-radius: var(--radius-lg); 
     border: 1px solid var(--border-color); 
     border-top: 1px solid var(--glass-border-top);
     position: relative; 
-    transition: all 0.25s ease;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     box-shadow: var(--shadow-card);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    cursor: pointer;
 }
-.stat-box:hover { 
+.stat-box:hover, .jago-pocket-card:hover { 
     transform: translateY(-2px); 
-    border-color: rgba(20, 184, 166, 0.4);
+    box-shadow: 0 14px 28px -8px rgba(0, 0, 0, 0.5);
 }
-.stat-header {
+
+/* Pocket Theming (Subtle Borders & Accents) */
+.pocket-teal { border-color: rgba(0, 196, 159, 0.28); }
+.pocket-teal:hover { border-color: #00C49F; box-shadow: 0 12px 25px rgba(0, 196, 159, 0.2); }
+
+.pocket-purple { border-color: rgba(139, 92, 246, 0.28); }
+.pocket-purple:hover { border-color: #8b5cf6; box-shadow: 0 12px 25px rgba(139, 92, 246, 0.2); }
+
+.pocket-orange { border-color: rgba(255, 122, 0, 0.32); }
+.pocket-orange:hover { border-color: #FF7A00; box-shadow: 0 12px 25px rgba(255, 122, 0, 0.25); }
+
+.pocket-yellow { border-color: rgba(253, 184, 19, 0.28); }
+.pocket-yellow:hover { border-color: #FDB813; box-shadow: 0 12px 25px rgba(253, 184, 19, 0.25); }
+
+.pocket-amber { border-color: rgba(234, 88, 12, 0.28); }
+.pocket-amber:hover { border-color: #ea580c; box-shadow: 0 12px 25px rgba(234, 88, 12, 0.2); }
+
+/* Pocket Top Section */
+.pocket-top {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
 }
-.stat-icon-title {
+.pocket-badge-wrap {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 10px;
 }
-.stat-icon {
-    width: 26px;
-    height: 26px;
-    border-radius: 8px;
+.pocket-icon-badge {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 13px;
+    font-size: 18px;
     flex-shrink: 0;
 }
-.stat-box h3 { 
-    font-size: 11px; 
-    color: var(--text-gray); 
-    font-weight: 700; 
-    text-transform: uppercase; 
-    letter-spacing: 0.4px; 
-    margin: 0;
-}      
-.stat-box p { 
-    font-size: 16px; 
-    font-weight: 800; 
-    color: var(--text-dark); 
-    letter-spacing: -0.3px;
-    margin: 0;
-    word-break: break-word;
+.bg-teal { background: rgba(0, 196, 159, 0.16); color: #00C49F; }
+.bg-purple { background: rgba(139, 92, 246, 0.16); color: #8b5cf6; }
+.bg-orange { background: rgba(255, 122, 0, 0.16); color: #FF7A00; }
+.bg-yellow { background: rgba(253, 184, 19, 0.16); color: #FDB813; }
+.bg-amber { background: rgba(234, 88, 12, 0.16); color: #ea580c; }
+
+.pocket-meta {
+    display: flex;
+    flex-direction: column;
 }
+.pocket-type-tag {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--text-gray);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.jago-pocket-card h3, .stat-box h3 { 
+    font-size: 13.5px; 
+    color: var(--text-dark); 
+    font-weight: 800; 
+    letter-spacing: -0.2px; 
+    margin: 1px 0 0 0;
+}
+
+/* Pocket Balance & Progress */
+.pocket-balance-wrap {
+    display: flex;
+    flex-direction: column;
+}
+.pocket-amount, .stat-box p { 
+    font-size: 18px; 
+    font-weight: 800; 
+    color: #ffffff; 
+    letter-spacing: -0.4px;
+    margin: 0 0 4px 0;
+    word-break: break-word;
+    font-feature-settings: "tnum";
+}
+[data-theme="light"] .pocket-amount, [data-theme="light"] .stat-box p {
+    color: #0f172a;
+}
+.pocket-progress-wrap {
+    margin-top: 4px;
+}
+.pocket-bar-track {
+    height: 5px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 100px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 6px;
+}
+[data-theme="light"] .pocket-bar-track {
+    background: rgba(0, 0, 0, 0.08);
+}
+.pocket-bar-fill {
+    height: 100%;
+    border-radius: 100px;
+    transition: width 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.bar-teal { background: #00C49F; }
+.bar-purple { background: #8b5cf6; }
+.bar-orange { background: #FF7A00; }
+.bar-yellow { background: #FDB813; }
+.bar-amber { background: #ea580c; }
+
+.pocket-footer-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--text-gray);
+    font-weight: 600;
+}
+.pocket-sublabel {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 120px;
+}
+.pocket-share {
+    color: var(--text-dark);
+    font-weight: 700;
+    font-size: 11px;
+}
+.pocket-subinfo {
+    font-size: 11.5px;
+    color: var(--text-gray);
+    font-weight: 700;
+}
+
 .stat-trend { 
-    font-size: 10.5px; 
+    font-size: 10px; 
     font-weight: 800; 
     padding: 2px 7px; 
     border-radius: 100px; 
@@ -995,61 +1513,205 @@ button.btn-danger:hover {
 .trend-down { background: var(--expense-light); color: var(--expense); }
 .trend-flat { background: rgba(148, 163, 184, 0.15); color: var(--text-gray); }
 
-.c-balance .stat-icon { background: var(--income-light); color: var(--income); }
-.c-simpanan .stat-icon { background: var(--simpanan-light); color: var(--simpanan); }
-.c-pribadi .stat-icon { background: var(--pribadi-light); color: var(--pribadi); }
-.c-tring .stat-icon { background: var(--tring-light); color: var(--tring); }
-.c-jago .stat-icon { background: var(--jago-light); color: var(--jago); }
-
-.c-balance p { color: var(--income); } 
-.c-simpanan p { color: var(--simpanan); } 
-.c-pribadi p { color: var(--pribadi); } 
-.c-tring p { color: var(--tring); } 
-.c-jago p { color: var(--jago); }
-
-/* ================= CATEGORY BUDGET PROGRESS BARS (MEMFINANCE STYLE) ================= */
-.budget-categories-list {
+/* ================= BANK JAGO BUDGET CATEGORIES & WARNING STATES ================= */
+.jago-budgets-section {
+    padding: 22px;
+}
+.jago-budget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+.jago-categories-list, .budget-categories-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
 }
-.budget-cat-item {
+.jago-budget-item, .budget-cat-item {
     background: var(--list-bg);
     border: 1px solid var(--border-color);
-    padding: 14px 16px;
-    border-radius: 16px;
+    padding: 16px 18px;
+    border-radius: 20px;
     display: flex;
     flex-direction: column;
     gap: 8px;
+    transition: all 0.25s ease;
 }
-.budget-cat-top {
+.jago-budget-item:hover, .budget-cat-item:hover {
+    border-color: rgba(255, 122, 0, 0.35);
+    background: rgba(25, 36, 56, 0.75);
+}
+[data-theme="light"] .jago-budget-item:hover {
+    background: #ffffff;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+}
+
+.jago-budget-top, .budget-cat-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-.budget-cat-info {
+.jago-budget-info, .budget-cat-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text-dark);
+}
+.jago-budget-icon {
+    font-size: 18px;
+}
+.jago-budget-name {
+    letter-spacing: -0.2px;
+}
+
+.jago-budget-status-row {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 13.5px;
-    font-weight: 700;
-    color: var(--text-dark);
 }
-.budget-cat-pct {
-    font-size: 13px;
+.jago-budget-pct, .budget-cat-pct {
+    font-size: 14px;
     font-weight: 800;
+    font-feature-settings: "tnum";
 }
-.budget-bar-track {
-    height: 8px;
-    background: var(--input-bg);
+
+/* Dynamic Status Pills */
+.jago-status-pill {
+    font-size: 10.5px;
+    font-weight: 800;
+    padding: 3px 9px;
+    border-radius: 100px;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.pill-safe {
+    background: rgba(16, 185, 129, 0.16);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+}
+.pill-warning {
+    background: rgba(253, 184, 19, 0.16);
+    color: #FDB813;
+    border: 1px solid rgba(253, 184, 19, 0.35);
+}
+.pill-danger {
+    background: rgba(244, 63, 94, 0.16);
+    color: #f43f5e;
+    border: 1px solid rgba(244, 63, 94, 0.35);
+    animation: pulseDanger 2s infinite ease-in-out;
+}
+@keyframes pulseDanger {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(0.96); }
+}
+
+.text-safe { color: #10b981; }
+.text-warning { color: #FDB813; }
+.text-danger { color: #f43f5e; }
+
+/* Dynamic Progress Bar Tracks */
+.jago-budget-bar-track, .budget-bar-track {
+    height: 10px;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 100px;
     overflow: hidden;
     position: relative;
+    margin: 4px 0 6px 0;
 }
-.budget-bar-fill {
+[data-theme="light"] .jago-budget-bar-track, [data-theme="light"] .budget-bar-track {
+    background: #e2e8f0;
+    border-color: rgba(0, 0, 0, 0.05);
+}
+.jago-budget-bar-fill, .budget-bar-fill {
     height: 100%;
     border-radius: 100px;
     transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.bar-safe {
+    background: linear-gradient(90deg, #059669 0%, #10b981 100%);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.35);
+}
+.bar-warning {
+    background: linear-gradient(90deg, #ea580c 0%, #FDB813 100%);
+    box-shadow: 0 0 10px rgba(253, 184, 19, 0.35);
+}
+.bar-danger {
+    background: linear-gradient(90deg, #be123c 0%, #f43f5e 100%);
+    box-shadow: 0 0 12px rgba(244, 63, 94, 0.45);
+}
+
+/* Adjacent Budget Metrics Strip: Terpakai / Sisa / Batas */
+.jago-budget-metrics {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(10, 16, 26, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 14px;
+    padding: 8px 14px;
+}
+[data-theme="light"] .jago-budget-metrics {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(0, 0, 0, 0.06);
+}
+.metric-item {
+    display: flex;
+    flex-direction: column;
+}
+.metric-item.text-right {
+    align-items: flex-end;
+}
+.metric-divider {
+    width: 1px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.08);
+}
+[data-theme="light"] .metric-divider {
+    background: rgba(0, 0, 0, 0.08);
+}
+.metric-label {
+    font-size: 10px;
+    color: var(--text-gray);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+.metric-value {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--text-dark);
+    margin-top: 1px;
+}
+.metric-over { color: #f43f5e; font-weight: 800; }
+.metric-left { color: #34d399; font-weight: 800; }
+
+/* PRIVACY MODE STYLING */
+body.privacy-mode .pocket-amount,
+body.privacy-mode .jago-hero-amount,
+body.privacy-mode .jago-flow-val,
+body.privacy-mode .metric-value,
+body.privacy-mode #total-wealth,
+body.privacy-mode #cash-balance,
+body.privacy-mode #total-simpanan,
+body.privacy-mode #total-pribadi,
+body.privacy-mode #total-tring,
+body.privacy-mode #total-jago,
+body.privacy-mode #mem-hero-amount,
+body.privacy-mode #mem-mini-inc,
+body.privacy-mode #mem-mini-exp {
+    filter: blur(8px);
+    user-select: none;
+    transition: filter 0.25s ease;
+}
+body.privacy-mode .pocket-amount:hover,
+body.privacy-mode .jago-hero-amount:hover {
+    filter: blur(0);
 }
 
 /* ================= HISTORY LIST & SEARCH BAR ================= */
@@ -1277,7 +1939,7 @@ button.btn-danger:hover {
     box-shadow: 0 2px 8px var(--primary-glow);
 }
 .desktop-catat-btn {
-    background: linear-gradient(135deg, var(--primary), #14b8a6);
+    background: linear-gradient(135deg, #FF7A00, #FDB813);
     color: white;
     border: none;
     border-radius: 10px;
@@ -1289,12 +1951,12 @@ button.btn-danger:hover {
     align-items: center;
     gap: 4px;
     margin-left: 2px;
-    box-shadow: 0 3px 10px var(--primary-glow);
+    box-shadow: 0 3px 10px rgba(255, 122, 0, 0.35);
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 .desktop-catat-btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 14px var(--primary-glow);
+    box-shadow: 0 4px 14px rgba(255, 122, 0, 0.45);
 }
 
 /* ================= SYNC STATUS PILL ================= */
@@ -1597,33 +2259,51 @@ button.btn-danger:hover {
         color: var(--text-gray);
     }
 
-    /* Mobile Hero Card */
-    .mem-hero-card {
+    /* Mobile Bank Jago Hero Card */
+    .jago-hero-card, .mem-hero-card {
         padding: 18px 16px;
-        border-radius: 20px;
-        margin-bottom: 0;
+        border-radius: 22px;
+        margin-bottom: 16px;
     }
-    .mem-hero-amount {
-        font-size: 27px;
+    .jago-hero-amount, .mem-hero-amount {
+        font-size: 28px;
     }
-    .btn-hero-quick-add {
-        display: inline-flex;
+    .jago-quick-actions {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 6px !important;
+        margin-top: 14px !important;
+    }
+    .jago-action-btn {
+        padding: 10px 4px !important;
+        border-radius: 14px !important;
+    }
+    .action-icon-wrap {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 15px !important;
+    }
+    .action-text-wrap strong {
+        font-size: 10px !important;
+        white-space: nowrap !important;
+    }
+    .action-text-wrap small {
+        display: none !important;
     }
 
-    /* Mobile Stats Grid: Kas Tunai spans 2 cols, others clean 2x2 grid */
-    .stats-grid {
+    /* Mobile Stats Grid / Jago Pockets Grid */
+    .stats-grid, .jago-pockets-grid {
         display: grid !important;
         grid-template-columns: 1fr 1fr !important;
         gap: 10px !important;
         width: 100% !important;
     }
-    .stat-box.c-balance {
+    .stat-box.c-balance, .jago-pocket-card.pocket-teal {
         grid-column: span 2 !important;
         padding: 16px 16px;
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), var(--card-bg));
-        border-color: rgba(16, 185, 129, 0.3);
+        background: linear-gradient(135deg, rgba(0, 196, 159, 0.12), var(--card-bg));
+        border-color: rgba(0, 196, 159, 0.35);
     }
-    .stat-box.c-balance p {
+    .stat-box.c-balance p, .jago-pocket-card.pocket-teal .pocket-amount {
         font-size: 22px;
     }
 
@@ -1768,22 +2448,22 @@ button.btn-danger:hover {
         transition: transform 0.2s ease, stroke 0.2s ease;
     }
     .mobile-tab-btn.active {
-        color: #14b8a6;
+        color: var(--jago-orange);
     }
     .mobile-tab-btn.active svg {
-        stroke: #14b8a6;
+        stroke: var(--jago-orange);
         transform: translateY(-2px);
     }
     .mobile-fab-center {
         width: 48px;
         height: 48px;
         border-radius: 50%;
-        background: linear-gradient(135deg, var(--primary), #14b8a6);
+        background: linear-gradient(135deg, #FF7A00, #FDB813);
         color: white;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 6px 18px var(--primary-glow);
+        box-shadow: 0 6px 18px rgba(255, 122, 0, 0.45);
         transform: translateY(-14px);
         border: 4px solid var(--bg-color);
         font-size: 24px;

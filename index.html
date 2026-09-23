@@ -155,6 +155,74 @@
         </div>
     </div>
 
+    <!-- ================= MODAL TRANSFER / KELOLA KANTONG (BANK JAGO STYLE) ================= -->
+    <div id="pocket-transfer-modal" class="modal-overlay" onclick="closeAllModals(event)">
+        <div class="modal-box" style="text-align: left; max-width: 440px;" onclick="event.stopPropagation()">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="background: rgba(255, 122, 0, 0.16); color: #FF7A00; font-size: 20px; width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800;">⇄</div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 17px; font-weight: 800;">Pindah Saldo Antar Kantong</h3>
+                        <p style="margin: 0; font-size: 12px; color: var(--text-gray);">Transfer alokasi antar kantong Bank Jago</p>
+                    </div>
+                </div>
+                <button type="button" class="sheet-close-btn" onclick="closePocketTransferModal()" style="background:none; border:none; font-size:18px; color:var(--text-gray); cursor:pointer;">✕</button>
+            </div>
+
+            <form onsubmit="handlePocketTransferSubmit(event)" style="gap: 14px;">
+                <!-- DARI KANTONG -->
+                <div>
+                    <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Dari Kantong (Sumber)</label>
+                    <select id="transfer-from-pocket" onchange="updateTransferFormLabels()" style="background: var(--input-bg); border-color: var(--border-color); color: var(--text-dark); border-radius: 12px; padding: 10px 12px; font-size: 13px; width: 100%;">
+                        <option value="cash" selected>💵 Kas Tunai (Kantong Bayar)</option>
+                        <option value="pribadi">🎯 Tabungan Pribadi (Kantong Impian)</option>
+                        <option value="simpanan">🏦 Simpanan Wajib (Kantong Nabung)</option>
+                        <option value="tring">🪙 Emas Tring (Investasi Fisik)</option>
+                        <option value="jago">🦁 Emas Jago (Investasi Digital)</option>
+                    </select>
+                </div>
+
+                <!-- KE KANTONG -->
+                <div>
+                    <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Ke Kantong (Tujuan)</label>
+                    <select id="transfer-to-pocket" onchange="updateTransferFormLabels()" style="background: var(--input-bg); border-color: var(--border-color); color: var(--text-dark); border-radius: 12px; padding: 10px 12px; font-size: 13px; width: 100%;">
+                        <option value="pribadi" selected>🎯 Tabungan Pribadi (Kantong Impian)</option>
+                        <option value="simpanan">🏦 Simpanan Wajib (Kantong Nabung)</option>
+                        <option value="cash">💵 Kas Tunai (Kantong Bayar)</option>
+                        <option value="tring">🪙 Emas Tring (Investasi Fisik)</option>
+                        <option value="jago">🦁 Emas Jago (Investasi Digital)</option>
+                    </select>
+                </div>
+
+                <!-- NOMINAL / JUMLAH -->
+                <div>
+                    <label id="transfer-amount-label" style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Nominal Transfer (Rp)</label>
+                    <input type="text" id="transfer-amount" placeholder="Contoh: 100.000" autocomplete="off" required style="font-size: 15px; font-weight: 700; padding: 12px 14px; border-radius: 12px;">
+                </div>
+
+                <!-- QUICK NOMINAL CHIPS -->
+                <div class="quick-amount-row" style="margin-top: -6px;">
+                    <button type="button" class="quick-amt-btn" onclick="addTransferQuickAmount(50000)">+50rb</button>
+                    <button type="button" class="quick-amt-btn" onclick="addTransferQuickAmount(100000)">+100rb</button>
+                    <button type="button" class="quick-amt-btn" onclick="addTransferQuickAmount(250000)">+250rb</button>
+                    <button type="button" class="quick-amt-btn" onclick="addTransferQuickAmount(500000)">+500rb</button>
+                    <button type="button" class="quick-amt-btn" onclick="addTransferQuickAmount(1000000)">+1jt</button>
+                </div>
+
+                <!-- CATATAN / KETERANGAN -->
+                <div>
+                    <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">Keterangan / Catatan</label>
+                    <input type="text" id="transfer-desc" placeholder="Misal: Sisihkan ke tabungan impian" autocomplete="off" style="border-radius: 12px;">
+                </div>
+
+                <div class="modal-actions" style="margin-top: 10px;">
+                    <button type="button" onclick="closePocketTransferModal()" class="btn-danger" style="flex: 1; padding: 12px; border-radius: 14px;">Batal</button>
+                    <button type="submit" class="btn-primary" style="flex: 1.5; padding: 12px; border-radius: 14px; background: linear-gradient(135deg, #FF7A00, #FDB813); border: none; color: white; font-weight: 800;">Kirim Dana ➔</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- ================= TRANSACTION BOTTOM SHEET / MODAL (TOP-LEVEL FOR 100% RELIABILITY ON HP & PC) ================= -->
     <div id="sheet-backdrop" class="sheet-backdrop" onclick="closeAddTransactionSheet()"></div>
     <div id="record-transaction-sheet" class="transaction-sheet-wrapper">
@@ -280,115 +348,288 @@
         <!-- ================= MAIN CONTENT APP TABS ================= -->
         <main class="app-main-content">
             
-            <!-- ================= TAB 1: BERANDA (HOME VIEW) ================= -->
+            <!-- ================= TAB 1: BERANDA (HOME VIEW - BANK JAGO UI) ================= -->
             <div id="view-home" class="dashboard-tab-view active">
                 
-                <!-- HERO OVERVIEW CARD (INSPIRED BY MEMFINANCE) -->
-                <div class="mem-hero-card">
-                    <div class="mem-hero-top">
-                        <div>
-                            <span class="mem-hero-label">Sisa untuk bulan ini</span>
-                            <div class="mem-hero-amount" id="mem-hero-amount">Rp 0</div>
-                            <div class="mem-hero-badge" id="mem-hero-badge">
-                                <span>●</span> Terkendali • Cloud Sync
+                <!-- UNIFIED BANK JAGO HERO BALANCE CARD -->
+                <div class="jago-hero-card" id="jago-hero-card">
+                    <div class="jago-hero-header">
+                        <!-- SEGMENTED VIEW TOGGLE (SISA BULAN INI VS TOTAL PORTOFOLIO) -->
+                        <div class="jago-hero-tabs" role="tablist">
+                            <button type="button" class="jago-hero-tab active" id="tab-hero-sisa" onclick="switchHeroBalanceView('sisa')" role="tab" aria-selected="true">
+                                <span>💸</span> Sisa Bulan Ini
+                            </button>
+                            <button type="button" class="jago-hero-tab" id="tab-hero-wealth" onclick="switchHeroBalanceView('wealth')" role="tab" aria-selected="false">
+                                <span>🏦</span> Total Portofolio
+                            </button>
+                        </div>
+                        
+                        <!-- PRIVACY TOGGLE BUTTON -->
+                        <button type="button" class="jago-privacy-btn" id="hero-privacy-btn" onclick="toggleBalancePrivacy()" title="Sembunyikan/Tampilkan Saldo" aria-label="Toggle Saldo Privacy">
+                            <span id="privacy-icon">👁️</span>
+                        </button>
+                    </div>
+
+                    <!-- VIEW 1: SISA BULAN INI (DEFAULT) -->
+                    <div class="jago-hero-body" id="hero-view-sisa">
+                        <div class="jago-hero-balance-wrap">
+                            <span class="jago-hero-caption">Sisa Kas untuk Bulan Ini</span>
+                            <div class="jago-hero-balance-row">
+                                <div class="jago-hero-amount" id="mem-hero-amount">Rp 0</div>
+                                <div class="jago-hero-badge" id="mem-hero-badge">
+                                    <span class="pulse-dot">●</span> Terkendali • Cloud Sync
+                                </div>
                             </div>
                         </div>
-                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
-                            <span class="badge" style="background: rgba(255,255,255,0.2); color:#ffffff; font-size:10px;">Fintech View</span>
-                            <button type="button" class="btn-hero-quick-add" onclick="openAddTransactionModal()" title="Catat Transaksi Cepat">＋ Catat</button>
+
+                        <!-- CASHFLOW MINI STATS (PEMASUKAN & PENGELUARAN) -->
+                        <div class="jago-hero-cashflow">
+                            <div class="jago-flow-box jago-flow-inc">
+                                <div class="jago-flow-icon">↓</div>
+                                <div class="jago-flow-info">
+                                    <span class="jago-flow-label">Pemasukan</span>
+                                    <span class="jago-flow-val" id="mem-mini-inc">Rp 0</span>
+                                </div>
+                            </div>
+                            <div class="jago-flow-divider"></div>
+                            <div class="jago-flow-box jago-flow-exp">
+                                <div class="jago-flow-icon">↑</div>
+                                <div class="jago-flow-info">
+                                    <span class="jago-flow-label">Pengeluaran</span>
+                                    <span class="jago-flow-val" id="mem-mini-exp">Rp 0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="jago-insight-banner" id="mem-insight-banner">
+                            <span>✦</span>
+                            <span>Anda masih punya ruang untuk menikmati akhir pekan. Keuangan terkendali!</span>
                         </div>
                     </div>
 
-                    <div class="mem-mini-grid">
-                        <div class="mem-mini-box">
-                            <div class="mem-mini-label">Pemasukan</div>
-                            <div class="mem-mini-val mem-mini-inc" id="mem-mini-inc">Rp 0</div>
+                    <!-- VIEW 2: TOTAL PORTOFOLIO (ACCUMULATION) -->
+                    <div class="jago-hero-body" id="hero-view-wealth" style="display: none;">
+                        <div class="jago-hero-balance-wrap">
+                            <span class="jago-hero-caption">Akumulasi Seluruh Aset &amp; Tabungan</span>
+                            <div class="jago-hero-balance-row">
+                                <div class="jago-hero-amount jago-wealth-accent" id="total-wealth">Rp 0</div>
+                                <div class="jago-hero-badge jago-badge-wealth">
+                                    <span>👑</span> Total Portofolio
+                                </div>
+                            </div>
                         </div>
-                        <div class="mem-mini-box">
-                            <div class="mem-mini-label">Pengeluaran</div>
-                            <div class="mem-mini-val mem-mini-exp" id="mem-mini-exp">Rp 0</div>
+
+                        <!-- WEALTH COMPOSITION PREVIEW -->
+                        <div class="jago-wealth-composition">
+                            <div class="wealth-chip">
+                                <span class="dot-chip" style="background:#00C49F;"></span>
+                                <span>Kas: <strong id="mini-share-cash">0%</strong></span>
+                            </div>
+                            <div class="wealth-chip">
+                                <span class="dot-chip" style="background:#8b5cf6;"></span>
+                                <span>Simpanan: <strong id="mini-share-simpanan">0%</strong></span>
+                            </div>
+                            <div class="wealth-chip">
+                                <span class="dot-chip" style="background:#FF7A00;"></span>
+                                <span>Pribadi: <strong id="mini-share-pribadi">0%</strong></span>
+                            </div>
+                            <div class="wealth-chip">
+                                <span class="dot-chip" style="background:#FDB813;"></span>
+                                <span>Emas: <strong id="mini-share-gold">0%</strong></span>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="mem-insight-banner" id="mem-insight-banner">
-                        <span>✦</span>
-                        <span>Anda masih punya ruang untuk menikmati akhir pekan. Keuangan terkendali!</span>
+                    <!-- PROMINENT QUICK ACTIONS BAR (BANK JAGO SIGNATURE) -->
+                    <div class="jago-quick-actions">
+                        <button type="button" class="jago-action-btn action-expense" onclick="openQuickExpense()" title="Catat Pengeluaran Cepat">
+                            <div class="action-icon-wrap">💸</div>
+                            <div class="action-text-wrap">
+                                <strong>+ Catat Pengeluaran</strong>
+                                <small>Belanja, makan, tagihan</small>
+                            </div>
+                        </button>
+                        <button type="button" class="jago-action-btn action-income" onclick="openQuickIncome()" title="Catat Pemasukan Cepat">
+                            <div class="action-icon-wrap">💰</div>
+                            <div class="action-text-wrap">
+                                <strong>+ Pemasukan</strong>
+                                <small>Gaji, transfer, bisnis</small>
+                            </div>
+                        </button>
+                        <button type="button" class="jago-action-btn action-transfer" onclick="openPocketTransferModal()" title="Pindah Saldo atau Kelola Kantong">
+                            <div class="action-icon-wrap">⇄</div>
+                            <div class="action-text-wrap">
+                                <strong>Transfer / Kelola Kantong</strong>
+                                <small>Pindah saldo kantong</small>
+                            </div>
+                        </button>
                     </div>
                 </div>
 
-                <!-- KARTU TOTAL KEKAYAAN -->
-                <div class="glass-panel section-total-wealth" style="background: linear-gradient(135deg, rgba(15, 118, 110, 0.35), rgba(30, 41, 59, 0.7)); border-color: rgba(20, 184, 166, 0.3);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: #14b8a6; letter-spacing: 1px;">Akumulasi Portofolio Total</span>
-                        <span style="font-size: 16px;">🏦</span>
+                <!-- ================= BANK JAGO "KANTONG" GRID ================= -->
+                <div class="jago-pockets-section">
+                    <div class="jago-section-header">
+                        <div class="jago-header-title">
+                            <div class="jago-title-row">
+                                <h2>Kantong Saya</h2>
+                                <span class="jago-pockets-count-badge">5 Kantong</span>
+                            </div>
+                            <p>Alokasi pos kas, tabungan, dan investasi Anda</p>
+                        </div>
+                        <div class="jago-header-actions">
+                            <button type="button" class="btn-jago-ghost" onclick="openPocketTransferModal()" title="Pindah Dana Antar Kantong">
+                                <span>⇄</span> Pindah Dana
+                            </button>
+                        </div>
                     </div>
-                    <p id="total-wealth" style="font-size: 30px; font-weight: 800; letter-spacing: -0.5px;">Rp 0</p>
+
+                    <div class="stats-grid jago-pockets-grid section-stats">
+                        <!-- 1. KANTONG UTAMA / KAS TUNAI -->
+                        <div class="stat-box c-balance jago-pocket-card pocket-teal" onclick="openQuickExpense()" title="Klik untuk catat pengeluaran kas">
+                            <div class="pocket-top">
+                                <div class="pocket-badge-wrap">
+                                    <div class="pocket-icon-badge bg-teal">💵</div>
+                                    <div class="pocket-meta">
+                                        <span class="pocket-type-tag">Kantong Bayar</span>
+                                        <h3>Kas Tunai</h3>
+                                    </div>
+                                </div>
+                                <span id="trend-cash" class="stat-trend trend-flat">0%</span>
+                            </div>
+                            <div class="pocket-balance-wrap">
+                                <p id="cash-balance" class="pocket-amount">Rp 0</p>
+                                <div class="pocket-progress-wrap">
+                                    <div class="pocket-bar-track">
+                                        <div id="pocket-bar-cash" class="pocket-bar-fill bar-teal" style="width: 0%;"></div>
+                                    </div>
+                                    <div class="pocket-footer-info">
+                                        <span class="pocket-sublabel">Kas harian &amp; likuid</span>
+                                        <span id="pocket-share-cash" class="pocket-share">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2. KANTONG SIMPANAN WAJIB -->
+                        <div class="stat-box c-simpanan jago-pocket-card pocket-purple" onclick="openPocketQuickDeposit('simpanan')" title="Klik untuk tambah simpanan">
+                            <div class="pocket-top">
+                                <div class="pocket-badge-wrap">
+                                    <div class="pocket-icon-badge bg-purple">🏦</div>
+                                    <div class="pocket-meta">
+                                        <span class="pocket-type-tag">Kantong Nabung</span>
+                                        <h3>Simpanan Wajib</h3>
+                                    </div>
+                                </div>
+                                <span id="trend-simpanan" class="stat-trend trend-flat">0%</span>
+                            </div>
+                            <div class="pocket-balance-wrap">
+                                <p id="total-simpanan" class="pocket-amount">Rp 0</p>
+                                <div class="pocket-progress-wrap">
+                                    <div class="pocket-bar-track">
+                                        <div id="pocket-bar-simpanan" class="pocket-bar-fill bar-purple" style="width: 0%;"></div>
+                                    </div>
+                                    <div class="pocket-footer-info">
+                                        <span class="pocket-sublabel">Tabungan cadangan pokok</span>
+                                        <span id="pocket-share-simpanan" class="pocket-share">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. KANTONG TABUNGAN PRIBADI -->
+                        <div class="stat-box c-pribadi jago-pocket-card pocket-orange" onclick="openPocketQuickDeposit('pribadi')" title="Klik untuk tambah tabungan pribadi">
+                            <div class="pocket-top">
+                                <div class="pocket-badge-wrap">
+                                    <div class="pocket-icon-badge bg-orange">🎯</div>
+                                    <div class="pocket-meta">
+                                        <span class="pocket-type-tag">Kantong Impian</span>
+                                        <h3>Tabungan Pribadi</h3>
+                                    </div>
+                                </div>
+                                <span id="trend-pribadi" class="stat-trend trend-flat">0%</span>
+                            </div>
+                            <div class="pocket-balance-wrap">
+                                <p id="total-pribadi" class="pocket-amount">Rp 0</p>
+                                <div class="pocket-progress-wrap">
+                                    <div class="pocket-bar-track">
+                                        <div id="pocket-bar-pribadi" class="pocket-bar-fill bar-orange" style="width: 0%;"></div>
+                                    </div>
+                                    <div class="pocket-footer-info">
+                                        <span class="pocket-sublabel">Target &amp; impian bebas</span>
+                                        <span id="pocket-share-pribadi" class="pocket-share">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. KANTONG EMAS TRING -->
+                        <div class="stat-box c-tring jago-pocket-card pocket-yellow" onclick="openPocketQuickDeposit('tring')" title="Klik untuk catat emas tring">
+                            <div class="pocket-top">
+                                <div class="pocket-badge-wrap">
+                                    <div class="pocket-icon-badge bg-yellow">🪙</div>
+                                    <div class="pocket-meta">
+                                        <span class="pocket-type-tag">Investasi Fisik</span>
+                                        <h3>Emas Tring</h3>
+                                    </div>
+                                </div>
+                                <span id="trend-tring" class="stat-trend trend-flat">0%</span>
+                            </div>
+                            <div class="pocket-balance-wrap">
+                                <p id="total-tring" class="pocket-amount">Rp 0</p>
+                                <div class="pocket-progress-wrap">
+                                    <div class="pocket-bar-track">
+                                        <div id="pocket-bar-tring" class="pocket-bar-fill bar-yellow" style="width: 0%;"></div>
+                                    </div>
+                                    <div class="pocket-footer-info">
+                                        <span id="tring-gram-info" class="pocket-subinfo">0.00 Gr</span>
+                                        <span id="pocket-share-tring" class="pocket-share">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 5. KANTONG EMAS JAGO -->
+                        <div class="stat-box c-jago jago-pocket-card pocket-amber" onclick="openPocketQuickDeposit('jago')" title="Klik untuk catat emas jago">
+                            <div class="pocket-top">
+                                <div class="pocket-badge-wrap">
+                                    <div class="pocket-icon-badge bg-amber">🦁</div>
+                                    <div class="pocket-meta">
+                                        <span class="pocket-type-tag">Investasi Digital</span>
+                                        <h3>Emas Jago</h3>
+                                    </div>
+                                </div>
+                                <span id="trend-jago" class="stat-trend trend-flat">0%</span>
+                            </div>
+                            <div class="pocket-balance-wrap">
+                                <p id="total-jago" class="pocket-amount">Rp 0</p>
+                                <div class="pocket-progress-wrap">
+                                    <div class="pocket-bar-track">
+                                        <div id="pocket-bar-jago" class="pocket-bar-fill bar-amber" style="width: 0%;"></div>
+                                    </div>
+                                    <div class="pocket-footer-info">
+                                        <span class="pocket-sublabel">Portofolio Emas Jago</span>
+                                        <span id="pocket-share-jago" class="pocket-share">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- STATS GRID (CLEAN 2x2 GRID ON MOBILE, KAS TUNAI SPANS 2) -->
-                <div class="stats-grid section-stats">
-                    <div class="stat-box c-balance">
-                        <div class="stat-header">
-                            <div class="stat-icon-title">
-                                <div class="stat-icon">💵</div>
-                                <h3>Kas Tunai</h3>
+                <!-- ANGGARAN KATEGORI (BANK JAGO PROGRESS BARS & WARNING STATES) -->
+                <div class="glass-panel section-budgets jago-budgets-section">
+                    <div class="jago-budget-header">
+                        <div class="jago-header-title">
+                            <div class="jago-title-row">
+                                <h2 class="panel-title" style="margin: 0;">📊 Anggaran Kategori Bulan Ini</h2>
                             </div>
-                            <span id="trend-cash" class="stat-trend trend-flat">0%</span>
+                            <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--text-gray);">Pantau batas belanja harian dengan indikator status otomatis</p>
                         </div>
-                        <p id="cash-balance">Rp 0</p>
+                        <button type="button" onclick="openCategoryBudgetsModal()" class="btn-jago-ghost" title="Atur batas nominal tiap kategori">
+                            <span>⚙️</span> Atur Batas
+                        </button>
                     </div>
-                    <div class="stat-box c-simpanan">
-                        <div class="stat-header">
-                            <div class="stat-icon-title">
-                                <div class="stat-icon">🏦</div>
-                                <h3>Simpanan</h3>
-                            </div>
-                            <span id="trend-simpanan" class="stat-trend trend-flat">0%</span>
-                        </div>
-                        <p id="total-simpanan">Rp 0</p>
-                    </div>
-                    <div class="stat-box c-pribadi">
-                        <div class="stat-header">
-                            <div class="stat-icon-title">
-                                <div class="stat-icon">👤</div>
-                                <h3>Pribadi</h3>
-                            </div>
-                            <span id="trend-pribadi" class="stat-trend trend-flat">0%</span>
-                        </div>
-                        <p id="total-pribadi">Rp 0</p>
-                    </div>
-                    <div class="stat-box c-tring">
-                        <div class="stat-header">
-                            <div class="stat-icon-title">
-                                <div class="stat-icon">🪙</div>
-                                <h3>Emas Tring</h3>
-                            </div>
-                            <span id="trend-tring" class="stat-trend trend-flat">0%</span>
-                        </div>
-                        <div>
-                            <p id="total-tring">Rp 0</p>
-                            <span id="tring-gram-info" style="font-size:11.5px; color:var(--text-gray); font-weight:600;">0 Gr</span>
-                        </div>
-                    </div>
-                    <div class="stat-box c-jago">
-                        <div class="stat-header">
-                            <div class="stat-icon-title">
-                                <div class="stat-icon">🦁</div>
-                                <h3>Emas Jago</h3>
-                            </div>
-                            <span id="trend-jago" class="stat-trend trend-flat">0%</span>
-                        </div>
-                        <p id="total-jago">Rp 0</p>
-                    </div>
-                </div>
-
-                <!-- ANGGARAN KATEGORI (INSPIRED BY MEMFINANCE) -->
-                <div class="glass-panel section-budgets">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-                        <h2 class="panel-title" style="margin: 0;">📊 Anggaran Kategori Bulan Ini</h2>
-                        <button type="button" onclick="openCategoryBudgetsModal()" style="background: var(--list-bg); border: 1px solid var(--border-color); color: #14b8a6; font-size: 11.5px; font-weight: 700; padding: 4px 12px; border-radius: 100px; cursor: pointer;">Atur Batas</button>
-                    </div>
-                    <div class="budget-categories-list" id="category-budgets-container"></div>
+                    <div class="budget-categories-list jago-categories-list" id="category-budgets-container"></div>
                 </div>
 
                 <!-- RIWAYAT TRANSAKSI, SEARCH & FILTER -->

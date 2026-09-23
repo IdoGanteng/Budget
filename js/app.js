@@ -19,6 +19,20 @@ function initInputListeners() {
         withdrawSourceInp.addEventListener('change', function() { handleTypeChange(); });
     }
 
+    const transferAmtInp = document.getElementById('transfer-amount');
+    if (transferAmtInp) {
+        transferAmtInp.addEventListener('input', function() {
+            const fromP = document.getElementById('transfer-from-pocket') ? document.getElementById('transfer-from-pocket').value : 'cash';
+            const toP = document.getElementById('transfer-to-pocket') ? document.getElementById('transfer-to-pocket').value : 'pribadi';
+            if (fromP !== 'tring' && toP !== 'tring') { 
+                let raw = this.value.replace(/[^0-9]/g, ''); 
+                this.value = raw ? new Intl.NumberFormat('id-ID').format(raw) : ''; 
+            } else { 
+                this.value = this.value.replace(/[^0-9.,]/g, '').replace(',', '.'); 
+            }
+        });
+    }
+
     // Enter key support untuk Form Login
     const loginPassInp = document.getElementById('password-input');
     const loginUserInp = document.getElementById('username-input');
@@ -200,6 +214,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         // Segera muat transaksi lokal agar UI langsung tampil seketika
         if (typeof loadFromLocal === 'function') {
             transactions = loadFromLocal(currentSessionKey) || [];
+            if (typeof initPrivacyState === 'function') initPrivacyState();
             if (typeof updateUI === 'function') updateUI();
         }
         
