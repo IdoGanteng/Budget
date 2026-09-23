@@ -45,10 +45,29 @@ function resolveActiveUser() {
 
 export const activeUser = writable(resolveActiveUser());
 
-// Session stores
-export const isLoggedIn = writable(sessionStorage.getItem('isLoggedIn') === 'true');
-export const authProvider = writable(sessionStorage.getItem('authProvider') || 'vault');
-export const currentSessionKey = writable(sessionStorage.getItem('appEncryptionKey') || null);
+// Session stores with reliable localStorage persistence across reloads
+function getInitialAuthState() {
+    const isLoggedLocal = typeof localStorage !== 'undefined' && localStorage.getItem('isLoggedIn') === 'true';
+    const isLoggedSession = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('isLoggedIn') === 'true';
+    const isLogged = isLoggedLocal || isLoggedSession;
+
+    const provider = (typeof localStorage !== 'undefined' && localStorage.getItem('authProvider')) ||
+                     (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('authProvider')) || 'vault';
+
+    const sessionKey = (typeof localStorage !== 'undefined' && localStorage.getItem('appEncryptionKey')) ||
+                       (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('appEncryptionKey')) || null;
+
+    return {
+        isLoggedIn: isLogged,
+        authProvider: provider,
+        currentSessionKey: sessionKey
+    };
+}
+
+const initialAuth = getInitialAuthState();
+export const isLoggedIn = writable(initialAuth.isLoggedIn);
+export const authProvider = writable(initialAuth.authProvider);
+export const currentSessionKey = writable(initialAuth.currentSessionKey);
 
 // Rate-limiting state
 let loginFailedAttempts = 0;
@@ -57,7 +76,9 @@ let loginLockUntil = 0;
 export function resetIdleTimer() {
     if (get(isLoggedIn)) {
         if (idleTimer) clearTimeout(idleTimer);
-        sessionStorage.setItem('lastActivityTime', Date.now().toString());
+        const nowStr = Date.now().toString();
+        if (typeof localStorage !== 'undefined') localStorage.setItem('lastActivityTime', nowStr);
+        if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('lastActivityTime', nowStr);
         idleTimer = setTimeout(() => {
             handleLogout();
         }, SESSION_DURATION);
@@ -136,11 +157,18 @@ export function handleVaultLogin(username, password) {
         loginFailedAttempts = 0;
         loginLockUntil = 0;
 
+        const nowStr = Date.now().toString();
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('authProvider', 'vault');
+        localStorage.setItem('appUsername', u);
+        localStorage.setItem('appEncryptionKey', p);
+        localStorage.setItem('lastActivityTime', nowStr);
+
         sessionStorage.setItem('isLoggedIn', 'true');
         sessionStorage.setItem('authProvider', 'vault');
         sessionStorage.setItem('appUsername', u);
         sessionStorage.setItem('appEncryptionKey', p);
-        sessionStorage.setItem('lastActivityTime', Date.now().toString());
+        sessionStorage.setItem('lastActivityTime', nowStr);
 
         isLoggedIn.set(true);
         authProvider.set('vault');
@@ -175,13 +203,22 @@ export function executeGoogleLoginSuccess(googleUser) {
     const picture = googleUser.picture || '';
     const sub = googleUser.sub || 'google_user_sub';
 
+    const nowStr = Date.now().toString();
+    localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('authProvider', 'google');
+    localStorage.setItem('appUsername', name);
+    localStorage.setItem('appUserEmail', email);
+    localStorage.setItem('appUserAvatar', picture);
+    localStorage.setItem('appEncryptionKey', sub);
+    localStorage.setItem('lastActivityTime', nowStr);
+
     sessionStorage.setItem('isLoggedIn', 'true');
     sessionStorage.setItem('authProvider', 'google');
     sessionStorage.setItem('appUsername', name);
     sessionStorage.setItem('appUserEmail', email);
     sessionStorage.setItem('appUserAvatar', picture);
     sessionStorage.setItem('appEncryptionKey', sub);
-    sessionStorage.setItem('lastActivityTime', Date.now().toString());
+    sessionStorage.setItem('lastActivityTime', nowStr);
 
     isLoggedIn.set(true);
     authProvider.set('google');
@@ -222,11 +259,18 @@ export function executeGoogleLoginSuccess(googleUser) {
 }
 
 export function handleLogout() {
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('authProvider');
+    localStorage.removeItem('appEncryptionKey');
+    localStorage.removeItem('appUsername');
+    localStorage.removeItem('appUserEmail');
+    localStorage.removeItem('appUserAvatar');
+    localStorage.removeItem('lastActivityTime');
     sessionStorage.clear();
     isLoggedIn.set(false);
     currentSessionKey.set(null);
     if (idleTimer) clearTimeout(idleTimer);
-    window.location.reload();
+    showToast('Anda telah keluar dari vault.', 'info', '🚪');
 }
 
 // Global user activity listener to reset idle timer

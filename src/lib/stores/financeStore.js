@@ -66,7 +66,9 @@ export function getUserSpreadsheetConfig() {
 // Local Storage Load
 export function loadFromLocal() {
     const key = getUserStorageKey();
-    const sk = get(currentSessionKey) || sessionStorage.getItem('appEncryptionKey');
+    const sk = get(currentSessionKey) ||
+               (typeof localStorage !== 'undefined' && localStorage.getItem('appEncryptionKey')) ||
+               (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('appEncryptionKey'));
     let stored = localStorage.getItem(key);
     if (!stored) {
         stored = localStorage.getItem('keuangan_secure_db');
@@ -98,7 +100,9 @@ export function loadFromLocal() {
 // Local Storage Save
 export function saveToLocal(txs) {
     const key = getUserStorageKey();
-    const sk = get(currentSessionKey) || sessionStorage.getItem('appEncryptionKey');
+    const sk = get(currentSessionKey) ||
+               (typeof localStorage !== 'undefined' && localStorage.getItem('appEncryptionKey')) ||
+               (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('appEncryptionKey'));
     if (sk) {
         try {
             const encrypted = CryptoJS.AES.encrypt(JSON.stringify(txs), sk).toString();

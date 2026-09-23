@@ -134,8 +134,8 @@
         >
             <div class="action-icon-wrap">💸</div>
             <div class="action-text-wrap">
-                <strong>+ Catat Pengeluaran</strong>
-                <small>Belanja, makan, tagihan</small>
+                <strong>+ Catat</strong>
+                <small>Pengeluaran kas</small>
             </div>
         </button>
 
@@ -148,7 +148,7 @@
             <div class="action-icon-wrap">💰</div>
             <div class="action-text-wrap">
                 <strong>+ Pemasukan</strong>
-                <small>Gaji, transfer, bisnis</small>
+                <small>Gaji & transfer</small>
             </div>
         </button>
 
@@ -160,8 +160,8 @@
         >
             <div class="action-icon-wrap">⇄</div>
             <div class="action-text-wrap">
-                <strong>Transfer / Kelola Kantong</strong>
-                <small>Pindah saldo kantong</small>
+                <strong>Kelola Kantong</strong>
+                <small>Pindah saldo</small>
             </div>
         </button>
     </div>

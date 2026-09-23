@@ -98,6 +98,12 @@
     -webkit-tap-highlight-color: transparent;
 }
 
+html {
+    overflow-x: hidden;
+    max-width: 100vw;
+    width: 100%;
+}
+
 body { 
     background-color: var(--bg-color); 
     color: var(--text-dark); 
@@ -107,6 +113,8 @@ body {
     min-height: 100vh; 
     min-height: 100dvh;
     overflow-x: hidden;
+    max-width: 100vw;
+    width: 100%;
     background-image: 
         radial-gradient(circle at 10% 15%, rgba(255, 122, 0, 0.08), transparent 45%),
         radial-gradient(circle at 90% 85%, rgba(253, 184, 19, 0.06), transparent 45%);
@@ -120,6 +128,8 @@ body {
 ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
 
 /* APP LAYOUT CONTAINER */
+#app-container,
+.app-main-content,
 .app-max-width {
     width: 100%;
     max-width: 960px;
