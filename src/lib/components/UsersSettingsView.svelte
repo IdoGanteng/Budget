@@ -107,7 +107,7 @@
     }
 </script>
 
-<div class="dashboard-tab-view active">
+<div class="dashboard-tab-view active user-settings-tab" style="padding-bottom: 120px;">
     <div class="mobile-section-header">
         <h2>👥 Profil Pengguna &amp; Database</h2>
         <p>Kelola profil akun, koneksi database Google Spreadsheet pribadi, dan preferensi.</p>
@@ -115,53 +115,91 @@
 
     <!-- ACTIVE PROFILE HERO CARD -->
     <div class="glass-panel mobile-profile-card">
-        <div class="mobile-profile-top">
-            <div class="mobile-profile-avatar" style="background: {u.color || 'var(--primary)'};">
-                {#if u.picture}
-                    <img src={u.picture} alt={u.name} class="nav-avatar-img" style="width:100%; height:100%; border-radius:50%;">
-                {:else}
-                    {u.avatar || '👤'}
-                {/if}
+        <!-- Modern Cover Banner Header -->
+        <div class="mobile-profile-cover" style="background: linear-gradient(135deg, {u.color ? u.color + '44' : 'rgba(20, 184, 166, 0.35)'} 0%, rgba(99, 102, 241, 0.25) 50%, rgba(244, 114, 182, 0.18) 100%);"></div>
+
+        <div class="mobile-profile-body">
+            <div class="mobile-profile-top">
+                <div class="mobile-profile-avatar" style="background: {u.color || 'var(--primary)'};">
+                    {#if u.picture}
+                        <img src={u.picture} alt={u.name} class="profile-avatar-img">
+                    {:else if u.avatar && u.avatar.includes('<img')}
+                        {@html u.avatar}
+                    {:else}
+                        <span class="avatar-char">{u.avatar || u.name?.charAt(0) || '👤'}</span>
+                    {/if}
+                </div>
+                <div class="mobile-profile-info">
+                    <div class="mobile-profile-name-row">
+                        <h3>{u.name}</h3>
+                        <span class="profile-role-badge">{u.role || 'Member'}</span>
+                    </div>
+                    <div class="mobile-profile-email">{u.email || 'user@personal.os'}</div>
+                </div>
             </div>
-            <div class="mobile-profile-info">
-                <h3>{u.name}</h3>
-                <span class="user-role-badge">{u.role || 'Member'}</span>
-                <div class="mobile-profile-email">{u.email || 'user@personal.os'}</div>
+
+            <div class="mobile-profile-badges">
+                <span class="profile-status-badge">
+                    <span class="badge-icon">🛡️</span>
+                    <span>Vault Terenkripsi AES-256</span>
+                </span>
+                <span class="profile-status-badge google-status-badge">
+                    <svg viewBox="0 0 24 24" style="width:13px;height:13px;flex-shrink:0;"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+                    <span>Akun Terhubung</span>
+                </span>
             </div>
-        </div>
-        <div class="mobile-profile-badges">
-            <span class="profile-status-badge">🛡️ Vault Terenkripsi AES-256</span>
-            <span class="profile-status-badge google-status-badge">
-                <svg viewBox="0 0 24 24" style="width:13px;height:13px;"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
-                Akun Terhubung
-            </span>
         </div>
     </div>
 
     <!-- MULTI-USER SWITCHER -->
     <div class="glass-panel">
-        <div class="panel-title">
-            <span>Ganti Profil Pengguna</span>
+        <div class="panel-title user-switch-panel-title">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span>👥</span>
+                <span>Ganti Profil Pengguna</span>
+            </div>
             <button
                 type="button"
                 on:click={() => isManageUsersModalOpen.set(true)}
-                style="background:none; border:none; color:#14b8a6; font-size:12px; font-weight:700; cursor:pointer;"
+                class="manage-users-pill-btn"
+                title="Kelola Profil Pengguna"
             >
-                + Kelola Profil
+                <span style="font-size: 13px; line-height: 1;">＋</span>
+                <span>Kelola Profil</span>
             </button>
         </div>
         <div class="user-chips-row">
             {#each list as item}
                 <button
                     type="button"
-                    class="user-chip-btn"
+                    class="user-profile-toggle-card user-chip-btn"
                     class:active={item.id === u.id}
                     on:click={() => setActiveUser(item.id)}
+                    aria-pressed={item.id === u.id}
+                    title="Pilih profil {item.name}"
                 >
-                    <span class="chip-avatar" style="background: {item.color || 'var(--primary)'};">
-                        {item.avatar || '👤'}
-                    </span>
-                    <span class="chip-name">{item.name}</span>
+                    <div class="user-toggle-left">
+                        <span class="user-toggle-avatar" style="background: {item.color || 'var(--primary)'};">
+                            {#if item.picture}
+                                <img src={item.picture} alt={item.name} class="toggle-avatar-img">
+                            {:else if item.avatar && item.avatar.includes('<img')}
+                                {@html item.avatar}
+                            {:else}
+                                {item.avatar || item.name?.charAt(0) || '👤'}
+                            {/if}
+                        </span>
+                        <div class="user-toggle-info">
+                            <span class="user-toggle-name">{item.name}</span>
+                            <span class="user-toggle-role">{item.role || 'Member'}</span>
+                        </div>
+                    </div>
+                    {#if item.id === u.id}
+                        <div class="user-toggle-check" title="Profil Aktif">
+                            <svg viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                    {/if}
                 </button>
             {/each}
         </div>
