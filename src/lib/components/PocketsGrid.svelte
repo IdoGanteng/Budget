@@ -50,9 +50,12 @@
                     <div class="pocket-bar-track">
                         <div class="pocket-bar-fill bar-teal" style="width: {shares.cashShare}%;"></div>
                     </div>
-                    <div class="pocket-footer-info">
-                        <span class="pocket-sublabel">Kas harian &amp; likuid</span>
-                        <span class="pocket-share">{shares.cashShare}% alokasi</span>
+                    <div class="pocket-footer-stacked">
+                        <div class="pocket-share-row">
+                            <span class="pocket-share-label">Alokasi</span>
+                            <span class="pocket-share-val">{shares.cashShare}%</span>
+                        </div>
+                        <p class="pocket-subdesc">Kas harian &amp; likuid</p>
                     </div>
                 </div>
             </div>
@@ -81,9 +84,12 @@
                     <div class="pocket-bar-track">
                         <div class="pocket-bar-fill bar-purple" style="width: {shares.simShare}%;"></div>
                     </div>
-                    <div class="pocket-footer-info">
-                        <span class="pocket-sublabel">Tabungan cadangan pokok</span>
-                        <span class="pocket-share">{shares.simShare}% alokasi</span>
+                    <div class="pocket-footer-stacked">
+                        <div class="pocket-share-row">
+                            <span class="pocket-share-label">Alokasi</span>
+                            <span class="pocket-share-val">{shares.simShare}%</span>
+                        </div>
+                        <p class="pocket-subdesc">Tabungan cadangan pokok</p>
                     </div>
                 </div>
             </div>
@@ -112,9 +118,12 @@
                     <div class="pocket-bar-track">
                         <div class="pocket-bar-fill bar-orange" style="width: {shares.priShare}%;"></div>
                     </div>
-                    <div class="pocket-footer-info">
-                        <span class="pocket-sublabel">Target &amp; impian bebas</span>
-                        <span class="pocket-share">{shares.priShare}% alokasi</span>
+                    <div class="pocket-footer-stacked">
+                        <div class="pocket-share-row">
+                            <span class="pocket-share-label">Alokasi</span>
+                            <span class="pocket-share-val">{shares.priShare}%</span>
+                        </div>
+                        <p class="pocket-subdesc">Target &amp; impian bebas</p>
                     </div>
                 </div>
             </div>
@@ -143,9 +152,12 @@
                     <div class="pocket-bar-track">
                         <div class="pocket-bar-fill bar-yellow" style="width: {shares.trgShare}%;"></div>
                     </div>
-                    <div class="pocket-footer-info">
-                        <span class="pocket-subinfo font-mono">{totals.totalTrgAll.toFixed(2)} Gr</span>
-                        <span class="pocket-share">{shares.trgShare}% alokasi</span>
+                    <div class="pocket-footer-stacked">
+                        <div class="pocket-share-row">
+                            <span class="pocket-share-label">Alokasi ({totals.totalTrgAll.toFixed(2)} Gr)</span>
+                            <span class="pocket-share-val">{shares.trgShare}%</span>
+                        </div>
+                        <p class="pocket-subdesc">Portofolio Emas Fisik</p>
                     </div>
                 </div>
             </div>
@@ -174,9 +186,12 @@
                     <div class="pocket-bar-track">
                         <div class="pocket-bar-fill bar-amber" style="width: {shares.jagShare}%;"></div>
                     </div>
-                    <div class="pocket-footer-info">
-                        <span class="pocket-sublabel">Portofolio Emas Jago</span>
-                        <span class="pocket-share">{shares.jagShare}% alokasi</span>
+                    <div class="pocket-footer-stacked">
+                        <div class="pocket-share-row">
+                            <span class="pocket-share-label">Alokasi</span>
+                            <span class="pocket-share-val">{shares.jagShare}%</span>
+                        </div>
+                        <p class="pocket-subdesc">Portofolio Emas Jago</p>
                     </div>
                 </div>
             </div>

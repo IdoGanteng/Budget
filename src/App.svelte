@@ -7,7 +7,6 @@
     import Navbar from './lib/components/Navbar.svelte';
     import HeroBalanceCard from './lib/components/HeroBalanceCard.svelte';
     import PocketsGrid from './lib/components/PocketsGrid.svelte';
-    import CategoryBudgets from './lib/components/CategoryBudgets.svelte';
     import TransactionHistory from './lib/components/TransactionHistory.svelte';
     import AnalyticsView from './lib/components/AnalyticsView.svelte';
     import UsersSettingsView from './lib/components/UsersSettingsView.svelte';
@@ -17,7 +16,6 @@
     import ToastContainer from './lib/modals/ToastContainer.svelte';
     import TransactionModal from './lib/modals/TransactionModal.svelte';
     import PocketTransferModal from './lib/modals/PocketTransferModal.svelte';
-    import CategoryBudgetsModal from './lib/modals/CategoryBudgetsModal.svelte';
     import GoalsModal from './lib/modals/GoalsModal.svelte';
     import EditTransactionModal from './lib/modals/EditTransactionModal.svelte';
     import GooglePickerModal from './lib/modals/GooglePickerModal.svelte';
@@ -37,7 +35,6 @@
 <!-- MODALS -->
 <TransactionModal />
 <PocketTransferModal />
-<CategoryBudgetsModal />
 <GoalsModal />
 <EditTransactionModal />
 <GooglePickerModal />
@@ -53,7 +50,6 @@
             <div class="dashboard-tab-view active">
                 <HeroBalanceCard />
                 <PocketsGrid />
-                <CategoryBudgets />
                 <TransactionHistory />
             </div>
         {:else if $activeTab === 'analytics'}

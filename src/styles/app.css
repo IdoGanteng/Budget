@@ -857,6 +857,45 @@ input:checked + .slider:before {
 .pocket-share { color: var(--text-dark); font-weight: 700; font-size: 11px; }
 .pocket-subinfo { font-size: 11.5px; color: var(--text-gray); font-weight: 700; }
 
+.pocket-footer-stacked {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+[data-theme="light"] .pocket-footer-stacked {
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+.pocket-share-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+}
+.pocket-share-label {
+    font-size: 11px;
+    color: var(--text-gray);
+    font-weight: 500;
+}
+.pocket-share-val {
+    font-size: 11px;
+    font-weight: 800;
+    color: #f59e0b;
+}
+.pocket-subdesc {
+    font-size: 10.5px;
+    color: var(--text-gray);
+    line-height: 1.35;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-weight: 500;
+}
+
 .stat-trend { font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 100px; white-space: nowrap; }
 .trend-up { background: var(--income-light); color: var(--income); }
 .trend-down { background: var(--expense-light); color: var(--expense); }
@@ -1987,13 +2026,58 @@ select option { background: var(--card-bg-solid); color: var(--text-dark); }
         width: 100% !important;
         box-sizing: border-box !important;
     }
+    .stat-box, .jago-pocket-card {
+        padding: 12px !important;
+        border-radius: 16px !important;
+    }
     .stat-box.c-balance, .jago-pocket-card.pocket-teal {
         grid-column: span 2 !important;
-        padding: 16px 16px !important;
+        padding: 14px 14px !important;
         background: linear-gradient(135deg, rgba(0, 196, 159, 0.12), var(--card-bg)) !important;
         border-color: rgba(0, 196, 159, 0.35) !important;
     }
-    .stat-box.c-balance p, .jago-pocket-card.pocket-teal .pocket-amount { font-size: 22px !important; }
+    .pocket-top {
+        margin-bottom: 8px !important;
+    }
+    .pocket-icon-badge {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 16px !important;
+        border-radius: 9px !important;
+    }
+    .jago-pocket-card h3, .stat-box h3 {
+        font-size: 12.5px !important;
+    }
+    .pocket-amount, .stat-box p {
+        font-size: 16px !important;
+        font-weight: 800 !important;
+        letter-spacing: -0.3px !important;
+        margin: 0 0 4px 0 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    .stat-box.c-balance p, .jago-pocket-card.pocket-teal .pocket-amount {
+        font-size: 20px !important;
+    }
+    .pocket-footer-stacked {
+        margin-top: 5px !important;
+        padding-top: 5px !important;
+        gap: 2px !important;
+    }
+    .pocket-share-row {
+        font-size: 10.5px !important;
+    }
+    .pocket-share-label {
+        font-size: 10.5px !important;
+    }
+    .pocket-share-val {
+        font-size: 10.5px !important;
+    }
+    .pocket-subdesc {
+        font-size: 10px !important;
+        line-height: 1.3 !important;
+    }
 
     /* MOBILE TRANSACTION MODAL & BOTTOM SHEET */
     .modal-overlay.active {
