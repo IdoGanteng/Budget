@@ -194,7 +194,14 @@
             </div>
             <div class="ribbon-legend">
                 {#each pockets as p}
-                    <div class="legend-item" on:click={() => openDetail(p)} role="button" tabindex="0">
+                    <div
+                        class="legend-item"
+                        on:click={() => openDetail(p)}
+                        on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetail(p); } }}
+                        role="button"
+                        tabindex="0"
+                        title="Lihat analisa alokasi {p.name}"
+                    >
                         <span class="legend-dot" style="background: {p.color};"></span>
                         <span class="legend-name">{p.name}</span>
                         <span class="legend-val font-mono">{p.share}%</span>
@@ -203,41 +210,46 @@
             </div>
         </div>
 
-        <!-- 5 POCKET CARDS GRID -->
-        <div class="stats-grid jago-pockets-grid section-stats">
+        <!-- 5 POCKET CARDS LIST/GRID -->
+        <div class="jago-pockets-grid">
             {#each pockets as p}
-                <button
-                    type="button"
-                    class="stat-box jago-pocket-card {p.pocketClass}"
+                <div
+                    class="jago-pocket-card {p.pocketClass}"
                     on:click={() => openDetail(p)}
-                    title="Klik untuk analisa detail {p.name}"
+                    on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetail(p); } }}
+                    role="button"
+                    tabindex="0"
+                    title="Klik untuk detail & analisa {p.name}"
                 >
-                    <div class="pocket-top">
-                        <div class="pocket-badge-wrap">
+                    <div class="pocket-card-row">
+                        <!-- LEFT: Icon & Identity -->
+                        <div class="pocket-id-box">
                             <div class="pocket-icon-badge {p.bgClass}">{p.icon}</div>
-                            <div class="pocket-meta">
-                                <span class="pocket-type-tag">{p.categoryTag}</span>
-                                <h3>{p.name}</h3>
-                            </div>
-                        </div>
-                        <span class="pocket-inspect-chip">Analisa ↗</span>
-                    </div>
-                    <div class="pocket-balance-wrap">
-                        <p class="pocket-amount">{formatRp(p.amount)}</p>
-                        <div class="pocket-progress-wrap">
-                            <div class="pocket-bar-track">
-                                <div class="pocket-bar-fill {p.barClass}" style="width: {p.share}%;"></div>
-                            </div>
-                            <div class="pocket-footer-stacked">
-                                <div class="pocket-share-row">
-                                    <span class="pocket-share-label">Alokasi Portofolio</span>
-                                    <span class="pocket-share-val font-mono">{p.share}%</span>
+                            <div class="pocket-info-col">
+                                <div class="pocket-badges-line">
+                                    <span class="pocket-type-tag">{p.categoryTag}</span>
+                                    <span class="pocket-health-badge {p.healthType}">{p.healthStatus}</span>
                                 </div>
-                                <p class="pocket-subdesc">{p.subdesc}</p>
+                                <h3 class="pocket-title">{p.name}</h3>
+                                <p class="pocket-sub-note">{p.subdesc}</p>
+                            </div>
+                        </div>
+
+                        <!-- RIGHT: Nominal Balance & Share Badge -->
+                        <div class="pocket-amount-box">
+                            <span class="pocket-nominal font-mono">{formatRp(p.amount)}</span>
+                            <div class="pocket-alloc-pill">
+                                <span class="pocket-alloc-pct font-mono">{p.share}%</span>
+                                <span class="pocket-alloc-lbl">alokasi</span>
                             </div>
                         </div>
                     </div>
-                </button>
+
+                    <!-- BOTTOM: Slim Progress Track -->
+                    <div class="pocket-bar-track">
+                        <div class="pocket-bar-fill {p.barClass}" style="width: {p.share}%;"></div>
+                    </div>
+                </div>
             {/each}
         </div>
 
