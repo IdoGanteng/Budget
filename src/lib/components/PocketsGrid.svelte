@@ -300,27 +300,40 @@
                 </div>
                 <div class="ranking-list">
                     {#each sortedPockets as item, index}
-                        <div class="ranking-item" on:click={() => openDetail(item)} role="button" tabindex="0">
-                            <div class="ranking-left">
-                                <span class="rank-number">#{index + 1}</span>
-                                <div class="rank-avatar" style="background: {item.color}22; color: {item.color}; border: 1px solid {item.color}44;">
-                                    {item.icon}
-                                </div>
-                                <div class="rank-info">
-                                    <div class="rank-name-row">
+                        <div
+                            class="ranking-item"
+                            on:click={() => openDetail(item)}
+                            on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetail(item); } }}
+                            role="button"
+                            tabindex="0"
+                            title="Klik untuk detail &amp; analisa {item.name}"
+                        >
+                            <!-- TOP ROW: IDENTITAS KIRI & NOMINAL KANAN -->
+                            <div class="ranking-top-row">
+                                <div class="ranking-identity">
+                                    <span class="rank-number">#{index + 1}</span>
+                                    <div class="rank-avatar" style="background: {item.color}22; color: {item.color}; border: 1px solid {item.color}44;">
+                                        {item.icon}
+                                    </div>
+                                    <div class="rank-name-col">
                                         <strong class="rank-name">{item.name}</strong>
                                         <span class="rank-role-pill">{item.role}</span>
                                     </div>
-                                    <div class="rank-track-wrap">
-                                        <div class="rank-track">
-                                            <div class="rank-fill" style="width: {item.share}%; background: {item.color};"></div>
-                                        </div>
+                                </div>
+                                <div class="ranking-balance-col">
+                                    <span class="rank-amount font-mono">{formatRp(item.amount)}</span>
+                                    <div class="rank-share-pill" style="border-color: {item.color}44; background: {item.color}15; color: {item.color};">
+                                        <span class="rank-share-pct font-mono">{item.share}%</span>
+                                        <span class="rank-share-lbl">porsi</span>
                                     </div>
                                 </div>
                             </div>
-                            <div class="ranking-right">
-                                <span class="rank-amount font-mono">{formatRp(item.amount)}</span>
-                                <span class="rank-share font-mono" style="color: {item.color};">{item.share}%</span>
+
+                            <!-- BOTTOM ROW: FULL WIDTH PROGRESS TRACK -->
+                            <div class="rank-track-wrap">
+                                <div class="rank-track">
+                                    <div class="rank-fill" style="width: {item.share}%; background: {item.color};"></div>
+                                </div>
                             </div>
                         </div>
                     {/each}

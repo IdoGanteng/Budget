@@ -1184,106 +1184,137 @@ input:checked + .slider:before {
 .ranking-list {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 9px;
 }
 .ranking-item {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 11px 14px;
+    flex-direction: column;
+    gap: 9px;
+    padding: 12px 14px;
     background: var(--list-bg);
     border: 1px solid var(--border-color);
-    border-radius: 15px;
+    border-radius: 16px;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     -webkit-tap-highlight-color: transparent;
 }
 .ranking-item:hover {
-    transform: translateX(3px);
+    transform: translateY(-1px);
     border-color: rgba(20, 184, 166, 0.4);
     background: var(--card-hover);
 }
-.ranking-left {
+.ranking-item:active {
+    transform: scale(0.99);
+}
+.ranking-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+}
+.ranking-identity {
     display: flex;
     align-items: center;
-    gap: 12px;
-    flex: 1;
+    gap: 10px;
     min-width: 0;
+    flex: 1;
 }
 .rank-number {
-    font-size: 12.5px;
+    font-size: 12px;
     font-weight: 800;
     color: var(--text-gray);
-    min-width: 24px;
+    min-width: 20px;
+    flex-shrink: 0;
 }
 .rank-avatar {
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
     border-radius: 11px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 17px;
+    font-size: 18px;
     flex-shrink: 0;
 }
-.rank-info {
-    flex: 1;
-    min-width: 0;
-}
-.rank-name-row {
+.rank-name-col {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 5px;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
 }
 .rank-name {
     font-size: 13.5px;
-    font-weight: 700;
+    font-weight: 800;
     color: var(--text-dark);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    line-height: 1.25;
 }
 .rank-role-pill {
-    font-size: 10px;
-    font-weight: 700;
-    padding: 2px 7px;
-    border-radius: 6px;
-    background: rgba(255, 255, 255, 0.08);
+    font-size: 10.5px;
+    font-weight: 600;
     color: var(--text-gray);
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
 }
-[data-theme="light"] .rank-role-pill {
-    background: rgba(0, 0, 0, 0.06);
+.ranking-balance-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+    flex-shrink: 0;
+    gap: 2px;
+}
+.rank-amount {
+    font-size: 14.5px;
+    font-weight: 800;
+    color: var(--text-dark);
+    white-space: nowrap;
+    letter-spacing: -0.3px;
+    line-height: 1.25;
+}
+.rank-share-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 1.5px 6px;
+    border-radius: 100px;
+    border: 1px solid transparent;
+    line-height: 1;
+}
+.rank-share-pct {
+    font-size: 10px;
+    font-weight: 800;
+}
+.rank-share-lbl {
+    font-size: 9px;
+    font-weight: 600;
+    opacity: 0.8;
 }
 .rank-track-wrap {
     width: 100%;
-    max-width: 180px;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.06);
+    height: 4.5px;
+    background: rgba(255, 255, 255, 0.07);
     border-radius: 100px;
     overflow: hidden;
 }
 [data-theme="light"] .rank-track-wrap {
     background: rgba(0, 0, 0, 0.08);
 }
-.rank-track { width: 100%; height: 100%; }
-.rank-fill { height: 100%; border-radius: 100px; }
-.ranking-right {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    flex-shrink: 0;
-    margin-left: 12px;
+.rank-track {
+    width: 100%;
+    height: 100%;
 }
-.rank-amount {
-    font-size: 13.5px;
-    font-weight: 800;
-    color: var(--text-dark);
-}
-.rank-share {
-    font-size: 11px;
-    font-weight: 800;
+.rank-fill {
+    height: 100%;
+    border-radius: 100px;
+    transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* SMART ADVICE BOX */
@@ -2338,6 +2369,15 @@ select option { background: var(--card-bg-solid); color: var(--text-dark); }
     height: 13px;
 }
 
+/* POCKETS STANDALONE TAB VIEW */
+.pockets-tab-view {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    animation: fadeIn 0.25s ease-out;
+    width: 100%;
+}
+
 /* MOBILE RESPONSIVE MEDIA QUERIES */
 @media (min-width: 769px) {
     .mobile-bottom-bar { display: none !important; }
@@ -2358,8 +2398,9 @@ select option { background: var(--card-bg-solid); color: var(--text-dark); }
 
     .app-main-content,
     .dashboard-tab-view,
+    .pockets-tab-view,
     .user-settings-tab {
-        padding-bottom: 24px !important;
+        padding-bottom: 28px !important;
     }
 
     .desktop-nav-tabs,
@@ -2661,6 +2702,81 @@ select option { background: var(--card-bg-solid); color: var(--text-dark); }
         font-size: 10px !important;
         justify-content: space-between !important;
         border-radius: 7px !important;
+    }
+
+    /* MOBILE POCKET ANALYTICS & RANKING MATRIX POLISH */
+    .analytics-metrics-grid {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 9px !important;
+    }
+    .metric-scorecard {
+        padding: 12px 14px !important;
+        border-radius: 16px !important;
+    }
+    .metric-top {
+        margin-bottom: 4px !important;
+    }
+    .metric-num {
+        font-size: 22px !important;
+        line-height: 1.15 !important;
+    }
+    .metric-sub {
+        font-size: 13px !important;
+        margin: 2px 0 4px 0 !important;
+    }
+    .metric-desc {
+        font-size: 11px !important;
+        line-height: 1.35 !important;
+    }
+    .pocket-ranking-box {
+        padding: 14px 13px !important;
+        border-radius: 18px !important;
+    }
+    .ranking-header {
+        margin-bottom: 11px !important;
+    }
+    .ranking-header h3 {
+        font-size: 14px !important;
+    }
+    .ranking-caption {
+        font-size: 11px !important;
+    }
+    .ranking-item {
+        padding: 11px 12px !important;
+        border-radius: 14px !important;
+        gap: 8px !important;
+    }
+    .rank-number {
+        font-size: 11.5px !important;
+        min-width: 18px !important;
+    }
+    .rank-avatar {
+        width: 34px !important;
+        height: 34px !important;
+        font-size: 16px !important;
+        border-radius: 10px !important;
+    }
+    .rank-name {
+        font-size: 13px !important;
+    }
+    .rank-role-pill {
+        font-size: 10px !important;
+    }
+    .rank-amount {
+        font-size: 14px !important;
+    }
+    .pocket-smart-advice {
+        padding: 12px 14px !important;
+        border-radius: 16px !important;
+        gap: 10px !important;
+    }
+    .advice-icon {
+        font-size: 20px !important;
+    }
+    .advice-content {
+        font-size: 11.5px !important;
+        line-height: 1.45 !important;
     }
 
     /* MOBILE TRANSACTION MODAL & BOTTOM SHEET */

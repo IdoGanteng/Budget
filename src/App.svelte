@@ -49,8 +49,11 @@
         {#if $activeTab === 'home'}
             <div class="dashboard-tab-view active">
                 <HeroBalanceCard />
-                <PocketsGrid />
                 <TransactionHistory />
+            </div>
+        {:else if $activeTab === 'pockets'}
+            <div class="pockets-tab-view active">
+                <PocketsGrid />
             </div>
         {:else if $activeTab === 'analytics'}
             <AnalyticsView />

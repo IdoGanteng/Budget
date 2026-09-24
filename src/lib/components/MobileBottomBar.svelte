@@ -5,18 +5,6 @@
         activeTab.set(tab);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-
-    function handleKantongClick() {
-        if ($activeTab !== 'home') {
-            activeTab.set('home');
-        }
-        setTimeout(() => {
-            const el = document.getElementById('kantong-section') || document.getElementById('section-history');
-            if (el) {
-                el.scrollIntoView({ behavior: 'smooth' });
-            }
-        }, 60);
-    }
 </script>
 
 <nav class="mobile-bottom-bar" aria-label="Navigasi Bawah Mobile">
@@ -71,12 +59,13 @@
         <span class="mobile-fab-text">Catat</span>
     </div>
 
-    <!-- 4. KANTONG / RIWAYAT -->
+    <!-- 4. KANTONG -->
     <button
         type="button"
         class="mobile-tab-btn"
-        on:click={handleKantongClick}
-        title="Kantong & Riwayat"
+        class:active={$activeTab === 'pockets'}
+        on:click={() => handleTabClick('pockets')}
+        title="Kantong Portofolio"
     >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"></path>

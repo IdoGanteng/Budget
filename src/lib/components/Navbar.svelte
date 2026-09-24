@@ -36,6 +36,14 @@
             <button
                 type="button"
                 class="desktop-tab-btn"
+                class:active={$activeTab === 'pockets'}
+                on:click={() => activeTab.set('pockets')}
+            >
+                <span>👛</span> Kantong
+            </button>
+            <button
+                type="button"
+                class="desktop-tab-btn"
                 class:active={$activeTab === 'users'}
                 on:click={() => activeTab.set('users')}
             >
