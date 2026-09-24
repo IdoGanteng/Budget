@@ -380,6 +380,7 @@ export const filteredData = derived(
     [transactions, searchQuery, selectedMonth, selectedUserFilter, activeUser, goldPricePerGram],
     ([$txs, $search, $month, $userFilter, $activeUser, $goldPrice]) => {
         let totalIncAll = 0, totalExpAll = 0, totalSimAll = 0, totalPriAll = 0, totalTrgAll = 0, totalJagAll = 0;
+        let cashTransfersOut = 0, cashTransfersIn = 0;
         let filteredInc = 0, filteredExp = 0;
         const userExpensesMap = {};
         const userCountsMap = {};
@@ -412,24 +413,64 @@ export const filteredData = derived(
             }
 
             // Global Totals (entire vault)
-            if (trx.type === 'income') totalIncAll += amt;
-            else if (trx.type === 'expense') totalExpAll += amt;
-            else if (trx.type === 'simpanan') totalSimAll += amt;
-            else if (trx.type === 'pribadi') totalPriAll += amt;
-            else if (trx.type === 'tring' || trx.type === 'inv_tring') totalTrgAll += amt;
-            else if (trx.type === 'jago' || trx.type === 'inv_jago') { totalJagAll += amt; totalExpAll += amt; }
-            else if (trx.type === 'withdraw') {
+            if (trx.type === 'income') {
+                totalIncAll += amt;
+            } else if (trx.type === 'expense') {
+                totalExpAll += amt;
+            } else if (trx.type === 'simpanan') {
+                totalSimAll += amt;
+                if (trx.source === 'cash') cashTransfersOut += amt;
+            } else if (trx.type === 'pribadi') {
+                totalPriAll += amt;
+                if (trx.source === 'cash') cashTransfersOut += amt;
+            } else if (trx.type === 'tring' || trx.type === 'inv_tring') {
+                totalTrgAll += amt;
+                if (trx.source === 'cash') cashTransfersOut += (amt * ($goldPrice || 1250000));
+            } else if (trx.type === 'jago' || trx.type === 'inv_jago') {
+                totalJagAll += amt;
+                totalExpAll += amt;
+            } else if (trx.type === 'withdraw') {
                 const src = trx.source || 'pribadi';
                 if (src === 'simpanan') totalSimAll -= amt;
                 else if (src === 'pribadi') totalPriAll -= amt;
                 else if (src === 'tring') totalTrgAll -= amt;
                 else if (src === 'jago') totalJagAll -= amt;
                 totalIncAll += amt;
+            } else if (trx.type === 'transfer') {
+                const from = trx.source || 'cash';
+                const to = trx.category || trx.target || 'pribadi';
+                const goldP = $goldPrice || 1250000;
+
+                // 1. Deduct from source
+                if (from === 'cash') {
+                    cashTransfersOut += (to === 'tring' ? amt * goldP : amt);
+                } else if (from === 'simpanan') {
+                    totalSimAll -= amt;
+                } else if (from === 'pribadi') {
+                    totalPriAll -= amt;
+                } else if (from === 'jago') {
+                    totalJagAll -= amt;
+                } else if (from === 'tring') {
+                    totalTrgAll -= amt;
+                }
+
+                // 2. Add to destination
+                if (to === 'cash') {
+                    cashTransfersIn += (from === 'tring' ? amt * goldP : amt);
+                } else if (to === 'simpanan') {
+                    totalSimAll += amt;
+                } else if (to === 'pribadi') {
+                    totalPriAll += amt;
+                } else if (to === 'jago') {
+                    totalJagAll += amt;
+                } else if (to === 'tring') {
+                    totalTrgAll += amt;
+                }
             }
 
             // Filtered Totals
             if (isMonthMatch && isUserMatch) {
-                if (trx.type === 'income' || trx.type === 'withdraw') filteredInc += amt;
+                if (trx.type === 'income') filteredInc += amt;
                 if (trx.type === 'expense' || trx.type === 'jago' || trx.type === 'inv_jago') {
                     filteredExp += amt;
                     const cat = (trx.category || '').toLowerCase();
@@ -465,7 +506,7 @@ export const filteredData = derived(
         });
 
         const totalTrgRp = totalTrgAll * $goldPrice;
-        const cash = totalIncAll - totalExpAll;
+        const cash = (totalIncAll - totalExpAll - cashTransfersOut + cashTransfersIn);
         const totalWealth = cash + totalSimAll + totalPriAll + totalTrgRp + totalJagAll;
         const totalGold = totalTrgRp + totalJagAll;
 
@@ -587,68 +628,29 @@ export async function transferPockets(fromPocket, toPocket, amount, customDesc) 
     const dStr = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
     const active = get(activeUser);
 
-    const newTransactions = [];
-    if (fromPocket === 'cash') {
-        newTransactions.push({
-            id: Math.floor(100000 + Math.random() * 900000).toString(),
-            date: dStr,
-            desc: customDesc || `Pindah ke ${pocketNames[toPocket]}`,
-            amount,
-            type: toPocket,
-            source: 'cash',
-            category: 'investasi',
-            userId: active.id,
-            userName: active.name
-        });
-    } else if (toPocket === 'cash') {
-        newTransactions.push({
-            id: Math.floor(100000 + Math.random() * 900000).toString(),
-            date: dStr,
-            desc: customDesc || `Ambil dari ${pocketNames[fromPocket]}`,
-            amount,
-            type: 'withdraw',
-            source: fromPocket,
-            category: 'investasi',
-            userId: active.id,
-            userName: active.name
-        });
-    } else {
-        newTransactions.push(
-            {
-                id: Math.floor(100000 + Math.random() * 900000).toString(),
-                date: dStr,
-                desc: customDesc ? `${customDesc} (Ambil dari ${pocketNames[fromPocket]})` : `Pindah dari ${pocketNames[fromPocket]}`,
-                amount,
-                type: 'withdraw',
-                source: fromPocket,
-                category: 'investasi',
-                userId: active.id,
-                userName: active.name
-            },
-            {
-                id: Math.floor(100000 + Math.random() * 900000).toString(),
-                date: dStr,
-                desc: customDesc ? `${customDesc} (Setor ke ${pocketNames[toPocket]})` : `Alokasi ke ${pocketNames[toPocket]}`,
-                amount,
-                type: toPocket,
-                source: 'cash',
-                category: 'investasi',
-                userId: active.id,
-                userName: active.name
-            }
-        );
-    }
+    const isGram = (fromPocket === 'tring' || toPocket === 'tring');
+    const displayAmt = isGram ? `${amount} Gr` : formatRp(amount);
+
+    const newTrx = {
+        id: Math.floor(100000 + Math.random() * 900000).toString(),
+        date: dStr,
+        desc: customDesc || `Pindah: ${pocketNames[fromPocket]} ➔ ${pocketNames[toPocket]}`,
+        amount: Number(amount),
+        type: 'transfer',
+        source: fromPocket,
+        category: toPocket,
+        userId: active ? active.id : 'user_rebel',
+        userName: active ? active.name : 'Rebel'
+    };
 
     transactions.update(list => {
-        const updated = [...newTransactions, ...list];
+        const updated = [newTrx, ...list];
         saveToLocal(updated);
         return updated;
     });
 
-    showToast(`Transfer dari <b>${pocketNames[fromPocket]}</b> ke <b>${pocketNames[toPocket]}</b> berhasil!`, 'success', '⇄');
-    for (const trx of newTransactions) {
-        enqueueOfflineAction('add', trx);
-    }
+    showToast(`Transfer <b>${displayAmt}</b> dari <b>${pocketNames[fromPocket]}</b> ke <b>${pocketNames[toPocket]}</b> berhasil!`, 'success', '⇄');
+    enqueueOfflineAction('add', newTrx);
 }
 
 export function exportToCSV() {

@@ -91,6 +91,13 @@
             typeIcon = '🏧';
             typeBg = 'var(--pribadi-light)';
             typeColor = 'var(--pribadi)';
+        } else if (trx.type === 'transfer') {
+            tCls = 'text-primary';
+            const isGr = (trx.source === 'tring' || trx.category === 'tring');
+            dAmt = isGr ? amt.toFixed(2) + ' Gr' : formatRp(amt);
+            typeIcon = '⇄';
+            typeBg = 'rgba(255, 122, 0, 0.16)';
+            typeColor = '#FF7A00';
         }
 
         return { tCls, dAmt, typeIcon, typeBg, typeColor };
