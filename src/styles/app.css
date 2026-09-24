@@ -901,105 +901,507 @@ input:checked + .slider:before {
 .trend-down { background: var(--expense-light); color: var(--expense); }
 .trend-flat { background: rgba(148, 163, 184, 0.15); color: var(--text-gray); }
 
-/* BUDGET CATEGORIES */
-.jago-budgets-section {
+/* ==========================================================================
+   INNOVATIVE POCKETS & PORTFOLIO ANALYTICS
+   ========================================================================== */
+.pocket-view-toggle-pills {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 100px;
+    padding: 2.5px;
+    gap: 3px;
+}
+[data-theme="light"] .pocket-view-toggle-pills {
+    background: rgba(0, 0, 0, 0.06);
+    border-color: rgba(0, 0, 0, 0.08);
+}
+.pocket-toggle-pill {
+    background: none;
+    border: none;
+    border-radius: 100px;
+    padding: 4px 11px;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--text-gray);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    -webkit-tap-highlight-color: transparent;
+}
+.pocket-toggle-pill.active {
+    background: var(--jago-orange);
+    color: white;
+    box-shadow: 0 2px 10px rgba(255, 122, 0, 0.4);
+}
+
+.pocket-inspect-chip {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-gray);
+    background: rgba(255, 255, 255, 0.06);
+    padding: 2px 8px;
+    border-radius: 100px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.2s ease;
+}
+[data-theme="light"] .pocket-inspect-chip {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.08);
+}
+.stat-box:hover .pocket-inspect-chip,
+.jago-pocket-card:hover .pocket-inspect-chip {
+    color: #14b8a6;
+    border-color: rgba(20, 184, 166, 0.4);
+    background: rgba(20, 184, 166, 0.1);
+}
+
+/* PORTFOLIO ALLOCATION MINI RIBBON */
+.pocket-ribbon-card {
     background: var(--card-bg);
     border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    padding: 22px;
-    margin-bottom: 22px;
+    border-radius: 18px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    backdrop-filter: blur(16px);
 }
-.jago-budget-header {
+.ribbon-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    margin-bottom: 10px;
 }
-.jago-categories-list { display: flex; flex-direction: column; gap: 14px; }
-.jago-budget-item {
-    background: var(--list-bg);
-    border: 1px solid var(--border-color);
-    padding: 16px 18px;
-    border-radius: 20px;
+.ribbon-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-gray);
+}
+.ribbon-total {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--text-dark);
+}
+.pocket-ribbon-track {
+    height: 8px;
+    border-radius: 100px;
+    background: rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+    display: flex;
+    margin-bottom: 10px;
+}
+[data-theme="light"] .pocket-ribbon-track {
+    background: rgba(0, 0, 0, 0.08);
+}
+.ribbon-segment {
+    height: 100%;
+    transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ribbon-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+}
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    cursor: pointer;
+    padding: 2px 5px;
+    border-radius: 6px;
+    transition: background 0.15s ease;
+}
+.legend-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+.legend-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+}
+.legend-name {
+    color: var(--text-gray);
+    font-weight: 600;
+}
+.legend-val {
+    color: var(--text-dark);
+    font-weight: 800;
+}
+
+/* POCKET ANALYTICS VIEW */
+.pocket-analytics-panel {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    transition: all 0.25s ease;
+    gap: 14px;
+    animation: fadeIn 0.25s ease-out;
 }
-.jago-budget-item:hover {
-    border-color: rgba(255, 122, 0, 0.35);
-    background: rgba(25, 36, 56, 0.75);
+.analytics-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
 }
-[data-theme="light"] .jago-budget-item:hover {
-    background: #ffffff;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+.metric-scorecard {
+    background: var(--card-bg);
+    border: 1.5px solid var(--border-color);
+    border-radius: 20px;
+    padding: 16px;
+    backdrop-filter: blur(16px);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-.jago-budget-top { display: flex; justify-content: space-between; align-items: center; }
-.jago-budget-info { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 800; color: var(--text-dark); }
-.jago-budget-icon { font-size: 18px; }
-.jago-budget-name { letter-spacing: -0.2px; }
-.jago-budget-status-row { display: flex; align-items: center; gap: 8px; }
-.jago-budget-pct { font-size: 14px; font-weight: 800; font-feature-settings: "tnum"; }
+.metric-scorecard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+.card-liquidity { border-color: rgba(0, 196, 159, 0.35); }
+.card-savings { border-color: rgba(139, 92, 246, 0.35); }
+.card-gold { border-color: rgba(253, 184, 19, 0.35); }
 
-.jago-status-pill {
+.metric-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.metric-icon { font-size: 22px; }
+.metric-status-badge {
     font-size: 10.5px;
     font-weight: 800;
     padding: 3px 9px;
     border-radius: 100px;
-    white-space: nowrap;
-    display: inline-flex;
+}
+.badge-safe { background: rgba(0, 196, 159, 0.15); color: #00C49F; }
+.badge-purple { background: rgba(139, 92, 246, 0.15); color: #8b5cf6; }
+.badge-gold { background: rgba(253, 184, 19, 0.15); color: #FDB813; }
+
+.metric-num {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--text-dark);
+    letter-spacing: -0.5px;
+    line-height: 1.15;
+}
+.metric-sub {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text-gray);
+    margin: 3px 0 8px 0;
+}
+.metric-desc {
+    font-size: 11.5px;
+    color: var(--text-gray);
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* RANKING BOX */
+.pocket-ranking-box {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 18px;
+    backdrop-filter: blur(16px);
+}
+.ranking-header {
+    margin-bottom: 14px;
+}
+.ranking-header h3 {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text-dark);
+    margin: 0 0 3px 0;
+    letter-spacing: -0.2px;
+}
+.ranking-caption {
+    font-size: 11.5px;
+    color: var(--text-gray);
+}
+.ranking-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.ranking-item {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 4px;
+    padding: 11px 14px;
+    background: var(--list-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    -webkit-tap-highlight-color: transparent;
 }
-.pill-safe { background: rgba(16, 185, 129, 0.16); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.35); }
-.pill-warning { background: rgba(253, 184, 19, 0.16); color: #FDB813; border: 1px solid rgba(253, 184, 19, 0.35); }
-.pill-danger {
-    background: rgba(244, 63, 94, 0.16);
-    color: #f43f5e;
-    border: 1px solid rgba(244, 63, 94, 0.35);
-    animation: pulseDanger 2s infinite ease-in-out;
+.ranking-item:hover {
+    transform: translateX(3px);
+    border-color: rgba(20, 184, 166, 0.4);
+    background: var(--card-hover);
 }
-.text-safe { color: #10b981; }
-.text-warning { color: #FDB813; }
-.text-danger { color: #f43f5e; }
-
-.jago-budget-bar-track {
-    height: 10px;
-    background: rgba(15, 23, 42, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 100px;
-    overflow: hidden;
-    position: relative;
-    margin: 4px 0 6px 0;
-}
-[data-theme="light"] .jago-budget-bar-track { background: #e2e8f0; border-color: rgba(0, 0, 0, 0.05); }
-.jago-budget-bar-fill {
-    height: 100%;
-    border-radius: 100px;
-    transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.bar-safe { background: linear-gradient(90deg, #059669 0%, #10b981 100%); box-shadow: 0 0 10px rgba(16, 185, 129, 0.35); }
-.bar-warning { background: linear-gradient(90deg, #ea580c 0%, #FDB813 100%); box-shadow: 0 0 10px rgba(253, 184, 19, 0.35); }
-.bar-danger { background: linear-gradient(90deg, #be123c 0%, #f43f5e 100%); box-shadow: 0 0 12px rgba(244, 63, 94, 0.45); }
-
-.jago-budget-metrics {
+.ranking-left {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    background: rgba(10, 16, 26, 0.55);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 14px;
-    padding: 8px 14px;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
 }
-[data-theme="light"] .jago-budget-metrics { background: rgba(255, 255, 255, 0.9); border-color: rgba(0, 0, 0, 0.06); }
-.metric-item { display: flex; flex-direction: column; }
-.metric-item.text-right { align-items: flex-end; }
-.metric-divider { width: 1px; height: 24px; background: rgba(255, 255, 255, 0.08); }
-[data-theme="light"] .metric-divider { background: rgba(0, 0, 0, 0.08); }
-.metric-label { font-size: 10px; color: var(--text-gray); font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
-.metric-value { font-size: 13px; font-weight: 800; color: var(--text-dark); margin-top: 1px; }
-.metric-over { color: #f43f5e; font-weight: 800; }
-.metric-left { color: #34d399; font-weight: 800; }
+.rank-number {
+    font-size: 12.5px;
+    font-weight: 800;
+    color: var(--text-gray);
+    min-width: 24px;
+}
+.rank-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+}
+.rank-info {
+    flex: 1;
+    min-width: 0;
+}
+.rank-name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+}
+.rank-name {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text-dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.rank-role-pill {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-gray);
+    white-space: nowrap;
+}
+[data-theme="light"] .rank-role-pill {
+    background: rgba(0, 0, 0, 0.06);
+}
+.rank-track-wrap {
+    width: 100%;
+    max-width: 180px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 100px;
+    overflow: hidden;
+}
+[data-theme="light"] .rank-track-wrap {
+    background: rgba(0, 0, 0, 0.08);
+}
+.rank-track { width: 100%; height: 100%; }
+.rank-fill { height: 100%; border-radius: 100px; }
+.ranking-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    flex-shrink: 0;
+    margin-left: 12px;
+}
+.rank-amount {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--text-dark);
+}
+.rank-share {
+    font-size: 11px;
+    font-weight: 800;
+}
+
+/* SMART ADVICE BOX */
+.pocket-smart-advice {
+    background: rgba(20, 184, 166, 0.1);
+    border: 1px solid rgba(20, 184, 166, 0.28);
+    border-radius: 18px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+.advice-icon { font-size: 22px; flex-shrink: 0; }
+.advice-content {
+    font-size: 12.5px;
+    color: var(--text-dark);
+    line-height: 1.5;
+}
+.advice-content strong {
+    display: block;
+    font-weight: 800;
+    margin-bottom: 2px;
+    color: #14b8a6;
+}
+
+/* POCKET DEEP-DIVE MODAL */
+.pocket-detail-modal {
+    max-width: 440px !important;
+    text-align: left;
+}
+.pocket-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+.pocket-modal-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.pocket-modal-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+.pocket-modal-tag {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: var(--text-gray);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+}
+.pocket-modal-header h3 {
+    margin: 2px 0 0 0;
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--text-dark);
+}
+.pocket-modal-close {
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-gray);
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.15s ease;
+}
+.pocket-modal-close:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--text-dark);
+}
+.pocket-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+.pocket-modal-balance-card {
+    background: var(--list-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    padding: 16px;
+    text-align: center;
+}
+.balance-caption {
+    font-size: 11.5px;
+    color: var(--text-gray);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 4px;
+}
+.balance-number {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text-dark);
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+}
+.balance-meta-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.share-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 100px;
+}
+.extra-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 100px;
+    background: rgba(253, 184, 19, 0.16);
+    color: #FDB813;
+}
+.pocket-modal-info-box {
+    background: var(--list-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12.5px;
+}
+.info-label { color: var(--text-gray); }
+.info-val { color: var(--text-dark); font-weight: 700; }
+.health-pill {
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 100px;
+}
+.health-pill.safe { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.health-pill.warning { background: rgba(253, 184, 19, 0.15); color: #FDB813; }
+.health-pill.neutral { background: rgba(148, 163, 184, 0.15); color: var(--text-gray); }
+.health-pill.info { background: rgba(2, 132, 199, 0.15); color: #38bdf8; }
+.pocket-insight-text {
+    font-size: 12px;
+    color: var(--text-gray);
+    line-height: 1.45;
+    margin: 4px 0 0 0;
+    padding-top: 8px;
+    border-top: 1px solid var(--border-color);
+}
+.pocket-modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 4px;
+}
+.pocket-modal-actions button {
+    padding: 12px;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+}
 
 /* PANELS & TRANSACTION HISTORY */
 .glass-panel,
@@ -1982,38 +2384,74 @@ select option { background: var(--card-bg-solid); color: var(--text-dark); }
     }
 
     .jago-hero-card {
-        padding: 20px 16px !important;
-        border-radius: 22px !important;
+        padding: 18px 16px !important;
+        border-radius: 24px !important;
         margin-bottom: 16px !important;
         width: 100% !important;
         box-sizing: border-box !important;
+        background: linear-gradient(145deg, rgba(26, 38, 62, 0.95), rgba(15, 23, 42, 0.98)) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        box-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.5) !important;
     }
-    .jago-hero-amount { font-size: 28px !important; }
+    .jago-hero-amount { font-size: 30px !important; letter-spacing: -0.6px !important; }
     .jago-quick-actions {
+        display: grid !important;
         grid-template-columns: repeat(3, 1fr) !important;
-        gap: 6px !important;
+        gap: 8px !important;
         margin-top: 14px !important;
     }
     .jago-action-btn {
-        padding: 10px 4px !important;
+        padding: 10px 6px !important;
         border-radius: 14px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 4px !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
     }
     .action-icon-wrap {
-        width: 32px !important;
-        height: 32px !important;
-        font-size: 15px !important;
+        width: 34px !important;
+        height: 34px !important;
+        font-size: 16px !important;
+        border-radius: 10px !important;
     }
     .action-text-wrap strong {
-        font-size: 10px !important;
+        font-size: 11px !important;
+        font-weight: 800 !important;
         white-space: nowrap !important;
+        color: var(--text-dark) !important;
     }
     .action-text-wrap small { display: none !important; }
 
+    .jago-hero-cashflow {
+        padding: 8px 12px !important;
+        border-radius: 16px !important;
+        gap: 8px !important;
+        background: rgba(0, 0, 0, 0.22) !important;
+    }
+    .jago-flow-box { gap: 8px !important; }
+    .jago-flow-icon { width: 26px !important; height: 26px !important; font-size: 12px !important; border-radius: 7px !important; }
+    .jago-flow-label { font-size: 9.5px !important; }
+    .jago-flow-val { font-size: 13px !important; }
+
+    .jago-section-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+        margin-bottom: 12px !important;
+    }
+    .jago-title-row {
+        width: 100% !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+    .jago-header-actions { display: none !important; }
+
     .glass-panel,
-    .section-history,
-    .jago-budgets-section {
-        padding: 16px !important;
-        border-radius: 20px !important;
+    .section-history {
+        padding: 16px 14px !important;
+        border-radius: 22px !important;
         margin-bottom: 16px !important;
         width: 100% !important;
         box-sizing: border-box !important;
@@ -2028,12 +2466,16 @@ select option { background: var(--card-bg-solid); color: var(--text-dark); }
     }
     .stat-box, .jago-pocket-card {
         padding: 12px !important;
-        border-radius: 16px !important;
+        border-radius: 18px !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        background: rgba(22, 32, 50, 0.85) !important;
+        backdrop-filter: blur(20px) !important;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22) !important;
     }
     .stat-box.c-balance, .jago-pocket-card.pocket-teal {
         grid-column: span 2 !important;
         padding: 14px 14px !important;
-        background: linear-gradient(135deg, rgba(0, 196, 159, 0.12), var(--card-bg)) !important;
+        background: linear-gradient(135deg, rgba(0, 196, 159, 0.15), var(--card-bg)) !important;
         border-color: rgba(0, 196, 159, 0.35) !important;
     }
     .pocket-top {
@@ -2043,7 +2485,7 @@ select option { background: var(--card-bg-solid); color: var(--text-dark); }
         width: 32px !important;
         height: 32px !important;
         font-size: 16px !important;
-        border-radius: 9px !important;
+        border-radius: 10px !important;
     }
     .jago-pocket-card h3, .stat-box h3 {
         font-size: 12.5px !important;
@@ -2059,6 +2501,46 @@ select option { background: var(--card-bg-solid); color: var(--text-dark); }
     }
     .stat-box.c-balance p, .jago-pocket-card.pocket-teal .pocket-amount {
         font-size: 20px !important;
+    }
+    .analytics-metrics-grid {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+    }
+    .metric-scorecard {
+        padding: 14px !important;
+        border-radius: 18px !important;
+    }
+    .pocket-ranking-box {
+        padding: 14px !important;
+        border-radius: 18px !important;
+    }
+    .ranking-item {
+        padding: 10px 12px !important;
+        border-radius: 14px !important;
+    }
+    .pocket-detail-modal {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 28px 28px 0 0 !important;
+        border-bottom: none !important;
+        padding: 22px 18px calc(36px + env(safe-area-inset-bottom, 20px)) 18px !important;
+        margin: 0 !important;
+    }
+    .history-list li {
+        padding: 11px 12px !important;
+        border-radius: 14px !important;
+        gap: 8px !important;
+    }
+    .icon-btn.edit-btn,
+    .icon-btn.delete-btn {
+        width: 28px !important;
+        height: 28px !important;
+        font-size: 11px !important;
+        border-radius: 8px !important;
+        padding: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
     .pocket-footer-stacked {
         margin-top: 5px !important;
