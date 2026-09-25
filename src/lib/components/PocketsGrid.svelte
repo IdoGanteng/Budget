@@ -7,113 +7,10 @@
 
     $: totals = $filteredData.totals;
     $: shares = $filteredData.shares;
+    $: pockets = $filteredData.computedPockets || [];
 
-    $: pockets = [
-        {
-            id: 'cash',
-            name: 'Kas Tunai',
-            categoryTag: 'Kantong Bayar',
-            role: 'Likuiditas Harian',
-            icon: '💵',
-            color: '#00C49F',
-            bgClass: 'bg-teal',
-            barClass: 'bar-teal',
-            pocketClass: 'pocket-teal',
-            amount: totals.cash,
-            share: shares.cashShare,
-            subdesc: 'Kas harian & likuid',
-            healthStatus: shares.cashShare >= 15 && shares.cashShare <= 35 ? 'Likuiditas Ideal' : shares.cashShare < 15 ? 'Cadangan Menipis' : 'Kas Berlebih',
-            healthType: shares.cashShare >= 15 && shares.cashShare <= 35 ? 'safe' : shares.cashShare < 15 ? 'warning' : 'info',
-            insight: 'Digunakan untuk belanja kebutuhan harian, makan, dan operasional rutin.',
-            actionType: 'expense',
-            actionCategory: 'makan',
-            actionTitle: 'Catat Pengeluaran Kas'
-        },
-        {
-            id: 'simpanan',
-            name: 'Simpanan Wajib',
-            categoryTag: 'Kantong Nabung',
-            role: 'Dana Darurat Pokok',
-            icon: '🏦',
-            color: '#8b5cf6',
-            bgClass: 'bg-purple',
-            barClass: 'bar-purple',
-            pocketClass: 'pocket-purple',
-            amount: totals.totalSimAll,
-            share: shares.simShare,
-            subdesc: 'Tabungan cadangan pokok',
-            healthStatus: shares.simShare >= 20 ? 'Cadangan Prima' : 'Tingkatkan Pos',
-            healthType: shares.simShare >= 20 ? 'safe' : 'warning',
-            insight: 'Pilar perlindungan darurat keluarga yang tidak boleh diganggu untuk konsumsi santai.',
-            actionType: 'simpanan',
-            actionCategory: 'simpanan',
-            actionTitle: 'Tambah Simpanan Wajib'
-        },
-        {
-            id: 'pribadi',
-            name: 'Tabungan Pribadi',
-            categoryTag: 'Kantong Impian',
-            role: 'Target & Impian',
-            icon: '🎯',
-            color: '#FF7A00',
-            bgClass: 'bg-orange',
-            barClass: 'bar-orange',
-            pocketClass: 'pocket-orange',
-            amount: totals.totalPriAll,
-            share: shares.priShare,
-            subdesc: 'Target & impian bebas',
-            healthStatus: shares.priShare > 0 ? 'Fokus Sasaran' : 'Mulai Menabung',
-            healthType: shares.priShare > 0 ? 'safe' : 'neutral',
-            insight: 'Pos fleksibel untuk self-reward, gadget idaman, hobi, dan liburan terencana.',
-            actionType: 'pribadi',
-            actionCategory: 'pribadi',
-            actionTitle: 'Tambah Tabungan Pribadi'
-        },
-        {
-            id: 'tring',
-            name: 'Emas Tring',
-            categoryTag: 'Investasi Fisik',
-            role: 'Lindung Nilai Batangan',
-            icon: '🪙',
-            color: '#FDB813',
-            bgClass: 'bg-yellow',
-            barClass: 'bar-yellow',
-            pocketClass: 'pocket-yellow',
-            amount: totals.totalTrgRp,
-            extraInfo: `${totals.totalTrgAll.toFixed(2)} Gram`,
-            share: shares.trgShare,
-            subdesc: `Fisik: ${totals.totalTrgAll.toFixed(2)} Gr batangan`,
-            healthStatus: 'Proteksi Inflasi',
-            healthType: 'safe',
-            insight: 'Aset emas batangan fisik tersimpan aman sebagai jangkar stabilitas daya beli.',
-            actionType: 'tring',
-            actionCategory: 'tring',
-            actionTitle: 'Catat Emas Tring'
-        },
-        {
-            id: 'jago',
-            name: 'Emas Jago',
-            categoryTag: 'Investasi Digital',
-            role: 'Emas Digital Likuid',
-            icon: '🦁',
-            color: '#ea580c',
-            bgClass: 'bg-amber',
-            barClass: 'bar-amber',
-            pocketClass: 'pocket-amber',
-            amount: totals.totalJagAll,
-            share: shares.jagShare,
-            subdesc: 'Portofolio Emas Jago',
-            healthStatus: 'Aset Likuid Digital',
-            healthType: 'safe',
-            insight: 'Portofolio emas digital likuid yang siap dicairkan atau ditambah kapan pun dibutuhkan.',
-            actionType: 'jago',
-            actionCategory: 'jago',
-            actionTitle: 'Catat Emas Jago'
-        }
-    ];
-
-    $: totalGoldVal = totals.totalTrgRp + totals.totalJagAll;
-    $: totalSavingsVal = totals.totalSimAll + totals.totalPriAll;
+    $: totalGoldVal = totals.totalGold || (totals.totalTrgRp + totals.totalJagAll);
+    $: totalSavingsVal = totals.totalSimAll + totals.totalPriAll + (totals.totalBcaAll || 0) + (totals.totalGopayAll || 0);
     $: sortedPockets = [...pockets].sort((a, b) => b.amount - a.amount);
 
     function openDetail(p) {
@@ -126,7 +23,12 @@
 
     function handleQuickAction(p) {
         selectedPocket = null;
-        openAddTxModal({ type: p.actionType, category: p.actionCategory, title: p.actionTitle });
+        openAddTxModal({
+            type: p.actionType || 'expense',
+            category: p.actionCategory || 'makan',
+            pocket: p.id,
+            title: p.actionTitle || `Catat di ${p.name}`
+        });
     }
 
     function handleTransfer() {

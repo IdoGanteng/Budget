@@ -18,6 +18,183 @@ export const CATEGORIES = {
     lainnya: { name: 'Lainnya', icon: '📦', color: '#64748b' }
 };
 
+// Default Multi-Kantong Configuration
+export const DEFAULT_POCKETS = [
+    {
+        id: 'cash',
+        name: 'Kas',
+        fullName: 'Kas Tunai',
+        categoryTag: 'Kantong Bayar',
+        role: 'Likuiditas Harian',
+        icon: '💵',
+        color: '#00C49F',
+        bgClass: 'bg-teal',
+        barClass: 'bar-teal',
+        pocketClass: 'pocket-teal',
+        subdesc: 'Kas harian & likuid',
+        insight: 'Digunakan untuk belanja harian, uang tunai, dan operasional rutin.',
+        actionType: 'expense',
+        actionCategory: 'makan',
+        actionTitle: 'Catat Pengeluaran Kas'
+    },
+    {
+        id: 'tabungan',
+        name: 'Tabungan',
+        fullName: 'Tabungan Pribadi',
+        categoryTag: 'Kantong Impian',
+        role: 'Target & Impian',
+        icon: '💳',
+        color: '#FF7A00',
+        bgClass: 'bg-orange',
+        barClass: 'bar-orange',
+        pocketClass: 'pocket-orange',
+        subdesc: 'Target & impian bebas',
+        insight: 'Pos fleksibel untuk self-reward, gadget idaman, hobi, dan liburan terencana.',
+        actionType: 'expense',
+        actionCategory: 'belanja',
+        actionTitle: 'Catat dari Tabungan'
+    },
+    {
+        id: 'bca',
+        name: 'BCA',
+        fullName: 'Bank BCA',
+        categoryTag: 'Rekening Bank',
+        role: 'Transaksi & Payroll',
+        icon: '🏦',
+        color: '#0284c7',
+        bgClass: 'bg-blue',
+        barClass: 'bar-blue',
+        pocketClass: 'pocket-blue',
+        subdesc: 'Rekening payroll & bank utama',
+        insight: 'Rekening bank utama untuk penerimaan gaji, debit, dan transfer.',
+        actionType: 'expense',
+        actionCategory: 'tagihan',
+        actionTitle: 'Catat dari Rekening BCA'
+    },
+    {
+        id: 'gopay',
+        name: 'Gopay',
+        fullName: 'GoPay / E-Wallet',
+        categoryTag: 'Dompet Digital',
+        role: 'Belanja & F&B',
+        icon: '📱',
+        color: '#06b6d4',
+        bgClass: 'bg-cyan',
+        barClass: 'bar-cyan',
+        pocketClass: 'pocket-cyan',
+        subdesc: 'Dompet digital harian',
+        insight: 'Alat bayar QRIS, ojek online, pesan antar makanan, dan transaksi cepat.',
+        actionType: 'expense',
+        actionCategory: 'makan',
+        actionTitle: 'Catat dari Gopay'
+    },
+    {
+        id: 'simpanan',
+        name: 'Simpanan',
+        fullName: 'Simpanan Wajib',
+        categoryTag: 'Kantong Nabung',
+        role: 'Dana Darurat Pokok',
+        icon: '🛡️',
+        color: '#8b5cf6',
+        bgClass: 'bg-purple',
+        barClass: 'bar-purple',
+        pocketClass: 'pocket-purple',
+        subdesc: 'Tabungan cadangan pokok',
+        insight: 'Pilar perlindungan darurat keluarga yang tidak boleh diganggu untuk konsumsi santai.',
+        actionType: 'simpanan',
+        actionCategory: 'simpanan',
+        actionTitle: 'Tambah Simpanan Wajib'
+    },
+    {
+        id: 'tring',
+        name: 'Emas Tring',
+        fullName: 'Emas Tring',
+        categoryTag: 'Investasi Fisik',
+        role: 'Lindung Nilai Batangan',
+        icon: '🪙',
+        color: '#FDB813',
+        bgClass: 'bg-yellow',
+        barClass: 'bar-yellow',
+        pocketClass: 'pocket-yellow',
+        isGram: true,
+        subdesc: 'Emas batangan fisik',
+        insight: 'Aset emas batangan fisik tersimpan aman sebagai jangkar stabilitas daya beli.',
+        actionType: 'tring',
+        actionCategory: 'tring',
+        actionTitle: 'Catat Emas Tring'
+    },
+    {
+        id: 'jago',
+        name: 'Emas Jago',
+        fullName: 'Emas Jago',
+        categoryTag: 'Investasi Digital',
+        role: 'Emas Digital Likuid',
+        icon: '🦁',
+        color: '#ea580c',
+        bgClass: 'bg-amber',
+        barClass: 'bar-amber',
+        pocketClass: 'pocket-amber',
+        subdesc: 'Portofolio Emas Jago',
+        insight: 'Portofolio emas digital likuid yang siap dicairkan atau ditambah kapan pun dibutuhkan.',
+        actionType: 'jago',
+        actionCategory: 'jago',
+        actionTitle: 'Catat Emas Jago'
+    }
+];
+
+export function normalizePocketId(id) {
+    if (!id) return 'cash';
+    const lower = String(id).toLowerCase().trim();
+    if (lower === 'kas' || lower === 'cash' || lower === 'tunai') return 'cash';
+    if (lower === 'pribadi' || lower === 'tabungan' || lower === 'savings') return 'tabungan';
+    if (lower === 'simpanan' || lower === 'wajib') return 'simpanan';
+    if (lower === 'tring' || lower === 'emas_tring') return 'tring';
+    if (lower === 'jago' || lower === 'emas_jago') return 'jago';
+    if (lower === 'bca' || lower === 'bank_bca') return 'bca';
+    if (lower === 'gopay' || lower === 'go-pay' || lower === 'ewallet') return 'gopay';
+    return lower;
+}
+
+function loadPocketsFromLocal() {
+    try {
+        const raw = localStorage.getItem('app_pockets_list');
+        if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+    } catch (e) {}
+    return DEFAULT_POCKETS;
+}
+
+export const pocketsList = writable(loadPocketsFromLocal());
+
+export function savePockets(list) {
+    pocketsList.set(list);
+    try {
+        localStorage.setItem('app_pockets_list', JSON.stringify(list));
+    } catch (e) {}
+}
+
+export function getPocketMeta(pocketId) {
+    const norm = normalizePocketId(pocketId);
+    let list = DEFAULT_POCKETS;
+    try {
+        const custom = get(pocketsList);
+        if (custom && custom.length > 0) list = custom;
+    } catch (e) {}
+    const found = list.find(p => p.id === norm || normalizePocketId(p.id) === norm);
+    if (found) return found;
+    return {
+        id: norm,
+        name: norm.charAt(0).toUpperCase() + norm.slice(1),
+        fullName: norm.charAt(0).toUpperCase() + norm.slice(1),
+        icon: '👛',
+        color: '#64748b',
+        categoryTag: 'Kantong',
+        role: 'Kantong Tersimpan'
+    };
+}
+
 // Target Finansial & Harga Emas
 const defaultGoals = { wealthGoal: 50000000, goldGoal: 10000000 };
 let storedGoals = defaultGoals;
@@ -377,10 +554,22 @@ export const monthsList = derived(transactions, ($txs) => {
 });
 
 export const filteredData = derived(
-    [transactions, searchQuery, selectedMonth, selectedUserFilter, activeUser, goldPricePerGram],
-    ([$txs, $search, $month, $userFilter, $activeUser, $goldPrice]) => {
-        let totalIncAll = 0, totalExpAll = 0, totalSimAll = 0, totalPriAll = 0, totalTrgAll = 0, totalJagAll = 0;
-        let cashTransfersOut = 0, cashTransfersIn = 0;
+    [transactions, searchQuery, selectedMonth, selectedUserFilter, activeUser, goldPricePerGram, pocketsList],
+    ([$txs, $search, $month, $userFilter, $activeUser, $goldPrice, $pockets]) => {
+        const goldP = $goldPrice || 1250000;
+        const balances = {};
+        ($pockets || DEFAULT_POCKETS).forEach(p => {
+            balances[normalizePocketId(p.id)] = 0;
+        });
+        balances.cash = balances.cash || 0;
+        balances.tabungan = balances.tabungan || 0;
+        balances.bca = balances.bca || 0;
+        balances.gopay = balances.gopay || 0;
+        balances.simpanan = balances.simpanan || 0;
+        balances.tring = balances.tring || 0; // dalam Gram
+        balances.jago = balances.jago || 0;
+
+        let totalIncAll = 0, totalExpAll = 0;
         let filteredInc = 0, filteredExp = 0;
         const userExpensesMap = {};
         const userCountsMap = {};
@@ -412,59 +601,56 @@ export const filteredData = derived(
                 }
             }
 
-            // Global Totals (entire vault)
+            // Multi-Kantong Balance Calculations
             if (trx.type === 'income') {
                 totalIncAll += amt;
+                const target = normalizePocketId(trx.pocket || trx.source || 'cash');
+                balances[target] = (balances[target] || 0) + amt;
             } else if (trx.type === 'expense') {
                 totalExpAll += amt;
+                // For legacy expenses without explicit pocket: if source was 'pribadi' (default bug in older versions), fallback to cash; otherwise use source
+                const source = normalizePocketId(trx.pocket || (trx.source && trx.source !== 'pribadi' ? trx.source : 'cash'));
+                balances[source] = (balances[source] || 0) - amt;
             } else if (trx.type === 'simpanan') {
-                totalSimAll += amt;
-                if (trx.source === 'cash') cashTransfersOut += amt;
+                balances.simpanan = (balances.simpanan || 0) + amt;
+                const src = normalizePocketId(trx.source || 'cash');
+                if (src !== 'simpanan') balances[src] = (balances[src] || 0) - amt;
             } else if (trx.type === 'pribadi') {
-                totalPriAll += amt;
-                if (trx.source === 'cash') cashTransfersOut += amt;
+                balances.tabungan = (balances.tabungan || 0) + amt;
+                const src = normalizePocketId(trx.source || 'cash');
+                if (src !== 'tabungan') balances[src] = (balances[src] || 0) - amt;
             } else if (trx.type === 'tring' || trx.type === 'inv_tring') {
-                totalTrgAll += amt;
-                if (trx.source === 'cash') cashTransfersOut += (amt * ($goldPrice || 1250000));
+                balances.tring = (balances.tring || 0) + amt;
+                const src = normalizePocketId(trx.source || 'cash');
+                balances[src] = (balances[src] || 0) - (amt * goldP);
             } else if (trx.type === 'jago' || trx.type === 'inv_jago') {
-                totalJagAll += amt;
+                balances.jago = (balances.jago || 0) + amt;
+                const src = normalizePocketId(trx.source || 'cash');
+                balances[src] = (balances[src] || 0) - amt;
                 totalExpAll += amt;
             } else if (trx.type === 'withdraw') {
-                const src = trx.source || 'pribadi';
-                if (src === 'simpanan') totalSimAll -= amt;
-                else if (src === 'pribadi') totalPriAll -= amt;
-                else if (src === 'tring') totalTrgAll -= amt;
-                else if (src === 'jago') totalJagAll -= amt;
-                totalIncAll += amt;
-            } else if (trx.type === 'transfer') {
-                const from = trx.source || 'cash';
-                const to = trx.category || trx.target || 'pribadi';
-                const goldP = $goldPrice || 1250000;
-
-                // 1. Deduct from source
-                if (from === 'cash') {
-                    cashTransfersOut += (to === 'tring' ? amt * goldP : amt);
-                } else if (from === 'simpanan') {
-                    totalSimAll -= amt;
-                } else if (from === 'pribadi') {
-                    totalPriAll -= amt;
-                } else if (from === 'jago') {
-                    totalJagAll -= amt;
-                } else if (from === 'tring') {
-                    totalTrgAll -= amt;
+                const src = normalizePocketId(trx.source || 'tabungan');
+                const to = normalizePocketId(trx.category || trx.target || 'cash');
+                if (src === 'tring') {
+                    balances.tring = (balances.tring || 0) - amt;
+                    balances[to] = (balances[to] || 0) + (amt * goldP);
+                } else {
+                    balances[src] = (balances[src] || 0) - amt;
+                    balances[to] = (balances[to] || 0) + amt;
                 }
+            } else if (trx.type === 'transfer') {
+                const from = normalizePocketId(trx.source || 'cash');
+                const to = normalizePocketId(trx.category || trx.target || 'tabungan');
 
-                // 2. Add to destination
-                if (to === 'cash') {
-                    cashTransfersIn += (from === 'tring' ? amt * goldP : amt);
-                } else if (to === 'simpanan') {
-                    totalSimAll += amt;
-                } else if (to === 'pribadi') {
-                    totalPriAll += amt;
-                } else if (to === 'jago') {
-                    totalJagAll += amt;
+                if (from === 'tring') {
+                    balances.tring = (balances.tring || 0) - amt;
+                    balances[to] = (balances[to] || 0) + (amt * goldP);
                 } else if (to === 'tring') {
-                    totalTrgAll += amt;
+                    balances[from] = (balances[from] || 0) - (amt * goldP);
+                    balances.tring = (balances.tring || 0) + amt;
+                } else {
+                    balances[from] = (balances[from] || 0) - amt;
+                    balances[to] = (balances[to] || 0) + amt;
                 }
             }
 
@@ -495,7 +681,9 @@ export const filteredData = derived(
                 const descMatch = (trx.desc || '').toLowerCase().includes(q);
                 const userMatch = (trx.userName || '').toLowerCase().includes(q);
                 const catMatch = (trx.category || '').toLowerCase().includes(q);
-                if (!descMatch && !userMatch && !catMatch) return;
+                const pMeta = getPocketMeta(trx.pocket || trx.source);
+                const pocketMatch = (pMeta.name || '').toLowerCase().includes(q);
+                if (!descMatch && !userMatch && !catMatch && !pocketMatch) return;
             }
 
             if (!isMonthMatch || !isUserMatch) return;
@@ -505,17 +693,49 @@ export const filteredData = derived(
             groupedByDate[cleanD].push(trx);
         });
 
-        const totalTrgRp = totalTrgAll * $goldPrice;
-        const cash = (totalIncAll - totalExpAll - cashTransfersOut + cashTransfersIn);
-        const totalWealth = cash + totalSimAll + totalPriAll + totalTrgRp + totalJagAll;
-        const totalGold = totalTrgRp + totalJagAll;
+        // Calculate Total Portfolio (Wealth) as the sum of ALL individual pockets
+        const totalTrgRp = (balances.tring || 0) * goldP;
+        const currentPockets = $pockets && $pockets.length > 0 ? $pockets : DEFAULT_POCKETS;
+        let totalWealth = 0;
+
+        currentPockets.forEach(p => {
+            const normId = normalizePocketId(p.id);
+            if (p.isGram || normId === 'tring') {
+                totalWealth += (balances.tring || 0) * goldP;
+            } else {
+                totalWealth += (balances[normId] || 0);
+            }
+        });
 
         const safeTotal = totalWealth > 0 ? totalWealth : 1;
-        const cashShare = cash > 0 ? Math.min(Math.round((cash / safeTotal) * 100), 100) : 0;
-        const simShare = totalSimAll > 0 ? Math.min(Math.round((totalSimAll / safeTotal) * 100), 100) : 0;
-        const priShare = totalPriAll > 0 ? Math.min(Math.round((totalPriAll / safeTotal) * 100), 100) : 0;
-        const trgShare = totalTrgRp > 0 ? Math.min(Math.round((totalTrgRp / safeTotal) * 100), 100) : 0;
-        const jagShare = totalJagAll > 0 ? Math.min(Math.round((totalJagAll / safeTotal) * 100), 100) : 0;
+
+        // Build computed pockets with live balances and percentage shares
+        const computedPockets = currentPockets.map(p => {
+            const normId = normalizePocketId(p.id);
+            const isGoldGram = p.isGram || normId === 'tring';
+            const amount = isGoldGram ? totalTrgRp : (balances[normId] || 0);
+            const extraInfo = isGoldGram ? `${(balances.tring || 0).toFixed(2)} Gram` : undefined;
+            const share = totalWealth > 0 ? Math.max(0, Math.min(Math.round((amount / safeTotal) * 100), 100)) : 0;
+            return {
+                ...p,
+                amount,
+                extraInfo,
+                share,
+                healthStatus: share >= 15 ? 'Cadangan Aman' : share > 0 ? 'Aktif' : 'Kosong',
+                healthType: share >= 15 ? 'safe' : share > 0 ? 'info' : 'warning'
+            };
+        });
+
+        const cash = balances.cash || 0;
+        const totalGold = totalTrgRp + (balances.jago || 0);
+
+        const cashShare = computedPockets.find(p => p.id === 'cash')?.share || 0;
+        const simShare = computedPockets.find(p => p.id === 'simpanan')?.share || 0;
+        const priShare = computedPockets.find(p => normalizePocketId(p.id) === 'tabungan')?.share || 0;
+        const bcaShare = computedPockets.find(p => p.id === 'bca')?.share || 0;
+        const gopayShare = computedPockets.find(p => p.id === 'gopay')?.share || 0;
+        const trgShare = computedPockets.find(p => p.id === 'tring')?.share || 0;
+        const jagShare = computedPockets.find(p => p.id === 'jago')?.share || 0;
 
         const netCashflow = filteredInc - filteredExp;
         const savingsRate = filteredInc > 0 ? Math.max(0, ((filteredInc - filteredExp) / filteredInc) * 100) : 0;
@@ -531,15 +751,19 @@ export const filteredData = derived(
             groupedDates,
             totals: {
                 cash,
-                totalSimAll,
-                totalPriAll,
-                totalTrgAll,
+                totalSimAll: balances.simpanan || 0,
+                totalPriAll: balances.tabungan || 0,
+                totalBcaAll: balances.bca || 0,
+                totalGopayAll: balances.gopay || 0,
+                totalTrgAll: balances.tring || 0,
                 totalTrgRp,
-                totalJagAll,
+                totalJagAll: balances.jago || 0,
                 totalWealth,
-                totalGold
+                totalGold,
+                balances
             },
-            shares: { cashShare, simShare, priShare, trgShare, jagShare },
+            shares: { cashShare, simShare, priShare, bcaShare, gopayShare, trgShare, jagShare },
+            computedPockets,
             filteredInc,
             filteredExp,
             netCashflow,
@@ -556,16 +780,18 @@ export async function addTransaction(txData) {
     const active = get(activeUser);
     const d = new Date();
     const dStr = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
+    const pocket = txData.pocket || txData.source || 'cash';
     const newTrx = {
         id: Math.floor(100000 + Math.random() * 900000).toString(),
         date: dStr,
         desc: txData.desc,
         amount: txData.amount,
         type: txData.type,
-        source: txData.source || 'pribadi',
+        pocket: pocket,
+        source: txData.source || pocket,
         category: txData.category || 'makan',
-        userId: txData.userId || active.id,
-        userName: txData.userName || active.name
+        userId: txData.userId || (active ? active.id : 'user_rebel'),
+        userName: txData.userName || (active ? active.name : 'Rebel')
     };
 
     transactions.update(list => {
@@ -574,7 +800,8 @@ export async function addTransaction(txData) {
         return updated;
     });
 
-    showToast(`Transaksi <b>"${newTrx.desc}"</b> berhasil dicatat!`, 'success', '💰');
+    const pMeta = getPocketMeta(pocket);
+    showToast(`Transaksi <b>"${newTrx.desc}"</b> (${pMeta.name}) berhasil dicatat!`, 'success', '💰');
     enqueueOfflineAction('add', newTrx);
     return newTrx;
 }
@@ -585,6 +812,11 @@ export async function editTransaction(id, updatedFields) {
         const updated = list.map(t => {
             if (String(t.id) === String(id)) {
                 target = { ...t, ...updatedFields };
+                if (updatedFields.pocket && !updatedFields.source) {
+                    target.source = updatedFields.pocket;
+                } else if (updatedFields.source && !updatedFields.pocket) {
+                    target.pocket = updatedFields.source;
+                }
                 return target;
             }
             return t;
@@ -616,13 +848,8 @@ export async function transferPockets(fromPocket, toPocket, amount, customDesc) 
         showToast('Kantong sumber dan tujuan tidak boleh sama!', 'error', '⚠️');
         return;
     }
-    const pocketNames = {
-        cash: 'Kas Tunai',
-        pribadi: 'Tabungan Pribadi',
-        simpanan: 'Simpanan Wajib',
-        tring: 'Emas Tring',
-        jago: 'Emas Jago'
-    };
+    const fromMeta = getPocketMeta(fromPocket);
+    const toMeta = getPocketMeta(toPocket);
 
     const d = new Date();
     const dStr = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
@@ -634,11 +861,12 @@ export async function transferPockets(fromPocket, toPocket, amount, customDesc) 
     const newTrx = {
         id: Math.floor(100000 + Math.random() * 900000).toString(),
         date: dStr,
-        desc: customDesc || `Pindah: ${pocketNames[fromPocket]} ➔ ${pocketNames[toPocket]}`,
+        desc: customDesc || `Pindah: ${fromMeta.name} ➔ ${toMeta.name}`,
         amount: Number(amount),
         type: 'transfer',
         source: fromPocket,
         category: toPocket,
+        pocket: toPocket,
         userId: active ? active.id : 'user_rebel',
         userName: active ? active.name : 'Rebel'
     };
@@ -649,7 +877,7 @@ export async function transferPockets(fromPocket, toPocket, amount, customDesc) 
         return updated;
     });
 
-    showToast(`Transfer <b>${displayAmt}</b> dari <b>${pocketNames[fromPocket]}</b> ke <b>${pocketNames[toPocket]}</b> berhasil!`, 'success', '⇄');
+    showToast(`Transfer <b>${displayAmt}</b> dari <b>${fromMeta.name}</b> ke <b>${toMeta.name}</b> berhasil!`, 'success', '⇄');
     enqueueOfflineAction('add', newTrx);
 }
 

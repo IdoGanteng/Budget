@@ -1,5 +1,5 @@
 <script>
-    import { heroView, privacyMode, togglePrivacy, openAddTxModal, openTransferModal } from '../stores/uiStore.js';
+    import { heroView, privacyMode, togglePrivacy, openAddTxModal, openTransferModal, sisaScope } from '../stores/uiStore.js';
     import { filteredData, formatRp } from '../stores/financeStore.js';
 
     $: totals = $filteredData.totals;
@@ -7,6 +7,8 @@
     $: filteredInc = $filteredData.filteredInc;
     $: filteredExp = $filteredData.filteredExp;
     $: isSurplus = filteredInc >= filteredExp;
+    $: computedPockets = $filteredData.computedPockets || [];
+    $: displaySisa = $sisaScope === 'cash' ? totals.cash : totals.totalWealth;
 </script>
 
 <div class="jago-hero-card">
@@ -51,11 +53,38 @@
     {#if $heroView === 'sisa'}
         <div class="jago-hero-body">
             <div class="jago-hero-balance-wrap">
-                <span class="jago-hero-caption">Sisa Kas untuk Bulan Ini</span>
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; gap: 8px;">
+                    <span class="jago-hero-caption">
+                        {$sisaScope === 'cash' ? 'Sisa Kas Utama (Kas Tunai)' : 'Total Saldo Tersedia (Semua Kantong)'}
+                    </span>
+
+                    <!-- TOGGLE FILTER KAS UTAMA VS SEMUA KANTONG -->
+                    <div class="sisa-scope-toggle" role="group" aria-label="Filter Saldo Sisa">
+                        <button
+                            type="button"
+                            class="sisa-scope-btn"
+                            class:active={$sisaScope === 'cash'}
+                            on:click={() => sisaScope.set('cash')}
+                            title="Hanya tampilkan saldo Kas Tunai"
+                        >
+                            💵 Kas Utama
+                        </button>
+                        <button
+                            type="button"
+                            class="sisa-scope-btn"
+                            class:active={$sisaScope === 'all'}
+                            on:click={() => sisaScope.set('all')}
+                            title="Tampilkan total seluruh kantong"
+                        >
+                            🌐 Semua Kantong
+                        </button>
+                    </div>
+                </div>
+
                 <div class="jago-hero-balance-row">
-                    <div class="jago-hero-amount">{formatRp(totals.cash)}</div>
+                    <div class="jago-hero-amount">{formatRp(displaySisa)}</div>
                     <div class="jago-hero-badge">
-                        <span class="pulse-dot">●</span> Terkendali • Cloud Sync
+                        <span class="pulse-dot">●</span> {$sisaScope === 'cash' ? 'Kas Utama • Likuid' : 'Semua Kantong • Terkonsolidasi'}
                     </div>
                 </div>
             </div>
@@ -93,7 +122,7 @@
         <!-- VIEW 2: TOTAL PORTOFOLIO (ACCUMULATION) -->
         <div class="jago-hero-body">
             <div class="jago-hero-balance-wrap">
-                <span class="jago-hero-caption">Akumulasi Seluruh Aset &amp; Tabungan</span>
+                <span class="jago-hero-caption">Akumulasi Seluruh Aset &amp; Tabungan (Multi-Kantong)</span>
                 <div class="jago-hero-balance-row">
                     <div class="jago-hero-amount jago-wealth-accent">{formatRp(totals.totalWealth)}</div>
                     <div class="jago-hero-badge jago-badge-wealth">
@@ -104,22 +133,12 @@
 
             <!-- WEALTH COMPOSITION PREVIEW -->
             <div class="jago-wealth-composition">
-                <div class="wealth-chip">
-                    <span class="dot-chip" style="background:#00C49F;"></span>
-                    <span>Kas: <strong>{shares.cashShare}%</strong></span>
-                </div>
-                <div class="wealth-chip">
-                    <span class="dot-chip" style="background:#8b5cf6;"></span>
-                    <span>Simpanan: <strong>{shares.simShare}%</strong></span>
-                </div>
-                <div class="wealth-chip">
-                    <span class="dot-chip" style="background:#FF7A00;"></span>
-                    <span>Pribadi: <strong>{shares.priShare}%</strong></span>
-                </div>
-                <div class="wealth-chip">
-                    <span class="dot-chip" style="background:#FDB813;"></span>
-                    <span>Emas: <strong>{shares.trgShare + shares.jagShare}%</strong></span>
-                </div>
+                {#each computedPockets as p}
+                    <div class="wealth-chip">
+                        <span class="dot-chip" style="background:{p.color};"></span>
+                        <span>{p.name}: <strong>{p.share}%</strong></span>
+                    </div>
+                {/each}
             </div>
         </div>
     {/if}
@@ -129,26 +148,26 @@
         <button
             type="button"
             class="jago-action-btn action-expense"
-            on:click={() => openAddTxModal({ type: 'expense', category: 'makan', title: 'Catat Pengeluaran' })}
+            on:click={() => openAddTxModal({ type: 'expense', category: 'makan', pocket: 'cash', title: 'Catat Pengeluaran' })}
             title="Catat Pengeluaran Cepat"
         >
             <div class="action-icon-wrap">💸</div>
             <div class="action-text-wrap">
                 <strong>+ Catat</strong>
-                <small>Pengeluaran kas</small>
+                <small>Pengeluaran kantong</small>
             </div>
         </button>
 
         <button
             type="button"
             class="jago-action-btn action-income"
-            on:click={() => openAddTxModal({ type: 'income', category: 'gaji', title: 'Catat Pemasukan' })}
+            on:click={() => openAddTxModal({ type: 'income', category: 'gaji', pocket: 'cash', title: 'Catat Pemasukan' })}
             title="Catat Pemasukan Cepat"
         >
             <div class="action-icon-wrap">💰</div>
             <div class="action-text-wrap">
                 <strong>+ Pemasukan</strong>
-                <small>Gaji & transfer</small>
+                <small>Pemasukan kantong</small>
             </div>
         </button>
 

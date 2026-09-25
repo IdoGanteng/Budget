@@ -1,9 +1,9 @@
 <script>
     import { isTransferModalOpen, closeTransferModal, showToast } from '../stores/uiStore.js';
-    import { transferPockets } from '../stores/financeStore.js';
+    import { transferPockets, pocketsList } from '../stores/financeStore.js';
 
     let fromPocket = 'cash';
-    let toPocket = 'pribadi';
+    let toPocket = 'tabungan';
     let amountStr = '';
     let customDesc = '';
 
@@ -57,7 +57,7 @@
                     </div>
                     <div>
                         <h3 style="margin: 0; font-size: 17px; font-weight: 800;">Pindah Saldo Antar Kantong</h3>
-                        <p style="margin: 0; font-size: 12px; color: var(--text-gray);">Transfer alokasi antar kantong Bank Jago</p>
+                        <p style="margin: 0; font-size: 12px; color: var(--text-gray);">Transfer alokasi dana antar kantong pengguna</p>
                     </div>
                 </div>
                 <button
@@ -80,11 +80,9 @@
                         bind:value={fromPocket}
                         style="background: var(--input-bg); border-color: var(--border-color); color: var(--text-dark); border-radius: 12px; padding: 10px 12px; font-size: 13px; width: 100%;"
                     >
-                        <option value="cash">💵 Kas Tunai (Kantong Bayar)</option>
-                        <option value="pribadi">🎯 Tabungan Pribadi (Kantong Impian)</option>
-                        <option value="simpanan">🏦 Simpanan Wajib (Kantong Nabung)</option>
-                        <option value="tring">🪙 Emas Tring (Investasi Fisik)</option>
-                        <option value="jago">🦁 Emas Jago (Investasi Digital)</option>
+                        {#each $pocketsList as p}
+                            <option value={p.id}>{p.icon} {p.name} {p.fullName && p.fullName !== p.name ? `(${p.fullName})` : ''}</option>
+                        {/each}
                     </select>
                 </div>
 
@@ -97,11 +95,9 @@
                         bind:value={toPocket}
                         style="background: var(--input-bg); border-color: var(--border-color); color: var(--text-dark); border-radius: 12px; padding: 10px 12px; font-size: 13px; width: 100%;"
                     >
-                        <option value="pribadi">🎯 Tabungan Pribadi (Kantong Impian)</option>
-                        <option value="simpanan">🏦 Simpanan Wajib (Kantong Nabung)</option>
-                        <option value="cash">💵 Kas Tunai (Kantong Bayar)</option>
-                        <option value="tring">🪙 Emas Tring (Investasi Fisik)</option>
-                        <option value="jago">🦁 Emas Jago (Investasi Digital)</option>
+                        {#each $pocketsList as p}
+                            <option value={p.id}>{p.icon} {p.name} {p.fullName && p.fullName !== p.name ? `(${p.fullName})` : ''}</option>
+                        {/each}
                     </select>
                 </div>
 

@@ -26,6 +26,13 @@ heroView.subscribe((val) => {
     localStorage.setItem('hero_balance_view', val);
 });
 
+// Sisa Kas Filter Scope ('cash' | 'all')
+const initialSisaScope = localStorage.getItem('sisa_scope') || 'cash';
+export const sisaScope = writable(initialSisaScope);
+sisaScope.subscribe((val) => {
+    localStorage.setItem('sisa_scope', val);
+});
+
 // Privacy Mode (blur balances)
 const initialPrivacy = localStorage.getItem('balance_privacy') === 'true';
 if (initialPrivacy && typeof document !== 'undefined') {
@@ -57,12 +64,13 @@ export function showToast(message, type = 'info', icon = '✨') {
 
 // Modal States
 export const isAddTxModalOpen = writable(false);
-export const addTxConfig = writable({ type: 'expense', category: 'makan', title: 'Catat Pengeluaran' });
+export const addTxConfig = writable({ type: 'expense', category: 'makan', pocket: 'cash', title: 'Catat Pengeluaran' });
 
 export function openAddTxModal(config = {}) {
     addTxConfig.set({
         type: config.type || 'expense',
         category: config.category || 'makan',
+        pocket: config.pocket || 'cash',
         title: config.title || (config.type === 'income' ? 'Catat Pemasukan' : 'Catat Pengeluaran')
     });
     isAddTxModalOpen.set(true);

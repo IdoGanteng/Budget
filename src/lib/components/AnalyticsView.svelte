@@ -39,19 +39,22 @@
         if (financeCanvas) {
             const ctx1 = financeCanvas.getContext('2d');
             if (financeChart) financeChart.destroy();
+
+            const cPockets = $filteredData.computedPockets || [];
+            const activePockets = cPockets.filter(p => p.amount > 0);
+            const displayList = activePockets.length > 0 ? activePockets : cPockets;
+
+            const labels = displayList.map(p => p.name);
+            const data = displayList.map(p => Math.max(0, p.amount));
+            const backgroundColor = displayList.map(p => p.color);
+
             financeChart = new Chart(ctx1, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Kas', 'Simpanan', 'Pribadi', 'Tring', 'Jago'],
+                    labels,
                     datasets: [{
-                        data: [
-                            totals.cash > 0 ? totals.cash : 0,
-                            totals.totalSimAll,
-                            totals.totalPriAll,
-                            totals.totalTrgRp,
-                            totals.totalJagAll
-                        ],
-                        backgroundColor: ['#34d399', '#c084fc', '#FF7A00', '#FDB813', '#fb923c'],
+                        data,
+                        backgroundColor,
                         borderWidth: isDark ? 2 : 1,
                         borderColor: isDark ? '#1e293b' : '#ffffff',
                         hoverOffset: 6

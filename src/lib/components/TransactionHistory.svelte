@@ -8,7 +8,8 @@
         formatRp,
         deleteTransaction,
         exportToCSV,
-        clearLocalCache
+        clearLocalCache,
+        getPocketMeta
     } from '../stores/financeStore.js';
     import { usersList } from '../stores/authStore.js';
     import { openEditTxModal, showConfirmModal } from '../stores/uiStore.js';
@@ -48,49 +49,57 @@
         let typeIcon = '💸';
         let typeBg = 'var(--expense-light)';
         let typeColor = 'var(--expense)';
+        let typeLabel = 'Expense';
 
         if (trx.type === 'income') {
             tCls = 'text-inc';
-            dAmt = formatRp(amt);
+            dAmt = '+ ' + formatRp(amt);
             typeIcon = '💰';
             typeBg = 'var(--income-light)';
             typeColor = 'var(--income)';
+            typeLabel = 'Income';
         } else if (trx.type === 'expense') {
             tCls = 'text-exp';
-            dAmt = formatRp(amt);
+            dAmt = '- ' + formatRp(amt);
             typeIcon = '💸';
             typeBg = 'var(--expense-light)';
             typeColor = 'var(--expense)';
+            typeLabel = 'Expense';
         } else if (trx.type === 'simpanan') {
             tCls = 'text-inc';
-            dAmt = formatRp(amt);
-            typeIcon = '🏦';
+            dAmt = '+ ' + formatRp(amt);
+            typeIcon = '🛡️';
             typeBg = 'var(--simpanan-light)';
             typeColor = 'var(--simpanan)';
+            typeLabel = 'Simpanan';
         } else if (trx.type === 'pribadi') {
             tCls = 'text-inc';
-            dAmt = formatRp(amt);
-            typeIcon = '🎯';
+            dAmt = '+ ' + formatRp(amt);
+            typeIcon = '💳';
             typeBg = 'var(--pribadi-light)';
             typeColor = 'var(--pribadi)';
+            typeLabel = 'Tabungan';
         } else if (trx.type === 'tring' || trx.type === 'inv_tring') {
             tCls = 'text-inc';
-            dAmt = amt.toFixed(2) + ' Gr';
+            dAmt = '+ ' + amt.toFixed(2) + ' Gr';
             typeIcon = '🪙';
             typeBg = 'var(--tring-light)';
             typeColor = 'var(--tring)';
+            typeLabel = 'Emas Tring';
         } else if (trx.type === 'jago' || trx.type === 'inv_jago') {
             tCls = 'text-exp';
-            dAmt = formatRp(amt);
+            dAmt = '- ' + formatRp(amt);
             typeIcon = '🦁';
             typeBg = 'var(--jago-light)';
             typeColor = 'var(--jago)';
+            typeLabel = 'Emas Jago';
         } else if (trx.type === 'withdraw') {
             tCls = 'text-inc';
             dAmt = trx.source === 'tring' ? '+' + amt.toFixed(2) + ' Gr' : '+' + formatRp(amt);
             typeIcon = '🏧';
             typeBg = 'var(--pribadi-light)';
             typeColor = 'var(--pribadi)';
+            typeLabel = 'Tarik Dana';
         } else if (trx.type === 'transfer') {
             tCls = 'text-primary';
             const isGr = (trx.source === 'tring' || trx.category === 'tring');
@@ -98,9 +107,10 @@
             typeIcon = '⇄';
             typeBg = 'rgba(255, 122, 0, 0.16)';
             typeColor = '#FF7A00';
+            typeLabel = 'Pindah';
         }
 
-        return { tCls, dAmt, typeIcon, typeBg, typeColor };
+        return { tCls, dAmt, typeIcon, typeBg, typeColor, typeLabel };
     }
 </script>
 
@@ -171,6 +181,9 @@
                     <ul class="history-list">
                         {#each group.items as trx (trx.id)}
                             {@const meta = getTypeMeta(trx)}
+                            {@const pMeta = getPocketMeta(trx.pocket || (trx.source && trx.source !== 'pribadi' ? trx.source : 'cash'))}
+                            {@const transferFrom = getPocketMeta(trx.source)}
+                            {@const transferTo = getPocketMeta(trx.category || trx.pocket)}
                             <li>
                                 <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0;">
                                     <div style="width: 36px; height: 36px; border-radius: 10px; background: {meta.typeBg}; color: {meta.typeColor}; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0;">
@@ -181,9 +194,21 @@
                                             {trx.desc}
                                         </strong>
                                         <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px; flex-wrap: wrap;">
-                                            <span style="font-size: 11px; color: var(--text-gray); text-transform: capitalize;">
-                                                {trx.type}{trx.category ? ` • ${trx.category}` : ''}
-                                            </span>
+                                            {#if trx.type === 'transfer'}
+                                                <span style="font-size: 11px; color: var(--text-gray);">
+                                                    {meta.typeLabel} •
+                                                </span>
+                                                <span class="pocket-tag-badge" style="background: {transferFrom.color}18; color: {transferFrom.color}; border: 1px solid {transferFrom.color}33;">
+                                                    {transferFrom.icon} {transferFrom.name} ➔ {transferTo.icon} {transferTo.name}
+                                                </span>
+                                            {:else}
+                                                <span style="font-size: 11px; color: var(--text-gray); text-transform: capitalize;">
+                                                    {meta.typeLabel}{trx.category ? ` • ${trx.category}` : ''} •
+                                                </span>
+                                                <span class="pocket-tag-badge" style="background: {pMeta.color}18; color: {pMeta.color}; border: 1px solid {pMeta.color}33;">
+                                                    {pMeta.icon} {pMeta.name}
+                                                </span>
+                                            {/if}
                                             <span class="user-tag-badge">👤 {trx.userName || 'User'}</span>
                                         </div>
                                     </div>

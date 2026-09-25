@@ -1,13 +1,14 @@
 <script>
     import { isAddTxModalOpen, addTxConfig, closeAddTxModal, showToast } from '../stores/uiStore.js';
     import { activeUser, usersList } from '../stores/authStore.js';
-    import { addTransaction } from '../stores/financeStore.js';
+    import { addTransaction, pocketsList } from '../stores/financeStore.js';
 
     let desc = '';
     let amountStr = '';
     let selectedType = 'expense';
     let selectedCategory = 'makan';
-    let withdrawSource = 'pribadi';
+    let selectedPocket = 'cash';
+    let withdrawSource = 'tabungan';
     let selectedUserId = '';
     let wasOpen = false;
 
@@ -15,7 +16,8 @@
     $: if ($isAddTxModalOpen && !wasOpen) {
         wasOpen = true;
         selectedType = $addTxConfig.type || 'expense';
-        selectedCategory = $addTxConfig.category || 'makan';
+        selectedCategory = $addTxConfig.category || (selectedType === 'income' ? 'gaji' : 'makan');
+        selectedPocket = $addTxConfig.pocket || 'cash';
         selectedUserId = $activeUser ? $activeUser.id : 'user_rebel';
         desc = '';
         amountStr = '';
@@ -72,7 +74,8 @@
                 desc: d,
                 type: selectedType,
                 amount: amt,
-                source: selectedType === 'withdraw' ? withdrawSource : 'pribadi',
+                pocket: selectedPocket,
+                source: selectedType === 'withdraw' ? withdrawSource : selectedPocket,
                 category: selectedCategory,
                 userId: chosenUser ? chosenUser.id : 'user_rebel',
                 userName: chosenUser ? chosenUser.name : 'Rebel'
@@ -134,6 +137,93 @@
                     </div>
                 </div>
 
+                <!-- TIPE TRANSAKSI -->
+                <div>
+                    <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 4px;">Jenis Transaksi / Pos</label>
+                    <select bind:value={selectedType} style="font-size: 15px;">
+                        <optgroup label="Uang Harian">
+                            <option value="expense">Pengeluaran (-)</option>
+                            <option value="income">Pemasukan (+)</option>
+                        </optgroup>
+                        <optgroup label="Ambil Tabungan & Aset">
+                            <option value="withdraw">Ambil dari Tabungan / Aset (-)</option>
+                        </optgroup>
+                        <optgroup label="Tabungan & Aset">
+                            <option value="simpanan">Simpanan Wajib (+)</option>
+                            <option value="pribadi">Tabungan Pribadi (+)</option>
+                            <option value="tring">Emas Tring (+)</option>
+                            <option value="jago">Emas Jago (- Kas)</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <!-- DROPDOWN MULTI-KANTONG -->
+                {#if selectedType === 'expense'}
+                    <div>
+                        <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <span>Sumber Dana / Kantong</span>
+                            <span style="font-size: 10.5px; color: var(--expense); font-weight: 600;">Memotong saldo kantong ini</span>
+                        </label>
+                        <select bind:value={selectedPocket} style="font-size: 15px; font-weight: 600;">
+                            {#each $pocketsList as p}
+                                <option value={p.id}>
+                                    {p.icon} {p.name} {p.fullName && p.fullName !== p.name ? `— ${p.fullName}` : ''}
+                                </option>
+                            {/each}
+                        </select>
+                    </div>
+                {:else if selectedType === 'income'}
+                    <div>
+                        <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <span>Simpan Ke / Kantong Tujuan</span>
+                            <span style="font-size: 10.5px; color: var(--income); font-weight: 600;">Menambah saldo kantong ini</span>
+                        </label>
+                        <select bind:value={selectedPocket} style="font-size: 15px; font-weight: 600;">
+                            {#each $pocketsList as p}
+                                <option value={p.id}>
+                                    {p.icon} {p.name} {p.fullName && p.fullName !== p.name ? `— ${p.fullName}` : ''}
+                                </option>
+                            {/each}
+                        </select>
+                    </div>
+                {:else if selectedType === 'withdraw'}
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <div>
+                            <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 4px;">
+                                Sumber Pengambilan
+                            </label>
+                            <select bind:value={withdrawSource} style="font-size: 14px;">
+                                <option value="tabungan">💳 Tabungan</option>
+                                <option value="simpanan">🛡️ Simpanan Wajib</option>
+                                <option value="tring">🪙 Emas Tring</option>
+                                <option value="jago">🦁 Emas Jago</option>
+                                <option value="bca">🏦 Rekening BCA</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 4px;">
+                                Masuk Ke Kantong
+                            </label>
+                            <select bind:value={selectedPocket} style="font-size: 14px;">
+                                {#each $pocketsList as p}
+                                    <option value={p.id}>{p.icon} {p.name}</option>
+                                {/each}
+                            </select>
+                        </div>
+                    </div>
+                {:else}
+                    <div>
+                        <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 4px;">
+                            Sumber Dana (Dipindahkan Dari)
+                        </label>
+                        <select bind:value={selectedPocket} style="font-size: 15px;">
+                            {#each $pocketsList as p}
+                                <option value={p.id}>{p.icon} {p.name}</option>
+                            {/each}
+                        </select>
+                    </div>
+                {/if}
+
                 <!-- SELECTOR KATEGORI CEPAT -->
                 <div style="display: flex; flex-direction: column; gap: 6px;">
                     <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray);">Kategori:</label>
@@ -158,7 +248,7 @@
                         type="text"
                         class="tx-input tx-desc-input"
                         bind:value={desc}
-                        placeholder="Keterangan (Makan siang, Gaji, dll)"
+                        placeholder={selectedType === 'income' ? 'Keterangan (Gaji Bulanan, Bonus, dll)' : 'Keterangan (Makan siang, Belanja, dll)'}
                         autocomplete="off"
                         autocorrect="off"
                         autocapitalize="sentences"
@@ -195,40 +285,6 @@
                         <button type="button" class="quick-amt-btn" on:click={() => addQuick(100000)}>+100rb</button>
                         <button type="button" class="quick-amt-btn" on:click={() => addQuick(500000)}>+500rb</button>
                         <button type="button" class="quick-amt-btn" on:click={() => addQuick(1000000)}>+1jt</button>
-                    </div>
-                {/if}
-
-                <!-- TIPE TRANSAKSI -->
-                <div>
-                    <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 4px;">Jenis Transaksi / Pos</label>
-                    <select bind:value={selectedType} style="font-size: 16px;">
-                        <optgroup label="Uang Harian">
-                            <option value="expense">Pengeluaran (-)</option>
-                            <option value="income">Pemasukan (+)</option>
-                        </optgroup>
-                        <optgroup label="Ambil Tabungan & Aset">
-                            <option value="withdraw">Ambil dari Tabungan / Aset (-)</option>
-                        </optgroup>
-                        <optgroup label="Tabungan & Aset">
-                            <option value="simpanan">Simpanan Wajib (+)</option>
-                            <option value="pribadi">Tabungan Pribadi (+)</option>
-                            <option value="tring">Emas Tring (+)</option>
-                            <option value="jago">Emas Jago (- Kas)</option>
-                        </optgroup>
-                    </select>
-                </div>
-
-                {#if selectedType === 'withdraw'}
-                    <div>
-                        <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 4px;">
-                            Sumber Pengambilan
-                        </label>
-                        <select bind:value={withdrawSource} style="font-size: 16px;">
-                            <option value="pribadi">Tabungan Pribadi</option>
-                            <option value="simpanan">Simpanan Wajib</option>
-                            <option value="tring">Emas Tring</option>
-                            <option value="jago">Emas Jago</option>
-                        </select>
                     </div>
                 {/if}
 
