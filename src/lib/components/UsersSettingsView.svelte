@@ -20,6 +20,7 @@
         showConfirmModal,
         showToast
     } from '../stores/uiStore.js';
+    import ThemeToggle from './ThemeToggle.svelte';
 
     $: u = $activeUser;
     $: list = $usersList;
@@ -378,16 +379,9 @@
         <div style="display:flex; flex-direction:column; gap:10px;">
             <div style="display:flex; justify-content:space-between; align-items:center; background:var(--list-bg); padding:12px 14px; border-radius:14px; border:1px solid var(--border-color);">
                 <span style="font-weight:700; font-size:13px; display:flex; align-items:center; gap:8px;">
-                    <span>🌗</span> Mode Gelap
+                    <span>🌗</span> Tema Tampilan
                 </span>
-                <label class="theme-switch" title="Ganti Tema">
-                    <input
-                        type="checkbox"
-                        checked={$theme === 'dark'}
-                        on:change={toggleTheme}
-                    >
-                    <span class="slider"></span>
-                </label>
+                <ThemeToggle />
             </div>
         </div>
     </div>

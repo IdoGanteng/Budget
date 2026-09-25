@@ -1,7 +1,8 @@
 <script>
-    import { activeTab, theme, toggleTheme, openAddTxModal } from '../stores/uiStore.js';
+    import { activeTab, openAddTxModal } from '../stores/uiStore.js';
     import { activeUser } from '../stores/authStore.js';
     import { syncStatus, syncTransactionsFromSheet } from '../stores/financeStore.js';
+    import ThemeToggle from './ThemeToggle.svelte';
 
     function handleSyncClick() {
         syncTransactionsFromSheet(true);
@@ -90,14 +91,7 @@
             </button>
 
             <!-- THEME SWITCHER -->
-            <label class="theme-switch" title="Ganti Tema">
-                <input
-                    type="checkbox"
-                    checked={$theme === 'dark'}
-                    on:change={toggleTheme}
-                >
-                <span class="slider"></span>
-            </label>
+            <ThemeToggle />
         </div>
     </div>
 </div>
