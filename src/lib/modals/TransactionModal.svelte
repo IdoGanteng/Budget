@@ -97,12 +97,22 @@
         >
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="background: rgba(255, 122, 0, 0.16); color: #FF7A00; font-size: 20px; width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800;">
-                        ✍️
+                    <div style="background: {selectedType === 'income' ? 'rgba(16, 185, 129, 0.16)' : selectedType === 'withdraw' ? 'rgba(139, 92, 246, 0.16)' : 'rgba(244, 63, 94, 0.16)'}; color: {selectedType === 'income' ? '#10b981' : selectedType === 'withdraw' ? '#8b5cf6' : '#f43f5e'}; font-size: 20px; width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800;">
+                        {selectedType === 'income' ? '💰' : selectedType === 'withdraw' ? '🏧' : '💸'}
                     </div>
                     <div>
-                        <h3 style="margin: 0; font-size: 17px; font-weight: 800;">{$addTxConfig.title || 'Catat Transaksi'}</h3>
-                        <p style="margin: 0; font-size: 12px; color: var(--text-gray);">Tambah pengeluaran, pemasukan, atau tabungan</p>
+                        <h3 style="margin: 0; font-size: 17px; font-weight: 800;">{$addTxConfig.title || (selectedType === 'income' ? 'Catat Pemasukan' : 'Catat Pengeluaran')}</h3>
+                        <p style="margin: 0; font-size: 12px; color: var(--text-gray);">
+                            {#if selectedType === 'income'}
+                                Catat pemasukan dana ke kantong tujuan
+                            {:else if selectedType === 'expense'}
+                                Catat pengeluaran dari kantong pilihanmu
+                            {:else if selectedType === 'withdraw'}
+                                Ambil dana dari tabungan atau aset
+                            {:else}
+                                Simpan transaksi ke kantong pilihanmu
+                            {/if}
+                        </p>
                     </div>
                 </div>
                 <button
@@ -160,28 +170,28 @@
                 <!-- DROPDOWN MULTI-KANTONG -->
                 {#if selectedType === 'expense'}
                     <div>
-                        <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                            <span>Sumber Dana / Kantong</span>
-                            <span style="font-size: 10.5px; color: var(--expense); font-weight: 600;">Memotong saldo kantong ini</span>
+                        <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                            <span>Sumber Kantong</span>
+                            <span style="font-size: 10.5px; color: var(--expense); font-weight: 700; background: var(--expense-light); padding: 2px 7px; border-radius: 6px;">Memotong saldo</span>
                         </label>
                         <select bind:value={selectedPocket} style="font-size: 15px; font-weight: 600;">
                             {#each $pocketsList as p}
                                 <option value={p.id}>
-                                    {p.icon} {p.name} {p.fullName && p.fullName !== p.name ? `— ${p.fullName}` : ''}
+                                    {p.icon} {p.fullName || p.name}
                                 </option>
                             {/each}
                         </select>
                     </div>
                 {:else if selectedType === 'income'}
                     <div>
-                        <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                            <span>Simpan Ke / Kantong Tujuan</span>
-                            <span style="font-size: 10.5px; color: var(--income); font-weight: 600;">Menambah saldo kantong ini</span>
+                        <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                            <span>Kantong Tujuan</span>
+                            <span style="font-size: 10.5px; color: var(--income); font-weight: 700; background: var(--income-light); padding: 2px 7px; border-radius: 6px;">Menambah saldo</span>
                         </label>
                         <select bind:value={selectedPocket} style="font-size: 15px; font-weight: 600;">
                             {#each $pocketsList as p}
                                 <option value={p.id}>
-                                    {p.icon} {p.name} {p.fullName && p.fullName !== p.name ? `— ${p.fullName}` : ''}
+                                    {p.icon} {p.fullName || p.name}
                                 </option>
                             {/each}
                         </select>
@@ -189,34 +199,34 @@
                 {:else if selectedType === 'withdraw'}
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                         <div>
-                            <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 4px;">
+                            <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 5px;">
                                 Sumber Pengambilan
                             </label>
-                            <select bind:value={withdrawSource} style="font-size: 14px;">
+                            <select bind:value={withdrawSource} style="font-size: 14px; font-weight: 600;">
                                 {#each $pocketsList.filter(p => p.id !== 'cash') as p}
-                                    <option value={p.id}>{p.icon} {p.name}</option>
+                                    <option value={p.id}>{p.icon} {p.fullName || p.name}</option>
                                 {/each}
                             </select>
                         </div>
                         <div>
-                            <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 4px;">
+                            <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 5px;">
                                 Masuk Ke Kantong
                             </label>
-                            <select bind:value={selectedPocket} style="font-size: 14px;">
+                            <select bind:value={selectedPocket} style="font-size: 14px; font-weight: 600;">
                                 {#each $pocketsList as p}
-                                    <option value={p.id}>{p.icon} {p.name}</option>
+                                    <option value={p.id}>{p.icon} {p.fullName || p.name}</option>
                                 {/each}
                             </select>
                         </div>
                     </div>
                 {:else}
                     <div>
-                        <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 4px;">
+                        <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 5px;">
                             Sumber Dana (Dipindahkan Dari)
                         </label>
-                        <select bind:value={selectedPocket} style="font-size: 15px;">
+                        <select bind:value={selectedPocket} style="font-size: 15px; font-weight: 600;">
                             {#each $pocketsList as p}
-                                <option value={p.id}>{p.icon} {p.name}</option>
+                                <option value={p.id}>{p.icon} {p.fullName || p.name}</option>
                             {/each}
                         </select>
                     </div>
@@ -241,26 +251,28 @@
 
                 <!-- INPUT KETERANGAN -->
                 <div>
-                    <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 4px;">Keterangan</label>
+                    <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 5px;">
+                        Keterangan Transaksi
+                    </label>
                     <input
                         type="text"
                         class="tx-input tx-desc-input"
                         bind:value={desc}
-                        placeholder={selectedType === 'income' ? 'Keterangan (Gaji Bulanan, Bonus, dll)' : 'Keterangan (Makan siang, Belanja, dll)'}
+                        placeholder={selectedType === 'income' ? 'Contoh: Gaji Bulanan, Bonus Project' : selectedType === 'withdraw' ? 'Contoh: Tarik dana darurat' : 'Contoh: Makan siang, Belanja, Kopi'}
                         autocomplete="off"
                         autocorrect="off"
                         autocapitalize="sentences"
                         spellcheck="false"
                         inputmode="text"
                         required
-                        style="font-size: 16px; pointer-events: auto !important; user-select: text !important;"
+                        style="font-size: 15px; font-weight: 600; pointer-events: auto !important; user-select: text !important;"
                     >
                 </div>
 
                 <!-- INPUT NOMINAL -->
                 <div>
-                    <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 4px;">
-                        {selectedType === 'tring' || (selectedType === 'withdraw' && withdrawSource === 'tring') ? 'Jumlah Gram (Gr)' : 'Nominal (Rp)'}
+                    <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 5px;">
+                        {selectedType === 'tring' || (selectedType === 'withdraw' && withdrawSource === 'tring') ? 'Jumlah Gram Emas (Gr)' : 'Nominal Transaksi (Rp)'}
                     </label>
                     <input
                         type="text"
@@ -268,10 +280,10 @@
                         class="tx-input tx-amount-input"
                         value={amountStr}
                         on:input={handleAmountInput}
-                        placeholder={selectedType === 'tring' || (selectedType === 'withdraw' && withdrawSource === 'tring') ? 'Jml Gram (Misal: 0.5)' : 'Nominal Rupiah (Misal: 100.000)'}
+                        placeholder={selectedType === 'tring' || (selectedType === 'withdraw' && withdrawSource === 'tring') ? 'Contoh: 0.5' : 'Misal: 50.000'}
                         autocomplete="off"
                         required
-                        style="font-size: 16px; pointer-events: auto !important; user-select: text !important;"
+                        style="font-size: 16px; font-weight: 700; pointer-events: auto !important; user-select: text !important;"
                     >
                 </div>
 
@@ -286,7 +298,11 @@
                     </div>
                 {/if}
 
-                <button type="submit" class="btn-primary" style="margin-top: 6px; padding: 14px; font-size: 14px; font-weight: 800;">
+                <button
+                    type="submit"
+                    class="btn-primary"
+                    style="margin-top: 6px; padding: 14px; font-size: 14px; font-weight: 800; background: {selectedType === 'income' ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #8b5cf6, #d946ef)'}; box-shadow: {selectedType === 'income' ? '0 4px 15px rgba(16, 185, 129, 0.4)' : '0 4px 15px rgba(139, 92, 246, 0.4)'};"
+                >
                     Simpan Transaksi (Enter ↵)
                 </button>
             </form>

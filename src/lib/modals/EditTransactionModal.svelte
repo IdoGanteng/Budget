@@ -73,6 +73,7 @@
                     <input
                         type="text"
                         bind:value={desc}
+                        placeholder="Contoh: Makan siang, Belanja, Tagihan"
                         required
                         autocomplete="off"
                     >
@@ -86,6 +87,7 @@
                         type="text"
                         value={amountStr}
                         on:input={handleAmountInput}
+                        placeholder="Misal: 50.000"
                         required
                         autocomplete="off"
                     >
@@ -120,7 +122,7 @@
                     <select bind:value={selectedPocket}>
                         {#each $pocketsList as p}
                             <option value={p.id}>
-                                {p.icon} {p.name} {p.fullName && p.fullName !== p.name ? `(${p.fullName})` : ''}
+                                {p.icon} {p.fullName || p.name}
                             </option>
                         {/each}
                     </select>
@@ -133,7 +135,7 @@
                         </label>
                         <select bind:value={withdrawSource}>
                             {#each $pocketsList as p}
-                                <option value={p.id}>{p.icon} {p.name}</option>
+                                <option value={p.id}>{p.icon} {p.fullName || p.name}</option>
                             {/each}
                         </select>
                     </div>

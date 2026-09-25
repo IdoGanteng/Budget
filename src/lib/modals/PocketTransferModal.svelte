@@ -81,7 +81,7 @@
                         style="background: var(--input-bg); border-color: var(--border-color); color: var(--text-dark); border-radius: 12px; padding: 10px 12px; font-size: 13px; width: 100%;"
                     >
                         {#each $pocketsList as p}
-                            <option value={p.id}>{p.icon} {p.name} {p.fullName && p.fullName !== p.name ? `(${p.fullName})` : ''}</option>
+                            <option value={p.id}>{p.icon} {p.fullName || p.name}</option>
                         {/each}
                     </select>
                 </div>
@@ -96,7 +96,7 @@
                         style="background: var(--input-bg); border-color: var(--border-color); color: var(--text-dark); border-radius: 12px; padding: 10px 12px; font-size: 13px; width: 100%;"
                     >
                         {#each $pocketsList as p}
-                            <option value={p.id}>{p.icon} {p.name} {p.fullName && p.fullName !== p.name ? `(${p.fullName})` : ''}</option>
+                            <option value={p.id}>{p.icon} {p.fullName || p.name}</option>
                         {/each}
                     </select>
                 </div>
