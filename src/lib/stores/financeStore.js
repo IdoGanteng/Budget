@@ -602,35 +602,36 @@ export const filteredData = derived(
             }
 
             // Multi-Kantong Balance Calculations
+            const hasExplicitPocket = Boolean(trx.pocket && String(trx.pocket).trim() !== '');
+
             if (trx.type === 'income') {
                 totalIncAll += amt;
-                const target = normalizePocketId(trx.pocket || trx.source || 'cash');
+                const target = hasExplicitPocket ? normalizePocketId(trx.pocket) : 'cash';
                 balances[target] = (balances[target] || 0) + amt;
             } else if (trx.type === 'expense') {
                 totalExpAll += amt;
-                // For legacy expenses without explicit pocket: if source was 'pribadi' (default bug in older versions), fallback to cash; otherwise use source
-                const source = normalizePocketId(trx.pocket || (trx.source && trx.source !== 'pribadi' ? trx.source : 'cash'));
+                const source = hasExplicitPocket ? normalizePocketId(trx.pocket) : (trx.source && trx.source !== 'pribadi' ? normalizePocketId(trx.source) : 'cash');
                 balances[source] = (balances[source] || 0) - amt;
             } else if (trx.type === 'simpanan') {
                 balances.simpanan = (balances.simpanan || 0) + amt;
-                const src = normalizePocketId(trx.source || 'cash');
-                if (src !== 'simpanan') balances[src] = (balances[src] || 0) - amt;
+                const src = hasExplicitPocket ? normalizePocketId(trx.pocket) : (trx.source === 'cash' ? 'cash' : null);
+                if (src && src !== 'simpanan') balances[src] = (balances[src] || 0) - amt;
             } else if (trx.type === 'pribadi') {
                 balances.tabungan = (balances.tabungan || 0) + amt;
-                const src = normalizePocketId(trx.source || 'cash');
-                if (src !== 'tabungan') balances[src] = (balances[src] || 0) - amt;
+                const src = hasExplicitPocket ? normalizePocketId(trx.pocket) : (trx.source === 'cash' ? 'cash' : null);
+                if (src && src !== 'tabungan') balances[src] = (balances[src] || 0) - amt;
             } else if (trx.type === 'tring' || trx.type === 'inv_tring') {
                 balances.tring = (balances.tring || 0) + amt;
-                const src = normalizePocketId(trx.source || 'cash');
-                balances[src] = (balances[src] || 0) - (amt * goldP);
+                const src = hasExplicitPocket ? normalizePocketId(trx.pocket) : (trx.source === 'cash' ? 'cash' : null);
+                if (src) balances[src] = (balances[src] || 0) - (amt * goldP);
             } else if (trx.type === 'jago' || trx.type === 'inv_jago') {
                 balances.jago = (balances.jago || 0) + amt;
-                const src = normalizePocketId(trx.source || 'cash');
-                balances[src] = (balances[src] || 0) - amt;
+                const src = hasExplicitPocket ? normalizePocketId(trx.pocket) : (trx.source === 'cash' ? 'cash' : null);
+                if (src) balances[src] = (balances[src] || 0) - amt;
                 totalExpAll += amt;
             } else if (trx.type === 'withdraw') {
                 const src = normalizePocketId(trx.source || 'tabungan');
-                const to = normalizePocketId(trx.category || trx.target || 'cash');
+                const to = hasExplicitPocket ? normalizePocketId(trx.pocket) : (trx.target ? normalizePocketId(trx.target) : 'cash');
                 if (src === 'tring') {
                     balances.tring = (balances.tring || 0) - amt;
                     balances[to] = (balances[to] || 0) + (amt * goldP);
@@ -639,7 +640,7 @@ export const filteredData = derived(
                     balances[to] = (balances[to] || 0) + amt;
                 }
             } else if (trx.type === 'transfer') {
-                const from = normalizePocketId(trx.source || 'cash');
+                const from = normalizePocketId(trx.source || trx.pocket || 'cash');
                 const to = normalizePocketId(trx.category || trx.target || 'tabungan');
 
                 if (from === 'tring') {

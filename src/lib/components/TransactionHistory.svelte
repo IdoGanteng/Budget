@@ -112,6 +112,16 @@
 
         return { tCls, dAmt, typeIcon, typeBg, typeColor, typeLabel };
     }
+
+    function getTrxPocket(trx) {
+        if (trx.pocket) return trx.pocket;
+        if (trx.type === 'simpanan') return 'simpanan';
+        if (trx.type === 'pribadi') return 'tabungan';
+        if (trx.type === 'tring' || trx.type === 'inv_tring') return 'tring';
+        if (trx.type === 'jago' || trx.type === 'inv_jago') return 'jago';
+        if (trx.type === 'withdraw') return 'tabungan';
+        return (trx.source && trx.source !== 'pribadi') ? trx.source : 'cash';
+    }
 </script>
 
 <div class="glass-panel section-history" id="section-history" style="padding: 22px;">
@@ -181,7 +191,7 @@
                     <ul class="history-list">
                         {#each group.items as trx (trx.id)}
                             {@const meta = getTypeMeta(trx)}
-                            {@const pMeta = getPocketMeta(trx.pocket || (trx.source && trx.source !== 'pribadi' ? trx.source : 'cash'))}
+                            {@const pMeta = getPocketMeta(getTrxPocket(trx))}
                             {@const transferFrom = getPocketMeta(trx.source)}
                             {@const transferTo = getPocketMeta(trx.category || trx.pocket)}
                             <li>

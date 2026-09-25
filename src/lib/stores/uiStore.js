@@ -1,13 +1,27 @@
 import { writable } from 'svelte/store';
 
-// Theme store
-const initialTheme = localStorage.getItem('theme') || 'dark';
-document.body.setAttribute('data-theme', initialTheme);
+// Theme store - Default solid dark
+const storedTheme = typeof localStorage !== 'undefined' ? localStorage.getItem('theme') : 'dark';
+const initialTheme = storedTheme === 'light' ? 'dark' : (storedTheme || 'dark');
+if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('theme', initialTheme);
+}
+if (typeof document !== 'undefined') {
+    document.documentElement.classList.add('dark');
+    document.documentElement.setAttribute('data-theme', initialTheme);
+    document.body.classList.add('dark');
+    document.body.setAttribute('data-theme', initialTheme);
+}
 
 export const theme = writable(initialTheme);
 theme.subscribe((val) => {
-    localStorage.setItem('theme', val);
+    if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('theme', val);
+    }
     if (typeof document !== 'undefined') {
+        document.documentElement.classList.toggle('dark', val === 'dark');
+        document.documentElement.setAttribute('data-theme', val);
+        document.body.classList.toggle('dark', val === 'dark');
         document.body.setAttribute('data-theme', val);
     }
 });

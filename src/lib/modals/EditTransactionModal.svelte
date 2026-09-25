@@ -13,7 +13,7 @@
         txId = $editingTx.id;
         desc = $editingTx.desc;
         selectedType = $editingTx.type;
-        selectedPocket = normalizePocketId($editingTx.pocket || $editingTx.source || 'cash');
+        selectedPocket = $editingTx.pocket ? normalizePocketId($editingTx.pocket) : ($editingTx.source && $editingTx.source !== 'pribadi' ? normalizePocketId($editingTx.source) : 'cash');
         withdrawSource = normalizePocketId($editingTx.source || 'tabungan');
 
         const isGram = ($editingTx.type === 'tring' || $editingTx.type === 'inv_tring' || ($editingTx.type === 'withdraw' && $editingTx.source === 'tring'));
