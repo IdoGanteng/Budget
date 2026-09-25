@@ -193,11 +193,9 @@
                                 Sumber Pengambilan
                             </label>
                             <select bind:value={withdrawSource} style="font-size: 14px;">
-                                <option value="tabungan">💳 Tabungan</option>
-                                <option value="simpanan">🛡️ Simpanan Wajib</option>
-                                <option value="tring">🪙 Emas Tring</option>
-                                <option value="jago">🦁 Emas Jago</option>
-                                <option value="bca">🏦 Rekening BCA</option>
+                                {#each $pocketsList.filter(p => p.id !== 'cash') as p}
+                                    <option value={p.id}>{p.icon} {p.name}</option>
+                                {/each}
                             </select>
                         </div>
                         <div>

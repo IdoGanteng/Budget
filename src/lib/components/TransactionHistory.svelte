@@ -12,7 +12,7 @@
         getPocketMeta
     } from '../stores/financeStore.js';
     import { usersList } from '../stores/authStore.js';
-    import { openEditTxModal, showConfirmModal } from '../stores/uiStore.js';
+    import { openEditTxModal, showConfirmModal, privacyMode } from '../stores/uiStore.js';
 
     $: groupedDates = $filteredData.groupedDates;
 
@@ -42,10 +42,10 @@
         });
     }
 
-    function getTypeMeta(trx) {
+    function getTypeMeta(trx, isMasked = false) {
         const amt = Number(trx.amount) || 0;
         let tCls = 'text-exp';
-        let dAmt = formatRp(amt);
+        let dAmt = formatRp(amt, isMasked);
         let typeIcon = '💸';
         let typeBg = 'var(--expense-light)';
         let typeColor = 'var(--expense)';
@@ -53,49 +53,53 @@
 
         if (trx.type === 'income') {
             tCls = 'text-inc';
-            dAmt = '+ ' + formatRp(amt);
+            dAmt = isMasked ? 'Rp ***.***' : '+ ' + formatRp(amt);
             typeIcon = '💰';
             typeBg = 'var(--income-light)';
             typeColor = 'var(--income)';
             typeLabel = 'Income';
         } else if (trx.type === 'expense') {
             tCls = 'text-exp';
-            dAmt = '- ' + formatRp(amt);
+            dAmt = isMasked ? 'Rp ***.***' : '- ' + formatRp(amt);
             typeIcon = '💸';
             typeBg = 'var(--expense-light)';
             typeColor = 'var(--expense)';
             typeLabel = 'Expense';
         } else if (trx.type === 'simpanan') {
             tCls = 'text-inc';
-            dAmt = '+ ' + formatRp(amt);
+            dAmt = isMasked ? 'Rp ***.***' : '+ ' + formatRp(amt);
             typeIcon = '🛡️';
             typeBg = 'var(--simpanan-light)';
             typeColor = 'var(--simpanan)';
             typeLabel = 'Simpanan';
         } else if (trx.type === 'pribadi') {
             tCls = 'text-inc';
-            dAmt = '+ ' + formatRp(amt);
+            dAmt = isMasked ? 'Rp ***.***' : '+ ' + formatRp(amt);
             typeIcon = '💳';
             typeBg = 'var(--pribadi-light)';
             typeColor = 'var(--pribadi)';
             typeLabel = 'Tabungan';
         } else if (trx.type === 'tring' || trx.type === 'inv_tring') {
             tCls = 'text-inc';
-            dAmt = '+ ' + amt.toFixed(2) + ' Gr';
+            dAmt = isMasked ? '*** Gr' : '+ ' + amt.toFixed(2) + ' Gr';
             typeIcon = '🪙';
             typeBg = 'var(--tring-light)';
             typeColor = 'var(--tring)';
             typeLabel = 'Emas Tring';
         } else if (trx.type === 'jago' || trx.type === 'inv_jago') {
             tCls = 'text-exp';
-            dAmt = '- ' + formatRp(amt);
+            dAmt = isMasked ? 'Rp ***.***' : '- ' + formatRp(amt);
             typeIcon = '🦁';
             typeBg = 'var(--jago-light)';
             typeColor = 'var(--jago)';
             typeLabel = 'Emas Jago';
         } else if (trx.type === 'withdraw') {
             tCls = 'text-inc';
-            dAmt = trx.source === 'tring' ? '+' + amt.toFixed(2) + ' Gr' : '+' + formatRp(amt);
+            if (isMasked) {
+                dAmt = trx.source === 'tring' ? '*** Gr' : 'Rp ***.***';
+            } else {
+                dAmt = trx.source === 'tring' ? '+' + amt.toFixed(2) + ' Gr' : '+' + formatRp(amt);
+            }
             typeIcon = '🏧';
             typeBg = 'var(--pribadi-light)';
             typeColor = 'var(--pribadi)';
@@ -103,7 +107,11 @@
         } else if (trx.type === 'transfer') {
             tCls = 'text-primary';
             const isGr = (trx.source === 'tring' || trx.category === 'tring');
-            dAmt = isGr ? amt.toFixed(2) + ' Gr' : formatRp(amt);
+            if (isMasked) {
+                dAmt = isGr ? '*** Gr' : 'Rp ***.***';
+            } else {
+                dAmt = isGr ? amt.toFixed(2) + ' Gr' : formatRp(amt);
+            }
             typeIcon = '⇄';
             typeBg = 'rgba(255, 122, 0, 0.16)';
             typeColor = '#FF7A00';
@@ -190,7 +198,7 @@
                     </div>
                     <ul class="history-list">
                         {#each group.items as trx (trx.id)}
-                            {@const meta = getTypeMeta(trx)}
+                            {@const meta = getTypeMeta(trx, $privacyMode)}
                             {@const pMeta = getPocketMeta(getTrxPocket(trx))}
                             {@const transferFrom = getPocketMeta(trx.source)}
                             {@const transferTo = getPocketMeta(trx.category || trx.pocket)}

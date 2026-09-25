@@ -55,40 +55,6 @@ export const DEFAULT_POCKETS = [
         actionTitle: 'Catat dari Tabungan'
     },
     {
-        id: 'bca',
-        name: 'BCA',
-        fullName: 'Bank BCA',
-        categoryTag: 'Rekening Bank',
-        role: 'Transaksi & Payroll',
-        icon: '🏦',
-        color: '#0284c7',
-        bgClass: 'bg-blue',
-        barClass: 'bar-blue',
-        pocketClass: 'pocket-blue',
-        subdesc: 'Rekening payroll & bank utama',
-        insight: 'Rekening bank utama untuk penerimaan gaji, debit, dan transfer.',
-        actionType: 'expense',
-        actionCategory: 'tagihan',
-        actionTitle: 'Catat dari Rekening BCA'
-    },
-    {
-        id: 'gopay',
-        name: 'Gopay',
-        fullName: 'GoPay / E-Wallet',
-        categoryTag: 'Dompet Digital',
-        role: 'Belanja & F&B',
-        icon: '📱',
-        color: '#06b6d4',
-        bgClass: 'bg-cyan',
-        barClass: 'bar-cyan',
-        pocketClass: 'pocket-cyan',
-        subdesc: 'Dompet digital harian',
-        insight: 'Alat bayar QRIS, ojek online, pesan antar makanan, dan transaksi cepat.',
-        actionType: 'expense',
-        actionCategory: 'makan',
-        actionTitle: 'Catat dari Gopay'
-    },
-    {
         id: 'simpanan',
         name: 'Simpanan',
         fullName: 'Simpanan Wajib',
@@ -150,8 +116,6 @@ export function normalizePocketId(id) {
     if (lower === 'simpanan' || lower === 'wajib') return 'simpanan';
     if (lower === 'tring' || lower === 'emas_tring') return 'tring';
     if (lower === 'jago' || lower === 'emas_jago') return 'jago';
-    if (lower === 'bca' || lower === 'bank_bca') return 'bca';
-    if (lower === 'gopay' || lower === 'go-pay' || lower === 'ewallet') return 'gopay';
     return lower;
 }
 
@@ -160,7 +124,10 @@ function loadPocketsFromLocal() {
         const raw = localStorage.getItem('app_pockets_list');
         if (raw) {
             const parsed = JSON.parse(raw);
-            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                const cleaned = parsed.filter(p => p.id !== 'bca' && p.id !== 'gopay');
+                if (cleaned.length > 0) return cleaned;
+            }
         }
     } catch (e) {}
     return DEFAULT_POCKETS;
@@ -531,8 +498,14 @@ export function cleanDateStr(dateStr) {
     return dateStr;
 }
 
-export function formatRp(angka) {
+export function formatRp(angka, masked = false) {
+    if (masked) return 'Rp ***.***';
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka || 0);
+}
+
+export function formatGram(gram, masked = false) {
+    if (masked) return '*** Gr';
+    return `${(Number(gram) || 0).toFixed(2)} Gr`;
 }
 
 // Filter stores
@@ -557,14 +530,14 @@ export const filteredData = derived(
     [transactions, searchQuery, selectedMonth, selectedUserFilter, activeUser, goldPricePerGram, pocketsList],
     ([$txs, $search, $month, $userFilter, $activeUser, $goldPrice, $pockets]) => {
         const goldP = $goldPrice || 1250000;
+        const rawPockets = ($pockets && $pockets.length > 0 ? $pockets : DEFAULT_POCKETS);
+        const activePockets = rawPockets.filter(p => p.id !== 'bca' && p.id !== 'gopay');
         const balances = {};
-        ($pockets || DEFAULT_POCKETS).forEach(p => {
+        activePockets.forEach(p => {
             balances[normalizePocketId(p.id)] = 0;
         });
         balances.cash = balances.cash || 0;
         balances.tabungan = balances.tabungan || 0;
-        balances.bca = balances.bca || 0;
-        balances.gopay = balances.gopay || 0;
         balances.simpanan = balances.simpanan || 0;
         balances.tring = balances.tring || 0; // dalam Gram
         balances.jago = balances.jago || 0;
@@ -694,12 +667,11 @@ export const filteredData = derived(
             groupedByDate[cleanD].push(trx);
         });
 
-        // Calculate Total Portfolio (Wealth) as the sum of ALL individual pockets
+        // Calculate Total Portfolio (Wealth) as the sum of ALL 5 active pockets
         const totalTrgRp = (balances.tring || 0) * goldP;
-        const currentPockets = $pockets && $pockets.length > 0 ? $pockets : DEFAULT_POCKETS;
         let totalWealth = 0;
 
-        currentPockets.forEach(p => {
+        activePockets.forEach(p => {
             const normId = normalizePocketId(p.id);
             if (p.isGram || normId === 'tring') {
                 totalWealth += (balances.tring || 0) * goldP;
@@ -711,7 +683,7 @@ export const filteredData = derived(
         const safeTotal = totalWealth > 0 ? totalWealth : 1;
 
         // Build computed pockets with live balances and percentage shares
-        const computedPockets = currentPockets.map(p => {
+        const computedPockets = activePockets.map(p => {
             const normId = normalizePocketId(p.id);
             const isGoldGram = p.isGram || normId === 'tring';
             const amount = isGoldGram ? totalTrgRp : (balances[normId] || 0);
@@ -733,8 +705,6 @@ export const filteredData = derived(
         const cashShare = computedPockets.find(p => p.id === 'cash')?.share || 0;
         const simShare = computedPockets.find(p => p.id === 'simpanan')?.share || 0;
         const priShare = computedPockets.find(p => normalizePocketId(p.id) === 'tabungan')?.share || 0;
-        const bcaShare = computedPockets.find(p => p.id === 'bca')?.share || 0;
-        const gopayShare = computedPockets.find(p => p.id === 'gopay')?.share || 0;
         const trgShare = computedPockets.find(p => p.id === 'tring')?.share || 0;
         const jagShare = computedPockets.find(p => p.id === 'jago')?.share || 0;
 
@@ -754,8 +724,6 @@ export const filteredData = derived(
                 cash,
                 totalSimAll: balances.simpanan || 0,
                 totalPriAll: balances.tabungan || 0,
-                totalBcaAll: balances.bca || 0,
-                totalGopayAll: balances.gopay || 0,
                 totalTrgAll: balances.tring || 0,
                 totalTrgRp,
                 totalJagAll: balances.jago || 0,
@@ -763,7 +731,7 @@ export const filteredData = derived(
                 totalGold,
                 balances
             },
-            shares: { cashShare, simShare, priShare, bcaShare, gopayShare, trgShare, jagShare },
+            shares: { cashShare, simShare, priShare, trgShare, jagShare },
             computedPockets,
             filteredInc,
             filteredExp,

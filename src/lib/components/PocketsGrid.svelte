@@ -1,5 +1,5 @@
 <script>
-    import { openAddTxModal, openTransferModal } from '../stores/uiStore.js';
+    import { openAddTxModal, openTransferModal, privacyMode } from '../stores/uiStore.js';
     import { filteredData, formatRp } from '../stores/financeStore.js';
 
     let pocketTab = 'cards'; // 'cards' | 'analytics'
@@ -10,7 +10,7 @@
     $: pockets = $filteredData.computedPockets || [];
 
     $: totalGoldVal = totals.totalGold || (totals.totalTrgRp + totals.totalJagAll);
-    $: totalSavingsVal = totals.totalSimAll + totals.totalPriAll + (totals.totalBcaAll || 0) + (totals.totalGopayAll || 0);
+    $: totalSavingsVal = totals.totalSimAll + totals.totalPriAll;
     $: sortedPockets = [...pockets].sort((a, b) => b.amount - a.amount);
 
     function openDetail(p) {
@@ -81,7 +81,7 @@
         <div class="pocket-ribbon-card">
             <div class="ribbon-header">
                 <span class="ribbon-title">Distribusi Alokasi Portofolio</span>
-                <span class="ribbon-total font-mono">{formatRp(totals.totalWealth)}</span>
+                <span class="ribbon-total font-mono">{formatRp(totals.totalWealth, $privacyMode)}</span>
             </div>
             <div class="pocket-ribbon-track">
                 {#each pockets as p}
@@ -89,7 +89,7 @@
                         <div
                             class="ribbon-segment"
                             style="width: {p.share}%; background: {p.color};"
-                            title="{p.name}: {p.share}% ({formatRp(p.amount)})"
+                            title="{p.name}: {p.share}% ({formatRp(p.amount, $privacyMode)})"
                         ></div>
                     {/if}
                 {/each}
@@ -139,7 +139,12 @@
 
                         <!-- RIGHT: Nominal Balance & Share Badge -->
                         <div class="pocket-amount-box">
-                            <span class="pocket-nominal font-mono">{formatRp(p.amount)}</span>
+                            <span class="pocket-nominal font-mono">{formatRp(p.amount, $privacyMode)}</span>
+                            {#if p.extraInfo}
+                                <span class="pocket-extra font-mono" style="font-size: 11px; color: var(--text-gray); display: block; text-align: right; margin-top: 2px;">
+                                    {$privacyMode ? '*** Gr' : p.extraInfo}
+                                </span>
+                            {/if}
                             <div class="pocket-alloc-pill">
                                 <span class="pocket-alloc-pct font-mono">{p.share}%</span>
                                 <span class="pocket-alloc-lbl">alokasi</span>
@@ -167,7 +172,7 @@
                         <span class="metric-status-badge badge-safe">Likuiditas</span>
                     </div>
                     <div class="metric-num font-mono">{shares.cashShare}%</div>
-                    <div class="metric-sub font-mono">{formatRp(totals.cash)}</div>
+                    <div class="metric-sub font-mono">{formatRp(totals.cash, $privacyMode)}</div>
                     <p class="metric-desc">Dana siap pakai untuk operasional &amp; belanja bulan ini.</p>
                 </div>
 
@@ -178,7 +183,7 @@
                         <span class="metric-status-badge badge-purple">Cadangan</span>
                     </div>
                     <div class="metric-num font-mono">{(shares.simShare + shares.priShare)}%</div>
-                    <div class="metric-sub font-mono">{formatRp(totalSavingsVal)}</div>
+                    <div class="metric-sub font-mono">{formatRp(totalSavingsVal, $privacyMode)}</div>
                     <p class="metric-desc">Tabungan wajib pokok &amp; target impian terproteksi.</p>
                 </div>
 
@@ -189,7 +194,7 @@
                         <span class="metric-status-badge badge-gold">Emas Murni</span>
                     </div>
                     <div class="metric-num font-mono">{(shares.trgShare + shares.jagShare)}%</div>
-                    <div class="metric-sub font-mono">{formatRp(totalGoldVal)}</div>
+                    <div class="metric-sub font-mono">{formatRp(totalGoldVal, $privacyMode)}</div>
                     <p class="metric-desc">Fisik &amp; digital untuk perlindungan terhadap inflasi.</p>
                 </div>
             </div>
@@ -223,7 +228,7 @@
                                     </div>
                                 </div>
                                 <div class="ranking-balance-col">
-                                    <span class="rank-amount font-mono">{formatRp(item.amount)}</span>
+                                    <span class="rank-amount font-mono">{formatRp(item.amount, $privacyMode)}</span>
                                     <div class="rank-share-pill" style="border-color: {item.color}44; background: {item.color}15; color: {item.color};">
                                         <span class="rank-share-pct font-mono">{item.share}%</span>
                                         <span class="rank-share-lbl">porsi</span>
@@ -288,13 +293,13 @@
                 <!-- BALANCE DISPLAY -->
                 <div class="pocket-modal-balance-card">
                     <span class="balance-caption">Saldo Tersimpan</span>
-                    <div class="balance-number font-mono">{formatRp(selectedPocket.amount)}</div>
+                    <div class="balance-number font-mono">{formatRp(selectedPocket.amount, $privacyMode)}</div>
                     <div class="balance-meta-row">
                         <span class="share-badge font-mono" style="background: {selectedPocket.color}22; color: {selectedPocket.color};">
                             {selectedPocket.share}% dari Portofolio
                         </span>
                         {#if selectedPocket.extraInfo}
-                            <span class="extra-badge font-mono">{selectedPocket.extraInfo}</span>
+                            <span class="extra-badge font-mono">{$privacyMode ? '*** Gr' : selectedPocket.extraInfo}</span>
                         {/if}
                     </div>
                 </div>

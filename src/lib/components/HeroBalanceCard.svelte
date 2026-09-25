@@ -82,7 +82,7 @@
                 </div>
 
                 <div class="jago-hero-balance-row">
-                    <div class="jago-hero-amount">{formatRp(displaySisa)}</div>
+                    <div class="jago-hero-amount">{formatRp(displaySisa, $privacyMode)}</div>
                     <div class="jago-hero-badge">
                         <span class="pulse-dot">●</span> {$sisaScope === 'cash' ? 'Kas Utama • Likuid' : 'Semua Kantong • Terkonsolidasi'}
                     </div>
@@ -95,7 +95,7 @@
                     <div class="jago-flow-icon">↓</div>
                     <div class="jago-flow-info">
                         <span class="jago-flow-label">Pemasukan</span>
-                        <span class="jago-flow-val">{formatRp(filteredInc)}</span>
+                        <span class="jago-flow-val">{formatRp(filteredInc, $privacyMode)}</span>
                     </div>
                 </div>
                 <div class="jago-flow-divider"></div>
@@ -103,7 +103,7 @@
                     <div class="jago-flow-icon">↑</div>
                     <div class="jago-flow-info">
                         <span class="jago-flow-label">Pengeluaran</span>
-                        <span class="jago-flow-val">{formatRp(filteredExp)}</span>
+                        <span class="jago-flow-val">{formatRp(filteredExp, $privacyMode)}</span>
                     </div>
                 </div>
             </div>
@@ -124,7 +124,7 @@
             <div class="jago-hero-balance-wrap">
                 <span class="jago-hero-caption">Akumulasi Seluruh Aset &amp; Tabungan (Multi-Kantong)</span>
                 <div class="jago-hero-balance-row">
-                    <div class="jago-hero-amount jago-wealth-accent">{formatRp(totals.totalWealth)}</div>
+                    <div class="jago-hero-amount jago-wealth-accent">{formatRp(totals.totalWealth, $privacyMode)}</div>
                     <div class="jago-hero-badge jago-badge-wealth">
                         <span>👑</span> Total Portofolio
                     </div>
