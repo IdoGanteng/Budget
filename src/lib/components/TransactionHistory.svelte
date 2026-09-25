@@ -133,10 +133,10 @@
         </div>
 
         <!-- DUAL FILTER: BULAN & PENGGUNA -->
-        <div style="display: flex; gap: 6px; width: 100%; flex-wrap: wrap;">
+        <div class="history-filters-row">
             <select
+                class="history-filter-select"
                 bind:value={$selectedMonth}
-                style="flex: 1; padding: 6px 10px; border-radius: 100px; font-size: 11.5px; border-color: var(--border-color); background: var(--list-bg); min-height: 36px;"
             >
                 <option value="all">Semua Bulan</option>
                 {#each $monthsList as m}
@@ -145,8 +145,8 @@
             </select>
 
             <select
+                class="history-filter-select"
                 bind:value={$selectedUserFilter}
-                style="flex: 1; padding: 6px 10px; border-radius: 100px; font-size: 11.5px; border-color: var(--border-color); background: var(--list-bg); min-height: 36px;"
             >
                 <option value="all">Semua Pengguna</option>
                 {#each $usersList as u}

@@ -68,7 +68,7 @@
                 title="Status Sinkronisasi Google Sheets. Klik untuk sinkronisasi manual."
             >
                 <span class="status-dot {$syncStatus.dotClass}"></span>
-                <span>{$syncStatus.text}</span>
+                <span class="sync-status-text">{$syncStatus.text}</span>
             </button>
 
             <!-- MULTI-USER PROFILE SWITCHER BADGE -->
