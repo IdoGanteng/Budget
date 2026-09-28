@@ -93,13 +93,14 @@
             <form on:submit={handleSave} style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
                 {#each budgetFields as f}
                     <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <label style="font-size: 12px; font-weight: 700; color: var(--text-dark); display: flex; align-items: center; gap: 6px;">
+                        <label for="input-budget-{f.key}" style="font-size: 12px; font-weight: 700; color: var(--text-dark); display: flex; align-items: center; gap: 6px;">
                             <span>{f.icon}</span>
                             <span>{f.label}</span>
                         </label>
                         <div style="position: relative;">
                             <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 13px; font-weight: 700; color: var(--text-gray);">Rp</span>
                             <input
+                                id="input-budget-{f.key}"
                                 type="text"
                                 inputmode="numeric"
                                 value={inputValues[f.key] || ''}

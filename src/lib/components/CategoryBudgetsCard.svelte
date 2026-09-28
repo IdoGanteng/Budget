@@ -9,7 +9,9 @@
         { key: 'makan', name: 'Makan & Minum', icon: '🍔', defaultBudget: 1200000 },
         { key: 'belanja', name: 'Belanja', icon: '🛍️', defaultBudget: 800000 },
         { key: 'transport', name: 'Transportasi', icon: '🚗', defaultBudget: 500000 },
-        { key: 'tagihan', name: 'Tagihan & Rumah', icon: '🏠', defaultBudget: 750000 }
+        { key: 'tagihan', name: 'Tagihan & Rumah', icon: '🏠', defaultBudget: 750000 },
+        { key: 'hiburan', name: 'Hiburan & Hobi', icon: '🎮', defaultBudget: 400000 },
+        { key: 'kesehatan', name: 'Kesehatan & Medis', icon: '💊', defaultBudget: 300000 }
     ];
 
     function getPercent(spent, max) {

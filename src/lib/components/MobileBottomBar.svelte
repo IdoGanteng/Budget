@@ -40,24 +40,18 @@
     </button>
 
     <!-- 3. FLOATING ACTION '+' (CENTER) -->
-    <div
+    <button
+        type="button"
         class="mobile-fab-column"
         on:click={() => openAddTxModal({ type: 'expense', category: 'makan', title: 'Catat Pengeluaran' })}
-        on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openAddTxModal({ type: 'expense', category: 'makan', title: 'Catat Pengeluaran' }); } }}
-        role="button"
-        tabindex="0"
+        title="Catat Transaksi Cepat"
+        aria-label="Catat Transaksi"
     >
-        <button
-            type="button"
-            class="mobile-fab-center"
-            title="Catat Transaksi Cepat"
-            aria-label="Catat Transaksi"
-            tabindex="-1"
-        >
+        <span class="mobile-fab-center">
             <span class="mobile-fab-plus">＋</span>
-        </button>
+        </span>
         <span class="mobile-fab-text">Catat</span>
-    </div>
+    </button>
 
     <!-- 4. KANTONG -->
     <button

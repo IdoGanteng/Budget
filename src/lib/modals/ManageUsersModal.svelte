@@ -26,8 +26,15 @@
 </script>
 
 {#if $isManageUsersModalOpen}
-    <div class="modal-overlay active" on:click={() => isManageUsersModalOpen.set(false)}>
-        <div class="modal-box" style="text-align: left; max-width: 440px;" on:click|stopPropagation>
+    <div
+        class="modal-overlay active"
+        on:click={() => isManageUsersModalOpen.set(false)}
+        on:keydown={(e) => { if (e.key === 'Escape') isManageUsersModalOpen.set(false); }}
+        role="dialog"
+        aria-modal="true"
+        tabindex="-1"
+    >
+        <div class="modal-box" style="text-align: left; max-width: 440px;" on:click|stopPropagation role="document">
             <div style="font-size: 32px; margin-bottom: 8px;">👥</div>
             <h3>Kelola Profil Pengguna</h3>
             <p style="font-size: 12.5px; color: var(--text-gray); margin-bottom: 14px;">
@@ -122,7 +129,7 @@
                     </div>
 
                     <div>
-                        <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 6px;">Pilih Warna Profil</label>
+                        <span style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 6px;">Pilih Warna Profil</span>
                         <div style="display: flex; gap: 6px; flex-wrap: wrap;">
                             {#each colorPresets as c}
                                 <button

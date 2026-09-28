@@ -1,4 +1,24 @@
--rapihkan tampilan hp
-- fitur login google seperti login login pada umumnya dong, kek contoh login Instagram dengan akun google, biar tetep amann
--serta tambahin fitur fitur menarik biar lebih interative lagi
-- buat seperti ini web disini https://mem-finance.kevadamarg.space/
+[x] 1. Rapihkan tampilan HP:
+    - Mobile bottom bar dengan safe-area inset (tidak terpotong sistem navigasi HP).
+    - Semua modal responsif bertransformasi menjadi modal sliding bawah (bottom sheet) dengan handle bar.
+    - Floating '+' Action button di tengah bottom bar untuk pencatatan instan.
+    - Penataan kartu, padding, dan scroll view mulus pada perangkat mobile.
+
+[x] 2. Fitur login Google resmi (GIS & OAuth):
+    - Integrasi Google Identity Services SDK dengan One-Tap & dialog Google Sign-In resmi ala Instagram/aplikasi modern.
+    - Pengaturan Google Client ID mandiri di menu Pengguna & Database.
+    - Akses cepat profil lokal serta perlindungan PIN/Password Vault.
+    - Tombol Logout resmi di Navbar & Settings dengan dialog konfirmasi aman.
+
+[x] 3. Fitur menarik & interaktif:
+    - Pill filter kategori interaktif (horizontal scroll) pada riwayat transaksi.
+    - Animasi perayaan confetti ceria saat mencatat transaksi, menyimpan target, dan backup data.
+    - Ekspor & impor backup database lengkap (JSON & CSV) untuk portabilitas data.
+    - Konversi live harga emas gram ke Rupiah secara real-time saat nominal diinput.
+    - Filter multi-kantong dan mode privasi sensor saldo (mata tertutup).
+
+[x] 4. Desain & fungsi ala referensi MemFinance (https://mem-finance.kevadamarg.space/):
+    - Kartu dan modal batas anggaran bulanan per kategori (Category Budgets) dengan progress bar dan status sisa dana.
+    - Banner sapaan mindful cerdas ("Selamat pagi/siang/sore, [Nama] — Bulan [Bulan] berjalan dengan baik.").
+    - Gaya bottom sheets yang elegan di smartphone.
+    - Dukungan Tema Dark & Light dengan palet warna bersih dan rapi.

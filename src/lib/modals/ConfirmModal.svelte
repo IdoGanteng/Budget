@@ -10,8 +10,15 @@
 </script>
 
 {#if state.isOpen}
-    <div class="modal-overlay active" on:click={closeConfirmModal}>
-        <div class="modal-box" on:click|stopPropagation>
+    <div
+        class="modal-overlay active"
+        on:click={closeConfirmModal}
+        on:keydown={(e) => { if (e.key === 'Escape') closeConfirmModal(); }}
+        role="dialog"
+        aria-modal="true"
+        tabindex="-1"
+    >
+        <div class="modal-box" on:click|stopPropagation role="document">
             <div class="modal-icon">{state.icon || '⚠️'}</div>
             <h3>{state.title}</h3>
             <div style="font-size: 13.5px; color: var(--text-gray); margin-bottom: 16px; line-height: 1.5;">

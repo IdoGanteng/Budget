@@ -3344,6 +3344,9 @@ select option { background: var(--card-bg-solid); color: var(--text-dark); }
         width: 100% !important;
         height: 100% !important;
         padding-bottom: 6px !important;
+        background: none !important;
+        border: none !important;
+        outline: none !important;
         cursor: pointer !important;
     }
     .mobile-fab-center {
