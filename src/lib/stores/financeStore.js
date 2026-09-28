@@ -1,5 +1,6 @@
 import { writable, derived, get } from 'svelte/store';
 import CryptoJS from 'crypto-js';
+import confetti from 'canvas-confetti';
 import { activeUser, currentSessionKey } from './authStore.js';
 import { showToast } from './uiStore.js';
 
@@ -465,12 +466,18 @@ export function saveGoals(wGoal, gGoal) {
     const goals = { wealthGoal: wGoal, goldGoal: gGoal };
     financialGoals.set(goals);
     localStorage.setItem('financialGoals', JSON.stringify(goals));
+    try {
+        confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+    } catch (e) {}
     showToast('Target finansial 2026 berhasil disimpan!', 'success', '🎯');
 }
 
 export function saveBudgets(budgets) {
     categoryBudgets.set(budgets);
     localStorage.setItem('categoryBudgets', JSON.stringify(budgets));
+    try {
+        confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+    } catch (e) {}
     showToast('Anggaran bulanan berhasil diperbarui!', 'success', '📊');
 }
 
@@ -530,6 +537,7 @@ export function formatGram(gram, masked = false) {
 export const searchQuery = writable('');
 export const selectedMonth = writable('all');
 export const selectedUserFilter = writable('all');
+export const selectedCategoryFilter = writable('all');
 
 // Reactive calculations
 export const monthsList = derived(transactions, ($txs) => {
@@ -545,8 +553,8 @@ export const monthsList = derived(transactions, ($txs) => {
 });
 
 export const filteredData = derived(
-    [transactions, searchQuery, selectedMonth, selectedUserFilter, activeUser, goldPricePerGram, pocketsList],
-    ([$txs, $search, $month, $userFilter, $activeUser, $goldPrice, $pockets]) => {
+    [transactions, searchQuery, selectedMonth, selectedUserFilter, selectedCategoryFilter, activeUser, goldPricePerGram, pocketsList],
+    ([$txs, $search, $month, $userFilter, $catFilter, $activeUser, $goldPrice, $pockets]) => {
         const goldP = $goldPrice || 1250000;
         const rawPockets = ($pockets && $pockets.length > 0 ? $pockets : DEFAULT_POCKETS);
         const activePockets = rawPockets.filter(p => p.id !== 'bca' && p.id !== 'gopay');
@@ -681,6 +689,24 @@ export const filteredData = derived(
                 if (!descMatch && !userMatch && !catMatch && !pocketMatch) return;
             }
 
+            // Category filter
+            if ($catFilter && $catFilter !== 'all') {
+                const cat = (trx.category || '').toLowerCase();
+                const descLower = (trx.desc || '').toLowerCase();
+                let matchesCat = (cat === $catFilter);
+                if (!matchesCat) {
+                    if ($catFilter === 'makan' && (descLower.includes('makan') || descLower.includes('kopi') || descLower.includes('cafe'))) matchesCat = true;
+                    else if ($catFilter === 'belanja' && (descLower.includes('belanja') || descLower.includes('beli'))) matchesCat = true;
+                    else if ($catFilter === 'transport' && (descLower.includes('bensin') || descLower.includes('ojek') || descLower.includes('tol'))) matchesCat = true;
+                    else if ($catFilter === 'tagihan' && (descLower.includes('listrik') || descLower.includes('wifi') || descLower.includes('pulsa'))) matchesCat = true;
+                    else if ($catFilter === 'hiburan' && (descLower.includes('game') || descLower.includes('bioskop') || descLower.includes('nonton'))) matchesCat = true;
+                    else if ($catFilter === 'kesehatan' && (descLower.includes('obat') || descLower.includes('dokter') || descLower.includes('klinik'))) matchesCat = true;
+                    else if ($catFilter === 'investasi' && (trx.type === 'tring' || trx.type === 'jago' || cat === 'investasi')) matchesCat = true;
+                    else if ($catFilter === 'gaji' && (trx.type === 'income' || cat === 'gaji')) matchesCat = true;
+                }
+                if (!matchesCat) return;
+            }
+
             if (!isMonthMatch || !isUserMatch) return;
 
             filteredList.push(trx);
@@ -791,6 +817,9 @@ export async function addTransaction(txData) {
     });
 
     const pMeta = getPocketMeta(pocket);
+    try {
+        confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
+    } catch (e) {}
     showToast(`Transaksi <b>"${newTrx.desc}"</b> (${pMeta.name}) berhasil dicatat!`, 'success', '💰');
     enqueueOfflineAction('add', newTrx);
     return newTrx;
@@ -907,6 +936,77 @@ export function clearLocalCache() {
     localStorage.removeItem('financialSnapshots');
     saveToLocal(get(transactions));
     showToast('Cache lokal berhasil dibersihkan.', 'success', '🧹');
+}
+
+export function exportDatabaseJSON() {
+    try {
+        const u = get(activeUser);
+        const data = {
+            version: '1.0',
+            exportedAt: new Date().toISOString(),
+            user: u ? { id: u.id, name: u.name, email: u.email } : null,
+            transactions: get(transactions) || [],
+            financialGoals: get(financialGoals) || {},
+            categoryBudgets: get(categoryBudgets) || {},
+            goldPrice: get(goldPricePerGram) || 1250000
+        };
+
+        const jsonStr = JSON.stringify(data, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `PersonalOS_Backup_${new Date().toISOString().split('T')[0]}.json`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        try {
+            confetti({ particleCount: 60, spread: 60, origin: { y: 0.7 } });
+        } catch (e) {}
+        showToast('Backup lengkap (JSON) berhasil diunduh.', 'success', '💾');
+    } catch (err) {
+        console.error('Export JSON error:', err);
+        showToast('Gagal mengekspor backup JSON: ' + err.message, 'error', '❌');
+    }
+}
+
+export function importDatabaseJSON(jsonString) {
+    try {
+        const data = JSON.parse(jsonString);
+        if (!data || typeof data !== 'object') {
+            throw new Error('Format JSON tidak valid.');
+        }
+
+        if (Array.isArray(data.transactions)) {
+            transactions.set(data.transactions);
+            saveToLocal(data.transactions);
+        }
+
+        if (data.financialGoals && typeof data.financialGoals === 'object') {
+            financialGoals.set(data.financialGoals);
+            localStorage.setItem('financialGoals', JSON.stringify(data.financialGoals));
+        }
+
+        if (data.categoryBudgets && typeof data.categoryBudgets === 'object') {
+            categoryBudgets.set(data.categoryBudgets);
+            localStorage.setItem('categoryBudgets', JSON.stringify(data.categoryBudgets));
+        }
+
+        if (data.goldPrice && !isNaN(data.goldPrice)) {
+            saveGoldPrice(Number(data.goldPrice));
+        }
+
+        try {
+            confetti({ particleCount: 90, spread: 80, origin: { y: 0.6 } });
+        } catch (e) {}
+        showToast('Data backup JSON berhasil diimpor & dipulihkan!', 'success', '🎉');
+        return true;
+    } catch (err) {
+        console.error('Import JSON error:', err);
+        showToast('Gagal memulihkan backup: ' + err.message, 'error', '❌');
+        return false;
+    }
 }
 
 // User-change & online listeners

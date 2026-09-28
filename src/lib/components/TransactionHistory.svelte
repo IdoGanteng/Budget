@@ -4,6 +4,7 @@
         monthsList,
         selectedMonth,
         selectedUserFilter,
+        selectedCategoryFilter,
         searchQuery,
         formatRp,
         deleteTransaction,
@@ -13,6 +14,18 @@
     } from '../stores/financeStore.js';
     import { usersList } from '../stores/authStore.js';
     import { openEditTxModal, showConfirmModal, privacyMode } from '../stores/uiStore.js';
+
+    const categoryPills = [
+        { key: 'all', label: 'Semua', icon: '🌐' },
+        { key: 'makan', label: 'Makan', icon: '🍔' },
+        { key: 'belanja', label: 'Belanja', icon: '🛍️' },
+        { key: 'transport', label: 'Transport', icon: '🚗' },
+        { key: 'tagihan', label: 'Tagihan', icon: '🏠' },
+        { key: 'hiburan', label: 'Hiburan', icon: '🎮' },
+        { key: 'kesehatan', label: 'Kesehatan', icon: '💊' },
+        { key: 'gaji', label: 'Gaji', icon: '💼' },
+        { key: 'investasi', label: 'Emas', icon: '🪙' }
+    ];
 
     $: groupedDates = $filteredData.groupedDates;
 
@@ -181,6 +194,23 @@
                     <option value={u.id}>{u.name}</option>
                 {/each}
             </select>
+        </div>
+
+        <!-- CATEGORY FILTER PILLS (MEMFINANCE STYLE) -->
+        <div class="category-filter-pills" role="tablist" aria-label="Filter Kategori Transaksi">
+            {#each categoryPills as cp}
+                <button
+                    type="button"
+                    class="category-pill-btn"
+                    class:active={$selectedCategoryFilter === cp.key}
+                    on:click={() => selectedCategoryFilter.set(cp.key)}
+                    role="tab"
+                    aria-selected={$selectedCategoryFilter === cp.key}
+                >
+                    <span>{cp.icon}</span>
+                    <span>{cp.label}</span>
+                </button>
+            {/each}
         </div>
     </div>
 

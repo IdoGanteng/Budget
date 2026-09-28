@@ -16,6 +16,8 @@
         getUserSpreadsheetConfig,
         syncTransactionsFromSheet,
         exportToCSV,
+        exportDatabaseJSON,
+        importDatabaseJSON,
         clearLocalCache,
         filteredData
     } from '../stores/financeStore.js';
@@ -121,6 +123,29 @@
     function handleSaveClientIdSubmit(e) {
         if (e) e.preventDefault();
         saveGoogleClientId(localGoogleClientId);
+    }
+
+    let fileInput;
+
+    function handleImportFile(e) {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+
+        showConfirmModal({
+            icon: '📥',
+            title: 'Impor & Pulihkan Backup JSON',
+            desc: `Apakah Anda yakin ingin memulihkan database dari file <b>"${file.name}"</b>? Data transaksi, target, dan anggaran lokal akan diselaraskan dengan isi backup.`,
+            confirmText: 'Ya, Pulihkan',
+            isDanger: false,
+            onConfirm: () => {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    importDatabaseJSON(event.target.result);
+                };
+                reader.readAsText(file);
+            }
+        });
+        e.target.value = '';
     }
 
     function confirmLogout() {
@@ -382,22 +407,55 @@
     <!-- CADANGAN & BACKUP -->
     <div class="glass-panel">
         <div class="panel-title">Cadangan &amp; Pemeliharaan Data</div>
-        <div style="display:flex; flex-direction:column; gap:10px;">
+        <p style="font-size: 12px; color: var(--text-gray); margin-bottom: 12px; line-height: 1.5;">
+            Simpan salinan database Anda secara berkala untuk keperluan audit atau dipindahkan ke perangkat lain.
+        </p>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button
+                    type="button"
+                    on:click={exportToCSV}
+                    class="btn-secondary"
+                    style="flex: 1; min-width: 140px; padding: 11px; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12.5px; border: 1px solid var(--border-color); background: var(--list-bg); color: var(--text-dark); cursor: pointer;"
+                >
+                    <span>📊</span>
+                    <span>Ekspor CSV</span>
+                </button>
+                <button
+                    type="button"
+                    on:click={exportDatabaseJSON}
+                    class="btn-primary"
+                    style="flex: 1; min-width: 140px; padding: 11px; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12.5px; cursor: pointer;"
+                >
+                    <span>💾</span>
+                    <span>Backup Penuh (JSON)</span>
+                </button>
+            </div>
+
+            <input
+                type="file"
+                accept=".json"
+                bind:this={fileInput}
+                on:change={handleImportFile}
+                style="display: none;"
+            >
             <button
                 type="button"
-                on:click={exportToCSV}
-                class="btn-primary"
-                style="padding:12px; border-radius:14px; display:flex; align-items:center; justify-content:center; gap:8px;"
+                on:click={() => fileInput.click()}
+                class="btn-secondary"
+                style="padding: 11px; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12.5px; border: 1px dashed var(--primary); background: transparent; color: #14b8a6; cursor: pointer;"
             >
-                📥 Ekspor Transaksi ke CSV
+                <span>📥</span>
+                <span>Impor / Pulihkan Database (JSON)</span>
             </button>
+
             <button
                 type="button"
                 on:click={handleClearCacheConfirm}
                 class="btn-danger"
-                style="padding:12px; border-radius:14px;"
+                style="padding: 11px; border-radius: 14px; font-size: 12px;"
             >
-                🗑️ Bersihkan Cache Lokal
+                🗑️ Bersihkan Cache Snapshot Lokal
             </button>
         </div>
     </div>
