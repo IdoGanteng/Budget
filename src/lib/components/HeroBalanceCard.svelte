@@ -1,6 +1,7 @@
 <script>
     import { heroView, privacyMode, togglePrivacy, openAddTxModal, openTransferModal, sisaScope } from '../stores/uiStore.js';
     import { filteredData, formatRp } from '../stores/financeStore.js';
+    import { activeUser } from '../stores/authStore.js';
 
     $: totals = $filteredData.totals;
     $: shares = $filteredData.shares;
@@ -9,9 +10,36 @@
     $: isSurplus = filteredInc >= filteredExp;
     $: computedPockets = $filteredData.computedPockets || [];
     $: displaySisa = $sisaScope === 'cash' ? totals.cash : totals.totalWealth;
+
+    function getGreeting() {
+        const hour = new Date().getHours();
+        if (hour < 11) return 'Selamat pagi';
+        if (hour < 15) return 'Selamat siang';
+        if (hour < 18) return 'Selamat sore';
+        return 'Selamat malam';
+    }
+
+    function getMonthName() {
+        return new Intl.DateTimeFormat('id-ID', { month: 'long' }).format(new Date());
+    }
 </script>
 
 <div class="jago-hero-card">
+    <!-- MEMFINANCE STYLE GREETING BANNER -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 2px 2px 10px 2px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+        <div style="text-align: left;">
+            <div style="font-size: 13.5px; font-weight: 800; color: #ffffff;">
+                {getGreeting()}, <span style="color: #2dd4bf;">{$activeUser ? $activeUser.name : 'Teman'}</span> 🌿
+            </div>
+            <div style="font-size: 11px; color: rgba(255, 255, 255, 0.7); margin-top: 2px;">
+                Bulan {getMonthName()} berjalan dengan baik.
+            </div>
+        </div>
+        <span class="badge" style="font-size: 10px; background: rgba(45, 212, 191, 0.15); color: #2dd4bf; border: 1px solid rgba(45, 212, 191, 0.3);">
+            Keuangan Tenang
+        </span>
+    </div>
+
     <div class="jago-hero-header">
         <!-- SEGMENTED VIEW TOGGLE (SISA BULAN INI VS TOTAL PORTOFOLIO) -->
         <div class="jago-hero-tabs" role="tablist">

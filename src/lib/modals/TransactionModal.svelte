@@ -1,7 +1,7 @@
 <script>
     import { isAddTxModalOpen, addTxConfig, closeAddTxModal, showToast } from '../stores/uiStore.js';
     import { activeUser, usersList } from '../stores/authStore.js';
-    import { addTransaction, pocketsList } from '../stores/financeStore.js';
+    import { addTransaction, pocketsList, goldPricePerGram, formatRp } from '../stores/financeStore.js';
 
     let desc = '';
     let amountStr = '';
@@ -285,6 +285,12 @@
                         required
                         style="font-size: 16px; font-weight: 700; pointer-events: auto !important; user-select: text !important;"
                     >
+                    {#if (selectedType === 'tring' || (selectedType === 'withdraw' && withdrawSource === 'tring')) && amountStr && (parseFloat(amountStr.replace(',', '.')) || 0) > 0}
+                        <div style="font-size: 11.5px; font-weight: 700; color: #f59e0b; background: rgba(245, 158, 11, 0.12); padding: 7px 12px; border-radius: 10px; margin-top: 6px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(245, 158, 11, 0.25);">
+                            <span>🪙 Estimasi Nilai Rupiah:</span>
+                            <strong>{formatRp(Math.round((parseFloat(amountStr.replace(',', '.')) || 0) * $goldPricePerGram))}</strong>
+                        </div>
+                    {/if}
                 </div>
 
                 <!-- TOMBOL QUICK AMOUNTS -->

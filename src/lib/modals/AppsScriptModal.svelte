@@ -7,9 +7,9 @@
     var action = data.action;
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     
-    // Inisialisasi Header bila masih kosong
+    // Inisialisasi Header bila masih kosong (10 Kolom dengan Kantong)
     if (sheet.getLastRow() === 0) {
-      sheet.appendRow(["ID", "Tanggal", "Keterangan", "Nominal", "Tipe", "Sumber", "Kategori", "User ID", "User Name"]);
+      sheet.appendRow(["ID", "Tanggal", "Keterangan", "Nominal", "Tipe", "Sumber", "Kantong", "Kategori", "User ID", "User Name"]);
     }
     
     if (action === "ping") {
@@ -22,16 +22,18 @@
       for (var i = 1; i < rows.length; i++) {
         var r = rows[i];
         if (r[0] && r[1]) {
+          var hasPocket = r.length >= 10;
           result.push({
             id: String(r[0]),
             date: String(r[1]),
             desc: String(r[2]),
             amount: Number(r[3]),
             type: String(r[4]),
-            source: String(r[5] || 'pribadi'),
-            category: String(r[6] || 'makan'),
-            userId: String(r[7] || ''),
-            userName: String(r[8] || '')
+            source: String(r[5] || 'cash'),
+            pocket: hasPocket ? String(r[6] || r[5] || 'cash') : String(r[5] || 'cash'),
+            category: hasPocket ? String(r[7] || 'makan') : String(r[6] || 'makan'),
+            userId: hasPocket ? String(r[8] || '') : String(r[7] || ''),
+            userName: hasPocket ? String(r[9] || '') : String(r[8] || '')
           });
         }
       }
@@ -39,7 +41,18 @@
     }
     
     if (action === "add") {
-      sheet.appendRow([data.id, data.date, data.desc, data.amount, data.type, data.source, data.category, data.userId, data.userName]);
+      sheet.appendRow([
+        data.id,
+        data.date,
+        data.desc,
+        data.amount,
+        data.type,
+        data.source || data.pocket || 'cash',
+        data.pocket || data.source || 'cash',
+        data.category || 'makan',
+        data.userId || '',
+        data.userName || ''
+      ]);
       return ContentService.createTextOutput(JSON.stringify({ status: "success" })).setMimeType(ContentService.MimeType.JSON);
     }
     

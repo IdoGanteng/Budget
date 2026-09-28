@@ -8,6 +8,7 @@
     import LoginScreen from './lib/components/LoginScreen.svelte';
     import Navbar from './lib/components/Navbar.svelte';
     import HeroBalanceCard from './lib/components/HeroBalanceCard.svelte';
+    import CategoryBudgetsCard from './lib/components/CategoryBudgetsCard.svelte';
     import PocketsGrid from './lib/components/PocketsGrid.svelte';
     import TransactionHistory from './lib/components/TransactionHistory.svelte';
     import AnalyticsView from './lib/components/AnalyticsView.svelte';
@@ -24,6 +25,7 @@
     import AppsScriptModal from './lib/modals/AppsScriptModal.svelte';
     import ManageUsersModal from './lib/modals/ManageUsersModal.svelte';
     import ConfirmModal from './lib/modals/ConfirmModal.svelte';
+    import CategoryBudgetsModal from './lib/modals/CategoryBudgetsModal.svelte';
 
     $: if ($isLoggedIn) {
         fetchLiveGoldPrice();
@@ -48,6 +50,7 @@
     <EditTransactionModal />
     <AppsScriptModal />
     <ManageUsersModal />
+    <CategoryBudgetsModal />
 
     <div id="app-container" data-active-tab={$activeTab} style="display: block;">
         <Navbar />
@@ -56,6 +59,7 @@
             {#if $activeTab === 'home'}
                 <div class="dashboard-tab-view active">
                     <HeroBalanceCard />
+                    <CategoryBudgetsCard />
                     <PocketsGrid />
                     <TransactionHistory />
                 </div>

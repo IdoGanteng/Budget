@@ -5,6 +5,7 @@
     let desc = '';
     let amountStr = '';
     let selectedType = 'expense';
+    let selectedCategory = 'makan';
     let selectedPocket = 'cash';
     let withdrawSource = 'tabungan';
     let txId = '';
@@ -13,6 +14,7 @@
         txId = $editingTx.id;
         desc = $editingTx.desc;
         selectedType = $editingTx.type;
+        selectedCategory = $editingTx.category || 'makan';
         selectedPocket = $editingTx.pocket ? normalizePocketId($editingTx.pocket) : ($editingTx.source && $editingTx.source !== 'pribadi' ? normalizePocketId($editingTx.source) : 'cash');
         withdrawSource = normalizePocketId($editingTx.source || 'tabungan');
 
@@ -51,7 +53,8 @@
             type: selectedType,
             amount: amt,
             pocket: selectedPocket,
-            source: selectedType === 'withdraw' ? withdrawSource : selectedPocket
+            source: selectedType === 'withdraw' ? withdrawSource : selectedPocket,
+            category: selectedCategory
         });
 
         isEditTxModalOpen.set(false);
@@ -111,6 +114,23 @@
                             <option value="tring">Emas Tring (+)</option>
                             <option value="jago">Emas Jago (- Kas)</option>
                         </optgroup>
+                    </select>
+                </div>
+
+                <div>
+                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
+                        Kategori Transaksi
+                    </label>
+                    <select bind:value={selectedCategory} style="font-size: 14px; font-weight: 600;">
+                        <option value="makan">🍔 Makan &amp; Minum</option>
+                        <option value="belanja">🛍️ Belanja</option>
+                        <option value="transport">🚗 Transportasi</option>
+                        <option value="tagihan">🏠 Tagihan &amp; Utilitas</option>
+                        <option value="hiburan">🎮 Hiburan &amp; Hobi</option>
+                        <option value="kesehatan">💊 Kesehatan</option>
+                        <option value="gaji">💼 Gaji / Bisnis</option>
+                        <option value="investasi">🪙 Investasi / Emas</option>
+                        <option value="lainnya">📦 Lainnya</option>
                     </select>
                 </div>
 

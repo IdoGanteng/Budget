@@ -475,27 +475,45 @@ export function saveBudgets(budgets) {
 }
 
 // Date helpers
+export function cleanDateStr(dateStr) {
+    if (!dateStr) return '-';
+    const str = String(dateStr).trim();
+    if (str.includes('/')) {
+        const parts = str.split('/');
+        if (parts.length === 3) {
+            const day = String(parts[0]).padStart(2, '0');
+            const month = String(parts[1]).padStart(2, '0');
+            const year = parts[2];
+            return `${day}/${month}/${year}`;
+        }
+    }
+    if (str.includes('-')) {
+        const parts = str.split('-');
+        if (parts.length === 3 && parts[0].length === 4) {
+            const year = parts[0];
+            const month = String(parts[1]).padStart(2, '0');
+            const day = String(parts[2].split('T')[0]).padStart(2, '0');
+            return `${day}/${month}/${year}`;
+        }
+    }
+    try {
+        const d = new Date(dateStr);
+        if (!isNaN(d.getTime())) {
+            return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
+        }
+    } catch (e) {}
+    return str;
+}
+
 export function parseDateToTime(dateStr) {
     if (!dateStr) return 0;
-    if (dateStr.includes('/')) {
-        const parts = dateStr.split('/');
-        if (parts.length === 3) return new Date(parts[2], parts[1] - 1, parts[0]).getTime();
+    const clean = cleanDateStr(dateStr);
+    if (clean && clean.includes('/')) {
+        const parts = clean.split('/');
+        if (parts.length === 3) return new Date(Number(parts[2]), Number(parts[1]) - 1, Number(parts[0])).getTime();
     }
     const d = new Date(dateStr);
     return isNaN(d.getTime()) ? 0 : d.getTime();
-}
-
-export function cleanDateStr(dateStr) {
-    if (!dateStr) return '-';
-    if (dateStr.includes('T')) {
-        try {
-            const d = new Date(dateStr);
-            if (!isNaN(d.getTime())) {
-                return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
-            }
-        } catch (e) {}
-    }
-    return dateStr;
 }
 
 export function formatRp(angka, masked = false) {
@@ -546,7 +564,7 @@ export const filteredData = derived(
         let filteredInc = 0, filteredExp = 0;
         const userExpensesMap = {};
         const userCountsMap = {};
-        const catExpensesMap = { makan: 0, belanja: 0, transport: 0, tagihan: 0 };
+        const catExpensesMap = { makan: 0, belanja: 0, transport: 0, tagihan: 0, hiburan: 0, kesehatan: 0, lainnya: 0 };
 
         const sorted = [...$txs].sort((a, b) => parseDateToTime(b.date) - parseDateToTime(a.date));
         const filteredList = [];
@@ -639,6 +657,9 @@ export const filteredData = derived(
                     else if (cat === 'belanja' || descLower.includes('belanja') || descLower.includes('beli')) catExpensesMap.belanja += amt;
                     else if (cat === 'transport' || descLower.includes('bensin') || descLower.includes('ojek') || descLower.includes('tol')) catExpensesMap.transport += amt;
                     else if (cat === 'tagihan' || descLower.includes('listrik') || descLower.includes('wifi') || descLower.includes('pulsa')) catExpensesMap.tagihan += amt;
+                    else if (cat === 'hiburan' || descLower.includes('game') || descLower.includes('bioskop') || descLower.includes('nonton')) catExpensesMap.hiburan += amt;
+                    else if (cat === 'kesehatan' || descLower.includes('obat') || descLower.includes('dokter') || descLower.includes('klinik')) catExpensesMap.kesehatan += amt;
+                    else catExpensesMap[cat || 'lainnya'] = (catExpensesMap[cat || 'lainnya'] || 0) + amt;
                 }
             }
 
