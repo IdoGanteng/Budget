@@ -1,9 +1,11 @@
 <script>
     import { onMount } from 'svelte';
     import { activeTab } from './lib/stores/uiStore.js';
+    import { isLoggedIn } from './lib/stores/authStore.js';
     import { fetchLiveGoldPrice, syncTransactionsFromSheet } from './lib/stores/financeStore.js';
 
     // Components
+    import LoginScreen from './lib/components/LoginScreen.svelte';
     import Navbar from './lib/components/Navbar.svelte';
     import HeroBalanceCard from './lib/components/HeroBalanceCard.svelte';
     import PocketsGrid from './lib/components/PocketsGrid.svelte';
@@ -23,45 +25,51 @@
     import ManageUsersModal from './lib/modals/ManageUsersModal.svelte';
     import ConfirmModal from './lib/modals/ConfirmModal.svelte';
 
-    onMount(() => {
+    $: if ($isLoggedIn) {
         fetchLiveGoldPrice();
         syncTransactionsFromSheet();
-    });
+    }
 </script>
 
 <!-- FLOATING TOASTS -->
 <ToastContainer />
 
-<!-- MODALS -->
-<TransactionModal />
-<PocketTransferModal />
-<GoalsModal />
-<EditTransactionModal />
-<GooglePickerModal />
-<AppsScriptModal />
-<ManageUsersModal />
+<!-- ALWAYS AVAILABLE CONFIRM MODAL & GOOGLE MODAL -->
 <ConfirmModal />
+<GooglePickerModal />
 
-<div id="app-container" data-active-tab={$activeTab} style="display: block;">
-    <Navbar />
+{#if !$isLoggedIn}
+    <LoginScreen />
+{:else}
+    <!-- DASHBOARD MODALS -->
+    <TransactionModal />
+    <PocketTransferModal />
+    <GoalsModal />
+    <EditTransactionModal />
+    <AppsScriptModal />
+    <ManageUsersModal />
 
-    <main class="app-main-content">
-        {#if $activeTab === 'home'}
-            <div class="dashboard-tab-view active">
-                <HeroBalanceCard />
-                <PocketsGrid />
-                <TransactionHistory />
-            </div>
-        {:else if $activeTab === 'pockets'}
-            <div class="pockets-tab-view active">
-                <PocketsGrid />
-            </div>
-        {:else if $activeTab === 'analytics'}
-            <AnalyticsView />
-        {:else if $activeTab === 'users'}
-            <UsersSettingsView />
-        {/if}
-    </main>
+    <div id="app-container" data-active-tab={$activeTab} style="display: block;">
+        <Navbar />
 
-    <MobileBottomBar />
-</div>
+        <main class="app-main-content">
+            {#if $activeTab === 'home'}
+                <div class="dashboard-tab-view active">
+                    <HeroBalanceCard />
+                    <PocketsGrid />
+                    <TransactionHistory />
+                </div>
+            {:else if $activeTab === 'pockets'}
+                <div class="pockets-tab-view active">
+                    <PocketsGrid />
+                </div>
+            {:else if $activeTab === 'analytics'}
+                <AnalyticsView />
+            {:else if $activeTab === 'users'}
+                <UsersSettingsView />
+            {/if}
+        </main>
+
+        <MobileBottomBar />
+    </div>
+{/if}

@@ -19,8 +19,23 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
+    <!-- PWA MANIFEST & ICONS -->
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icon-192.svg">
+
     <!-- GOOGLE IDENTITY SERVICES SDK -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <!-- SERVICE WORKER REGISTRATION -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch((err) => {
+                    console.warn('SW registration notice:', err);
+                });
+            });
+        }
+    </script>
 </head>
 <body data-theme="dark" class="dark bg-[#0b0f17]">
     <div id="app"></div>

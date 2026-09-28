@@ -1,11 +1,24 @@
 <script>
-    import { activeTab, openAddTxModal } from '../stores/uiStore.js';
-    import { activeUser } from '../stores/authStore.js';
+    import { activeTab, openAddTxModal, showConfirmModal } from '../stores/uiStore.js';
+    import { activeUser, handleLogout } from '../stores/authStore.js';
     import { syncStatus, syncTransactionsFromSheet } from '../stores/financeStore.js';
     import ThemeToggle from './ThemeToggle.svelte';
 
     function handleSyncClick() {
         syncTransactionsFromSheet(true);
+    }
+
+    function confirmLogout() {
+        showConfirmModal({
+            icon: '🚪',
+            title: 'Konfirmasi Keluar',
+            desc: 'Apakah Anda yakin ingin keluar dari sesi Personal OS?',
+            confirmText: 'Ya, Keluar',
+            isDanger: true,
+            onConfirm: () => {
+                handleLogout();
+            }
+        });
     }
 </script>
 
@@ -92,6 +105,17 @@
 
             <!-- THEME SWITCHER -->
             <ThemeToggle />
+
+            <!-- LOGOUT BUTTON -->
+            <button
+                type="button"
+                class="nav-logout-btn"
+                on:click={confirmLogout}
+                title="Keluar dari sesi Personal OS"
+                aria-label="Logout"
+            >
+                <span style="font-size: 14px;">🚪</span>
+            </button>
         </div>
     </div>
 </div>
