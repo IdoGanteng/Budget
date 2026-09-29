@@ -162,16 +162,17 @@
     }
 </script>
 
-<div class="dashboard-tab-view active user-settings-tab" style="padding-bottom: 120px;">
-    <div class="mobile-section-header">
-        <h2>👥 Profil Pengguna &amp; Database</h2>
-        <p>Kelola profil akun, koneksi database Google Spreadsheet pribadi, dan preferensi.</p>
-    </div>
+<div class="dashboard-tab-view active user-settings-tab">
+    <div class="max-w-4xl mx-auto px-4 py-6 flex flex-col gap-6 user-settings-container">
+        <div class="mobile-section-header">
+            <h2>👥 Profil Pengguna &amp; Database</h2>
+            <p>Kelola profil akun, koneksi database Google Spreadsheet pribadi, dan preferensi.</p>
+        </div>
 
-    <!-- ACTIVE PROFILE HERO CARD -->
-    <div class="glass-panel mobile-profile-card">
-        <!-- Modern Cover Banner Header -->
-        <div class="mobile-profile-cover" style="background: linear-gradient(135deg, {u.color ? u.color + '44' : 'rgba(20, 184, 166, 0.35)'} 0%, rgba(99, 102, 241, 0.25) 50%, rgba(244, 114, 182, 0.18) 100%);"></div>
+        <!-- ACTIVE PROFILE HERO CARD -->
+        <div class="glass-panel mobile-profile-card">
+            <!-- Sleek Dark Slate / Blue Header Accent -->
+            <div class="mobile-profile-cover"></div>
 
         <div class="mobile-profile-body">
             <div class="mobile-profile-top">
@@ -526,5 +527,6 @@
             <span>🚪</span>
             <span>Keluar dari Akun (Logout)</span>
         </button>
+        </div>
     </div>
 </div>

@@ -33,7 +33,7 @@
         <div class="desktop-nav-tabs">
             <button
                 type="button"
-                class="desktop-tab-btn"
+                class="desktop-tab-btn text-xs md:text-sm px-3 py-1.5 whitespace-nowrap"
                 class:active={$activeTab === 'home'}
                 on:click={() => activeTab.set('home')}
             >
@@ -41,7 +41,7 @@
             </button>
             <button
                 type="button"
-                class="desktop-tab-btn"
+                class="desktop-tab-btn text-xs md:text-sm px-3 py-1.5 whitespace-nowrap"
                 class:active={$activeTab === 'analytics'}
                 on:click={() => activeTab.set('analytics')}
             >
@@ -49,7 +49,7 @@
             </button>
             <button
                 type="button"
-                class="desktop-tab-btn"
+                class="desktop-tab-btn text-xs md:text-sm px-3 py-1.5 whitespace-nowrap"
                 class:active={$activeTab === 'pockets'}
                 on:click={() => activeTab.set('pockets')}
             >
@@ -57,7 +57,7 @@
             </button>
             <button
                 type="button"
-                class="desktop-tab-btn"
+                class="desktop-tab-btn text-xs md:text-sm px-3 py-1.5 whitespace-nowrap"
                 class:active={$activeTab === 'users'}
                 on:click={() => activeTab.set('users')}
             >
@@ -65,7 +65,7 @@
             </button>
             <button
                 type="button"
-                class="desktop-catat-btn"
+                class="desktop-catat-btn text-xs md:text-sm px-3 py-1.5 whitespace-nowrap"
                 on:click={() => openAddTxModal({ type: 'expense', title: 'Catat Pengeluaran' })}
                 title="Catat Transaksi Cepat"
             >
