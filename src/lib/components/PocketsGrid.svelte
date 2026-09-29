@@ -1,6 +1,6 @@
 <script>
-    import { openAddTxModal, openTransferModal, privacyMode } from '../stores/uiStore.js';
-    import { filteredData, formatRp } from '../stores/financeStore.js';
+    import { openAddTxModal, openTransferModal, openAddPocketModal, privacyMode } from '../stores/uiStore.js';
+    import { filteredData, formatRp, deleteCustomPocket } from '../stores/financeStore.js';
 
     let pocketTab = 'cards'; // 'cards' | 'analytics'
     let selectedPocket = null;
@@ -68,7 +68,16 @@
             </div>
             <p>Alokasi pos kas, tabungan, dan instrumen investasi Anda</p>
         </div>
-        <div class="jago-header-actions">
+        <div class="jago-header-actions" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <button
+                type="button"
+                class="btn-primary"
+                on:click={openAddPocketModal}
+                style="padding: 7px 14px; border-radius: 12px; font-size: 12.5px; display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.15);"
+                title="Tambah Kantong Baru"
+            >
+                <span>＋</span> Tambah Kantong
+            </button>
             <button type="button" class="btn-jago-ghost" on:click={openTransferModal} title="Pindah Saldo Antar Kantong">
                 <span>⇄</span> Pindah Dana
             </button>
@@ -112,7 +121,7 @@
             </div>
         </div>
 
-        <!-- 5 POCKET CARDS LIST/GRID -->
+        <!-- POCKET CARDS LIST/GRID -->
         <div class="jago-pockets-grid">
             {#each pockets as p}
                 <div
@@ -126,7 +135,9 @@
                     <div class="pocket-card-row">
                         <!-- LEFT: Icon & Identity -->
                         <div class="pocket-id-box">
-                            <div class="pocket-icon-badge {p.bgClass}">{p.icon}</div>
+                            <div class="pocket-icon-badge {p.bgClass}" style="background: {p.color}22; color: {p.color}; border: 1px solid {p.color}44;">
+                                {p.icon}
+                            </div>
                             <div class="pocket-info-col">
                                 <div class="pocket-badges-line">
                                     <span class="pocket-type-tag">{p.categoryTag}</span>
@@ -144,6 +155,10 @@
                                 <span class="pocket-extra font-mono" style="font-size: 11px; color: var(--text-gray); display: block; text-align: right; margin-top: 2px;">
                                     {$privacyMode ? '*** Gr' : p.extraInfo}
                                 </span>
+                            {:else if p.target > 0}
+                                <span class="pocket-extra font-mono" style="font-size: 10.5px; color: #94a3b8; display: block; text-align: right; margin-top: 2px;">
+                                    Target: {formatRp(p.target, $privacyMode)}
+                                </span>
                             {/if}
                             <div class="pocket-alloc-pill">
                                 <span class="pocket-alloc-pct font-mono">{p.share}%</span>
@@ -152,12 +167,29 @@
                         </div>
                     </div>
 
-                    <!-- BOTTOM: Slim Progress Track -->
+                    <!-- BOTTOM: Progress Track -->
                     <div class="pocket-bar-track">
-                        <div class="pocket-bar-fill {p.barClass}" style="width: {p.share}%;"></div>
+                        <div
+                            class="pocket-bar-fill {p.barClass}"
+                            style="width: {p.targetProgress !== null && p.targetProgress !== undefined ? p.targetProgress : p.share}%; background: {p.color};"
+                        ></div>
                     </div>
                 </div>
             {/each}
+
+            <!-- ACTION CARD: TAMBAH KANTONG BARU -->
+            <button
+                type="button"
+                class="jago-pocket-add-card"
+                on:click={openAddPocketModal}
+                title="Buat pos kantong baru"
+            >
+                <div class="add-pocket-avatar">＋</div>
+                <div class="add-pocket-content">
+                    <strong style="color: #ffffff; font-size: 14.5px; display: block;">Tambah Kantong Baru</strong>
+                    <span style="color: #94a3b8; font-size: 11.5px; display: block; margin-top: 2px;">Buat pos tabungan, pengeluaran, atau impian personal</span>
+                </div>
+            </button>
         </div>
 
     <!-- 2. MODE ANALISA & ALOKASI (INNOVATIVE ANALYTICS VIEW) -->
@@ -304,12 +336,20 @@
                     </div>
                 </div>
 
-                <!-- ROLE & INSIGHT -->
+                <!-- ROLE, TARGET & INSIGHT -->
                 <div class="pocket-modal-info-box">
                     <div class="info-row">
                         <span class="info-label">Peran Keuangan:</span>
                         <strong class="info-val">{selectedPocket.role}</strong>
                     </div>
+                    {#if selectedPocket.target > 0}
+                        <div class="info-row">
+                            <span class="info-label">Target Dana:</span>
+                            <span class="info-val font-mono" style="color: #3b82f6; font-weight: 800;">
+                                {formatRp(selectedPocket.target, $privacyMode)} ({selectedPocket.targetProgress || 0}%)
+                            </span>
+                        </div>
+                    {/if}
                     <div class="info-row">
                         <span class="info-label">Status Pos:</span>
                         <span class="health-pill {selectedPocket.healthType}">{selectedPocket.healthStatus}</span>
@@ -320,22 +360,39 @@
                 </div>
 
                 <!-- ACTIONS -->
-                <div class="pocket-modal-actions">
-                    <button
-                        type="button"
-                        class="btn-primary"
-                        on:click={() => handleQuickAction(selectedPocket)}
-                        style="background: {selectedPocket.color}; border: none;"
-                    >
-                        <span>➕</span> Catat / Tambah Saldo
-                    </button>
-                    <button
-                        type="button"
-                        class="btn-secondary"
-                        on:click={handleTransfer}
-                    >
-                        <span>⇄</span> Pindah Saldo ke Kantong Lain
-                    </button>
+                <div class="pocket-modal-actions" style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; gap: 8px;">
+                        <button
+                            type="button"
+                            class="btn-primary"
+                            on:click={() => handleQuickAction(selectedPocket)}
+                            style="flex: 1; background: {selectedPocket.color}; border: none;"
+                        >
+                            <span>➕</span> Catat / Tambah Saldo
+                        </button>
+                        <button
+                            type="button"
+                            class="btn-secondary"
+                            on:click={handleTransfer}
+                            style="flex: 1;"
+                        >
+                            <span>⇄</span> Pindah Saldo
+                        </button>
+                    </div>
+
+                    {#if selectedPocket.isCustom}
+                        <button
+                            type="button"
+                            on:click={() => {
+                                const pid = selectedPocket.id;
+                                closeDetail();
+                                deleteCustomPocket(pid);
+                            }}
+                            style="width: 100%; padding: 10px; border-radius: 12px; font-size: 12px; font-weight: 700; border: 1px solid rgba(244, 63, 94, 0.3); background: rgba(244, 63, 94, 0.1); color: #f43f5e; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;"
+                        >
+                            <span>🗑️</span> Hapus Kantong Ini
+                        </button>
+                    {/if}
                 </div>
             </div>
         </div>

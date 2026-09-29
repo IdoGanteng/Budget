@@ -22,15 +22,12 @@
         filteredData
     } from '../stores/financeStore.js';
     import {
-        theme,
-        toggleTheme,
         isGoalsModalOpen,
         isAppsScriptModalOpen,
         isManageUsersModalOpen,
         showConfirmModal,
         showToast
     } from '../stores/uiStore.js';
-    import ThemeToggle from './ThemeToggle.svelte';
 
     $: u = $activeUser;
     $: list = $usersList;
@@ -469,7 +466,9 @@
                 <span style="font-weight:700; font-size:13px; display:flex; align-items:center; gap:8px;">
                     <span>🌗</span> Tema Tampilan
                 </span>
-                <ThemeToggle />
+                <span class="dark-mode-locked-pill">
+                    <span>🌙</span> Dark Mode Aktif (Terkunci)
+                </span>
             </div>
         </div>
     </div>

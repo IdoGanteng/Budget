@@ -2,7 +2,6 @@
     import { activeTab, openAddTxModal, showConfirmModal } from '../stores/uiStore.js';
     import { activeUser, handleLogout } from '../stores/authStore.js';
     import { syncStatus, syncTransactionsFromSheet } from '../stores/financeStore.js';
-    import ThemeToggle from './ThemeToggle.svelte';
 
     function handleSyncClick() {
         syncTransactionsFromSheet(true);
@@ -61,7 +60,9 @@
                 class:active={$activeTab === 'users'}
                 on:click={() => activeTab.set('users')}
             >
-                <span>👥</span> Pengguna &amp; Database
+                <span>👥</span>
+                <span class="nav-label-desktop">Pengguna &amp; Database</span>
+                <span class="nav-label-compact">Pengguna</span>
             </button>
             <button
                 type="button"
@@ -100,11 +101,7 @@
                     {/if}
                 </div>
                 <span class="user-name-label">{$activeUser.name}</span>
-                <span class="user-role-badge">{$activeUser.role || 'Member'}</span>
             </button>
-
-            <!-- THEME SWITCHER -->
-            <ThemeToggle />
 
             <!-- LOGOUT BUTTON -->
             <button

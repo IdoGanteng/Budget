@@ -1,15 +1,9 @@
 import { writable } from 'svelte/store';
 
-// Theme store - Enforce solid dark theme default
-let initialTheme = 'dark';
+// Theme store - Strictly locked to solid dark mode
+export const theme = writable('dark');
 if (typeof localStorage !== 'undefined') {
-    const stored = localStorage.getItem('theme');
-    if (!stored || stored === 'light') {
-        localStorage.setItem('theme', 'dark');
-        initialTheme = 'dark';
-    } else {
-        initialTheme = stored;
-    }
+    localStorage.setItem('theme', 'dark');
 }
 if (typeof document !== 'undefined') {
     document.documentElement.classList.add('dark');
@@ -17,25 +11,24 @@ if (typeof document !== 'undefined') {
     document.body.classList.add('dark');
     document.body.setAttribute('data-theme', 'dark');
 }
-
-export const theme = writable(initialTheme);
-theme.subscribe((val) => {
+theme.subscribe(() => {
     if (typeof localStorage !== 'undefined') {
-        localStorage.setItem('theme', val);
+        localStorage.setItem('theme', 'dark');
     }
     if (typeof document !== 'undefined') {
-        document.documentElement.classList.toggle('dark', val === 'dark');
-        document.documentElement.setAttribute('data-theme', val);
-        document.body.classList.toggle('dark', val === 'dark');
-        document.body.setAttribute('data-theme', val);
+        document.documentElement.classList.add('dark');
+        document.documentElement.setAttribute('data-theme', 'dark');
+        document.body.classList.add('dark');
+        document.body.setAttribute('data-theme', 'dark');
     }
 });
 
 export function toggleTheme() {
-    theme.update(current => current === 'dark' ? 'light' : 'dark');
+    // Theme is permanently locked to dark mode
+    theme.set('dark');
 }
 
-// Active Tab ('home' | 'analytics' | 'users')
+// Active Tab ('home' | 'analytics' | 'pockets' | 'users')
 export const activeTab = writable('home');
 
 // Hero Balance View ('sisa' | 'wealth')
@@ -107,7 +100,15 @@ export function closeTransferModal() {
     isTransferModalOpen.set(false);
 }
 
-export const isCategoryBudgetsModalOpen = writable(false);
+// Custom Pocket Modal Store
+export const isAddPocketModalOpen = writable(false);
+export function openAddPocketModal() {
+    isAddPocketModalOpen.set(true);
+}
+export function closeAddPocketModal() {
+    isAddPocketModalOpen.set(false);
+}
+
 export const isGoalsModalOpen = writable(false);
 export const isEditTxModalOpen = writable(false);
 export const editingTx = writable(null);

@@ -143,6 +143,69 @@ export function savePockets(list) {
     } catch (e) {}
 }
 
+export async function addCustomPocket(pocketData) {
+    const rawName = String(pocketData.name || '').trim();
+    if (!rawName) return null;
+
+    const baseSlug = rawName.toLowerCase().replace(/[^a-z0-9]/g, '_').substring(0, 16);
+    const uniqueId = pocketData.id || `${baseSlug}_${Date.now().toString(36)}`;
+    const categoryTag = pocketData.categoryTag || 'Kantong Impian';
+    const initialBal = Number(pocketData.initialBalance || 0);
+    const targetVal = Number(pocketData.target || 0);
+
+    const newPocket = {
+        id: uniqueId,
+        name: rawName,
+        fullName: pocketData.fullName || rawName,
+        categoryTag: categoryTag,
+        role: pocketData.role || categoryTag,
+        icon: pocketData.icon || '👛',
+        color: pocketData.color || '#3b82f6',
+        bgClass: 'bg-custom',
+        barClass: 'bar-custom',
+        pocketClass: 'pocket-custom',
+        subdesc: pocketData.subdesc || categoryTag,
+        insight: pocketData.insight || `Pos alokasi untuk ${rawName}.`,
+        actionType: categoryTag === 'Kantong Bayar' ? 'expense' : 'income',
+        actionCategory: categoryTag === 'Kantong Bayar' ? 'belanja' : 'simpanan',
+        actionTitle: `Catat di ${rawName}`,
+        initialBalance: initialBal,
+        target: targetVal,
+        isCustom: true
+    };
+
+    const current = get(pocketsList) || DEFAULT_POCKETS;
+    const updated = [...current, newPocket];
+    savePockets(updated);
+
+    // If initial balance was specified, record initial funding transaction
+    if (initialBal > 0) {
+        await addTransaction({
+            type: 'income',
+            amount: initialBal,
+            pocket: uniqueId,
+            source: uniqueId,
+            desc: `Saldo Awal ${rawName}`,
+            category: 'saldo_awal'
+        });
+    }
+
+    try {
+        confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+    } catch (e) {}
+    showToast(`Kantong "${rawName}" berhasil dibuat!`, 'success', newPocket.icon);
+    return newPocket;
+}
+
+export function deleteCustomPocket(pocketId) {
+    const current = get(pocketsList) || DEFAULT_POCKETS;
+    const target = current.find(p => p.id === pocketId);
+    if (!target) return;
+    const updated = current.filter(p => p.id !== pocketId);
+    savePockets(updated);
+    showToast(`Kantong "${target.name}" telah dihapus.`, 'info', '🗑️');
+}
+
 export function getPocketMeta(pocketId) {
     const norm = normalizePocketId(pocketId);
     let list = DEFAULT_POCKETS;
@@ -171,14 +234,6 @@ try {
     if (raw) storedGoals = JSON.parse(raw);
 } catch (e) {}
 export const financialGoals = writable(storedGoals);
-
-const defaultBudgets = { makan: 1200000, belanja: 800000, transport: 500000, tagihan: 750000 };
-let storedBudgets = defaultBudgets;
-try {
-    const raw = localStorage.getItem('categoryBudgets');
-    if (raw) storedBudgets = JSON.parse(raw);
-} catch (e) {}
-export const categoryBudgets = writable(storedBudgets);
 
 export const goldPricePerGram = writable(parseFloat(localStorage.getItem('goldPricePerGram')) || 1250000);
 export const goldApiStatus = writable('');
@@ -472,14 +527,6 @@ export function saveGoals(wGoal, gGoal) {
     showToast('Target finansial 2026 berhasil disimpan!', 'success', '🎯');
 }
 
-export function saveBudgets(budgets) {
-    categoryBudgets.set(budgets);
-    localStorage.setItem('categoryBudgets', JSON.stringify(budgets));
-    try {
-        confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
-    } catch (e) {}
-    showToast('Anggaran bulanan berhasil diperbarui!', 'success', '📊');
-}
 
 // Date helpers
 export function cleanDateStr(dateStr) {
@@ -729,20 +776,24 @@ export const filteredData = derived(
 
         const safeTotal = totalWealth > 0 ? totalWealth : 1;
 
-        // Build computed pockets with live balances and percentage shares
+        // Build computed pockets with live balances, percentage shares, and target progress
         const computedPockets = activePockets.map(p => {
             const normId = normalizePocketId(p.id);
             const isGoldGram = p.isGram || normId === 'tring';
             const amount = isGoldGram ? totalTrgRp : (balances[normId] || 0);
             const extraInfo = isGoldGram ? `${(balances.tring || 0).toFixed(2)} Gram` : undefined;
+            const target = Number(p.target || 0);
+            const targetProgress = target > 0 ? Math.min(Math.round((amount / target) * 100), 100) : null;
             const share = totalWealth > 0 ? Math.max(0, Math.min(Math.round((amount / safeTotal) * 100), 100)) : 0;
             return {
                 ...p,
                 amount,
                 extraInfo,
+                target,
+                targetProgress,
                 share,
-                healthStatus: share >= 15 ? 'Cadangan Aman' : share > 0 ? 'Aktif' : 'Kosong',
-                healthType: share >= 15 ? 'safe' : share > 0 ? 'info' : 'warning'
+                healthStatus: targetProgress !== null ? (targetProgress >= 100 ? 'Tercapai 🎉' : `${targetProgress}% Target`) : (share >= 15 ? 'Cadangan Aman' : share > 0 ? 'Aktif' : 'Kosong'),
+                healthType: targetProgress !== null ? (targetProgress >= 100 ? 'safe' : 'info') : (share >= 15 ? 'safe' : share > 0 ? 'info' : 'warning')
             };
         });
 
@@ -946,8 +997,8 @@ export function exportDatabaseJSON() {
             exportedAt: new Date().toISOString(),
             user: u ? { id: u.id, name: u.name, email: u.email } : null,
             transactions: get(transactions) || [],
+            pockets: get(pocketsList) || [],
             financialGoals: get(financialGoals) || {},
-            categoryBudgets: get(categoryBudgets) || {},
             goldPrice: get(goldPricePerGram) || 1250000
         };
 
@@ -983,14 +1034,14 @@ export function importDatabaseJSON(jsonString) {
             saveToLocal(data.transactions);
         }
 
+        if (Array.isArray(data.pockets)) {
+            pocketsList.set(data.pockets);
+            localStorage.setItem('app_pockets_list', JSON.stringify(data.pockets));
+        }
+
         if (data.financialGoals && typeof data.financialGoals === 'object') {
             financialGoals.set(data.financialGoals);
             localStorage.setItem('financialGoals', JSON.stringify(data.financialGoals));
-        }
-
-        if (data.categoryBudgets && typeof data.categoryBudgets === 'object') {
-            categoryBudgets.set(data.categoryBudgets);
-            localStorage.setItem('categoryBudgets', JSON.stringify(data.categoryBudgets));
         }
 
         if (data.goldPrice && !isNaN(data.goldPrice)) {
