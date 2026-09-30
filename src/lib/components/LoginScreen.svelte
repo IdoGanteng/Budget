@@ -19,6 +19,20 @@
 
     onMount(() => {
         initGoogleSignIn();
+        let attempts = 0;
+        const interval = setInterval(() => {
+            attempts++;
+            if (window.google?.accounts?.id && $googleClientId) {
+                initGoogleSignIn();
+                clearInterval(interval);
+            } else if (attempts >= 20) {
+                clearInterval(interval);
+            }
+        }, 250);
+
+        return () => {
+            clearInterval(interval);
+        };
     });
 
     function initGoogleSignIn() {
@@ -145,7 +159,13 @@
                                 title="Masuk langsung sebagai {u.name}"
                                 style="font-size: 12px; padding: 6px 10px; border-radius: 10px; display: flex; align-items: center; gap: 6px; background: var(--card-bg); border: 1px solid var(--border-color); cursor: pointer;"
                             >
-                                <span style="font-size: 13px;">{u.avatar || '👤'}</span>
+                                {#if u.picture}
+                                    <img src={u.picture} alt={u.name} style="width: 18px; height: 18px; border-radius: 50%; object-fit: cover; display: inline-block; vertical-align: middle;">
+                                {:else if u.avatar && u.avatar.includes('<img')}
+                                    {@html u.avatar}
+                                {:else}
+                                    <span style="font-size: 13px;">{u.avatar || '👤'}</span>
+                                {/if}
                                 <strong style="color: var(--text-dark);">{u.name}</strong>
                             </button>
                         {/each}

@@ -1356,6 +1356,21 @@ input:checked + .slider:before {
     border-radius: 100px;
     transition: width 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
+.budget-bar-track {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 100px;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    margin-top: 6px;
+}
+[data-theme="light"] .budget-bar-track { background: rgba(0, 0, 0, 0.08); }
+.budget-bar-fill {
+    height: 100%;
+    border-radius: 100px;
+    transition: width 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
 .bar-teal { background: #00C49F; }
 .bar-purple { background: #8b5cf6; }
 .bar-orange { background: #FF7A00; }

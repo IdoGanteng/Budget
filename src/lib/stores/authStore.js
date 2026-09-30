@@ -20,7 +20,18 @@ function loadUsersFromStorage() {
         const stored = localStorage.getItem('app_users_list');
         if (stored) {
             const parsed = JSON.parse(stored);
-            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                // Sanitize any legacy html avatar strings
+                const cleaned = parsed.map(u => {
+                    if (u.avatar && typeof u.avatar === 'string' && u.avatar.includes('<img')) {
+                        const match = u.avatar.match(/src=["']([^"']+)["']/);
+                        if (match && !u.picture) u.picture = match[1];
+                        u.avatar = '🌐';
+                    }
+                    return u;
+                });
+                return cleaned;
+            }
         }
     } catch (e) {
         console.error('Gagal membaca daftar pengguna:', e);
@@ -310,7 +321,7 @@ export function executeGoogleLoginSuccess(googleUser) {
         existing = {
             id: 'user_g_' + Math.random().toString(36).substring(2, 8),
             name: name,
-            avatar: picture ? `<img src="${picture}" alt="${name}">` : '🌐',
+            avatar: '🌐',
             picture: picture,
             color: '#0f766e',
             role: 'Google Account',
@@ -322,7 +333,7 @@ export function executeGoogleLoginSuccess(googleUser) {
         saveUsers(updated);
     } else if (picture) {
         existing.picture = picture;
-        existing.avatar = `<img src="${picture}" alt="${name}">`;
+        existing.avatar = '🌐';
         saveUsers([...list]);
     }
 

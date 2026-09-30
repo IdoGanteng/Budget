@@ -138,8 +138,14 @@
                                 class:selected={selectedUserId === u.id}
                                 on:click={() => selectedUserId = u.id}
                             >
-                                <span class="user-chip-avatar" style="width: 20px; height: 20px; font-size: 11px; background: {u.color || 'var(--primary)'}; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;">
-                                    {u.avatar || '👤'}
+                                <span class="user-chip-avatar" style="width: 20px; height: 20px; font-size: 11px; background: {u.color || 'var(--primary)'}; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; overflow: hidden;">
+                                    {#if u.picture}
+                                        <img src={u.picture} alt={u.name} style="width: 100%; height: 100%; object-fit: cover;">
+                                    {:else if u.avatar && u.avatar.includes('<img')}
+                                        {@html u.avatar}
+                                    {:else}
+                                        {u.avatar || '👤'}
+                                    {/if}
                                 </span>
                                 <span>{u.name}</span>
                             </button>

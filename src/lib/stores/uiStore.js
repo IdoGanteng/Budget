@@ -1,32 +1,39 @@
 import { writable } from 'svelte/store';
 
-// Theme store - Strictly locked to solid dark mode
-export const theme = writable('dark');
-if (typeof localStorage !== 'undefined') {
-    localStorage.setItem('theme', 'dark');
-}
-if (typeof document !== 'undefined') {
-    document.documentElement.classList.add('dark');
-    document.documentElement.setAttribute('data-theme', 'dark');
-    document.body.classList.add('dark');
-    document.body.setAttribute('data-theme', 'dark');
-}
-theme.subscribe(() => {
-    if (typeof localStorage !== 'undefined') {
-        localStorage.setItem('theme', 'dark');
-    }
+// Theme store - Supports both dark and light modes with localStorage persistence
+const initialTheme = (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) || 'dark';
+export const theme = writable(initialTheme);
+
+function applyTheme(t) {
     if (typeof document !== 'undefined') {
-        document.documentElement.classList.add('dark');
-        document.documentElement.setAttribute('data-theme', 'dark');
-        document.body.classList.add('dark');
-        document.body.setAttribute('data-theme', 'dark');
+        if (t === 'light') {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.setAttribute('data-theme', 'light');
+            document.body.classList.remove('dark');
+            document.body.setAttribute('data-theme', 'light');
+        } else {
+            document.documentElement.classList.add('dark');
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.body.classList.add('dark');
+            document.body.setAttribute('data-theme', 'dark');
+        }
     }
-});
+    if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('theme', t);
+    }
+}
+
+applyTheme(initialTheme);
+theme.subscribe(applyTheme);
 
 export function toggleTheme() {
-    // Theme is permanently locked to dark mode
-    theme.set('dark');
+    theme.update(t => {
+        const next = t === 'dark' ? 'light' : 'dark';
+        showToast(next === 'dark' ? 'Mode Gelap Aktif 🌙' : 'Mode Terang Aktif ☀️', 'info', next === 'dark' ? '🌙' : '☀️');
+        return next;
+    });
 }
+
 
 // Active Tab ('home' | 'analytics' | 'pockets' | 'users')
 export const activeTab = writable('home');

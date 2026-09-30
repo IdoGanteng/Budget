@@ -12,7 +12,13 @@
 <div id="toast-container">
     {#each $toasts as t (t.id)}
         <div class="toast-msg" style="border-left: 4px solid {getBorderColor(t.type)};">
-            <span class="toast-icon">{t.icon || '✨'}</span>
+            <span class="toast-icon">
+                {#if t.icon && typeof t.icon === 'string' && t.icon.includes('<img')}
+                    {@html t.icon}
+                {:else}
+                    {t.icon || '✨'}
+                {/if}
+            </span>
             <span class="toast-text">{@html t.message}</span>
         </div>
     {/each}

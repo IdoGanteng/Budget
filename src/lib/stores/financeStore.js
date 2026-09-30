@@ -270,7 +270,9 @@ export function loadFromLocal() {
                (typeof localStorage !== 'undefined' && localStorage.getItem('appEncryptionKey')) ||
                (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('appEncryptionKey'));
     let stored = localStorage.getItem(key);
-    if (!stored) {
+    const u = get(activeUser);
+    // Only fallback to legacy database if active user is default/rebel (prevent contaminating newly created profiles)
+    if (!stored && (!u || u.id === 'user_rebel')) {
         stored = localStorage.getItem('keuangan_secure_db');
     }
     if (!stored) return [];
@@ -596,7 +598,11 @@ export const monthsList = derived(transactions, ($txs) => {
             if (parts.length === 3) set.add(`${parts[1]}/${parts[2]}`);
         }
     });
-    return Array.from(set).sort();
+    return Array.from(set).sort((a, b) => {
+        const [ma, ya] = a.split('/').map(Number);
+        const [mb, yb] = b.split('/').map(Number);
+        return (yb !== ya) ? yb - ya : mb - ma;
+    });
 });
 
 export const filteredData = derived(
@@ -669,11 +675,11 @@ export const filteredData = derived(
             } else if (trx.type === 'tring' || trx.type === 'inv_tring') {
                 balances.tring = (balances.tring || 0) + amt;
                 const src = hasExplicitPocket ? normalizePocketId(trx.pocket) : (trx.source === 'cash' ? 'cash' : null);
-                if (src) balances[src] = (balances[src] || 0) - (amt * goldP);
+                if (src && src !== 'tring') balances[src] = (balances[src] || 0) - (amt * goldP);
             } else if (trx.type === 'jago' || trx.type === 'inv_jago') {
                 balances.jago = (balances.jago || 0) + amt;
                 const src = hasExplicitPocket ? normalizePocketId(trx.pocket) : (trx.source === 'cash' ? 'cash' : null);
-                if (src) balances[src] = (balances[src] || 0) - amt;
+                if (src && src !== 'jago') balances[src] = (balances[src] || 0) - amt;
                 totalExpAll += amt;
             } else if (trx.type === 'withdraw') {
                 const src = normalizePocketId(trx.source || 'tabungan');
@@ -708,13 +714,23 @@ export const filteredData = derived(
                     filteredExp += amt;
                     const cat = (trx.category || '').toLowerCase();
                     const descLower = (trx.desc || '').toLowerCase();
-                    if (cat === 'makan' || descLower.includes('makan') || descLower.includes('kopi') || descLower.includes('cafe')) catExpensesMap.makan += amt;
-                    else if (cat === 'belanja' || descLower.includes('belanja') || descLower.includes('beli')) catExpensesMap.belanja += amt;
-                    else if (cat === 'transport' || descLower.includes('bensin') || descLower.includes('ojek') || descLower.includes('tol')) catExpensesMap.transport += amt;
-                    else if (cat === 'tagihan' || descLower.includes('listrik') || descLower.includes('wifi') || descLower.includes('pulsa')) catExpensesMap.tagihan += amt;
-                    else if (cat === 'hiburan' || descLower.includes('game') || descLower.includes('bioskop') || descLower.includes('nonton')) catExpensesMap.hiburan += amt;
-                    else if (cat === 'kesehatan' || descLower.includes('obat') || descLower.includes('dokter') || descLower.includes('klinik')) catExpensesMap.kesehatan += amt;
-                    else catExpensesMap[cat || 'lainnya'] = (catExpensesMap[cat || 'lainnya'] || 0) + amt;
+                    if (cat && CATEGORIES[cat]) {
+                        catExpensesMap[cat] = (catExpensesMap[cat] || 0) + amt;
+                    } else if (descLower.includes('makan') || descLower.includes('kopi') || descLower.includes('cafe')) {
+                        catExpensesMap.makan += amt;
+                    } else if (descLower.includes('belanja') || descLower.includes('beli')) {
+                        catExpensesMap.belanja += amt;
+                    } else if (descLower.includes('bensin') || descLower.includes('ojek') || descLower.includes('tol') || descLower.includes('parkir')) {
+                        catExpensesMap.transport += amt;
+                    } else if (descLower.includes('listrik') || descLower.includes('wifi') || descLower.includes('pulsa') || descLower.includes('pdam')) {
+                        catExpensesMap.tagihan += amt;
+                    } else if (descLower.includes('game') || descLower.includes('bioskop') || descLower.includes('nonton')) {
+                        catExpensesMap.hiburan += amt;
+                    } else if (descLower.includes('obat') || descLower.includes('dokter') || descLower.includes('klinik')) {
+                        catExpensesMap.kesehatan += amt;
+                    } else {
+                        catExpensesMap[cat || 'lainnya'] = (catExpensesMap[cat || 'lainnya'] || 0) + amt;
+                    }
                 }
             }
 
@@ -739,17 +755,18 @@ export const filteredData = derived(
             // Category filter
             if ($catFilter && $catFilter !== 'all') {
                 const cat = (trx.category || '').toLowerCase();
-                const descLower = (trx.desc || '').toLowerCase();
                 let matchesCat = (cat === $catFilter);
-                if (!matchesCat) {
+                if (!matchesCat && (!cat || cat === 'lainnya')) {
+                    const descLower = (trx.desc || '').toLowerCase();
                     if ($catFilter === 'makan' && (descLower.includes('makan') || descLower.includes('kopi') || descLower.includes('cafe'))) matchesCat = true;
                     else if ($catFilter === 'belanja' && (descLower.includes('belanja') || descLower.includes('beli'))) matchesCat = true;
                     else if ($catFilter === 'transport' && (descLower.includes('bensin') || descLower.includes('ojek') || descLower.includes('tol'))) matchesCat = true;
                     else if ($catFilter === 'tagihan' && (descLower.includes('listrik') || descLower.includes('wifi') || descLower.includes('pulsa'))) matchesCat = true;
                     else if ($catFilter === 'hiburan' && (descLower.includes('game') || descLower.includes('bioskop') || descLower.includes('nonton'))) matchesCat = true;
                     else if ($catFilter === 'kesehatan' && (descLower.includes('obat') || descLower.includes('dokter') || descLower.includes('klinik'))) matchesCat = true;
-                    else if ($catFilter === 'investasi' && (trx.type === 'tring' || trx.type === 'jago' || cat === 'investasi')) matchesCat = true;
-                    else if ($catFilter === 'gaji' && (trx.type === 'income' || cat === 'gaji')) matchesCat = true;
+                } else if (!matchesCat) {
+                    if ($catFilter === 'investasi' && (trx.type === 'tring' || trx.type === 'jago' || cat === 'investasi')) matchesCat = true;
+                    else if ($catFilter === 'gaji' && (cat === 'gaji' || (!cat && trx.type === 'income'))) matchesCat = true;
                 }
                 if (!matchesCat) return;
             }
@@ -761,14 +778,14 @@ export const filteredData = derived(
             groupedByDate[cleanD].push(trx);
         });
 
-        // Calculate Total Portfolio (Wealth) as the sum of ALL 5 active pockets
+        // Calculate Total Portfolio (Wealth) as the sum of all active pockets
         const totalTrgRp = (balances.tring || 0) * goldP;
         let totalWealth = 0;
 
         activePockets.forEach(p => {
             const normId = normalizePocketId(p.id);
             if (p.isGram || normId === 'tring') {
-                totalWealth += (balances.tring || 0) * goldP;
+                totalWealth += (balances[normId] || 0) * goldP;
             } else {
                 totalWealth += (balances[normId] || 0);
             }
@@ -780,8 +797,8 @@ export const filteredData = derived(
         const computedPockets = activePockets.map(p => {
             const normId = normalizePocketId(p.id);
             const isGoldGram = p.isGram || normId === 'tring';
-            const amount = isGoldGram ? totalTrgRp : (balances[normId] || 0);
-            const extraInfo = isGoldGram ? `${(balances.tring || 0).toFixed(2)} Gram` : undefined;
+            const amount = isGoldGram ? (balances[normId] || 0) * goldP : (balances[normId] || 0);
+            const extraInfo = isGoldGram ? `${(balances[normId] || 0).toFixed(2)} Gram` : undefined;
             const target = Number(p.target || 0);
             const targetProgress = target > 0 ? Math.min(Math.round((amount / target) * 100), 100) : null;
             const share = totalWealth > 0 ? Math.max(0, Math.min(Math.round((amount / safeTotal) * 100), 100)) : 0;
@@ -966,9 +983,9 @@ export function exportToCSV() {
         return `"${str}"`;
     };
 
-    let csvContent = '\uFEFFID,Tanggal,Keterangan,Nominal,Tipe,Sumber,Pengguna\n';
+    let csvContent = '\uFEFFID,Tanggal,Keterangan,Nominal,Tipe,Sumber,Kantong,Kategori,Pengguna\n';
     list.forEach(row => {
-        csvContent += `${sanitizeCsvField(row.id)},${sanitizeCsvField(row.date)},${sanitizeCsvField(row.desc)},${sanitizeCsvField(row.amount)},${sanitizeCsvField(row.type)},${sanitizeCsvField(row.source || '-')},${sanitizeCsvField(row.userName || 'User')}\n`;
+        csvContent += `${sanitizeCsvField(row.id)},${sanitizeCsvField(row.date)},${sanitizeCsvField(row.desc)},${sanitizeCsvField(row.amount)},${sanitizeCsvField(row.type)},${sanitizeCsvField(row.source || '-')},${sanitizeCsvField(row.pocket || row.source || '-')},${sanitizeCsvField(row.category || '-')},${sanitizeCsvField(row.userName || 'User')}\n`;
     });
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });

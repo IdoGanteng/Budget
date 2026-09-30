@@ -1,5 +1,5 @@
 <script>
-    import { openAddTxModal, openTransferModal, openAddPocketModal, privacyMode } from '../stores/uiStore.js';
+    import { openAddTxModal, openTransferModal, openAddPocketModal, showConfirmModal, privacyMode } from '../stores/uiStore.js';
     import { filteredData, formatRp, deleteCustomPocket } from '../stores/financeStore.js';
 
     let pocketTab = 'cards'; // 'cards' | 'analytics'
@@ -9,8 +9,19 @@
     $: shares = $filteredData.shares;
     $: pockets = $filteredData.computedPockets || [];
 
-    $: totalGoldVal = totals.totalGold || (totals.totalTrgRp + totals.totalJagAll);
-    $: totalSavingsVal = totals.totalSimAll + totals.totalPriAll;
+    // Dynamic metrics across all pockets (including custom pockets)
+    $: liquidityPockets = pockets.filter(p => p.id === 'cash' || p.categoryTag === 'Kantong Bayar');
+    $: totalLiquidityVal = liquidityPockets.reduce((sum, p) => sum + (p.amount || 0), 0);
+    $: liquidityShare = Math.min(100, liquidityPockets.reduce((sum, p) => sum + (p.share || 0), 0));
+
+    $: savingsPockets = pockets.filter(p => p.id === 'simpanan' || p.id === 'tabungan' || p.categoryTag === 'Kantong Nabung' || p.categoryTag === 'Kantong Impian' || p.categoryTag === 'Kebutuhan Rutin');
+    $: totalSavingsVal = savingsPockets.reduce((sum, p) => sum + (p.amount || 0), 0);
+    $: savingsShare = Math.min(100, savingsPockets.reduce((sum, p) => sum + (p.share || 0), 0));
+
+    $: goldPockets = pockets.filter(p => p.id === 'tring' || p.id === 'jago' || p.categoryTag === 'Investasi' || p.isGram);
+    $: totalGoldVal = goldPockets.reduce((sum, p) => sum + (p.amount || 0), 0);
+    $: goldShare = Math.min(100, goldPockets.reduce((sum, p) => sum + (p.share || 0), 0));
+
     $: sortedPockets = [...pockets].sort((a, b) => b.amount - a.amount);
 
     function openDetail(p) {
@@ -23,11 +34,26 @@
 
     function handleQuickAction(p) {
         selectedPocket = null;
+        // For investment/gold pockets, fund source should be cash instead of deducting from gold itself
+        const fundingPocket = (p.id === 'tring' || p.id === 'jago') ? 'cash' : p.id;
         openAddTxModal({
             type: p.actionType || 'expense',
             category: p.actionCategory || 'makan',
-            pocket: p.id,
+            pocket: fundingPocket,
             title: p.actionTitle || `Catat di ${p.name}`
+        });
+    }
+
+    function handleDeletePocket(p) {
+        showConfirmModal({
+            icon: '🗑️',
+            title: 'Hapus Kantong',
+            desc: `Apakah Anda yakin ingin menghapus kantong <b>"${p.name}"</b>? Catatan transaksi yang ada tidak akan terhapus.`,
+            confirmText: 'Ya, Hapus',
+            isDanger: true,
+            onConfirm: () => {
+                deleteCustomPocket(p.id);
+            }
         });
     }
 
@@ -203,9 +229,9 @@
                         <span class="metric-icon">💧</span>
                         <span class="metric-status-badge badge-safe">Likuiditas</span>
                     </div>
-                    <div class="metric-num font-mono">{shares.cashShare}%</div>
-                    <div class="metric-sub font-mono">{formatRp(totals.cash, $privacyMode)}</div>
-                    <p class="metric-desc">Dana siap pakai untuk operasional &amp; belanja bulan ini.</p>
+                    <div class="metric-num font-mono">{liquidityShare}%</div>
+                    <div class="metric-sub font-mono">{formatRp(totalLiquidityVal, $privacyMode)}</div>
+                    <p class="metric-desc">Dana siap pakai untuk operasional &amp; belanja harian.</p>
                 </div>
 
                 <!-- METRIC 2: TABUNGAN & CADANGAN -->
@@ -214,20 +240,20 @@
                         <span class="metric-icon">🛡️</span>
                         <span class="metric-status-badge badge-purple">Cadangan</span>
                     </div>
-                    <div class="metric-num font-mono">{(shares.simShare + shares.priShare)}%</div>
+                    <div class="metric-num font-mono">{savingsShare}%</div>
                     <div class="metric-sub font-mono">{formatRp(totalSavingsVal, $privacyMode)}</div>
-                    <p class="metric-desc">Tabungan wajib pokok &amp; target impian terproteksi.</p>
+                    <p class="metric-desc">Tabungan pokok &amp; target impian terproteksi.</p>
                 </div>
 
                 <!-- METRIC 3: LINDUNG NILAI EMAS -->
                 <div class="metric-scorecard card-gold">
                     <div class="metric-top">
                         <span class="metric-icon">🪙</span>
-                        <span class="metric-status-badge badge-gold">Emas Murni</span>
+                        <span class="metric-status-badge badge-gold">Emas &amp; Investasi</span>
                     </div>
-                    <div class="metric-num font-mono">{(shares.trgShare + shares.jagShare)}%</div>
+                    <div class="metric-num font-mono">{goldShare}%</div>
                     <div class="metric-sub font-mono">{formatRp(totalGoldVal, $privacyMode)}</div>
-                    <p class="metric-desc">Fisik &amp; digital untuk perlindungan terhadap inflasi.</p>
+                    <p class="metric-desc">Portofolio lindung nilai terhadap inflasi.</p>
                 </div>
             </div>
 
@@ -384,9 +410,9 @@
                         <button
                             type="button"
                             on:click={() => {
-                                const pid = selectedPocket.id;
+                                const targetPocket = selectedPocket;
                                 closeDetail();
-                                deleteCustomPocket(pid);
+                                handleDeletePocket(targetPocket);
                             }}
                             style="width: 100%; padding: 10px; border-radius: 12px; font-size: 12px; font-weight: 700; border: 1px solid rgba(244, 63, 94, 0.3); background: rgba(244, 63, 94, 0.1); color: #f43f5e; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;"
                         >

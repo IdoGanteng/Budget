@@ -1,5 +1,5 @@
 <script>
-    import { isManageUsersModalOpen } from '../stores/uiStore.js';
+    import { isManageUsersModalOpen, showConfirmModal } from '../stores/uiStore.js';
     import { usersList, activeUser, setActiveUser, addNewUser, deleteUser } from '../stores/authStore.js';
 
     let showAddForm = false;
@@ -22,6 +22,19 @@
         });
         newName = '';
         showAddForm = false;
+    }
+
+    function confirmDeleteUser(user) {
+        showConfirmModal({
+            icon: '🗑️',
+            title: 'Hapus Profil Pengguna',
+            desc: `Apakah Anda yakin ingin menghapus profil <b>"${user.name}"</b>? Seluruh data profil ini akan dihapus.`,
+            confirmText: 'Ya, Hapus',
+            isDanger: true,
+            onConfirm: () => {
+                deleteUser(user.id);
+            }
+        });
     }
 </script>
 
@@ -74,7 +87,7 @@
                                 {#if $usersList.length > 1}
                                     <button
                                         type="button"
-                                        on:click={() => deleteUser(u.id)}
+                                        on:click={() => confirmDeleteUser(u)}
                                         class="btn-danger"
                                         style="padding: 6px 10px; font-size: 11px; border-radius: 8px;"
                                     >

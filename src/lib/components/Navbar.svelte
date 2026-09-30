@@ -96,6 +96,8 @@
                 <div class="user-avatar-badge">
                     {#if $activeUser.picture}
                         <img src={$activeUser.picture} alt={$activeUser.name} class="nav-avatar-img">
+                    {:else if $activeUser.avatar && $activeUser.avatar.includes('<img')}
+                        {@html $activeUser.avatar}
                     {:else}
                         {$activeUser.avatar || '👤'}
                     {/if}

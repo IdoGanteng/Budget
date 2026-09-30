@@ -26,15 +26,17 @@
         isAppsScriptModalOpen,
         isManageUsersModalOpen,
         showConfirmModal,
-        showToast
+        showToast,
+        theme,
+        toggleTheme
     } from '../stores/uiStore.js';
 
     $: u = $activeUser;
     $: list = $usersList;
     $: goals = $financialGoals;
     $: totals = $filteredData.totals;
-    $: wealthPct = Math.min((totals.totalWealth / (goals.wealthGoal || 1)) * 100, 100);
-    $: goldPct = Math.min((totals.totalGold / (goals.goldGoal || 1)) * 100, 100);
+    $: wealthPct = Math.max(0, Math.min((totals.totalWealth / (goals.wealthGoal || 1)) * 100, 100));
+    $: goldPct = Math.max(0, Math.min((totals.totalGold / (goals.goldGoal || 1)) * 100, 100));
 
     let sheetUrl = '';
     let sheetToken = '';
@@ -76,13 +78,15 @@
 
     function handleSaveSpreadsheetSettings(e) {
         if (e) e.preventDefault();
+        const updatedUser = { ...u, spreadsheetUrl: sheetUrl.trim(), spreadsheetToken: sheetToken.trim() };
         const updated = list.map(item => {
             if (item.id === u.id) {
-                return { ...item, spreadsheetUrl: sheetUrl.trim(), spreadsheetToken: sheetToken.trim() };
+                return updatedUser;
             }
             return item;
         });
         saveUsers(updated);
+        activeUser.set(updatedUser);
         showToast('Konfigurasi database Google Spreadsheet disimpan!', 'success', '💾');
         if (sheetUrl) {
             syncTransactionsFromSheet(true);
@@ -466,9 +470,16 @@
                 <span style="font-weight:700; font-size:13px; display:flex; align-items:center; gap:8px;">
                     <span>🌗</span> Tema Tampilan
                 </span>
-                <span class="dark-mode-locked-pill">
-                    <span>🌙</span> Dark Mode Aktif (Terkunci)
-                </span>
+                <button
+                    type="button"
+                    on:click={toggleTheme}
+                    class="sisa-scope-btn active"
+                    style="display:flex; align-items:center; gap:6px; cursor:pointer; padding:6px 12px; border-radius:10px;"
+                    title="Klik untuk ganti tema (Gelap / Terang)"
+                >
+                    <span>{$theme === 'dark' ? '🌙 Mode Gelap' : '☀️ Mode Terang'}</span>
+                    <span style="font-size:10px; color:var(--text-gray);">(Ganti)</span>
+                </button>
             </div>
         </div>
     </div>
