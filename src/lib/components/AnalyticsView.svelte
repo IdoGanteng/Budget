@@ -3,7 +3,7 @@
     import Chart from 'chart.js/auto';
     import { filteredData, formatRp } from '../stores/financeStore.js';
     import { usersList } from '../stores/authStore.js';
-    import { theme } from '../stores/uiStore.js';
+    import { theme, activeTab } from '../stores/uiStore.js';
 
     let financeCanvas;
     let comparisonCanvas;
@@ -205,9 +205,19 @@
 </script>
 
 <div class="dashboard-tab-view active">
-    <div class="mobile-section-header">
-        <h2>📊 Laporan &amp; Analisa Finansial</h2>
-        <p>Visualisasi arus kas bulanan, alokasi portofolio, dan evaluasi pengeluaran.</p>
+    <div class="mobile-section-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+        <div>
+            <h2 style="margin: 0 0 4px 0;">📊 Laporan &amp; Analisa Finansial</h2>
+            <p style="margin: 0; color: var(--text-gray);">Visualisasi arus kas bulanan, alokasi portofolio, dan evaluasi pengeluaran.</p>
+        </div>
+        <button
+            type="button"
+            class="btn-primary"
+            style="padding: 9px 16px; border-radius: 12px; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #2563eb, #1d4ed8); border: none; color: white; cursor: pointer; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);"
+            on:click={() => activeTab.set('report')}
+        >
+            <span>📑</span> Cetak Laporan (A4)
+        </button>
     </div>
 
     <!-- CHARTS GRID -->

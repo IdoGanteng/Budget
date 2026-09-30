@@ -49,6 +49,14 @@
             <button
                 type="button"
                 class="desktop-tab-btn text-xs md:text-sm px-3 py-1.5 whitespace-nowrap"
+                class:active={$activeTab === 'report'}
+                on:click={() => activeTab.set('report')}
+            >
+                <span>📑</span> Laporan A4
+            </button>
+            <button
+                type="button"
+                class="desktop-tab-btn text-xs md:text-sm px-3 py-1.5 whitespace-nowrap"
                 class:active={$activeTab === 'pockets'}
                 on:click={() => activeTab.set('pockets')}
             >
@@ -75,6 +83,19 @@
         </div>
 
         <div class="nav-actions">
+            <!-- QUICK REPORT SHORTCUT -->
+            <button
+                type="button"
+                class="nav-report-btn"
+                class:active={$activeTab === 'report'}
+                on:click={() => activeTab.set('report')}
+                title="Buka & Cetak Laporan Keuangan Bulanan (A4)"
+                aria-label="Laporan Bulanan A4"
+            >
+                <span>📑</span>
+                <span class="report-btn-text">Laporan</span>
+            </button>
+
             <!-- SYNC STATUS INDICATOR PILL -->
             <button
                 type="button"

@@ -13,7 +13,7 @@
         getPocketMeta
     } from '../stores/financeStore.js';
     import { usersList } from '../stores/authStore.js';
-    import { openEditTxModal, showConfirmModal, privacyMode } from '../stores/uiStore.js';
+    import { openEditTxModal, showConfirmModal, privacyMode, activeTab } from '../stores/uiStore.js';
 
     const categoryPills = [
         { key: 'all', label: 'Semua', icon: '🌐' },
@@ -291,12 +291,12 @@
     </div>
 
     <!-- ACTIONS ROW -->
-    <div style="display: flex; gap: 8px;">
+    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
         <button
             type="button"
             on:click={handleClearCache}
             class="btn-danger"
-            style="padding: 10px; border-radius: 12px; font-size: 12px; flex: 1;"
+            style="padding: 10px; border-radius: 12px; font-size: 12px; flex: 1; min-width: 120px;"
         >
             Bersihkan Cache
         </button>
@@ -304,9 +304,17 @@
             type="button"
             on:click={exportToCSV}
             class="btn-primary"
-            style="padding: 10px; border-radius: 12px; font-size: 12px; flex: 1; background: linear-gradient(135deg, var(--income), #059669); border: none; color: white;"
+            style="padding: 10px; border-radius: 12px; font-size: 12px; flex: 1; min-width: 120px; background: linear-gradient(135deg, var(--income), #059669); border: none; color: white;"
         >
             📥 Export CSV
+        </button>
+        <button
+            type="button"
+            on:click={() => activeTab.set('report')}
+            class="btn-primary"
+            style="padding: 10px; border-radius: 12px; font-size: 12px; flex: 1; min-width: 140px; background: linear-gradient(135deg, #2563eb, #1d4ed8); border: none; color: white;"
+        >
+            📑 Cetak Laporan A4
         </button>
     </div>
 </div>

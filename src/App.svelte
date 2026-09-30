@@ -11,6 +11,7 @@
     import PocketsGrid from './lib/components/PocketsGrid.svelte';
     import TransactionHistory from './lib/components/TransactionHistory.svelte';
     import AnalyticsView from './lib/components/AnalyticsView.svelte';
+    import MonthlyReportView from './lib/components/MonthlyReportView.svelte';
     import UsersSettingsView from './lib/components/UsersSettingsView.svelte';
     import MobileBottomBar from './lib/components/MobileBottomBar.svelte';
 
@@ -67,6 +68,8 @@
                 </div>
             {:else if $activeTab === 'analytics'}
                 <AnalyticsView />
+            {:else if $activeTab === 'report'}
+                <MonthlyReportView />
             {:else if $activeTab === 'users'}
                 <UsersSettingsView />
             {/if}
