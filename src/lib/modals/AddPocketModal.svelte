@@ -123,7 +123,7 @@
             </div>
 
             <!-- LIVE PREVIEW CARD -->
-            <div style="background: #0f172a; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 14px 16px; margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+            <div style="background: var(--list-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 14px 16px; margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
                 <div style="display: flex; align-items: center; gap: 12px;">
                     <div style="width: 44px; height: 44px; border-radius: 14px; background: {selectedColor}22; border: 1.5px solid {selectedColor}; color: {selectedColor}; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">
                         {selectedIcon}
@@ -132,19 +132,19 @@
                         <span style="font-size: 10.5px; font-weight: 700; color: {selectedColor}; text-transform: uppercase; letter-spacing: 0.5px;">
                             {categoryTag}
                         </span>
-                        <div style="font-size: 15px; font-weight: 800; color: #ffffff;">
+                        <div style="font-size: 15px; font-weight: 800; color: var(--text-dark);">
                             {name.trim() || 'Nama Kantong'}
                         </div>
                         {#if target}
-                            <div style="font-size: 11px; color: #94a3b8;">
+                            <div style="font-size: 11px; color: var(--text-gray);">
                                 Target: Rp {target}
                             </div>
                         {/if}
                     </div>
                 </div>
                 <div style="text-align: right;">
-                    <span style="font-size: 11px; color: #94a3b8; display: block;">Saldo Awal</span>
-                    <strong style="font-size: 14px; color: #ffffff;" class="font-mono">
+                    <span style="font-size: 11px; color: var(--text-gray); display: block;">Saldo Awal</span>
+                    <strong style="font-size: 14px; color: var(--text-dark);" class="font-mono">
                         {initialBalance ? 'Rp ' + initialBalance : 'Rp 0'}
                     </strong>
                 </div>
@@ -226,7 +226,7 @@
                         </span>
                         <span style="font-size: 14px;">Terpilih: <b>{selectedIcon}</b></span>
                     </div>
-                    <div style="display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; background: #0f172a; padding: 8px; border-radius: 12px; border: 1px solid #334155;">
+                    <div style="display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; background: var(--list-bg); padding: 8px; border-radius: 12px; border: 1px solid var(--border-color);">
                         {#each iconPresets as icon}
                             <button
                                 type="button"
@@ -278,7 +278,7 @@
                         type="button"
                         class="btn-secondary"
                         on:click={closeAddPocketModal}
-                        style="flex: 1; padding: 12px; border-radius: 14px; font-size: 13px; font-weight: 700; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.1); background: #0f172a; color: #94a3b8;"
+                        style="flex: 1; padding: 12px; border-radius: 14px; font-size: 13px; font-weight: 700; cursor: pointer; border: 1px solid var(--border-color); background: var(--list-bg); color: var(--text-gray);"
                     >
                         Batal
                     </button>

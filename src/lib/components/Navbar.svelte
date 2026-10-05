@@ -129,47 +129,57 @@
             <!-- PRIVACY TOGGLE BUTTON -->
             <button
                 type="button"
-                class="nav-logout-btn"
-                style="background: var(--list-bg); border-color: var(--border-color); color: var(--text-dark);"
+                class="nav-action-icon-btn"
+                class:is-active={$privacyMode}
                 on:click={togglePrivacy}
-                title={$privacyMode ? 'Tampilkan Saldo' : 'Sembunyikan Saldo'}
+                title={$privacyMode ? 'Tampilkan Saldo (Privasi Aktif)' : 'Sembunyikan Saldo'}
                 aria-label="Toggle Saldo Privacy"
             >
-                <span style="font-size: 13.5px; line-height: 1;">{$privacyMode ? '🙈' : '👁️'}</span>
+                {#if $privacyMode}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                        <line x1="1" y1="1" x2="23" y2="23"/>
+                    </svg>
+                {:else}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                {/if}
             </button>
 
             <!-- THEME TOGGLE BUTTON -->
             <button
                 type="button"
-                class="theme-toggle-btn"
-                class:is-dark={$theme === 'dark'}
+                class="nav-action-icon-btn"
                 on:click={toggleTheme}
                 title={$theme === 'dark' ? 'Ganti ke Mode Terang' : 'Ganti ke Mode Gelap'}
                 aria-label="Toggle Tema Gelap/Terang"
             >
-                <div class="theme-thumb">
-                    {#if $theme === 'dark'}
-                        <svg style="width: 13px; height: 13px;" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-                    {:else}
-                        <svg style="width: 13px; height: 13px;" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-                    {/if}
-                </div>
-                <span class="theme-icon sun">☀️</span>
-                <span class="theme-icon moon">🌙</span>
+                {#if $theme === 'dark'}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="4"/>
+                        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+                    </svg>
+                {:else}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                {/if}
             </button>
 
             <!-- LOGOUT BUTTON -->
             <button
                 type="button"
-                class="nav-logout-btn"
+                class="nav-action-icon-btn btn-danger"
                 on:click={confirmLogout}
                 title="Keluar dari sesi Personal OS"
                 aria-label="Logout"
             >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                    <polyline points="16 17 21 12 16 7"></polyline>
-                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" y1="12" x2="9" y2="12"/>
                 </svg>
             </button>
         </div>
