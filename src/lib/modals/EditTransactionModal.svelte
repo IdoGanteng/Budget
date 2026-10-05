@@ -112,21 +112,37 @@
 
         isEditTxModalOpen.set(false);
     }
+
+    function handleBackdropClick(e) {
+        if (e.target === e.currentTarget) {
+            isEditTxModalOpen.set(false);
+        }
+    }
 </script>
 
+<svelte:window on:keydown={(e) => { if (e.key === 'Escape' && $isEditTxModalOpen) isEditTxModalOpen.set(false); }} />
+
 {#if $isEditTxModalOpen}
-    <div class="modal-overlay active" on:click={() => isEditTxModalOpen.set(false)}>
-        <div class="modal-box" style="text-align: left; max-width: 420px;" on:click|stopPropagation>
+    <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
+    <div
+        class="modal-overlay active"
+        on:click={handleBackdropClick}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="edit-tx-modal-title"
+    >
+        <div class="modal-box" style="text-align: left; max-width: 420px;" role="document">
             <div style="font-size: 32px; margin-bottom: 12px;">✏️</div>
-            <h3>Edit Transaksi</h3>
+            <h3 id="edit-tx-modal-title">Edit Transaksi</h3>
             <p>Perbarui keterangan, nominal, tipe, atau kantong transaksi.</p>
 
             <form on:submit={handleSave} style="gap: 14px;">
                 <div>
-                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
+                    <label for="edit-tx-desc" style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
                         Keterangan
                     </label>
                     <input
+                        id="edit-tx-desc"
                         type="text"
                         bind:value={desc}
                         placeholder="Contoh: Makan siang, Belanja, Tagihan"
@@ -136,10 +152,11 @@
                 </div>
 
                 <div>
-                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
+                    <label for="edit-tx-amount" style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
                         Nominal / Gram
                     </label>
                     <input
+                        id="edit-tx-amount"
                         type="text"
                         value={amountStr}
                         on:input={handleAmountInput}
@@ -150,10 +167,10 @@
                 </div>
 
                 <div>
-                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
+                    <label for="edit-tx-type" style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
                         Tipe Transaksi
                     </label>
-                    <select bind:value={selectedType}>
+                    <select id="edit-tx-type" bind:value={selectedType}>
                         <optgroup label="Uang Harian">
                             <option value="expense">Pengeluaran (-)</option>
                             <option value="income">Pemasukan (+)</option>
@@ -173,10 +190,10 @@
 
                 {#if selectedType !== 'transfer'}
                     <div>
-                        <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
+                        <label for="edit-tx-cat" style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
                             Kategori Transaksi
                         </label>
-                        <select bind:value={selectedCategory} style="font-size: 14px; font-weight: 600;">
+                        <select id="edit-tx-cat" bind:value={selectedCategory} style="font-size: 14px; font-weight: 600;">
                             <option value="makan">🍔 Makan &amp; Minum</option>
                             <option value="belanja">🛍️ Belanja</option>
                             <option value="transport">🚗 Transportasi</option>
@@ -193,20 +210,20 @@
                 {#if selectedType === 'transfer'}
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                         <div>
-                            <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
+                            <label for="edit-tx-transfer-src" style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
                                 Dari Kantong (Sumber)
                             </label>
-                            <select bind:value={transferSource} style="font-size: 14px; font-weight: 600;">
+                            <select id="edit-tx-transfer-src" bind:value={transferSource} style="font-size: 14px; font-weight: 600;">
                                 {#each $pocketsList as p}
                                     <option value={p.id}>{p.icon} {p.fullName || p.name}</option>
                                 {/each}
                             </select>
                         </div>
                         <div>
-                            <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
+                            <label for="edit-tx-transfer-target" style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
                                 Ke Kantong (Tujuan)
                             </label>
-                            <select bind:value={selectedPocket} style="font-size: 14px; font-weight: 600;">
+                            <select id="edit-tx-transfer-target" bind:value={selectedPocket} style="font-size: 14px; font-weight: 600;">
                                 {#each $pocketsList as p}
                                     <option value={p.id}>{p.icon} {p.fullName || p.name}</option>
                                 {/each}
@@ -216,20 +233,20 @@
                 {:else if selectedType === 'withdraw'}
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                         <div>
-                            <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
+                            <label for="edit-tx-withdraw-src" style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
                                 Sumber Tabungan
                             </label>
-                            <select bind:value={withdrawSource} style="font-size: 14px; font-weight: 600;">
+                            <select id="edit-tx-withdraw-src" bind:value={withdrawSource} style="font-size: 14px; font-weight: 600;">
                                 {#each $pocketsList as p}
                                     <option value={p.id}>{p.icon} {p.fullName || p.name}</option>
                                 {/each}
                             </select>
                         </div>
                         <div>
-                            <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
+                            <label for="edit-tx-target-pocket" style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
                                 Masuk Ke Kantong
                             </label>
-                            <select bind:value={selectedPocket} style="font-size: 14px; font-weight: 600;">
+                            <select id="edit-tx-target-pocket" bind:value={selectedPocket} style="font-size: 14px; font-weight: 600;">
                                 {#each $pocketsList as p}
                                     <option value={p.id}>{p.icon} {p.fullName || p.name}</option>
                                 {/each}
@@ -239,10 +256,10 @@
                 {:else}
                     <!-- SELECT KANTONG / WALLET -->
                     <div>
-                        <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
+                        <label for="edit-tx-pocket" style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
                             {selectedType === 'income' ? 'Simpan Ke / Kantong Tujuan' : selectedType === 'expense' ? 'Sumber Dana / Kantong' : 'Kantong Terkait'}
                         </label>
-                        <select bind:value={selectedPocket}>
+                        <select id="edit-tx-pocket" bind:value={selectedPocket}>
                             {#each $pocketsList as p}
                                 <option value={p.id}>
                                     {p.icon} {p.fullName || p.name}

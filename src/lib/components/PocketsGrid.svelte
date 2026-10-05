@@ -61,7 +61,15 @@
         selectedPocket = null;
         openTransferModal();
     }
+
+    function handlePocketBackdropClick(e) {
+        if (e.target === e.currentTarget) {
+            closeDetail();
+        }
+    }
 </script>
+
+<svelte:window on:keydown={(e) => { if (e.key === 'Escape' && selectedPocket) closeDetail(); }} />
 
 <div class="jago-pockets-section" id="kantong-section">
     <!-- SECTION HEADER WITH INNOVATIVE VIEW SWITCHER -->
@@ -325,15 +333,15 @@
 
 <!-- INTERACTIVE POCKET DEEP-DIVE MODAL -->
 {#if selectedPocket}
+    <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
     <div
         class="modal-overlay active"
-        on:click={closeDetail}
-        on:keydown={(e) => { if (e.key === 'Escape') closeDetail(); }}
+        on:click={handlePocketBackdropClick}
         role="dialog"
         aria-modal="true"
-        tabindex="-1"
+        aria-labelledby="pocket-detail-title"
     >
-        <div class="modal-box pocket-detail-modal" on:click|stopPropagation role="document">
+        <div class="modal-box pocket-detail-modal" role="document">
             <div class="pocket-modal-header">
                 <div class="pocket-modal-title-wrap">
                     <div class="pocket-modal-icon" style="background: {selectedPocket.color}22; border: 1px solid {selectedPocket.color}55;">
@@ -341,7 +349,7 @@
                     </div>
                     <div>
                         <span class="pocket-modal-tag">{selectedPocket.categoryTag}</span>
-                        <h3>{selectedPocket.name}</h3>
+                        <h3 id="pocket-detail-title">{selectedPocket.name}</h3>
                     </div>
                 </div>
                 <button type="button" class="pocket-modal-close" on:click={closeDetail} title="Tutup">✕</button>

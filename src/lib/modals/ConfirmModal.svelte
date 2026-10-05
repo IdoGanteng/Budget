@@ -7,20 +7,28 @@
         if (state.onConfirm) state.onConfirm();
         closeConfirmModal();
     }
+
+    function handleBackdropClick(e) {
+        if (e.target === e.currentTarget) {
+            closeConfirmModal();
+        }
+    }
 </script>
 
+<svelte:window on:keydown={(e) => { if (e.key === 'Escape' && state.isOpen) closeConfirmModal(); }} />
+
 {#if state.isOpen}
+    <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
     <div
         class="modal-overlay active"
-        on:click={closeConfirmModal}
-        on:keydown={(e) => { if (e.key === 'Escape') closeConfirmModal(); }}
+        on:click={handleBackdropClick}
         role="dialog"
         aria-modal="true"
-        tabindex="-1"
+        aria-labelledby="confirm-modal-title"
     >
-        <div class="modal-box" on:click|stopPropagation role="document">
+        <div class="modal-box" role="document">
             <div class="modal-icon">{state.icon || '⚠️'}</div>
-            <h3>{state.title}</h3>
+            <h3 id="confirm-modal-title">{state.title}</h3>
             <div style="font-size: 13.5px; color: var(--text-gray); margin-bottom: 16px; line-height: 1.5;">
                 {@html state.desc}
             </div>

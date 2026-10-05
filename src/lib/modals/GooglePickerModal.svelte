@@ -45,16 +45,26 @@
         saveGoogleClientId(clientIdInput);
         activeTab = 'accounts';
     }
+
+    function handleBackdropClick(e) {
+        if (e.target === e.currentTarget) {
+            isGooglePickerModalOpen.set(false);
+        }
+    }
 </script>
 
+<svelte:window on:keydown={(e) => { if (e.key === 'Escape' && $isGooglePickerModalOpen) isGooglePickerModalOpen.set(false); }} />
+
 {#if $isGooglePickerModalOpen}
+    <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
     <div
         class="modal-overlay active google-picker-mode"
-        on:click={() => isGooglePickerModalOpen.set(false)}
+        on:click={handleBackdropClick}
         role="dialog"
         aria-modal="true"
+        aria-label="Google Identity"
     >
-        <div class="google-picker-card" on:click|stopPropagation role="document">
+        <div class="google-picker-card" role="document">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                 <div class="google-header-logo" style="margin-bottom: 0;">
                     <svg viewBox="0 0 24 24">
@@ -171,8 +181,9 @@
 
                 <form on:submit={handleCustomSubmit} style="display: flex; flex-direction: column; gap: 12px; margin-top: 14px; text-align: left;">
                     <div>
-                        <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 6px;">Nama Lengkap</label>
+                        <label for="google-custom-name" style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 6px;">Nama Lengkap</label>
                         <input
+                            id="google-custom-name"
                             type="text"
                             bind:value={customName}
                             placeholder="Misal: Aldian Ridho"
@@ -182,8 +193,9 @@
                         >
                     </div>
                     <div>
-                        <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 6px;">Email Google (@gmail.com)</label>
+                        <label for="google-custom-email" style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 6px;">Email Google (@gmail.com)</label>
                         <input
+                            id="google-custom-email"
                             type="email"
                             bind:value={customEmail}
                             placeholder="nama@gmail.com"
@@ -206,8 +218,9 @@
 
                 <form on:submit={handleSaveClientId} style="display: flex; flex-direction: column; gap: 12px; margin-top: 14px; text-align: left;">
                     <div>
-                        <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 6px;">Google Client ID (Web Client)</label>
+                        <label for="google-client-id-val" style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 6px;">Google Client ID (Web Client)</label>
                         <input
+                            id="google-client-id-val"
                             type="text"
                             bind:value={clientIdInput}
                             placeholder="123456789-xxxx.apps.googleusercontent.com"

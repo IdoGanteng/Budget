@@ -1,5 +1,5 @@
 <script>
-    import { activeTab, openAddTxModal, showConfirmModal } from '../stores/uiStore.js';
+    import { activeTab, openAddTxModal, showConfirmModal, theme, toggleTheme, privacyMode, togglePrivacy } from '../stores/uiStore.js';
     import { activeUser, handleLogout } from '../stores/authStore.js';
     import { syncStatus, syncTransactionsFromSheet } from '../stores/financeStore.js';
 
@@ -124,6 +124,38 @@
                     {/if}
                 </div>
                 <span class="user-name-label">{$activeUser.name}</span>
+            </button>
+
+            <!-- PRIVACY TOGGLE BUTTON -->
+            <button
+                type="button"
+                class="nav-logout-btn"
+                style="background: var(--list-bg); border-color: var(--border-color); color: var(--text-dark);"
+                on:click={togglePrivacy}
+                title={$privacyMode ? 'Tampilkan Saldo' : 'Sembunyikan Saldo'}
+                aria-label="Toggle Saldo Privacy"
+            >
+                <span style="font-size: 13.5px; line-height: 1;">{$privacyMode ? '🙈' : '👁️'}</span>
+            </button>
+
+            <!-- THEME TOGGLE BUTTON -->
+            <button
+                type="button"
+                class="theme-toggle-btn"
+                class:is-dark={$theme === 'dark'}
+                on:click={toggleTheme}
+                title={$theme === 'dark' ? 'Ganti ke Mode Terang' : 'Ganti ke Mode Gelap'}
+                aria-label="Toggle Tema Gelap/Terang"
+            >
+                <div class="theme-thumb">
+                    {#if $theme === 'dark'}
+                        <svg style="width: 13px; height: 13px;" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    {:else}
+                        <svg style="width: 13px; height: 13px;" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                    {/if}
+                </div>
+                <span class="theme-icon sun">☀️</span>
+                <span class="theme-icon moon">🌙</span>
             </button>
 
             <!-- LOGOUT BUTTON -->

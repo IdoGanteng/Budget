@@ -80,19 +80,26 @@
             isSubmitting = false;
         }
     }
+
+    function handleBackdropClick(e) {
+        if (e.target === e.currentTarget) {
+            closeAddPocketModal();
+        }
+    }
 </script>
 
+<svelte:window on:keydown={(e) => { if (e.key === 'Escape' && $isAddPocketModalOpen) closeAddPocketModal(); }} />
+
 {#if $isAddPocketModalOpen}
+    <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
     <div
         class="modal-overlay active"
-        on:click={closeAddPocketModal}
-        on:keydown={(e) => { if (e.key === 'Escape') closeAddPocketModal(); }}
+        on:click={handleBackdropClick}
         role="dialog"
         aria-modal="true"
         aria-labelledby="add-pocket-modal-title"
-        tabindex="-1"
     >
-        <div class="modal-box" style="text-align: left; max-width: 480px; max-height: 90vh; overflow-y: auto;" on:click|stopPropagation role="document">
+        <div class="modal-box" style="text-align: left; max-width: 480px; max-height: 90vh; overflow-y: auto;" role="document">
             <!-- HEADER -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -146,10 +153,11 @@
             <form on:submit={handleSubmit} style="gap: 14px; display: flex; flex-direction: column;">
                 <!-- 1. NAMA KANTONG -->
                 <div>
-                    <label style="font-size: 12px; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 6px;">
+                    <label for="new-pocket-name" style="font-size: 12px; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 6px;">
                         Nama Kantong <span style="color: #f43f5e;">*</span>
                     </label>
                     <input
+                        id="new-pocket-name"
                         type="text"
                         bind:value={name}
                         placeholder="Contoh: Dana Liburan Jepang, Uang Kos, Saham"
@@ -161,9 +169,9 @@
 
                 <!-- 2. JENIS / KATEGORI KANTONG -->
                 <div>
-                    <label style="font-size: 12px; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 6px;">
+                    <span style="font-size: 12px; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 6px;">
                         Jenis / Kategori Kantong
-                    </label>
+                    </span>
                     <div style="display: flex; gap: 6px; flex-wrap: wrap;">
                         {#each categoryPresets as cat}
                             <button
@@ -183,10 +191,11 @@
                 <!-- 3. SALDO AWAL & TARGET (2 COLUMNS) -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                     <div>
-                        <label style="font-size: 12px; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 6px;">
+                        <label for="new-pocket-initial-bal" style="font-size: 12px; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 6px;">
                             Saldo Awal (Rp)
                         </label>
                         <input
+                            id="new-pocket-initial-bal"
                             type="text"
                             bind:value={initialBalance}
                             on:input={handleInitialInput}
@@ -195,10 +204,11 @@
                         >
                     </div>
                     <div>
-                        <label style="font-size: 12px; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 6px;">
+                        <label for="new-pocket-target" style="font-size: 12px; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 6px;">
                             Target Saldo (Rp)
                         </label>
                         <input
+                            id="new-pocket-target"
                             type="text"
                             bind:value={target}
                             on:input={handleTargetInput}
@@ -211,9 +221,9 @@
                 <!-- 4. PILIH IKON / EMOJI -->
                 <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                        <label style="font-size: 12px; font-weight: 700; color: #94a3b8;">
+                        <span style="font-size: 12px; font-weight: 700; color: #94a3b8;">
                             Pilih Ikon / Emoji
-                        </label>
+                        </span>
                         <span style="font-size: 14px;">Terpilih: <b>{selectedIcon}</b></span>
                     </div>
                     <div style="display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; background: #0f172a; padding: 8px; border-radius: 12px; border: 1px solid #334155;">
@@ -233,9 +243,9 @@
                 <!-- 5. PILIH WARNA -->
                 <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                        <label style="font-size: 12px; font-weight: 700; color: #94a3b8;">
+                        <span style="font-size: 12px; font-weight: 700; color: #94a3b8;">
                             Pilih Warna Kantong
-                        </label>
+                        </span>
                         <div style="display: flex; align-items: center; gap: 6px;">
                             <span style="width: 14px; height: 14px; border-radius: 50%; background: {selectedColor}; display: inline-block;"></span>
                             <span style="font-size: 11px; font-family: monospace; color: #94a3b8;">{selectedColor}</span>

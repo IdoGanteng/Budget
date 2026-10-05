@@ -36,20 +36,28 @@
             }
         });
     }
+
+    function handleBackdropClick(e) {
+        if (e.target === e.currentTarget) {
+            isManageUsersModalOpen.set(false);
+        }
+    }
 </script>
 
+<svelte:window on:keydown={(e) => { if (e.key === 'Escape' && $isManageUsersModalOpen) isManageUsersModalOpen.set(false); }} />
+
 {#if $isManageUsersModalOpen}
+    <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
     <div
         class="modal-overlay active"
-        on:click={() => isManageUsersModalOpen.set(false)}
-        on:keydown={(e) => { if (e.key === 'Escape') isManageUsersModalOpen.set(false); }}
+        on:click={handleBackdropClick}
         role="dialog"
         aria-modal="true"
-        tabindex="-1"
+        aria-labelledby="manage-users-title"
     >
-        <div class="modal-box" style="text-align: left; max-width: 440px;" on:click|stopPropagation role="document">
+        <div class="modal-box" style="text-align: left; max-width: 440px;" role="document">
             <div style="font-size: 32px; margin-bottom: 8px;">👥</div>
-            <h3>Kelola Profil Pengguna</h3>
+            <h3 id="manage-users-title">Kelola Profil Pengguna</h3>
             <p style="font-size: 12.5px; color: var(--text-gray); margin-bottom: 14px;">
                 Setiap profil memiliki database &amp; riwayat keuangan mandiri.
             </p>
@@ -120,12 +128,12 @@
             {:else}
                 <form on:submit={handleCreate} style="gap: 12px;">
                     <div>
-                        <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 6px;">Nama Profil</label>
-                        <input type="text" bind:value={newName} placeholder="Misal: Ido Ganteng" required>
+                        <label for="new-profile-name" style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 6px;">Nama Profil</label>
+                        <input id="new-profile-name" type="text" bind:value={newName} placeholder="Misal: Ido Ganteng" required>
                     </div>
 
                     <div>
-                        <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 6px;">Pilih Emoji Avatar</label>
+                        <span style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 6px;">Pilih Emoji Avatar</span>
                         <div style="display: flex; gap: 6px; flex-wrap: wrap;">
                             {#each avatarPresets as av}
                                 <button

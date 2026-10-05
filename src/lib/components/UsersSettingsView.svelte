@@ -284,10 +284,11 @@
 
         <form on:submit={handleSaveSpreadsheetSettings} style="gap:12px;">
             <div>
-                <label style="font-size:12px; font-weight:700; color:var(--text-gray); display:block; margin-bottom:6px;">
+                <label for="settings-sheet-url" style="font-size:12px; font-weight:700; color:var(--text-gray); display:block; margin-bottom:6px;">
                     URL Web App Google Apps Script
                 </label>
                 <input
+                    id="settings-sheet-url"
                     type="url"
                     bind:value={sheetUrl}
                     placeholder="https://script.google.com/macros/s/.../exec"
@@ -296,10 +297,11 @@
                 >
             </div>
             <div>
-                <label style="font-size:12px; font-weight:700; color:var(--text-gray); display:block; margin-bottom:6px;">
+                <label for="settings-sheet-token" style="font-size:12px; font-weight:700; color:var(--text-gray); display:block; margin-bottom:6px;">
                     Token Akses (Opsional)
                 </label>
                 <input
+                    id="settings-sheet-token"
                     type="text"
                     bind:value={sheetToken}
                     placeholder="RebelAman2026"

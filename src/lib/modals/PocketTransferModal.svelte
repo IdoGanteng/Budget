@@ -45,18 +45,33 @@
         customDesc = '';
         closeTransferModal();
     }
+
+    function handleBackdropClick(e) {
+        if (e.target === e.currentTarget) {
+            closeTransferModal();
+        }
+    }
 </script>
 
+<svelte:window on:keydown={(e) => { if (e.key === 'Escape' && $isTransferModalOpen) closeTransferModal(); }} />
+
 {#if $isTransferModalOpen}
-    <div class="modal-overlay active" on:click={closeTransferModal}>
-        <div class="modal-box" style="text-align: left; max-width: 440px;" on:click|stopPropagation>
+    <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
+    <div
+        class="modal-overlay active"
+        on:click={handleBackdropClick}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="transfer-modal-title"
+    >
+        <div class="modal-box" style="text-align: left; max-width: 440px;" role="document">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <div style="background: rgba(255, 122, 0, 0.16); color: #FF7A00; font-size: 20px; width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800;">
                         ⇄
                     </div>
                     <div>
-                        <h3 style="margin: 0; font-size: 17px; font-weight: 800;">Pindah Saldo Antar Kantong</h3>
+                        <h3 id="transfer-modal-title" style="margin: 0; font-size: 17px; font-weight: 800;">Pindah Saldo Antar Kantong</h3>
                         <p style="margin: 0; font-size: 12px; color: var(--text-gray);">Transfer alokasi dana antar kantong pengguna</p>
                     </div>
                 </div>
@@ -73,10 +88,11 @@
             <form on:submit={handleTransferSubmit} style="gap: 14px;">
                 <!-- DARI KANTONG -->
                 <div>
-                    <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
+                    <label for="transfer-from-pocket" style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
                         Dari Kantong (Sumber)
                     </label>
                     <select
+                        id="transfer-from-pocket"
                         bind:value={fromPocket}
                         style="background: var(--input-bg); border-color: var(--border-color); color: var(--text-dark); border-radius: 12px; padding: 10px 12px; font-size: 13px; width: 100%;"
                     >
@@ -88,10 +104,11 @@
 
                 <!-- KE KANTONG -->
                 <div>
-                    <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
+                    <label for="transfer-to-pocket" style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
                         Ke Kantong (Tujuan)
                     </label>
                     <select
+                        id="transfer-to-pocket"
                         bind:value={toPocket}
                         style="background: var(--input-bg); border-color: var(--border-color); color: var(--text-dark); border-radius: 12px; padding: 10px 12px; font-size: 13px; width: 100%;"
                     >
@@ -103,10 +120,11 @@
 
                 <!-- NOMINAL / JUMLAH -->
                 <div>
-                    <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
+                    <label for="transfer-amount-input" style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
                         {labelText}
                     </label>
                     <input
+                        id="transfer-amount-input"
                         type="text"
                         value={amountStr}
                         on:input={handleAmountInput}
@@ -130,10 +148,11 @@
 
                 <!-- CATATAN / KETERANGAN -->
                 <div>
-                    <label style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
+                    <label for="transfer-desc-input" style="font-size: 11.5px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
                         Keterangan / Catatan
                     </label>
                     <input
+                        id="transfer-desc-input"
                         type="text"
                         bind:value={customDesc}
                         placeholder="Misal: Sisihkan ke tabungan impian"

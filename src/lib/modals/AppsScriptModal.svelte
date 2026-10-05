@@ -76,13 +76,28 @@
             showToast('Kode Google Apps Script berhasil disalin ke clipboard!', 'success', '📋');
         });
     }
+
+    function handleBackdropClick(e) {
+        if (e.target === e.currentTarget) {
+            isAppsScriptModalOpen.set(false);
+        }
+    }
 </script>
 
+<svelte:window on:keydown={(e) => { if (e.key === 'Escape' && $isAppsScriptModalOpen) isAppsScriptModalOpen.set(false); }} />
+
 {#if $isAppsScriptModalOpen}
-    <div class="modal-overlay active" on:click={() => isAppsScriptModalOpen.set(false)}>
-        <div class="modal-box" style="text-align: left; max-width: 460px;" on:click|stopPropagation>
+    <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
+    <div
+        class="modal-overlay active"
+        on:click={handleBackdropClick}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="apps-script-title"
+    >
+        <div class="modal-box" style="text-align: left; max-width: 460px;" role="document">
             <div style="font-size:32px; margin-bottom:8px;">📜</div>
-            <h3>Kode Google Apps Script</h3>
+            <h3 id="apps-script-title">Kode Google Apps Script</h3>
             <p style="font-size:12.5px; color:var(--text-gray); margin-bottom:12px;">
                 Salin kode di bawah ke menu <b>Extensions &gt; Apps Script</b> di Google Sheets Anda, lalu Deploy sebagai Web App (Who has access: <b>Anyone</b>).
             </p>

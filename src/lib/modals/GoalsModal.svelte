@@ -25,21 +25,37 @@
             isGoalsModalOpen.set(false);
         }
     }
+
+    function handleBackdropClick(e) {
+        if (e.target === e.currentTarget) {
+            isGoalsModalOpen.set(false);
+        }
+    }
 </script>
 
+<svelte:window on:keydown={(e) => { if (e.key === 'Escape' && $isGoalsModalOpen) isGoalsModalOpen.set(false); }} />
+
 {#if $isGoalsModalOpen}
-    <div class="modal-overlay active" on:click={() => isGoalsModalOpen.set(false)}>
-        <div class="modal-box" style="text-align: left; max-width: 420px;" on:click|stopPropagation>
+    <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
+    <div
+        class="modal-overlay active"
+        on:click={handleBackdropClick}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="goals-modal-title"
+    >
+        <div class="modal-box" style="text-align: left; max-width: 420px;" role="document">
             <div style="font-size: 32px; margin-bottom: 12px;">🎯</div>
-            <h3>Pengaturan Target 2026</h3>
+            <h3 id="goals-modal-title">Pengaturan Target 2026</h3>
             <p>Tentukan target finansial impian kamu tahun ini.</p>
 
             <form on:submit={handleSave} style="gap: 16px;">
                 <div>
-                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
+                    <label for="goal-wealth-val" style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
                         Target Kekayaan Total (Rp)
                     </label>
                     <input
+                        id="goal-wealth-val"
                         type="text"
                         value={wealthStr}
                         on:input={(e) => wealthStr = formatInput(e.target.value)}
@@ -49,10 +65,11 @@
                 </div>
 
                 <div>
-                    <label style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
+                    <label for="goal-gold-val" style="font-size: 12px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 6px;">
                         Target Aset Emas (Rp)
                     </label>
                     <input
+                        id="goal-gold-val"
                         type="text"
                         value={goldStr}
                         on:input={(e) => goldStr = formatInput(e.target.value)}
