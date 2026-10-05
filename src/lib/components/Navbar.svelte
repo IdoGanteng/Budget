@@ -32,7 +32,7 @@
         <div class="desktop-nav-tabs">
             <button
                 type="button"
-                class="desktop-tab-btn text-xs md:text-sm px-3 py-1.5 whitespace-nowrap"
+                class="desktop-tab-btn"
                 class:active={$activeTab === 'home'}
                 on:click={() => activeTab.set('home')}
             >
@@ -40,7 +40,7 @@
             </button>
             <button
                 type="button"
-                class="desktop-tab-btn text-xs md:text-sm px-3 py-1.5 whitespace-nowrap"
+                class="desktop-tab-btn"
                 class:active={$activeTab === 'analytics'}
                 on:click={() => activeTab.set('analytics')}
             >
@@ -48,15 +48,18 @@
             </button>
             <button
                 type="button"
-                class="desktop-tab-btn text-xs md:text-sm px-3 py-1.5 whitespace-nowrap"
+                class="desktop-tab-btn"
                 class:active={$activeTab === 'report'}
                 on:click={() => activeTab.set('report')}
+                title="Buka & Cetak Laporan Keuangan Bulanan (A4)"
             >
-                <span>📑</span> Laporan A4
+                <span>📑</span>
+                <span class="nav-label-desktop">Laporan A4</span>
+                <span class="nav-label-compact">Laporan</span>
             </button>
             <button
                 type="button"
-                class="desktop-tab-btn text-xs md:text-sm px-3 py-1.5 whitespace-nowrap"
+                class="desktop-tab-btn"
                 class:active={$activeTab === 'pockets'}
                 on:click={() => activeTab.set('pockets')}
             >
@@ -64,9 +67,10 @@
             </button>
             <button
                 type="button"
-                class="desktop-tab-btn text-xs md:text-sm px-3 py-1.5 whitespace-nowrap"
+                class="desktop-tab-btn"
                 class:active={$activeTab === 'users'}
                 on:click={() => activeTab.set('users')}
+                title="Kelola Pengguna & Database"
             >
                 <span>👥</span>
                 <span class="nav-label-desktop">Pengguna &amp; Database</span>
@@ -74,7 +78,7 @@
             </button>
             <button
                 type="button"
-                class="desktop-catat-btn text-xs md:text-sm px-3 py-1.5 whitespace-nowrap"
+                class="desktop-catat-btn"
                 on:click={() => openAddTxModal({ type: 'expense', title: 'Catat Pengeluaran' })}
                 title="Catat Transaksi Cepat"
             >

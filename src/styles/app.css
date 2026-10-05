@@ -149,7 +149,7 @@ body {
 .app-main-content,
 .app-max-width {
     width: 100%;
-    max-width: 1120px;
+    max-width: 1200px;
     margin: 0 auto;
 }
 
@@ -164,6 +164,7 @@ body {
     pointer-events: none; 
     width: 100%; 
     padding: 0 4px;
+    box-sizing: border-box;
 }
 .modern-navbar {
     background: #161f30 !important;
@@ -180,7 +181,9 @@ body {
     box-shadow: 0 12px 32px -8px rgba(0,0,0,0.5), 0 0 20px rgba(37, 99, 235, 0.08); 
     pointer-events: auto; 
     width: 100%; 
-    max-width: 1120px; 
+    max-width: 1200px; 
+    box-sizing: border-box;
+    flex-wrap: nowrap;
 }
 [data-theme="light"] .modern-navbar {
     background: #ffffff !important;
@@ -285,7 +288,7 @@ body {
 .nav-label-compact {
     display: none;
 }
-@media (max-width: 1140px) {
+@media (max-width: 1240px) {
     .nav-label-desktop {
         display: none !important;
     }
@@ -326,7 +329,8 @@ body {
 .nav-actions {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
+    flex-shrink: 0;
 }
 .sync-status-pill {
     display: inline-flex;
@@ -341,6 +345,8 @@ body {
     color: var(--text-gray);
     cursor: pointer;
     transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 .sync-status-pill:hover {
     transform: translateY(-2px);
@@ -351,13 +357,20 @@ body {
     border: 1px solid #cbd5e1 !important;
     color: #0f172a !important;
 }
+.sync-status-text {
+    max-width: 130px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+}
 [data-theme="light"] .sync-status-text {
     color: #0f172a !important;
     font-weight: 700 !important;
 }
 
 .nav-report-btn {
-    display: inline-flex;
+    display: none; /* Hidden on desktop since Laporan is a tab in desktop-nav-tabs */
     align-items: center;
     gap: 5px;
     background: rgba(37, 99, 235, 0.12);
@@ -370,6 +383,11 @@ body {
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     flex-shrink: 0;
+}
+@media (max-width: 768px) {
+    .nav-report-btn {
+        display: inline-flex !important; /* Shown on mobile where desktop tabs are hidden */
+    }
 }
 .nav-report-btn:hover, .nav-report-btn.active {
     background: #2563eb;
@@ -407,6 +425,7 @@ body {
     border-radius: 100px;
     cursor: pointer;
     transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+    flex-shrink: 0;
 }
 .nav-user-switcher:hover {
     transform: translateY(-2px);
@@ -427,6 +446,7 @@ body {
     font-size: 13px;
     font-weight: 800;
     overflow: hidden;
+    flex-shrink: 0;
 }
 .user-avatar-badge img {
     width: 100%;
@@ -3182,30 +3202,143 @@ select option {
 .text-white { color: #ffffff !important; }
 .text-gray-400 { color: #94a3b8 !important; }
 
-/* MOBILE RESPONSIVE MEDIA QUERIES */
+/* DESKTOP RESPONSIVE MEDIA QUERIES FOR NAVBAR */
 @media (min-width: 769px) {
     .mobile-bottom-bar { display: none !important; }
+    .nav-report-btn { display: none !important; }
+}
+
+@media (min-width: 1081px) and (max-width: 1240px) {
+    .modern-navbar {
+        padding: 7px 14px;
+        gap: 10px;
+    }
+    .desktop-nav-tabs {
+        gap: 3px;
+        padding: 3px;
+    }
+    .desktop-tab-btn {
+        padding: 5px 10px;
+        font-size: 12.5px;
+        gap: 5px;
+    }
+    .desktop-catat-btn {
+        padding: 5px 10px;
+        font-size: 12.5px;
+    }
+    .nav-actions {
+        gap: 7px;
+    }
+    .sync-status-pill {
+        padding: 4px 10px;
+    }
+    .user-name-label {
+        max-width: 80px;
+    }
+}
+
+@media (min-width: 881px) and (max-width: 1080px) {
+    .modern-navbar {
+        padding: 6px 12px;
+        gap: 8px;
+    }
+    .brand-section {
+        gap: 8px;
+    }
+    .brand-title {
+        font-size: 13.5px;
+    }
+    .desktop-nav-tabs {
+        gap: 2px;
+        padding: 3px;
+    }
+    .desktop-tab-btn {
+        padding: 5px 8px;
+        font-size: 12px;
+        gap: 4px;
+    }
+    .desktop-catat-btn {
+        padding: 5px 9px;
+        font-size: 12px;
+    }
+    .nav-actions {
+        gap: 6px;
+    }
+    .sync-status-pill {
+        padding: 4px 8px;
+        font-size: 10.5px;
+    }
+    .sync-status-text {
+        max-width: 90px;
+    }
+    .nav-user-switcher {
+        padding: 3px 10px 3px 3px;
+        gap: 6px;
+    }
+    .user-name-label {
+        max-width: 70px;
+    }
+    .nav-action-icon-btn,
+    .nav-logout-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 9px;
+    }
+    .nav-action-icon-btn svg,
+    .nav-logout-btn svg {
+        width: 14px;
+        height: 14px;
+    }
 }
 
 @media (min-width: 769px) and (max-width: 880px) {
     .modern-navbar {
         padding: 6px 10px !important;
-        gap: 8px !important;
+        gap: 6px !important;
+    }
+    .brand-title {
+        display: none !important;
     }
     .desktop-nav-tabs {
         gap: 2px !important;
         padding: 2px !important;
     }
     .desktop-tab-btn {
-        padding: 5px 8px !important;
-        font-size: 11.5px !important;
+        padding: 4px 7px !important;
+        font-size: 11px !important;
+        gap: 3px !important;
     }
     .desktop-catat-btn {
-        padding: 5px 9px !important;
-        font-size: 11.5px !important;
+        padding: 4px 8px !important;
+        font-size: 11px !important;
     }
-    .brand-title {
-        display: none !important;
+    .nav-actions {
+        gap: 5px !important;
+    }
+    .sync-status-pill {
+        padding: 4px 6px !important;
+        font-size: 10px !important;
+    }
+    .sync-status-text {
+        max-width: 60px !important;
+    }
+    .nav-user-switcher {
+        padding: 3px 8px 3px 3px !important;
+        gap: 5px !important;
+    }
+    .user-name-label {
+        max-width: 55px !important;
+    }
+    .nav-action-icon-btn,
+    .nav-logout-btn {
+        width: 30px !important;
+        height: 30px !important;
+        border-radius: 8px !important;
+    }
+    .nav-action-icon-btn svg,
+    .nav-logout-btn svg {
+        width: 13px !important;
+        height: 13px !important;
     }
 }
 
