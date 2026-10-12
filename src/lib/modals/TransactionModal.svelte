@@ -102,32 +102,28 @@
 {#if $isAddTxModalOpen}
     <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
     <div
-        class="fixed inset-0 z-[2200] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/75 backdrop-blur-md transition-all duration-300"
+        class="tx-modal-overlay fixed inset-0 z-[100] z-[99999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+        style="z-index: 99999;"
         on:click={handleBackdropClick}
         role="dialog"
         aria-modal="true"
         aria-labelledby="add-tx-modal-title"
     >
-        <div
-            class="w-full sm:max-w-[440px] bg-slate-900 border border-white/10 rounded-t-[28px] sm:rounded-[28px] p-5 sm:p-6 shadow-2xl shadow-black/80 max-h-[90vh] max-h-[90dvh] overflow-y-auto no-scrollbar transform transition-all duration-300"
-            role="document"
-        >
-            <!-- TOP SHEET DRAG HANDLE (NATIVE APP FEEL) -->
-            <div class="flex justify-center -mt-2 mb-3 sm:hidden">
-                <div class="w-10 h-1 bg-white/20 rounded-full"></div>
-            </div>
+        <div class="tx-modal-card relative w-full max-w-md bg-slate-900 border border-slate-700/60 rounded-3xl p-6 shadow-2xl flex flex-col gap-4 text-left" role="document">
+            <!-- MOBILE TOP DRAG HANDLE -->
+            <div class="tx-mobile-handle"></div>
 
-            <!-- COMPACT MINIMALIST HEADER -->
-            <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full {selectedType === 'income' ? 'bg-emerald-500 shadow-emerald-500/50 shadow-sm' : selectedType === 'withdraw' ? 'bg-purple-500 shadow-purple-500/50 shadow-sm' : 'bg-rose-500 shadow-rose-500/50 shadow-sm'}"></span>
-                    <h3 id="add-tx-modal-title" class="text-sm font-bold tracking-tight text-white">
+            <!-- 1. HEADER WITH TITLE (LEFT) & CLOSE BUTTON (RIGHT) -->
+            <div class="tx-header flex items-center justify-between w-full">
+                <div class="tx-header-title-wrap flex items-center gap-2">
+                    <span class="tx-type-dot {selectedType}"></span>
+                    <h3 id="add-tx-modal-title" class="tx-title text-base font-bold text-white">
                         {$addTxConfig.title || (selectedType === 'income' ? 'Catat Pemasukan' : 'Catat Pengeluaran')}
                     </h3>
                 </div>
                 <button
                     type="button"
-                    class="w-7 h-7 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/15 text-slate-400 hover:text-white transition-all text-xs"
+                    class="tx-close-btn"
                     on:click={closeAddTxModal}
                     aria-label="Tutup Formulir"
                 >
@@ -135,18 +131,16 @@
                 </button>
             </div>
 
-            <form on:submit={handleSubmit} class="flex flex-direction flex-col gap-4">
-                <!-- 1. NUMPAD-FIRST CONCEPT: GIANT CENTERED NOMINAL DISPLAY -->
-                <div class="flex flex-col items-center justify-center py-2 px-1">
-                    <div class="w-full relative flex items-baseline justify-center">
-                        <span class="text-lg sm:text-xl font-bold text-slate-400 mr-1.5 select-none font-mono">
-                            {isGramUnit ? 'Gr' : 'Rp'}
-                        </span>
+            <form on:submit={handleSubmit} class="tx-form flex flex-col gap-4 w-full">
+                <!-- 2. NUMPAD-FIRST CONCEPT: LARGE CENTERED NOMINAL INPUT & QUICK PILLS -->
+                <div class="tx-nominal-container flex flex-col items-center justify-center py-1 w-full">
+                    <div class="tx-nominal-row flex items-baseline justify-center w-full">
+                        <span class="tx-currency-prefix font-mono text-xl font-extrabold text-slate-500 mr-1.5">{isGramUnit ? 'Gr' : 'Rp'}</span>
                         <input
                             id="add-tx-amount-input"
                             type="text"
                             inputmode="decimal"
-                            class="w-full max-w-[280px] bg-transparent text-center text-4xl sm:text-5xl font-extrabold text-white tracking-tight outline-none placeholder:text-slate-600 font-mono caret-blue-500"
+                            class="tx-nominal-input font-mono text-center text-4xl sm:text-5xl font-extrabold bg-transparent border-0 outline-none text-white tracking-tight"
                             value={amountStr}
                             on:input={handleAmountInput}
                             placeholder="0"
@@ -157,148 +151,148 @@
 
                     <!-- ESTIMASI NILAI EMAS -->
                     {#if isGramUnit && goldEstRp > 0}
-                        <div class="mt-1 text-xs font-semibold text-amber-400 bg-amber-400/10 border border-amber-400/20 px-3 py-1 rounded-full flex items-center gap-1.5 animate-fadeIn">
+                        <div class="tx-gold-est">
                             <span>🪙 Nilai:</span>
                             <strong class="font-mono">{formatRp(goldEstRp)}</strong>
                         </div>
                     {/if}
 
-                    <!-- QUICK-ADD PILLS (SUBTLE & MINIMAL) -->
+                    <!-- QUICK ADD PILLS -->
                     {#if !isGramUnit}
-                        <div class="flex flex-wrap justify-center gap-1.5 mt-3 w-full">
-                            <button type="button" class="quick-pill-btn" on:click={() => addQuick(20000)}>+20rb</button>
-                            <button type="button" class="quick-pill-btn" on:click={() => addQuick(50000)}>+50rb</button>
-                            <button type="button" class="quick-pill-btn" on:click={() => addQuick(100000)}>+100rb</button>
-                            <button type="button" class="quick-pill-btn" on:click={() => addQuick(500000)}>+500rb</button>
-                            <button type="button" class="quick-pill-btn" on:click={() => addQuick(1000000)}>+1jt</button>
+                        <div class="tx-quick-row flex flex-wrap justify-center gap-1.5 mt-3 w-full">
+                            <button type="button" class="tx-quick-pill quick-pill-btn" on:click={() => addQuick(20000)}>+20rb</button>
+                            <button type="button" class="tx-quick-pill quick-pill-btn" on:click={() => addQuick(50000)}>+50rb</button>
+                            <button type="button" class="tx-quick-pill quick-pill-btn" on:click={() => addQuick(100000)}>+100rb</button>
+                            <button type="button" class="tx-quick-pill quick-pill-btn" on:click={() => addQuick(500000)}>+500rb</button>
+                            <button type="button" class="tx-quick-pill quick-pill-btn" on:click={() => addQuick(1000000)}>+1jt</button>
                         </div>
                     {/if}
                 </div>
 
-                <!-- 2. CONVERSATIONAL ROUTE & POCKET SELECTOR (COMBINED & CLEAN) -->
-                <div class="bg-slate-800/60 border border-white/5 rounded-2xl p-2.5 flex flex-col gap-2">
-                    <div class="flex items-center justify-between text-xs font-semibold text-slate-300 flex-wrap gap-2">
-                        <!-- JENIS POS SELECTOR -->
-                        <div class="flex items-center gap-1.5 bg-slate-900/80 px-2.5 py-1.5 rounded-xl border border-white/5 flex-1 min-w-[130px]">
-                            <span class="text-slate-400 text-[11px]">Pos:</span>
-                            <select
-                                id="add-tx-type"
-                                bind:value={selectedType}
-                                class="bg-transparent text-white font-bold text-xs outline-none cursor-pointer flex-1 appearance-none"
-                            >
-                                <optgroup label="Uang Harian">
-                                    <option value="expense">💸 Pengeluaran</option>
-                                    <option value="income">💰 Pemasukan</option>
-                                </optgroup>
-                                <optgroup label="Ambil Tabungan & Aset">
-                                    <option value="withdraw">🏧 Ambil Tabungan</option>
-                                </optgroup>
-                                <optgroup label="Tabungan & Aset">
-                                    <option value="simpanan">🛡️ Simpanan Wajib</option>
-                                    <option value="pribadi">💳 Tabungan Pribadi</option>
-                                    <option value="tring">🪙 Emas Tring</option>
-                                    <option value="jago">🦁 Emas Jago</option>
-                                </optgroup>
-                            </select>
-                            <span class="text-slate-500 text-[10px] pointer-events-none">▾</span>
+                <!-- 3. FORM CONTROLS COLUMN (POS, DARI, KATEGORI) -->
+                <div class="tx-form-controls flex flex-col gap-2.5 w-full">
+                    <!-- POS & DARI SECTION -->
+                    <div class="tx-selectors-box">
+                        <div class="tx-selectors-row flex items-center justify-between gap-2">
+                            <div class="tx-inline-select flex-1">
+                                <span class="tx-select-label">Pos:</span>
+                                <select
+                                    id="add-tx-type"
+                                    bind:value={selectedType}
+                                    class="tx-native-select"
+                                >
+                                    <optgroup label="Uang Harian">
+                                        <option value="expense">💸 Pengeluaran</option>
+                                        <option value="income">💰 Pemasukan</option>
+                                    </optgroup>
+                                    <optgroup label="Ambil Tabungan & Aset">
+                                        <option value="withdraw">🏧 Ambil Tabungan</option>
+                                    </optgroup>
+                                    <optgroup label="Tabungan & Aset">
+                                        <option value="simpanan">🛡️ Simpanan Wajib</option>
+                                        <option value="pribadi">💳 Tabungan Pribadi</option>
+                                        <option value="tring">🪙 Emas Tring</option>
+                                        <option value="jago">🦁 Emas Jago</option>
+                                    </optgroup>
+                                </select>
+                                <span class="tx-select-arrow">▾</span>
+                            </div>
+
+                            {#if selectedType === 'withdraw'}
+                                <div class="tx-inline-select flex-1">
+                                    <span class="tx-select-label">Dari:</span>
+                                    <select
+                                        id="add-tx-withdraw-src"
+                                        bind:value={withdrawSource}
+                                        class="tx-native-select"
+                                    >
+                                        {#each $pocketsList.filter(p => p.id !== 'cash') as p}
+                                            <option value={p.id}>{p.icon} {p.name}</option>
+                                        {/each}
+                                    </select>
+                                    <span class="tx-select-arrow">▾</span>
+                                </div>
+                            {:else}
+                                <div class="tx-inline-select flex-1">
+                                    <span class="tx-select-label">{selectedType === 'income' ? 'Masuk:' : 'Dari:'}</span>
+                                    <select
+                                        id="add-tx-pocket"
+                                        bind:value={selectedPocket}
+                                        class="tx-native-select"
+                                    >
+                                        {#each $pocketsList as p}
+                                            <option value={p.id}>{p.icon} {p.name}</option>
+                                        {/each}
+                                    </select>
+                                    <span class="tx-select-arrow">▾</span>
+                                </div>
+                            {/if}
                         </div>
 
-                        <!-- POCKET SOURCE / TARGET SELECTOR -->
                         {#if selectedType === 'withdraw'}
-                            <div class="flex items-center gap-1.5 bg-slate-900/80 px-2.5 py-1.5 rounded-xl border border-white/5 flex-1 min-w-[130px]">
-                                <span class="text-slate-400 text-[11px]">Dari:</span>
+                            <div class="tx-inline-select full-width w-full">
+                                <span class="tx-select-label">Masuk ke:</span>
                                 <select
-                                    id="add-tx-withdraw-src"
-                                    bind:value={withdrawSource}
-                                    class="bg-transparent text-white font-bold text-xs outline-none cursor-pointer flex-1 appearance-none"
-                                >
-                                    {#each $pocketsList.filter(p => p.id !== 'cash') as p}
-                                        <option value={p.id}>{p.icon} {p.name}</option>
-                                    {/each}
-                                </select>
-                                <span class="text-slate-500 text-[10px] pointer-events-none">▾</span>
-                            </div>
-                        {:else}
-                            <div class="flex items-center gap-1.5 bg-slate-900/80 px-2.5 py-1.5 rounded-xl border border-white/5 flex-1 min-w-[130px]">
-                                <span class="text-slate-400 text-[11px]">{selectedType === 'income' ? 'Masuk ke:' : 'Dari:'}</span>
-                                <select
-                                    id="add-tx-pocket"
+                                    id="add-tx-withdraw-target"
                                     bind:value={selectedPocket}
-                                    class="bg-transparent text-white font-bold text-xs outline-none cursor-pointer flex-1 appearance-none"
+                                    class="tx-native-select"
                                 >
                                     {#each $pocketsList as p}
                                         <option value={p.id}>{p.icon} {p.name}</option>
                                     {/each}
                                 </select>
-                                <span class="text-slate-500 text-[10px] pointer-events-none">▾</span>
+                                <span class="tx-select-arrow">▾</span>
                             </div>
                         {/if}
                     </div>
 
-                    <!-- IF WITHDRAW: TARGET POCKET ROW -->
-                    {#if selectedType === 'withdraw'}
-                        <div class="flex items-center gap-1.5 bg-slate-900/80 px-2.5 py-1.5 rounded-xl border border-white/5">
-                            <span class="text-slate-400 text-[11px]">Masuk ke:</span>
-                            <select
-                                id="add-tx-withdraw-target"
-                                bind:value={selectedPocket}
-                                class="bg-transparent text-white font-bold text-xs outline-none cursor-pointer flex-1 appearance-none"
-                            >
-                                {#each $pocketsList as p}
-                                    <option value={p.id}>{p.icon} {p.name}</option>
-                                {/each}
-                            </select>
-                            <span class="text-slate-500 text-[10px] pointer-events-none">▾</span>
+                    <!-- KATEGORI HORIZONTAL SCROLLING -->
+                    <div class="tx-categories-scroll-wrapper w-full overflow-hidden">
+                        <div class="tx-categories-row no-scrollbar flex items-center gap-2 overflow-x-auto">
+                            {#each categories as cat}
+                                <button
+                                    type="button"
+                                    class="tx-cat-pill category-pill-item {selectedCategory === cat.key ? 'selected' : ''}"
+                                    on:click={() => selectedCategory = cat.key}
+                                >
+                                    <span class="cat-icon">{cat.icon}</span>
+                                    <span class="cat-label">{cat.label}</span>
+                                </button>
+                            {/each}
                         </div>
-                    {/if}
-                </div>
-
-                <!-- 3. HORIZONTALLY SCROLLABLE CATEGORY PILLS (NO SCROLLBAR) -->
-                <div class="flex flex-col gap-1.5">
-                    <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5 px-0.5">
-                        {#each categories as cat}
-                            <button
-                                type="button"
-                                class="category-pill-item {selectedCategory === cat.key ? 'selected' : ''}"
-                                on:click={() => selectedCategory = cat.key}
-                            >
-                                <span>{cat.icon}</span>
-                                <span>{cat.label}</span>
-                            </button>
-                        {/each}
                     </div>
                 </div>
 
-                <!-- 4. PENGGUNA: MINIMALIST SLIDING SEGMENTED CONTROL -->
-                <div class="bg-slate-800/50 p-1 rounded-2xl border border-white/5 flex items-center gap-1">
+                <!-- 5. PENGGUNA SEGMENTED CONTROL -->
+                <div class="tx-user-segmented-bar">
                     {#each $usersList as u}
                         <button
                             type="button"
-                            class="user-segmented-pill {selectedUserId === u.id ? 'active' : ''}"
+                            class="tx-user-segment-btn {selectedUserId === u.id ? 'active' : ''}"
                             on:click={() => selectedUserId = u.id}
                         >
-                            <span class="w-4 h-4 rounded-full flex items-center justify-center text-[10px] overflow-hidden flex-shrink-0" style="background: {u.color || '#3b82f6'};">
+                            <span class="tx-user-avatar" style="background: {u.color || '#3b82f6'};">
                                 {#if u.picture}
-                                    <img src={u.picture} alt={u.name} class="w-full h-full object-cover" />
+                                    <img src={u.picture} alt={u.name} />
                                 {:else if u.avatar && u.avatar.includes('<img')}
                                     {@html u.avatar}
                                 {:else}
                                     {u.avatar || '👤'}
                                 {/if}
                             </span>
-                            <span class="truncate">{u.name}</span>
+                            <span class="tx-user-name">{u.name}</span>
                         </button>
                     {/each}
                 </div>
 
-                <!-- 5. FLUSHED INPUT KETERANGAN (LABEL-FREE, CLEAN PLACEHOLDER) -->
-                <div class="relative">
+                <!-- 6. FLUSHED KETERANGAN INPUT (LABEL-FREE, SUBTLE UNDERLINE) -->
+                <div class="tx-desc-wrapper">
                     <input
                         id="add-tx-desc-input"
                         type="text"
-                        class="w-full bg-slate-800/40 hover:bg-slate-800/60 focus:bg-slate-800/80 border-b-2 border-white/10 focus:border-blue-500 rounded-t-xl px-3.5 py-3 text-sm font-semibold text-white placeholder:text-slate-500 outline-none transition-all duration-200"
+                        class="tx-desc-input"
                         bind:value={desc}
-                        placeholder={selectedType === 'income' ? 'Catatan pemasukan (misal: Gaji, Bonus)...' : selectedType === 'withdraw' ? 'Catatan tarik saldo...' : 'Catatan pengeluaran (misal: Makan siang, Kopi)...'}
+                        placeholder={selectedType === 'income' ? 'Catatan pemasukan (Gaji, Bonus, dsb)...' : selectedType === 'withdraw' ? 'Catatan penarikan saldo...' : 'Catatan pengeluaran (Makan, Kopi, dsb)...'}
                         autocomplete="off"
                         autocorrect="off"
                         autocapitalize="sentences"
@@ -308,13 +302,13 @@
                     />
                 </div>
 
-                <!-- 6. SOFT MODERN PRIMARY ACTION BUTTON -->
+                <!-- 7. FULL WIDTH ACTION BUTTON -->
                 <button
                     type="submit"
-                    class="w-full mt-1 py-3.5 px-4 rounded-2xl font-bold text-sm text-white shadow-lg transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2 {selectedType === 'income' ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-900/30' : selectedType === 'withdraw' ? 'bg-purple-600 hover:bg-purple-500 shadow-purple-900/30' : 'bg-blue-600 hover:bg-blue-500 shadow-blue-900/30'}"
+                    class="tx-submit-btn {selectedType === 'income' ? 'btn-income' : selectedType === 'withdraw' ? 'btn-withdraw' : 'btn-expense'}"
                 >
                     <span>Simpan Transaksi</span>
-                    <span class="text-xs opacity-60">↵</span>
+                    <span class="tx-submit-icon">↵</span>
                 </button>
             </form>
         </div>
@@ -322,157 +316,563 @@
 {/if}
 
 <style>
-    /* UTILITY CLASSES & RESILIENT COMPONENT STYLING */
-    .no-scrollbar::-webkit-scrollbar {
+    /* ==========================================================================
+       MODAL OVERLAY & Z-INDEX (BULLETPROOF COVERAGE)
+       ========================================================================== */
+    .tx-modal-overlay {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        background: rgba(0, 0, 0, 0.8) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 99999 !important; /* Stays strictly above mobile bottom bar (1400) */
+        padding: 16px !important;
+        box-sizing: border-box !important;
+        animation: txFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @media (max-width: 640px) {
+        .tx-modal-overlay {
+            align-items: flex-end !important;
+            padding: 0 !important;
+        }
+    }
+
+    /* ==========================================================================
+       MODAL CARD CONTAINER (SOLID SLATE-900, GENEROUS ROUNDING & PADDING)
+       ========================================================================== */
+    .tx-modal-card {
+        background: #0f172a !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+        border-radius: 28px !important;
+        padding: 24px !important;
+        width: 100% !important;
+        max-width: 440px !important;
+        box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.85), 0 0 30px rgba(37, 99, 235, 0.1) !important;
+        max-height: 90vh !important;
+        max-height: 90dvh !important;
+        overflow-y: auto !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 16px !important;
+        animation: txScaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @media (max-width: 640px) {
+        .tx-modal-card {
+            max-width: 100% !important;
+            border-radius: 28px 28px 0 0 !important;
+            border-bottom: none !important;
+            padding: 20px 20px calc(24px + env(safe-area-inset-bottom, 16px)) 20px !important;
+            max-height: 88vh !important;
+            max-height: 88dvh !important;
+        }
+    }
+
+    .tx-mobile-handle {
         display: none;
     }
-    .no-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
+    @media (max-width: 640px) {
+        .tx-mobile-handle {
+            display: block;
+            width: 40px;
+            height: 4px;
+            border-radius: 100px;
+            background: rgba(255, 255, 255, 0.2);
+            margin: 0 auto 6px auto;
+        }
     }
 
-    /* QUICK PILL BUTTONS */
-    .quick-pill-btn {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        color: #94a3b8;
-        font-size: 11px;
-        font-weight: 700;
-        padding: 4px 10px;
-        border-radius: 9999px;
-        cursor: pointer;
-        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-        font-family: inherit;
+    /* ==========================================================================
+       HEADER (LEFT TITLE & RIGHT CLOSE BUTTON)
+       ========================================================================== */
+    .tx-header {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        width: 100% !important;
     }
-    .quick-pill-btn:hover {
-        background: rgba(255, 255, 255, 0.12);
-        color: #ffffff;
-        border-color: rgba(255, 255, 255, 0.2);
-        transform: translateY(-1px);
+    .tx-header-title-wrap {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
     }
-    .quick-pill-btn:active {
-        transform: scale(0.96);
+    .tx-type-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+        background: #f43f5e;
+        box-shadow: 0 0 8px rgba(244, 63, 94, 0.5);
+    }
+    .tx-type-dot.income { background: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.5); }
+    .tx-type-dot.withdraw { background: #8b5cf6; box-shadow: 0 0 8px rgba(139, 92, 246, 0.5); }
+    .tx-title {
+        margin: 0 !important;
+        font-size: 15px !important;
+        font-weight: 800 !important;
+        color: #ffffff !important;
+        letter-spacing: -0.2px !important;
+    }
+    .tx-close-btn {
+        width: 30px !important;
+        height: 30px !important;
+        border-radius: 50% !important;
+        background: rgba(255, 255, 255, 0.08) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: #94a3b8 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 13px !important;
+        cursor: pointer !important;
+        transition: all 0.2s ease !important;
+    }
+    .tx-close-btn:hover {
+        background: rgba(255, 255, 255, 0.16) !important;
+        color: #ffffff !important;
     }
 
-    /* CATEGORY PILL ITEMS */
-    .category-pill-item {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        padding: 6px 12px;
-        border-radius: 9999px;
+    /* ==========================================================================
+       FORM STRUCTURE
+       ========================================================================== */
+    .tx-form {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 16px !important;
+        width: 100% !important;
+    }
+
+    /* ==========================================================================
+       NOMINAL SECTION (NUMPAD-FIRST, CENTERED, PROMINENT)
+       ========================================================================== */
+    .tx-nominal-container {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 4px 0 8px 0 !important;
+        width: 100% !important;
+    }
+    .tx-nominal-row {
+        display: flex !important;
+        align-items: baseline !important;
+        justify-content: center !important;
+        width: 100% !important;
+    }
+    .tx-currency-prefix {
+        font-size: 20px !important;
+        font-weight: 800 !important;
+        color: #64748b !important;
+        margin-right: 6px !important;
+        user-select: none !important;
+    }
+    .tx-nominal-input {
+        background: transparent !important;
+        border: none !important;
+        outline: none !important;
+        text-align: center !important;
+        font-size: 44px !important;
+        font-weight: 800 !important;
+        color: #ffffff !important;
+        letter-spacing: -1px !important;
+        max-width: 300px !important;
+        width: 100% !important;
+        caret-color: #3b82f6 !important;
+    }
+    .tx-nominal-input::placeholder {
+        color: #334155 !important;
+    }
+
+    .tx-gold-est {
+        margin-top: 4px;
         font-size: 11.5px;
-        font-weight: 600;
-        white-space: nowrap;
-        cursor: pointer;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid transparent;
-        color: #94a3b8;
-        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-        font-family: inherit;
-    }
-    .category-pill-item:hover {
-        background: rgba(255, 255, 255, 0.08);
-        color: #e2e8f0;
-    }
-    .category-pill-item.selected {
-        background: rgba(59, 130, 246, 0.2);
-        border-color: rgba(59, 130, 246, 0.4);
-        color: #60a5fa;
         font-weight: 700;
-        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
-    }
-
-    /* USER SEGMENTED CONTROL */
-    .user-segmented-pill {
-        flex: 1;
-        display: inline-flex;
+        color: #f59e0b;
+        background: rgba(245, 158, 11, 0.12);
+        border: 1px solid rgba(245, 158, 11, 0.25);
+        padding: 4px 12px;
+        border-radius: 100px;
+        display: flex;
         align-items: center;
-        justify-content: center;
         gap: 6px;
-        padding: 6px 10px;
-        border-radius: 12px;
-        font-size: 11.5px;
-        font-weight: 600;
-        color: #94a3b8;
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-        font-family: inherit;
-    }
-    .user-segmented-pill:hover {
-        color: #ffffff;
-    }
-    .user-segmented-pill.active {
-        background: rgba(255, 255, 255, 0.12);
-        color: #ffffff;
-        font-weight: 700;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
     }
 
-    /* LIGHT THEME ADAPTATION */
-    :global([data-theme="light"]) .bg-slate-900 {
+    /* QUICK PILLS */
+    .tx-quick-row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        margin-top: 12px !important;
+        width: 100% !important;
+    }
+    .tx-quick-pill {
+        background: rgba(255, 255, 255, 0.06) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        color: #94a3b8 !important;
+        font-size: 11.5px !important;
+        font-weight: 700 !important;
+        padding: 5px 12px !important;
+        border-radius: 100px !important;
+        cursor: pointer !important;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        font-family: inherit !important;
+    }
+    .tx-quick-pill:hover {
+        background: rgba(255, 255, 255, 0.14) !important;
+        color: #ffffff !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+        transform: translateY(-1px) !important;
+    }
+    .tx-quick-pill:active {
+        transform: scale(0.96) !important;
+    }
+
+    /* ==========================================================================
+       CONVERSATIONAL POCKET & TYPE SELECTORS (FLEX COLUMN & ROW)
+       ========================================================================== */
+    .tx-form-controls {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+        width: 100% !important;
+    }
+    .tx-selectors-box {
+        background: rgba(30, 41, 59, 0.6) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-radius: 18px !important;
+        padding: 10px 12px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+    }
+    .tx-selectors-row {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 8px !important;
+        flex-wrap: wrap !important;
+    }
+    .tx-inline-select {
+        flex: 1 !important;
+        min-width: 130px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        background: rgba(15, 23, 42, 0.8) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-radius: 12px !important;
+        padding: 7px 10px !important;
+    }
+    .tx-inline-select.full-width {
+        width: 100% !important;
+    }
+    .tx-select-label {
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        color: #64748b !important;
+        white-space: nowrap !important;
+    }
+    .tx-native-select {
+        background: transparent !important;
+        border: none !important;
+        outline: none !important;
+        color: #ffffff !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        cursor: pointer !important;
+        flex: 1 !important;
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        padding-right: 4px !important;
+    }
+    .tx-native-select option,
+    .tx-native-select optgroup {
+        background: #0f172a !important;
+        color: #ffffff !important;
+    }
+    .tx-select-arrow {
+        color: #64748b !important;
+        font-size: 10px !important;
+        pointer-events: none !important;
+    }
+
+    /* ==========================================================================
+       CATEGORY HORIZONTAL SCROLLABLE PILLS (NO SCROLLBAR)
+       ========================================================================== */
+    .tx-categories-scroll-wrapper {
+        width: 100% !important;
+        overflow: hidden !important;
+    }
+    .tx-categories-row {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        overflow-x: auto !important;
+        white-space: nowrap !important;
+        padding: 2px 0 !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+        display: none !important;
+    }
+    .no-scrollbar {
+        -ms-overflow-style: none !important;
+        scrollbar-width: none !important;
+    }
+
+    .tx-cat-pill {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 5px !important;
+        padding: 7px 14px !important;
+        border-radius: 100px !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        background: rgba(255, 255, 255, 0.04) !important;
+        border: 1px solid rgba(255, 255, 255, 0.06) !important;
+        color: #94a3b8 !important;
+        cursor: pointer !important;
+        flex-shrink: 0 !important;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        font-family: inherit !important;
+    }
+    .tx-cat-pill:hover {
+        background: rgba(255, 255, 255, 0.08) !important;
+        color: #ffffff !important;
+    }
+    .tx-cat-pill.selected {
+        background: rgba(59, 130, 246, 0.22) !important;
+        border-color: rgba(59, 130, 246, 0.5) !important;
+        color: #60a5fa !important;
+        font-weight: 700 !important;
+        box-shadow: 0 2px 10px rgba(37, 99, 235, 0.25) !important;
+    }
+
+    /* ==========================================================================
+       USER SEGMENTED CONTROL
+       ========================================================================== */
+    .tx-user-segmented-bar {
+        background: rgba(30, 41, 59, 0.5) !important;
+        border: 1px solid rgba(255, 255, 255, 0.06) !important;
+        border-radius: 16px !important;
+        padding: 3px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .tx-user-segment-btn {
+        flex: 1 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        padding: 6px 10px !important;
+        border-radius: 12px !important;
+        font-size: 11.5px !important;
+        font-weight: 600 !important;
+        color: #94a3b8 !important;
+        background: transparent !important;
+        border: none !important;
+        cursor: pointer !important;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        font-family: inherit !important;
+        min-width: 0 !important;
+    }
+    .tx-user-segment-btn:hover {
+        color: #ffffff !important;
+    }
+    .tx-user-segment-btn.active {
+        background: rgba(255, 255, 255, 0.12) !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35) !important;
+    }
+    .tx-user-avatar {
+        width: 18px !important;
+        height: 18px !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 10px !important;
+        overflow: hidden !important;
+        flex-shrink: 0 !important;
+    }
+    .tx-user-avatar img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+    }
+    .tx-user-name {
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }
+
+    /* ==========================================================================
+       FLUSHED KETERANGAN INPUT
+       ========================================================================== */
+    .tx-desc-wrapper {
+        width: 100% !important;
+    }
+    .tx-desc-input {
+        width: 100% !important;
+        box-sizing: border-box !important;
+        background: rgba(30, 41, 59, 0.45) !important;
+        border: none !important;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 12px 12px 0 0 !important;
+        padding: 12px 14px !important;
+        font-size: 13.5px !important;
+        font-weight: 600 !important;
+        color: #ffffff !important;
+        outline: none !important;
+        transition: all 0.2s ease !important;
+        font-family: inherit !important;
+    }
+    .tx-desc-input:focus {
+        background: rgba(30, 41, 59, 0.75) !important;
+        border-bottom-color: #3b82f6 !important;
+    }
+    .tx-desc-input::placeholder {
+        color: #64748b !important;
+        font-weight: 500 !important;
+    }
+
+    /* ==========================================================================
+       SUBMIT ACTION BUTTON (FULL WIDTH, SOFT SHADOW, CALL TO ACTION)
+       ========================================================================== */
+    .tx-submit-btn {
+        width: 100% !important;
+        padding: 14px 20px !important;
+        border-radius: 16px !important;
+        border: none !important;
+        font-size: 14px !important;
+        font-weight: 800 !important;
+        color: #ffffff !important;
+        cursor: pointer !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        font-family: inherit !important;
+        margin-top: 4px !important;
+    }
+    .tx-submit-btn:hover {
+        transform: translateY(-2px) !important;
+        filter: brightness(1.08) !important;
+    }
+    .tx-submit-btn:active {
+        transform: scale(0.98) !important;
+    }
+    .btn-expense {
+        background: linear-gradient(135deg, #2563eb, #3b82f6) !important;
+        box-shadow: 0 6px 20px -2px rgba(37, 99, 235, 0.45) !important;
+    }
+    .btn-income {
+        background: linear-gradient(135deg, #059669, #10b981) !important;
+        box-shadow: 0 6px 20px -2px rgba(16, 185, 129, 0.45) !important;
+    }
+    .btn-withdraw {
+        background: linear-gradient(135deg, #7c3aed, #8b5cf6) !important;
+        box-shadow: 0 6px 20px -2px rgba(139, 92, 246, 0.45) !important;
+    }
+    .tx-submit-icon {
+        font-size: 13px !important;
+        opacity: 0.7 !important;
+    }
+
+    /* ==========================================================================
+       LIGHT THEME ADAPTATION
+       ========================================================================== */
+    :global([data-theme="light"]) .tx-modal-card {
         background: #ffffff !important;
         border-color: #e2e8f0 !important;
-        box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.15) !important;
+        border-top-color: #cbd5e1 !important;
+        box-shadow: 0 25px 60px -10px rgba(15, 23, 42, 0.2) !important;
     }
-    :global([data-theme="light"]) #add-tx-modal-title,
-    :global([data-theme="light"]) #add-tx-amount-input {
-        color: #0f172a !important;
-    }
-    :global([data-theme="light"]) #add-tx-amount-input::placeholder {
-        color: #cbd5e1 !important;
-    }
-    :global([data-theme="light"]) .quick-pill-btn {
+    :global([data-theme="light"]) .tx-title { color: #0f172a !important; }
+    :global([data-theme="light"]) .tx-close-btn {
         background: #f1f5f9 !important;
         border-color: #e2e8f0 !important;
         color: #64748b !important;
     }
-    :global([data-theme="light"]) .quick-pill-btn:hover {
+    :global([data-theme="light"]) .tx-nominal-input { color: #0f172a !important; }
+    :global([data-theme="light"]) .tx-nominal-input::placeholder { color: #cbd5e1 !important; }
+    :global([data-theme="light"]) .tx-quick-pill {
+        background: #f1f5f9 !important;
+        border-color: #e2e8f0 !important;
+        color: #475569 !important;
+    }
+    :global([data-theme="light"]) .tx-quick-pill:hover {
         background: #e2e8f0 !important;
         color: #0f172a !important;
     }
-    :global([data-theme="light"]) .bg-slate-800\/60,
-    :global([data-theme="light"]) .bg-slate-800\/50 {
+    :global([data-theme="light"]) .tx-selectors-box {
         background: #f8fafc !important;
         border-color: #e2e8f0 !important;
     }
-    :global([data-theme="light"]) .bg-slate-900\/80 {
+    :global([data-theme="light"]) .tx-inline-select {
         background: #ffffff !important;
         border-color: #e2e8f0 !important;
     }
-    :global([data-theme="light"]) #add-tx-type,
-    :global([data-theme="light"]) #add-tx-pocket,
-    :global([data-theme="light"]) #add-tx-withdraw-src,
-    :global([data-theme="light"]) #add-tx-withdraw-target {
+    :global([data-theme="light"]) .tx-native-select { color: #0f172a !important; }
+    :global([data-theme="light"]) .tx-native-select option,
+    :global([data-theme="light"]) .tx-native-select optgroup {
+        background: #ffffff !important;
         color: #0f172a !important;
     }
-    :global([data-theme="light"]) .category-pill-item {
+    :global([data-theme="light"]) .tx-cat-pill {
         background: #f1f5f9 !important;
+        border-color: #e2e8f0 !important;
         color: #64748b !important;
     }
-    :global([data-theme="light"]) .category-pill-item.selected {
+    :global([data-theme="light"]) .tx-cat-pill:hover {
+        background: #e2e8f0 !important;
+        color: #0f172a !important;
+    }
+    :global([data-theme="light"]) .tx-cat-pill.selected {
         background: #eff6ff !important;
         border-color: #93c5fd !important;
         color: #2563eb !important;
     }
-    :global([data-theme="light"]) .user-segmented-pill.active {
+    :global([data-theme="light"]) .tx-user-segmented-bar {
+        background: #f1f5f9 !important;
+        border-color: #e2e8f0 !important;
+    }
+    :global([data-theme="light"]) .tx-user-segment-btn.active {
         background: #ffffff !important;
         color: #0f172a !important;
         box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08) !important;
     }
-    :global([data-theme="light"]) #add-tx-desc-input {
+    :global([data-theme="light"]) .tx-desc-input {
         background: #f8fafc !important;
-        border-color: #cbd5e1 !important;
+        border-bottom-color: #cbd5e1 !important;
         color: #0f172a !important;
     }
 
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(-4px); }
-        to { opacity: 1; transform: translateY(0); }
+    /* ANIMATIONS */
+    @keyframes txFadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
-    .animate-fadeIn {
-        animation: fadeIn 0.2s ease-out;
+    @keyframes txScaleUp {
+        from { opacity: 0; transform: scale(0.95) translateY(10px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
     }
 </style>
