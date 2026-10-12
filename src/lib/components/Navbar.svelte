@@ -53,9 +53,7 @@
                 on:click={() => activeTab.set('report')}
                 title="Buka & Cetak Laporan Keuangan Bulanan (A4)"
             >
-                <span>📑</span>
-                <span class="nav-label-desktop">Laporan A4</span>
-                <span class="nav-label-compact">Laporan</span>
+                <span>📑</span> Laporan
             </button>
             <button
                 type="button"
@@ -72,9 +70,7 @@
                 on:click={() => activeTab.set('users')}
                 title="Kelola Pengguna & Database"
             >
-                <span>👥</span>
-                <span class="nav-label-desktop">Pengguna &amp; Database</span>
-                <span class="nav-label-compact">Pengguna</span>
+                <span>👥</span> Pengguna
             </button>
             <button
                 type="button"
@@ -175,7 +171,7 @@
             <!-- LOGOUT BUTTON -->
             <button
                 type="button"
-                class="nav-action-icon-btn btn-danger"
+                class="nav-action-icon-btn nav-logout-btn"
                 on:click={confirmLogout}
                 title="Keluar dari sesi Personal OS"
                 aria-label="Logout"

@@ -483,27 +483,37 @@ body {
 /* UNIFIED NAVBAR ACTION ICON BUTTONS (PRIVACY, THEME, LOGOUT) */
 .nav-action-icon-btn,
 .nav-logout-btn {
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+    max-width: 34px !important;
+    max-height: 34px !important;
+    border-radius: 10px !important;
     border: 1px solid var(--border-color);
     background: var(--list-bg);
     color: var(--text-gray);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    flex-shrink: 0;
-    padding: 0;
+    flex-shrink: 0 !important;
+    padding: 0 !important;
     outline: none;
     -webkit-tap-highlight-color: transparent;
     line-height: 1;
+    box-sizing: border-box !important;
 }
 .nav-action-icon-btn svg,
 .nav-logout-btn svg {
-    display: block;
+    display: block !important;
+    width: 15px !important;
+    height: 15px !important;
+    min-width: 15px !important;
+    min-height: 15px !important;
     transition: transform 0.2s ease, stroke 0.2s ease, color 0.2s ease;
+    flex-shrink: 0;
 }
 .nav-action-icon-btn:hover {
     color: var(--text-dark);
@@ -512,7 +522,8 @@ body {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
-.nav-action-icon-btn:active {
+.nav-action-icon-btn:active,
+.nav-logout-btn:active {
     transform: scale(0.92);
 }
 .nav-action-icon-btn.is-active {
@@ -542,29 +553,30 @@ body {
 /* Danger variant (Logout) */
 .nav-action-icon-btn.btn-danger,
 .nav-logout-btn {
-    border-color: rgba(244, 63, 94, 0.28);
-    background: rgba(244, 63, 94, 0.1);
-    color: #fb7185;
+    border-color: rgba(244, 63, 94, 0.28) !important;
+    background: rgba(244, 63, 94, 0.1) !important;
+    color: #fb7185 !important;
 }
 .nav-action-icon-btn.btn-danger:hover,
 .nav-logout-btn:hover {
-    background: rgba(244, 63, 94, 0.22);
-    border-color: #f43f5e;
-    color: #ffffff;
+    background: rgba(244, 63, 94, 0.22) !important;
+    border-color: #f43f5e !important;
+    color: #ffffff !important;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(244, 63, 94, 0.25);
 }
 [data-theme="light"] .nav-action-icon-btn.btn-danger,
 [data-theme="light"] .nav-logout-btn {
-    background: rgba(244, 63, 94, 0.08);
-    border-color: rgba(244, 63, 94, 0.22);
-    color: #e11d48;
+    background: #fff1f2 !important;
+    border-color: #fecdd3 !important;
+    color: #e11d48 !important;
 }
 [data-theme="light"] .nav-action-icon-btn.btn-danger:hover,
 [data-theme="light"] .nav-logout-btn:hover {
-    background: rgba(244, 63, 94, 0.16);
-    border-color: #e11d48;
-    color: #be123c;
+    background: #ffe4e6 !important;
+    border-color: #fda4af !important;
+    color: #be123c !important;
+    transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(225, 29, 72, 0.2);
 }
 
@@ -3208,7 +3220,7 @@ select option {
     .nav-report-btn { display: none !important; }
 }
 
-@media (min-width: 1081px) and (max-width: 1240px) {
+@media (min-width: 1081px) and (max-width: 1200px) {
     .modern-navbar {
         padding: 7px 14px;
         gap: 10px;
