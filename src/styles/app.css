@@ -2106,11 +2106,14 @@ input:checked + .slider:before {
 .panel-title {
     font-size: 16px;
     font-weight: 800;
-    color: #ffffff !important;
+    color: var(--text-dark);
     margin-bottom: 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+}
+[data-theme="light"] .panel-title {
+    color: #0f172a !important;
 }
 .search-input-wrapper {
     position: relative;
