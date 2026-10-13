@@ -1,9 +1,25 @@
 <script>
     import { onMount, onDestroy } from 'svelte';
     import Chart from 'chart.js/auto';
-    import { filteredData, formatRp } from '../stores/financeStore.js';
+    import { filteredData, formatRp, selectedMonth, monthsList } from '../stores/financeStore.js';
     import { usersList } from '../stores/authStore.js';
     import { theme, activeTab } from '../stores/uiStore.js';
+
+    const INDO_MONTHS = [
+        '', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+
+    function formatMonthLabel(mKey) {
+        if (!mKey || mKey === 'all') return 'Semua Periode';
+        const parts = mKey.split('/');
+        if (parts.length === 2) {
+            const m = parseInt(parts[0], 10);
+            const y = parts[1];
+            return `${INDO_MONTHS[m] || parts[0]} ${y}`;
+        }
+        return mKey;
+    }
 
     let financeCanvas;
     let comparisonCanvas;
@@ -29,7 +45,7 @@
     $: computedPockets = $filteredData.computedPockets || [];
     $: activePocketsCount = computedPockets.filter(p => p.amount > 0).length;
 
-    // Reactively re-render charts when data or theme changes
+    // Reactively re-render charts when data, filter, or theme changes
     $: if ((financeCanvas || comparisonCanvas || userExpenseCanvas) && totals !== undefined && currentTheme) {
         renderCharts();
     }
@@ -249,19 +265,33 @@
                 Visualisasi arus kas bulanan, alokasi portofolio, dan evaluasi kesehatan finansial.
             </p>
         </div>
-        <button
-            type="button"
-            class="analytics-action-btn"
-            on:click={() => activeTab.set('report')}
-            title="Buka Lembar Cetak Laporan A4 Lengkap"
-        >
-            <svg class="action-btn-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M6 9V2h12v7"></path>
-                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-                <rect x="6" y="14" width="12" height="8"></rect>
-            </svg>
-            <span>Cetak Laporan (A4)</span>
-        </button>
+        <div class="analytics-header-actions">
+            <!-- Period / Month Selector -->
+            <div class="analytics-period-wrapper">
+                <span class="period-select-icon">📅</span>
+                <select class="analytics-period-select" bind:value={$selectedMonth} title="Pilih Periode Analisa">
+                    <option value="all">Semua Periode</option>
+                    {#each $monthsList as m}
+                        <option value={m}>{formatMonthLabel(m)}</option>
+                    {/each}
+                </select>
+            </div>
+
+            <!-- Cetak Laporan Button -->
+            <button
+                type="button"
+                class="analytics-action-btn"
+                on:click={() => activeTab.set('report')}
+                title="Buka Lembar Cetak Laporan A4 Lengkap"
+            >
+                <svg class="action-btn-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 9V2h12v7"></path>
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                    <rect x="6" y="14" width="12" height="8"></rect>
+                </svg>
+                <span>Cetak Laporan (A4)</span>
+            </button>
+        </div>
     </div>
 
     <!-- 2. CHART CARDS (ARUS KAS & PORTOFOLIO) -->
@@ -273,9 +303,14 @@
                     <h2 class="card-title">Alokasi Portofolio</h2>
                     <p class="card-desc">Komposisi sebaran saldo antar kantong</p>
                 </div>
-                {#if activePocketsCount > 0}
-                    <span class="card-tag">{activePocketsCount} Kantong Aktif</span>
-                {/if}
+                <div class="card-header-tags">
+                    {#if totals?.totalWealth}
+                        <span class="card-tag tag-wealth">{formatRp(totals.totalWealth)}</span>
+                    {/if}
+                    {#if activePocketsCount > 0}
+                        <span class="card-tag">{activePocketsCount} Kantong Aktif</span>
+                    {/if}
+                </div>
             </div>
             <div class="chart-canvas-wrapper">
                 <canvas bind:this={financeCanvas}></canvas>
@@ -286,7 +321,7 @@
         <div class="analytics-card">
             <div class="card-header">
                 <div class="header-left">
-                    <h2 class="card-title">Arus Kas (Bulan Ini)</h2>
+                    <h2 class="card-title">Arus Kas ({$selectedMonth === 'all' ? 'Semua Periode' : formatMonthLabel($selectedMonth)})</h2>
                     <p class="card-desc">Perbandingan total masuk vs keluar</p>
                 </div>
                 <span class="card-tag {isSurplus ? 'tag-surplus' : 'tag-deficit'}">
@@ -307,7 +342,7 @@
                     <h2 class="card-title">👥 Pengeluaran Antar Pengguna</h2>
                     <span class="pill-badge">Multi-User</span>
                 </div>
-                <p class="card-desc">Distribusi pengeluaran riil berdasarkan profil pengguna</p>
+                <p class="card-desc">Distribusi pengeluaran riil periode {$selectedMonth === 'all' ? 'semua waktu' : formatMonthLabel($selectedMonth)}</p>
             </div>
             {#if totalUserSpending > 0}
                 <div class="total-spending-badge">
@@ -526,6 +561,67 @@
         color: #94a3b8;
     }
 
+    .analytics-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .analytics-period-wrapper {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .period-select-icon {
+        position: absolute;
+        left: 12px;
+        pointer-events: none;
+        font-size: 14px;
+        line-height: 1;
+        z-index: 2;
+    }
+
+    .analytics-period-select {
+        appearance: none;
+        -webkit-appearance: none;
+        padding: 8px 32px 8px 34px !important;
+        min-height: 38px !important;
+        border-radius: 12px !important;
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        font-family: inherit !important;
+        cursor: pointer;
+        background: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        color: #0f172a !important;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 10px center !important;
+        background-size: 12px !important;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    :global(html.dark) .analytics-period-select,
+    :global([data-theme="dark"]) .analytics-period-select {
+        background: #161f30 !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        color: #f8fafc !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 10px center !important;
+        background-size: 12px !important;
+    }
+
+    .analytics-period-select:hover,
+    .analytics-period-select:focus {
+        border-color: #2563eb !important;
+        outline: none;
+    }
+
     /* Outlined Premium Action Button */
     .analytics-action-btn {
         display: inline-flex;
@@ -644,6 +740,13 @@
         color: #94a3b8;
     }
 
+    .card-header-tags {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
     .card-tag {
         font-size: 11.5px;
         font-weight: 700;
@@ -660,6 +763,19 @@
         background: rgba(255, 255, 255, 0.06);
         color: #cbd5e1;
         border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .tag-wealth {
+        background: #eff6ff !important;
+        color: #1d4ed8 !important;
+        border-color: #bfdbfe !important;
+    }
+
+    :global(html.dark) .tag-wealth,
+    :global([data-theme="dark"]) .tag-wealth {
+        background: rgba(37, 99, 235, 0.15) !important;
+        color: #60a5fa !important;
+        border-color: rgba(59, 130, 246, 0.3) !important;
     }
 
     .tag-surplus {
