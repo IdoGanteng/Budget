@@ -103,9 +103,8 @@
     }
 
     function handleDelete(bill) {
-        if (confirm(`Hapus jadwal tagihan "${bill.title}"?`)) {
-            deleteRecurringRule(bill.id);
-        }
+        if (!bill || !bill.id) return;
+        deleteRecurringRule(bill.id);
     }
 
     function handleBackdropClick(e) {
@@ -361,14 +360,20 @@
 
             <!-- RECURRING CARDS LIST -->
             <div class="recurring-list-scroll">
-                {#if filteredList.length === 0}
+                {#if list.length === 0}
                     <div class="empty-state">
                         <span class="empty-icon">📅</span>
-                        <p class="empty-title">Belum ada tagihan pada filter ini</p>
-                        <p class="empty-sub">Klik "＋ Tambah Jadwal" untuk mencatat pengeluaran berkala Anda</p>
+                        <p class="empty-title">Belum ada jadwal tagihan rutin</p>
+                        <p class="empty-sub">Semua jadwal tagihan telah dihapus. Klik "＋ Tambah Jadwal" untuk membuat pengingat tagihan baru.</p>
+                    </div>
+                {:else if filteredList.length === 0}
+                    <div class="empty-state">
+                        <span class="empty-icon">🔍</span>
+                        <p class="empty-title">Tidak ada tagihan pada filter ini</p>
+                        <p class="empty-sub">Pilih tab filter lain untuk melihat jadwal tagihan lainnya.</p>
                     </div>
                 {:else}
-                    {#each filteredList as bill}
+                    {#each filteredList as bill (bill.id)}
                         {@const catMeta = CATEGORIES[bill.category] || { name: bill.category, icon: '📦', color: '#64748b' }}
                         {@const pocketMeta = getPocketMeta(bill.sourcePocketId)}
 

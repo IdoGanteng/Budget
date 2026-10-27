@@ -95,35 +95,146 @@ export const DEFAULT_RECURRING_TRANSACTIONS = [
     }
 ];
 
-function getRecurringStorageKey() {
+export const ARK_RECURRING_INIT_KEY = 'ark_recurring_initialized';
+export const ARK_DELETED_RECURRING_KEY = 'ark_deleted_recurring_ids';
+
+/**
+ * Mengambil daftar ID tagihan yang telah dihapus permanen oleh pengguna
+ * @returns {string[]}
+ */
+export function getDeletedRecurringIds() {
+    if (typeof localStorage === 'undefined') return [];
+    try {
+        const raw = localStorage.getItem(ARK_DELETED_RECURRING_KEY);
+        if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) return parsed.map(String);
+        }
+    } catch (e) {
+        console.warn('Error reading deleted recurring ids:', e);
+    }
+    return [];
+}
+
+/**
+ * Menandai ID tagihan ke blacklist/tombstone agar tidak pernah dimunculkan kembali
+ * @param {string} id
+ */
+export function markRecurringAsDeleted(id) {
+    if (!id || typeof localStorage === 'undefined') return;
+    try {
+        const stringId = String(id);
+        const deletedIds = getDeletedRecurringIds();
+        if (!deletedIds.includes(stringId)) {
+            deletedIds.push(stringId);
+            localStorage.setItem(ARK_DELETED_RECURRING_KEY, JSON.stringify(deletedIds));
+        }
+
+        // Sapu bersih ID ini dari semua key penyimpanan lokal
+        const keysToClean = new Set(['app_recurring_default']);
+        for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (k && k.startsWith('app_recurring_')) {
+                keysToClean.add(k);
+            }
+        }
+        for (const k of keysToClean) {
+            const raw = localStorage.getItem(k);
+            if (raw) {
+                try {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed)) {
+                        const cleaned = parsed.filter(item => item && String(item.id) !== stringId);
+                        localStorage.setItem(k, JSON.stringify(cleaned));
+                    }
+                } catch (e) {}
+            }
+        }
+    } catch (e) {
+        console.error('Error in markRecurringAsDeleted:', e);
+    }
+}
+
+export function getRecurringStorageKey() {
     const u = get(activeUser);
     return u ? `app_recurring_${u.id}` : 'app_recurring_default';
 }
 
 export function loadRecurringFromLocal() {
+    const deletedIds = getDeletedRecurringIds();
+
+    if (typeof localStorage === 'undefined') {
+        return DEFAULT_RECURRING_TRANSACTIONS.filter(b => !deletedIds.includes(String(b.id)));
+    }
+
     try {
         const key = getRecurringStorageKey();
-        const raw = (typeof localStorage !== 'undefined' && localStorage.getItem(key)) ||
-                    (typeof localStorage !== 'undefined' && localStorage.getItem('app_recurring_default'));
-        if (raw) {
-            const parsed = JSON.parse(raw);
-            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        const hasSpecificKey = localStorage.getItem(key) !== null;
+        const hasDefaultKey = localStorage.getItem('app_recurring_default') !== null;
+        const isInitialized = localStorage.getItem(ARK_RECURRING_INIT_KEY) === 'true';
+
+        // Jika sudah pernah diinisialisasi atau sudah ada data tersimpan di localStorage (meskipun isinya []):
+        // JANGAN PERNAH fallback ke DEFAULT_RECURRING_TRANSACTIONS!
+        if (hasSpecificKey || hasDefaultKey || isInitialized) {
+            const raw = localStorage.getItem(key) || localStorage.getItem('app_recurring_default');
+            if (raw !== null && raw !== undefined) {
+                try {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed)) {
+                        // Selalu filter keluar item yang ada di daftar deletedIds
+                        return parsed.filter(item => item && item.id && !deletedIds.includes(String(item.id)));
+                    }
+                } catch (e) {
+                    console.warn('Error parsing recurring JSON:', e);
+                }
+            }
+            // Jika null atau parsing gagal tapi sudah berstatus diinisialisasi, kembalikan array kosong []
+            return [];
         }
-    } catch (e) {}
-    return DEFAULT_RECURRING_TRANSACTIONS;
+
+        // Inisialisasi perdana saat pertama kali aplikasi dijalankan (belum ada flag & belum ada key)
+        localStorage.setItem(ARK_RECURRING_INIT_KEY, 'true');
+        const initial = DEFAULT_RECURRING_TRANSACTIONS.filter(item => !deletedIds.includes(String(item.id)));
+        const jsonStr = JSON.stringify(initial);
+        localStorage.setItem(key, jsonStr);
+        localStorage.setItem('app_recurring_default', jsonStr);
+        const u = get(activeUser);
+        if (u && u.id) {
+            localStorage.setItem(`app_recurring_${u.id}`, jsonStr);
+        }
+        return initial;
+    } catch (e) {
+        console.error('Error loadRecurringFromLocal:', e);
+        return [];
+    }
 }
 
 export const recurringList = writable(loadRecurringFromLocal());
 
 export function saveRecurring(list) {
-    recurringList.set(list);
-    try {
-        const key = getRecurringStorageKey();
-        if (typeof localStorage !== 'undefined') {
-            localStorage.setItem(key, JSON.stringify(list));
-            localStorage.setItem('app_recurring_default', JSON.stringify(list));
+    const deletedIds = getDeletedRecurringIds();
+    const safeList = Array.isArray(list) ? list : [];
+    // Pastikan tidak ada item yang ada di deletedIds
+    const cleanList = safeList.filter(item => item && item.id && !deletedIds.includes(String(item.id)));
+
+    recurringList.set(cleanList);
+
+    if (typeof localStorage !== 'undefined') {
+        try {
+            const key = getRecurringStorageKey();
+            const jsonStr = JSON.stringify(cleanList);
+            localStorage.setItem(ARK_RECURRING_INIT_KEY, 'true');
+            localStorage.setItem(key, jsonStr);
+            localStorage.setItem('app_recurring_default', jsonStr);
+
+            const u = get(activeUser);
+            if (u && u.id) {
+                localStorage.setItem(`app_recurring_${u.id}`, jsonStr);
+            }
+        } catch (e) {
+            console.error('Failed to save recurring transactions to localStorage:', e);
         }
-    } catch (e) {}
+    }
 }
 
 /**
@@ -329,23 +440,62 @@ export function updateRecurringRule(id, updatedFields) {
 }
 
 /**
- * Hapus aturan tagihan rutin
+ * Hapus aturan tagihan rutin secara instan dan sinkron
+ * @param {string} id
  */
 export function deleteRecurringRule(id) {
-    recurringList.update(list => {
-        const updated = list.filter(item => item.id !== id);
-        saveRecurring(updated);
-        return updated;
-    });
-    showToast('Jadwal tagihan telah dihapus.', 'info', '🗑️');
+    if (!id) return;
+    const stringId = String(id);
+
+    // 1. Dapatkan info tagihan untuk notifikasi toast
+    const currentList = get(recurringList) || [];
+    const targetItem = currentList.find(item => item && String(item.id) === stringId);
+    const itemTitle = targetItem ? targetItem.title : 'Tagihan';
+
+    // 2. Tandai ke blacklist permanen (ark_deleted_recurring_ids) & bersihkan storage
+    markRecurringAsDeleted(stringId);
+
+    // 3. Filter keluar item dari state
+    const updated = currentList.filter(item => item && String(item.id) !== stringId);
+
+    // 4. Langsung simpan array terbaru ke localStorage secara sinkron
+    saveRecurring(updated);
+
+    // Pastikan langsung tersimpan di key aktif
+    if (typeof localStorage !== 'undefined') {
+        try {
+            const key = getRecurringStorageKey();
+            const jsonStr = JSON.stringify(updated);
+            localStorage.setItem(key, jsonStr);
+            localStorage.setItem('app_recurring_default', jsonStr);
+            localStorage.setItem(ARK_RECURRING_INIT_KEY, 'true');
+            const u = get(activeUser);
+            if (u && u.id) {
+                localStorage.setItem(`app_recurring_${u.id}`, jsonStr);
+            }
+        } catch (e) {}
+    }
+
+    // 5. Beri notifikasi toast penghapusan instan
+    showToast(`Jadwal tagihan <b>"${itemTitle}"</b> telah dihapus.`, 'info', '🗑️');
+
+    // 6. Dispatch event custom agar seluruh listener segera sinkron
+    if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('recurring-bills-updated', {
+            detail: { deletedId: stringId, remaining: updated.length }
+        }));
+    }
 }
 
-// Listener pergantian profil pengguna
+// Listener pergantian profil pengguna, login & update event
 if (typeof window !== 'undefined') {
     window.addEventListener('active-user-changed', () => {
         recurringList.set(loadRecurringFromLocal());
     });
     window.addEventListener('app-logged-in', () => {
+        recurringList.set(loadRecurringFromLocal());
+    });
+    window.addEventListener('recurring-bills-updated', () => {
         recurringList.set(loadRecurringFromLocal());
     });
 }

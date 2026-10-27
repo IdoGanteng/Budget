@@ -1,9 +1,10 @@
 <script>
-    import { upcomingBills } from '../stores/recurringStore.js';
+    import { upcomingBills, recurringList, deleteRecurringRule } from '../stores/recurringStore.js';
     import { openRecurringModal, openAddTxModal, privacyMode } from '../stores/uiStore.js';
     import { formatRp, getPocketMeta } from '../stores/financeStore.js';
 
     $: upcoming = $upcomingBills;
+    $: allBills = $recurringList || [];
     $: dueIn7Days = upcoming?.dueIn7Days || [];
     $: totalDue = upcoming?.totalDueNext7Days || 0;
 
@@ -17,6 +18,11 @@
             title: `Bayar Tagihan: ${bill.title}`
         });
     }
+
+    function handleDeleteBill(bill) {
+        if (!bill || !bill.id) return;
+        deleteRecurringRule(bill.id);
+    }
 </script>
 
 <div class="bill-reminder-widget">
@@ -27,7 +33,9 @@
             <div class="header-titles">
                 <h3 class="widget-title">Tagihan Jatuh Tempo (7 Hari)</h3>
                 <span class="widget-sub">
-                    {#if dueIn7Days.length > 0}
+                    {#if allBills.length === 0}
+                        Belum ada jadwal tagihan rutin
+                    {:else if dueIn7Days.length > 0}
                         {dueIn7Days.length} tagihan menunggu ({formatRp(totalDue, $privacyMode)})
                     {:else}
                         Tidak ada tagihan mendesak
@@ -47,7 +55,18 @@
     </div>
 
     <!-- LIST OF UPCOMING BILLS (NEXT 7 DAYS) -->
-    {#if dueIn7Days.length === 0}
+    {#if allBills.length === 0}
+        <div class="all-clear-box">
+            <span class="all-clear-icon">📅</span>
+            <div class="all-clear-text">
+                <strong>Belum ada jadwal tagihan rutin</strong>
+                <p>Kelola dan jadwalkan pengeluaran berkala Anda dengan mudah.</p>
+            </div>
+            <button type="button" class="btn-check-all" on:click={openRecurringModal}>
+                ＋ Tambah Jadwal
+            </button>
+        </div>
+    {:else if dueIn7Days.length === 0}
         <div class="all-clear-box">
             <span class="all-clear-icon">🎉</span>
             <div class="all-clear-text">
@@ -60,21 +79,34 @@
         </div>
     {:else}
         <div class="upcoming-scroll-rack">
-            {#each dueIn7Days as bill}
+            {#each dueIn7Days as bill (bill.id)}
                 {@const pocketMeta = getPocketMeta(bill.sourcePocketId)}
                 <div class="upcoming-bill-card" class:is-today={bill.isToday}>
                     <div class="bill-card-top">
-                        <span
-                            class="countdown-chip"
-                            class:chip-today={bill.isToday}
-                            class:chip-soon={bill.daysLeft <= 2 && !bill.isToday}
-                        >
-                            {bill.countdownLabel}
-                        </span>
+                        <div class="top-chips">
+                            <span
+                                class="countdown-chip"
+                                class:chip-today={bill.isToday}
+                                class:chip-soon={bill.daysLeft <= 2 && !bill.isToday}
+                            >
+                                {bill.countdownLabel}
+                            </span>
 
-                        {#if bill.autoPost}
-                            <span class="autopost-indicator" title="Auto-Post Aktif">⚡ Auto</span>
-                        {/if}
+                            {#if bill.autoPost}
+                                <span class="autopost-indicator" title="Auto-Post Aktif">⚡ Auto</span>
+                            {/if}
+                        </div>
+
+                        <!-- TOMBOL HAPUS CEPAT (IKON SAMPAH 🗑️) -->
+                        <button
+                            type="button"
+                            class="btn-card-del"
+                            on:click|stopPropagation={() => handleDeleteBill(bill)}
+                            title="Hapus jadwal tagihan ini"
+                            aria-label="Hapus tagihan"
+                        >
+                            🗑️
+                        </button>
                     </div>
 
                     <div class="bill-card-middle">
@@ -274,6 +306,38 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
+        gap: 6px;
+    }
+
+    .top-chips {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .btn-card-del {
+        background: transparent;
+        border: 1px solid transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 2px 6px;
+        border-radius: 8px;
+        font-size: 13px;
+        line-height: 1;
+        transition: all 0.2s ease;
+        opacity: 0.65;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-card-del:hover {
+        background: rgba(239, 68, 68, 0.12);
+        border-color: rgba(239, 68, 68, 0.25);
+        color: #ef4444;
+        opacity: 1;
+        transform: scale(1.1);
     }
 
     .countdown-chip {

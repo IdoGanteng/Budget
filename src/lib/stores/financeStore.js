@@ -1328,7 +1328,15 @@ export function exportDatabaseJSON() {
         try {
             const rawRec = (typeof localStorage !== 'undefined' && localStorage.getItem('app_recurring_' + (u ? u.id : 'default'))) ||
                            (typeof localStorage !== 'undefined' && localStorage.getItem('app_recurring_default'));
-            if (rawRec) recurringData = JSON.parse(rawRec);
+            if (rawRec) {
+                const parsed = JSON.parse(rawRec);
+                const deletedIds = (typeof localStorage !== 'undefined' && localStorage.getItem('ark_deleted_recurring_ids'))
+                    ? JSON.parse(localStorage.getItem('ark_deleted_recurring_ids') || '[]')
+                    : [];
+                if (Array.isArray(parsed)) {
+                    recurringData = parsed.filter(item => item && item.id && !deletedIds.includes(String(item.id)));
+                }
+            }
         } catch (e) {}
 
         let debtsData = [];
@@ -1403,8 +1411,16 @@ export function importDatabaseJSON(jsonString) {
         if (Array.isArray(data.recurringTransactions)) {
             const u = get(activeUser);
             const key = u ? `app_recurring_${u.id}` : 'app_recurring_default';
-            localStorage.setItem(key, JSON.stringify(data.recurringTransactions));
-            localStorage.setItem('app_recurring_default', JSON.stringify(data.recurringTransactions));
+            const deletedIds = (typeof localStorage !== 'undefined' && localStorage.getItem('ark_deleted_recurring_ids'))
+                ? JSON.parse(localStorage.getItem('ark_deleted_recurring_ids') || '[]')
+                : [];
+            const cleanRec = data.recurringTransactions.filter(item => item && item.id && !deletedIds.includes(String(item.id)));
+            localStorage.setItem(key, JSON.stringify(cleanRec));
+            localStorage.setItem('app_recurring_default', JSON.stringify(cleanRec));
+            localStorage.setItem('ark_recurring_initialized', 'true');
+            if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('recurring-bills-updated'));
+            }
         }
 
         if (Array.isArray(data.debts)) {
