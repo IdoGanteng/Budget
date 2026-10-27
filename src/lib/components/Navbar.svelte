@@ -111,10 +111,12 @@
             <button
                 type="button"
                 class="nav-user-switcher"
+                class:active={$activeTab === 'users'}
                 on:click={() => activeTab.set('users')}
-                title="Klik untuk Kelola / Ganti Pengguna"
+                title="Buka Pengaturan Profil & Pengguna"
+                aria-label="Pengguna & Profil"
             >
-                <div class="user-avatar-badge">
+                <div class="user-avatar-badge" class:active-avatar={$activeTab === 'users'}>
                     {#if $activeUser.picture}
                         <img src={$activeUser.picture} alt={$activeUser.name} class="nav-avatar-img">
                     {:else if $activeUser.avatar && $activeUser.avatar.includes('<img')}

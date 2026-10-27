@@ -72,7 +72,7 @@
     <div id="app-container" data-active-tab={$activeTab} style="display: block;">
         <Navbar />
 
-        <main class="app-main-content">
+        <main class="app-main-content pb-28 sm:pb-8">
             {#if $activeTab === 'home'}
                 <div class="dashboard-tab-view active">
                     <HeroBalanceCard />

@@ -108,12 +108,15 @@ async function run() {
 
         const gridCols = await page.$eval('.mobile-bottom-bar', el => window.getComputedStyle(el).gridTemplateColumns);
         console.log(`Assertion: Grid columns defined: "${gridCols}"`);
+        const colCount = gridCols.split(' ').filter(Boolean).length;
+        if (colCount !== 5) throw new Error(`Expected exactly 5 columns, got ${colCount}`);
 
-        // Check the 5 menus + 1 FAB buttons
+        // Check the 4 menu items + 1 FAB button (NO "Catat" text label)
         const tabTexts = await page.$$eval('.mobile-bottom-bar button', btns => btns.map(b => b.innerText.replace(/\s+/g, ' ').trim()).filter(Boolean));
         console.log('Bottom nav buttons found:', tabTexts);
+        if (tabTexts.some(t => t.includes('Catat'))) throw new Error('"Catat" text label must be removed from under FAB button');
 
-        // Test tab switching: Analisa
+        // Test tab switching: Analisa (Col 2)
         console.log('👉 Clicking Analisa tab...');
         await page.evaluate(() => {
             const btn = document.querySelector('.mobile-bottom-bar button[title="Analisa"]');
@@ -124,18 +127,7 @@ async function run() {
         console.log(`Tab switch verification: data-active-tab="${isAnalyticsActive}" (Expected: analytics)`);
         if (isAnalyticsActive !== 'analytics') throw new Error('Failed to switch to analytics tab');
 
-        // Test tab switching: Laporan
-        console.log('👉 Clicking Laporan tab...');
-        await page.evaluate(() => {
-            const btn = document.querySelector('.mobile-bottom-bar button[title="Laporan Bulanan"]');
-            if (btn) btn.click();
-        });
-        await sleep(500);
-        const isReportActive = await page.$eval('#app-container', el => el.getAttribute('data-active-tab'));
-        console.log(`Tab switch verification: data-active-tab="${isReportActive}" (Expected: report)`);
-        if (isReportActive !== 'report') throw new Error('Failed to switch to report tab');
-
-        // Test tab switching: Kantong
+        // Test tab switching: Kantong (Col 4)
         console.log('👉 Clicking Kantong tab...');
         await page.evaluate(() => {
             const btn = document.querySelector('.mobile-bottom-bar button[title="Kantong Portofolio"]');
@@ -146,18 +138,33 @@ async function run() {
         console.log(`Tab switch verification: data-active-tab="${isPocketsActive}" (Expected: pockets)`);
         if (isPocketsActive !== 'pockets') throw new Error('Failed to switch to pockets tab');
 
-        // Test tab switching: Pengguna
-        console.log('👉 Clicking Pengguna tab...');
+        // Test tab switching: Laporan (Col 5)
+        console.log('👉 Clicking Laporan tab...');
         await page.evaluate(() => {
-            const btn = document.querySelector('.mobile-bottom-bar button[title="Pengguna & Database"]');
+            const btn = document.querySelector('.mobile-bottom-bar button[title="Laporan Bulanan"]');
+            if (btn) btn.click();
+        });
+        await sleep(500);
+        const isReportActive = await page.$eval('#app-container', el => el.getAttribute('data-active-tab'));
+        console.log(`Tab switch verification: data-active-tab="${isReportActive}" (Expected: report)`);
+        if (isReportActive !== 'report') throw new Error('Failed to switch to report tab');
+
+        // Test Header Profile Button -> switches to Pengguna tab
+        console.log('👉 Clicking Header User Profile button (.nav-user-switcher)...');
+        await page.evaluate(() => {
+            const btn = document.querySelector('.nav-user-switcher');
             if (btn) btn.click();
         });
         await sleep(500);
         const isUsersActive = await page.$eval('#app-container', el => el.getAttribute('data-active-tab'));
         console.log(`Tab switch verification: data-active-tab="${isUsersActive}" (Expected: users)`);
-        if (isUsersActive !== 'users') throw new Error('Failed to switch to users tab');
+        if (isUsersActive !== 'users') throw new Error('Failed to switch to users tab from header profile button');
 
-        // Return to Beranda
+        const isUserBtnActive = await page.$eval('.nav-user-switcher', el => el.classList.contains('active'));
+        console.log(`Assertion: .nav-user-switcher active state is ${isUserBtnActive} (Expected: true)`);
+        if (!isUserBtnActive) throw new Error('.nav-user-switcher must have active class when on users tab');
+
+        // Return to Beranda (Col 1)
         console.log('👉 Returning to Beranda tab...');
         await page.evaluate(() => {
             const btn = document.querySelector('.mobile-bottom-bar button[title="Beranda"]');
@@ -168,10 +175,10 @@ async function run() {
         console.log(`Tab switch verification: data-active-tab="${isHomeActive}" (Expected: home)`);
         if (isHomeActive !== 'home') throw new Error('Failed to return to home tab');
 
-        // Test Center FAB button (Catat)
+        // Test Center FAB button (+)
         console.log('👉 Clicking Central FAB (+) button...');
         await page.evaluate(() => {
-            const fab = document.querySelector('.mobile-fab-column');
+            const fab = document.querySelector('.mobile-fab-center');
             if (fab) fab.click();
         });
         await sleep(500);
@@ -185,11 +192,11 @@ async function run() {
         });
         await sleep(400);
 
-        // Content padding bottom check
+        // Content padding bottom check (pb-28 >= 112px)
         const contentPaddingBottom = await page.$eval('.app-main-content', el => window.getComputedStyle(el).paddingBottom);
         console.log(`Assertion: .app-main-content padding-bottom is "${contentPaddingBottom}"`);
         const numPadding = parseInt(contentPaddingBottom, 10);
-        if (numPadding < 80) throw new Error('.app-main-content padding-bottom is too small and will overlap bottom bar');
+        if (numPadding < 110) throw new Error('.app-main-content padding-bottom must be >= 112px (pb-28) to prevent overlap');
 
         console.log('✅ Step 3 Passed: Bottom Navigation Bar with 5 menus & FAB works perfectly!');
 
