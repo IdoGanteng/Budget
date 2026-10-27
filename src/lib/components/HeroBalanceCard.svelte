@@ -1,6 +1,6 @@
 <script>
     import { heroView, privacyMode, togglePrivacy, openAddTxModal, openTransferModal, sisaScope } from '../stores/uiStore.js';
-    import { filteredData, formatRp } from '../stores/financeStore.js';
+    import { filteredData, formatRp, categoryBudgetSummary } from '../stores/financeStore.js';
     import { activeUser } from '../stores/authStore.js';
 
     $: totals = $filteredData.totals;
@@ -12,6 +12,7 @@
     $: savingsRate = $filteredData.savingsRate || 0;
     $: netCashflow = $filteredData.netCashflow || (filteredInc - filteredExp);
     $: txs = $filteredData.filteredList || [];
+    $: budgetSummary = $categoryBudgetSummary;
 
     // Progressive Disclosure hover states
     let showBalanceTooltip = false;
@@ -33,8 +34,41 @@
         return new Intl.DateTimeFormat('id-ID', { month: 'long' }).format(new Date());
     }
 
+    // Early-warning threshold insight for categories reaching >= 80%
+    $: warningBudgetCategories = (budgetSummary?.items || []).filter(item => item.hasLimit && item.percentage >= 80);
+
+    $: budgetAlertInsights = (() => {
+        if (!warningBudgetCategories || warningBudgetCategories.length === 0) return [];
+        const topWarn = [...warningBudgetCategories].sort((a, b) => b.percentage - a.percentage)[0];
+        const nowDay = new Date().getDate();
+        const isMidMonth = nowDay >= 10 && nowDay <= 22;
+        const isOver = topWarn.percentage > 100;
+
+        let tag = '⚠️ Peringatan Anggaran';
+        if (isOver) {
+            tag = '🚨 Anggaran Terlampaui';
+        } else if (isMidMonth) {
+            tag = '⚠️ Waspada Pertengahan Bulan (80%+)';
+        } else {
+            tag = '⚠️ Anggaran Kritis (>80%)';
+        }
+
+        return [{
+            type: 'warning',
+            tag,
+            icon: isOver ? '🚨' : '⚠️',
+            summary: isOver
+                ? `Pengeluaran ${topWarn.name} telah melampaui batas anggaran (${topWarn.percentage.toFixed(0)}%, defisit ${formatRp(topWarn.spent - topWarn.limit, $privacyMode)}).`
+                : `${isMidMonth ? 'Di pertengahan bulan ini, ' : ''}Kategori ${topWarn.name} sudah menyerap ${topWarn.percentage.toFixed(0)}% batas anggarannya (${formatRp(topWarn.spent, $privacyMode)} dari ${formatRp(topWarn.limit, $privacyMode)}).`,
+            metricLabel: 'Realisasi Anggaran',
+            metricValue: `${topWarn.percentage.toFixed(0)}%`,
+            recommendation: `Batasi pengeluaran pada pos ${topWarn.name}. Sisa anggaran saat ini: ${formatRp(topWarn.remaining, $privacyMode)}.`
+        }];
+    })();
+
     // Dynamic smart insights computed from current financial telemetry
     $: insights = [
+        ...budgetAlertInsights,
         {
             type: isSurplus ? 'positive' : 'warning',
             tag: isSurplus ? 'Arus Kas Sehat' : 'Defisit Terdeteksi',

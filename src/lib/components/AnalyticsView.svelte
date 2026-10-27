@@ -8,10 +8,11 @@
         selectedMonth,
         selectedUserFilter,
         monthsList,
-        CATEGORIES
+        CATEGORIES,
+        categoryBudgetSummary
     } from '../stores/financeStore.js';
     import { usersList } from '../stores/authStore.js';
-    import { theme, activeTab, showToast } from '../stores/uiStore.js';
+    import { theme, activeTab, showToast, openBudgetModal } from '../stores/uiStore.js';
 
     const INDO_MONTHS = [
         '', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
@@ -117,20 +118,61 @@
         };
     })();
 
-    // 2. Top Spending Categories (Ranked Descending)
+    $: budgetSummary = $categoryBudgetSummary;
+    let categoryViewMode = 'budget'; // 'budget' | 'ranked'
+
+    // 2. Top Spending Categories with Category Budget Progress & Thresholds
     $: topCategories = Object.entries($filteredData.catExpensesMap || {})
         .filter(([_, amt]) => amt > 0)
         .sort((a, b) => b[1] - a[1])
         .map(([catKey, amt]) => {
             const meta = CATEGORIES[catKey] || { name: catKey.toUpperCase(), icon: '📦', color: '#64748b' };
             const pct = filteredExp > 0 ? (amt / filteredExp) * 100 : 0;
+            const budgetItem = (budgetSummary?.items || []).find(b => b.key === catKey);
+            const limit = budgetItem ? budgetItem.limit : (meta.budgetLimit || 0);
+            const budgetPct = limit > 0 ? (amt / limit) * 100 : 0;
+            const isOver = limit > 0 && amt > limit;
+
+            // Thresholds:
+            // Hijau: < 75%
+            // Kuning: 75% - 90%
+            // Merah: > 90% atau overbudget
+            let statusColor = '#10b981';
+            let statusBadge = 'Aman (<75%)';
+            let statusBg = 'rgba(16, 185, 129, 0.14)';
+
+            if (limit <= 0) {
+                statusColor = '#94a3b8';
+                statusBadge = 'Bebas Pagu';
+                statusBg = 'rgba(148, 163, 184, 0.12)';
+            } else if (isOver) {
+                statusColor = '#ef4444';
+                statusBadge = 'Overbudget!';
+                statusBg = 'rgba(239, 68, 68, 0.16)';
+            } else if (budgetPct > 90) {
+                statusColor = '#ef4444';
+                statusBadge = 'Kritis (>90%)';
+                statusBg = 'rgba(239, 68, 68, 0.16)';
+            } else if (budgetPct >= 75) {
+                statusColor = '#f59e0b';
+                statusBadge = 'Waspada (75%-90%)';
+                statusBg = 'rgba(245, 158, 11, 0.16)';
+            }
+
             return {
                 key: catKey,
                 name: meta.name,
                 icon: meta.icon,
                 color: meta.color,
                 amount: amt,
-                percentage: pct
+                percentage: pct,
+                limit,
+                budgetPct,
+                isOver,
+                statusColor,
+                statusBadge,
+                statusBg,
+                remaining: limit > 0 ? Math.max(0, limit - amt) : 0
             };
         });
 
@@ -174,16 +216,7 @@
                     cutout: '70%',
                     plugins: {
                         legend: {
-                            position: 'bottom',
-                            labels: {
-                                color: legendColor,
-                                font: { family: "'Plus Jakarta Sans', sans-serif", weight: '600', size: 11 },
-                                padding: 12,
-                                boxWidth: 8,
-                                boxHeight: 8,
-                                usePointStyle: true,
-                                pointStyle: 'circle'
-                            }
+                            display: false
                         },
                         tooltip: {
                             backgroundColor: isDark ? '#0f172a' : '#ffffff',
@@ -244,17 +277,7 @@
                     },
                     plugins: {
                         legend: {
-                            display: true,
-                            position: 'bottom',
-                            labels: {
-                                color: legendColor,
-                                font: { family: "'Plus Jakarta Sans', sans-serif", weight: '600', size: 11 },
-                                boxWidth: 8,
-                                boxHeight: 8,
-                                padding: 12,
-                                usePointStyle: true,
-                                pointStyle: 'circle'
-                            }
+                            display: false
                         },
                         tooltip: {
                             backgroundColor: isDark ? '#0f172a' : '#ffffff',
@@ -669,32 +692,42 @@
     <!-- 3. CHART CARDS (ARUS KAS & PORTOFOLIO) -->
     <div class="analytics-charts-grid">
         <!-- Card 1: Alokasi Portofolio -->
-        <div class="analytics-card">
+        <div class="analytics-card chart-card bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 shadow-xs">
             <div class="card-header">
                 <div class="header-left">
-                    <h2 class="card-title">Alokasi Portofolio</h2>
-                    <p class="card-desc">Komposisi sebaran saldo antar kantong</p>
+                    <h2 class="card-title text-slate-900 dark:text-white">Alokasi Portofolio</h2>
+                    <p class="card-desc text-slate-600 dark:text-slate-400">Komposisi sebaran saldo antar kantong</p>
                 </div>
                 <div class="card-header-tags">
                     {#if totals?.totalWealth}
                         <span class="card-tag tag-wealth">{formatRp(totals.totalWealth)}</span>
                     {/if}
                     {#if activePocketsCount > 0}
-                        <span class="card-tag">{activePocketsCount} Kantong Aktif</span>
+                        <span class="card-tag text-slate-700 dark:text-slate-300">{activePocketsCount} Kantong Aktif</span>
                     {/if}
                 </div>
             </div>
             <div class="chart-canvas-wrapper">
                 <canvas bind:this={financeCanvas}></canvas>
             </div>
+            <!-- Neat, centered flex-row legend directly underneath chart -->
+            <div class="chart-legend-row flex flex-wrap justify-center items-center gap-2 mt-3 pt-2.5">
+                {#each (activePocketsCount > 0 ? computedPockets.filter(p => p.amount > 0) : computedPockets) as p}
+                    <div class="chart-legend-badge">
+                        <span class="legend-color-dot" style="background-color: {p.color || '#3b82f6'};"></span>
+                        <span class="legend-name text-slate-600 dark:text-slate-400">{p.name}</span>
+                        <span class="legend-val text-slate-900 dark:text-white font-bold">{formatRp(p.amount)}</span>
+                    </div>
+                {/each}
+            </div>
         </div>
 
         <!-- Card 2: Arus Kas -->
-        <div class="analytics-card">
+        <div class="analytics-card chart-card bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 shadow-xs">
             <div class="card-header">
                 <div class="header-left">
-                    <h2 class="card-title">Arus Kas ({$selectedMonth === 'all' ? 'Semua Periode' : formatMonthLabel($selectedMonth)})</h2>
-                    <p class="card-desc">Perbandingan total masuk vs keluar</p>
+                    <h2 class="card-title text-slate-900 dark:text-white">Arus Kas ({$selectedMonth === 'all' ? 'Semua Periode' : formatMonthLabel($selectedMonth)})</h2>
+                    <p class="card-desc text-slate-600 dark:text-slate-400">Perbandingan total masuk vs keluar</p>
                 </div>
                 <span class="card-tag {isSurplus ? 'tag-surplus' : 'tag-deficit'}">
                     {isSurplus ? '+' : ''}{formatRp(netCashflow)}
@@ -703,47 +736,94 @@
             <div class="chart-canvas-wrapper">
                 <canvas bind:this={comparisonCanvas}></canvas>
             </div>
+            <!-- Neat, centered flex-row legend directly underneath chart -->
+            <div class="chart-legend-row flex flex-wrap justify-center items-center gap-3 mt-3 pt-2.5">
+                <div class="chart-legend-badge">
+                    <span class="legend-color-dot" style="background-color: #10b981;"></span>
+                    <span class="legend-name text-slate-600 dark:text-slate-400">Pemasukan</span>
+                    <span class="legend-val text-income text-emerald-700 dark:text-emerald-400 font-bold">{formatRp(filteredInc)}</span>
+                </div>
+                <div class="chart-legend-badge">
+                    <span class="legend-color-dot" style="background-color: #f43f5e;"></span>
+                    <span class="legend-name text-slate-600 dark:text-slate-400">Pengeluaran</span>
+                    <span class="legend-val text-expense text-rose-700 dark:text-rose-400 font-bold">{formatRp(filteredExp)}</span>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- 4. TOP SPENDING CATEGORIES (MINI BARS BREAKDOWN) -->
-    <div class="analytics-card section-categories">
-        <div class="card-header">
+    <!-- 4. TOP SPENDING CATEGORIES & BUDGET REALIZATION -->
+    <div class="analytics-card section-categories bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 shadow-xs">
+        <div class="card-header flex flex-wrap items-center justify-between gap-3">
             <div class="header-left">
                 <div class="title-with-badge">
-                    <h2 class="card-title">🏆 Top Kategori Pengeluaran</h2>
-                    <span class="pill-badge">Prioritas Anggaran</span>
+                    <h2 class="card-title text-slate-900 dark:text-white">🎯 Realisasi &amp; Batas Anggaran Kategori</h2>
+                    <span class="pill-badge">Batas Pagu</span>
                 </div>
-                <p class="card-desc">Pos konsumsi dengan alokasi biaya tertinggi periode {$selectedMonth === 'all' ? 'semua waktu' : formatMonthLabel($selectedMonth)}</p>
+                <p class="card-desc text-slate-600 dark:text-slate-400">Realisasi konsumsi vs batas pagu bulanan periode {$selectedMonth === 'all' ? 'semua waktu' : formatMonthLabel($selectedMonth)}</p>
             </div>
-            {#if filteredExp > 0}
-                <span class="card-tag">{topCategories.length} Kategori Aktif</span>
-            {/if}
+            <div class="header-right flex items-center gap-2">
+                {#if filteredExp > 0}
+                    <span class="card-tag text-slate-700 dark:text-slate-300">{topCategories.length} Kategori Aktif</span>
+                {/if}
+                <button
+                    type="button"
+                    class="btn-manage-budget-mini"
+                    on:click={() => openBudgetModal($selectedMonth)}
+                    title="Atur pagu batas anggaran kategori"
+                >
+                    <span>⚙️</span> Atur Anggaran
+                </button>
+            </div>
         </div>
 
         {#if topCategories.length === 0}
             <div class="empty-state-box">
                 <span class="empty-icon">🛒</span>
-                <p class="empty-text">Belum ada pos pengeluaran yang tercatat pada filter ini.</p>
+                <p class="empty-text text-slate-600 dark:text-slate-400">Belum ada pos pengeluaran yang tercatat pada filter ini.</p>
             </div>
         {:else}
             <div class="top-categories-grid">
-                {#each topCategories.slice(0, 5) as cat, idx}
-                    <div class="category-item-card">
+                {#each topCategories.slice(0, 6) as cat, idx}
+                    <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
+                    <div class="category-item-card bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 shadow-xs cursor-pointer" on:click={() => openBudgetModal($selectedMonth)} role="button" tabindex="0">
                         <div class="category-item-header">
                             <span class="category-rank-chip">#{idx + 1}</span>
                             <span class="category-icon-emoji">{cat.icon}</span>
-                            <span class="category-item-name">{cat.name}</span>
-                            <span class="category-pct-val">{cat.percentage.toFixed(1)}%</span>
+                            <span class="category-item-name text-slate-900 dark:text-white">{cat.name}</span>
+                            <span
+                                class="category-status-badge category-pct-val text-[10px] font-extrabold px-2 py-0.5 rounded-full"
+                                style="background-color: {cat.statusBg}; color: {cat.statusColor};"
+                            >
+                                {cat.statusBadge}
+                            </span>
                         </div>
-                        <div class="category-amount-val">
-                            {formatRp(cat.amount)}
+                        <div class="category-amount-val flex items-baseline gap-1 text-slate-900 dark:text-white font-extrabold">
+                            <span>{formatRp(cat.amount)}</span>
+                            <span class="text-xs font-normal text-slate-500 dark:text-slate-400">
+                                / {cat.limit > 0 ? formatRp(cat.limit) : 'Tanpa Limit'}
+                            </span>
                         </div>
+                        <!-- Progress bar: Hijau: <75%, Kuning: 75%-90%, Merah: >90% atau overbudget -->
                         <div class="category-progress-track">
                             <div
                                 class="category-progress-bar"
-                                style="width: {cat.percentage}%; background-color: {cat.color || '#3b82f6'};"
+                                style="width: {cat.limit > 0 ? Math.min(cat.budgetPct, 100) : cat.percentage}%; background-color: {cat.statusColor};"
                             ></div>
+                        </div>
+                        <div class="category-item-footer flex justify-between items-center text-[11px] font-medium text-slate-500 dark:text-slate-400 mt-1">
+                            <span>
+                                {cat.limit > 0 ? `${cat.budgetPct.toFixed(0)}% pagu` : `Porsi ${cat.percentage.toFixed(1)}%`}
+                            </span>
+                            <span>
+                                {#if cat.isOver}
+                                    <strong class="text-rose-600 dark:text-rose-400">Defisit {formatRp(cat.amount - cat.limit)}</strong>
+                                {:else if cat.limit > 0}
+                                    Sisa {formatRp(cat.remaining)}
+                                {:else}
+                                    Bebas Pagu
+                                {/if}
+                            </span>
                         </div>
                     </div>
                 {/each}
@@ -752,19 +832,19 @@
     </div>
 
     <!-- 5. MULTI-USER EXPENSE COMPARISON SECTION -->
-    <div class="analytics-card section-multiuser">
+    <div class="analytics-card section-multiuser bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 shadow-xs">
         <div class="card-header">
             <div class="header-left">
                 <div class="title-with-badge">
-                    <h2 class="card-title">👥 Pengeluaran Antar Pengguna</h2>
+                    <h2 class="card-title text-slate-900 dark:text-white">👥 Pengeluaran Antar Pengguna</h2>
                     <span class="pill-badge">Multi-User</span>
                 </div>
-                <p class="card-desc">Distribusi pengeluaran riil periode {$selectedMonth === 'all' ? 'semua waktu' : formatMonthLabel($selectedMonth)}</p>
+                <p class="card-desc text-slate-600 dark:text-slate-400">Distribusi pengeluaran riil periode {$selectedMonth === 'all' ? 'semua waktu' : formatMonthLabel($selectedMonth)}</p>
             </div>
             {#if totalUserSpending > 0}
-                <div class="total-spending-badge">
-                    <span class="spending-label">Total Beban:</span>
-                    <span class="spending-val">{formatRp(totalUserSpending)}</span>
+                <div class="total-spending-badge bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60">
+                    <span class="spending-label text-slate-600 dark:text-slate-400">Total Beban:</span>
+                    <span class="spending-val text-slate-900 dark:text-white">{formatRp(totalUserSpending)}</span>
                 </div>
             {/if}
         </div>
@@ -772,7 +852,7 @@
         {#if Object.keys(userExpenses).length === 0}
             <div class="empty-state-box">
                 <span class="empty-icon">👥</span>
-                <p class="empty-text">Belum ada data pengeluaran antar pengguna pada filter ini.</p>
+                <p class="empty-text text-slate-600 dark:text-slate-400">Belum ada data pengeluaran antar pengguna pada filter ini.</p>
             </div>
         {:else}
             <div class="multiuser-content-layout">
@@ -781,20 +861,20 @@
                     <div class="user-chart-wrapper">
                         <canvas bind:this={userExpenseCanvas}></canvas>
                     </div>
-                    <div class="chart-sub-caption">
+                    <div class="chart-sub-caption text-slate-600 dark:text-slate-400">
                         <span>Porsi Pengeluaran Anggota</span>
                     </div>
                 </div>
 
                 <!-- Vertically aligned flex-column for user stats on the right -->
-                <div class="multiuser-stats-col">
+                <div class="multiuser-stats-col flex flex-col justify-center gap-3 w-full">
                     {#each Object.entries(userExpenses) as [name, amount]}
                         {@const uObj = users.find(u => u.name === name) || { avatar: '👤', color: '#2563eb' }}
                         {@const count = userCounts[name] || 0}
                         {@const pct = totalUserSpending > 0 ? Math.round((amount / totalUserSpending) * 100) : 0}
-                        <div class="user-stat-card">
+                        <div class="user-stat-card bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-2xl p-4 sm:p-5 flex flex-col gap-2.5 shadow-xs">
                             <!-- [Avatar] Name in one row -->
-                            <div class="user-stat-header">
+                            <div class="user-stat-header flex items-center gap-2.5">
                                 <div class="user-avatar-badge" style="background: {uObj.color || '#2563eb'};">
                                     {#if uObj.picture}
                                         <img src={uObj.picture} alt={name} class="user-avatar-img" />
@@ -802,18 +882,19 @@
                                         <span class="user-avatar-text">{uObj.avatar || name.charAt(0).toUpperCase()}</span>
                                     {/if}
                                 </div>
-                                <span class="user-stat-name">{name}</span>
-                                <span class="user-pct-badge">{pct}%</span>
+                                <span class="user-stat-name font-bold text-slate-900 dark:text-white text-base leading-snug">{name}</span>
+                                <span class="user-pct-badge ml-auto text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700">{pct}%</span>
                             </div>
 
                             <!-- Massive, bold font for the total amount -->
-                            <div class="user-stat-amount">
+                            <div class="user-stat-amount text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
                                 {formatRp(amount)}
                             </div>
 
                             <!-- Subtle muted text for the transaction count -->
-                            <div class="user-stat-count">
-                                {count} kali pengeluaran
+                            <div class="user-stat-count flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400">
+                                <span class="count-bullet w-1.5 h-1.5 rounded-full bg-slate-400 dark:bg-slate-500"></span>
+                                <span>{count} kali transaksi ({pct}% beban alokasi)</span>
                             </div>
                         </div>
                     {/each}
@@ -823,87 +904,89 @@
     </div>
 
     <!-- 6. SMART FINANCIAL INSIGHT WIDGET -->
-    <div class="analytics-card section-insights">
+    <div class="analytics-card section-insights bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 shadow-xs">
         <div class="card-header">
             <div class="header-left">
                 <div class="title-with-badge">
-                    <h2 class="card-title">📈 Smart Financial Insights</h2>
+                    <h2 class="card-title text-slate-900 dark:text-white">📈 Smart Financial Insights</h2>
                     <span class="pill-badge badge-ai">✦ AI Financial Health</span>
                 </div>
-                <p class="card-desc">Evaluasi kesehatan finansial otomatis dan strategi pengelolaan anggaran</p>
+                <p class="card-desc text-slate-600 dark:text-slate-400">Evaluasi kesehatan finansial otomatis dan strategi pengelolaan anggaran</p>
             </div>
         </div>
 
         {#if filteredInc === 0 && filteredExp === 0}
             <div class="empty-state-box">
                 <span class="empty-icon">📊</span>
-                <p class="empty-text">Belum ada data transaksi yang cukup untuk dianalisa pada periode ini.</p>
+                <p class="empty-text text-slate-600 dark:text-slate-400">Belum ada data transaksi yang cukup untuk dianalisa pada periode ini.</p>
             </div>
         {:else}
             <!-- Metrics Tiles -->
             <div class="insight-metrics-grid">
                 <!-- Metric 1: Status Arus Kas -->
-                <div class="insight-tile">
-                    <span class="tile-label">Status Arus Kas</span>
+                <div class="insight-tile bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 shadow-xs">
+                    <span class="tile-label text-slate-600 dark:text-slate-400">Status Arus Kas</span>
                     <div class="tile-status-row">
                         {#if isSurplus}
-                            <span class="status-pill status-surplus">
+                            <span class="status-pill status-surplus px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 font-bold text-sm border border-emerald-200 dark:border-emerald-800/50 inline-flex items-center gap-1.5">
                                 <span class="pulse-dot dot-surplus"></span>
                                 SURPLUS (Sehat)
                             </span>
                         {:else}
-                            <span class="status-pill status-deficit">
+                            <span class="status-pill status-deficit px-3 py-1 rounded-full bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300 font-bold text-sm border border-red-200 dark:border-red-800/50 inline-flex items-center gap-1.5">
                                 <span class="pulse-dot dot-deficit"></span>
                                 DEFISIT (Perlu Evaluasi)
                             </span>
                         {/if}
                     </div>
-                    <span class="tile-subtext">
+                    <span class="tile-subtext text-slate-600 dark:text-slate-400">
                         {isSurplus ? 'Pemasukan melampaui pengeluaran bulan ini' : 'Pengeluaran melebihi pemasukan bulan ini'}
                     </span>
                 </div>
 
                 <!-- Metric 2: Rasio Tabungan / Sisa -->
-                <div class="insight-tile">
-                    <span class="tile-label">Rasio Sisa / Tabungan</span>
+                <div class="insight-tile bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 shadow-xs">
+                    <span class="tile-label text-slate-600 dark:text-slate-400">Rasio Sisa / Tabungan</span>
                     <div class="tile-main-stat">
-                        <span class="tile-number text-savings">{savingsRate.toFixed(1)}%</span>
+                        <span class="tile-number text-savings text-purple-700 dark:text-purple-400 font-black">{savingsRate.toFixed(1)}%</span>
                     </div>
                     <div class="progress-bar-wrap">
                         <div class="progress-bar-fill" style="width: {Math.min(savingsRate, 100)}%;"></div>
                     </div>
-                    <span class="tile-subtext">Dari pemasukan dialokasikan ke sisa kas/tabungan</span>
+                    <span class="tile-subtext text-slate-600 dark:text-slate-400">Dari pemasukan dialokasikan ke sisa kas/tabungan</span>
                 </div>
 
                 <!-- Metric 3: Arus Kas Bersih (Net) -->
-                <div class="insight-tile">
-                    <span class="tile-label">Arus Kas Bersih (Net)</span>
+                <div class="insight-tile bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 shadow-xs">
+                    <span class="tile-label text-slate-600 dark:text-slate-400">Arus Kas Bersih (Net)</span>
                     <div class="tile-main-stat">
-                        <span class="tile-number {isSurplus ? 'text-income' : 'text-expense'}">
+                        <span class="tile-number {isSurplus ? 'text-income text-emerald-700 dark:text-emerald-400' : 'text-expense text-rose-700 dark:text-rose-400'} font-black">
                             {isSurplus ? '+' : ''}{formatRp(netCashflow)}
                         </span>
                     </div>
-                    <span class="tile-subtext">
+                    <span class="tile-subtext text-slate-600 dark:text-slate-400">
                         {isSurplus ? 'Akumulasi cadangan kas positif' : 'Defisit neraca berjalan bulan ini'}
                     </span>
                 </div>
             </div>
 
             <!-- AI-Style Tip / Rekomendasi Finansial -->
-            <div class="ai-tip-box">
-                <div class="ai-tip-header">
-                    <div class="ai-icon-bubble">💡</div>
-                    <div class="ai-header-content">
-                        <h3 class="ai-tip-title">Rekomendasi Finansial</h3>
-                        <span class="ai-tip-tag">✦ Analisa Otomatis</span>
+            <div class="ai-tip-box bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-100 dark:border-blue-800/40 shadow-xs flex flex-col gap-2.5">
+                <div class="ai-tip-header flex items-center gap-3">
+                    <div class="ai-icon-bubble w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-800/50 flex items-center justify-center text-lg flex-shrink-0">
+                        💡
+                    </div>
+                    <div class="ai-header-content flex items-center gap-2 flex-wrap">
+                        <h3 class="ai-tip-title text-blue-900 dark:text-blue-200 font-bold text-sm sm:text-base m-0">Rekomendasi Finansial</h3>
+                        <span class="ai-tip-tag text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-800/60 dark:text-blue-300 border border-blue-200 dark:border-blue-700/50">✦ Analisa Otomatis AI</span>
                     </div>
                 </div>
                 <div class="ai-tip-body">
-                    <p class="ai-tip-text">
+                    <p class="ai-tip-text text-sm leading-relaxed text-slate-700 dark:text-slate-300 m-0">
                         {#if isSurplus}
-                            <strong>Arus kas Anda dalam kondisi prima!</strong> Pemasukan Anda berhasil menutup seluruh kebutuhan operasional dengan surplus <strong>{formatRp(netCashflow)}</strong> ({savingsRate.toFixed(1)}% rasio simpanan). Pertahankan kedisiplinan pencatatan ini dan pertimbangkan untuk mengalokasikan surplus ke kantong simpanan darurat atau akumulasi aset emas.
+                            <strong class="font-bold text-slate-900 dark:text-white">Arus kas Anda dalam kondisi prima!</strong> Pemasukan Anda berhasil menutup seluruh kebutuhan operasional dengan surplus <strong class="font-bold text-emerald-700 dark:text-emerald-400">{formatRp(netCashflow)}</strong> ({savingsRate.toFixed(1)}% rasio simpanan). Pertahankan kedisiplinan pencatatan ini dan pertimbangkan untuk mengalokasikan surplus ke kantong simpanan darurat atau akumulasi aset emas.
                         {:else}
-                            <strong>Perhatian: Arus kas periode ini mengalami defisit sebesar {formatRp(Math.abs(netCashflow))}.</strong> Total pengeluaran melebihi kapasitas arus kas masuk. Disarankan untuk segera meninjau pos pengeluaran tersier (seperti belanja konsumtif &amp; hiburan), menunda pembelian impulsif, dan memprioritaskan alokasi dana pada pos kebutuhan pokok hingga rasio arus kas kembali seimbang.
+                            <strong class="font-bold text-slate-900 dark:text-white">Perhatian: Arus kas periode ini mengalami defisit sebesar <span class="text-rose-700 dark:text-rose-400 font-bold">{formatRp(Math.abs(netCashflow))}</span>.</strong> Total pengeluaran melebihi kapasitas arus kas masuk. Disarankan untuk segera meninjau pos pengeluaran tersier (seperti belanja konsumtif &amp; hiburan), menunda pembelian impulsif, dan memprioritaskan alokasi dana pada pos kebutuhan pokok hingga rasio arus kas kembali seimbang.
                         {/if}
                     </p>
                 </div>
@@ -1106,22 +1189,22 @@
        2. MONTH-OVER-MONTH (MoM) TREND BANNER
        ========================================================================== */
     .mom-trend-banner {
-        background: #ffffff;
+        background: #f8fafc;
         border: 1px solid #e2e8f0;
         border-radius: 16px;
-        padding: 14px 18px;
+        padding: 12px 18px;
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
         gap: 12px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
     }
 
     :global(html.dark) .mom-trend-banner,
     :global([data-theme="dark"]) .mom-trend-banner {
-        background: #161f30;
-        border: 1px solid rgba(255, 255, 255, 0.07);
+        background: rgba(30, 41, 59, 0.45);
+        border: 1px solid rgba(255, 255, 255, 0.08);
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
     }
 
@@ -1155,7 +1238,7 @@
     .mom-subtitle {
         font-size: 11.5px;
         font-weight: 500;
-        color: #64748b;
+        color: #475569;
     }
 
     :global(html.dark) .mom-subtitle,
@@ -1230,14 +1313,14 @@
     }
 
     /* ==========================================================================
-       SHARED PREMIUM CARD CONTAINER (SEAMLESS BANK JAGO STYLE)
+       SHARED SEAMLESS CARD CONTAINER (BANK JAGO MODERN AESTHETIC)
        ========================================================================== */
     .analytics-card {
-        background: #ffffff;
+        background: #f8fafc;
         border: 1px solid #e2e8f0;
         border-radius: 20px;
-        padding: 22px;
-        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+        padding: 18px 20px;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
         transition: border-color 0.2s ease, box-shadow 0.2s ease;
         box-sizing: border-box;
         width: 100%;
@@ -1245,9 +1328,9 @@
 
     :global(html.dark) .analytics-card,
     :global([data-theme="dark"]) .analytics-card {
-        background: #161f30;
-        border: 1px solid rgba(255, 255, 255, 0.07);
-        box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4);
+        background: rgba(30, 41, 59, 0.45);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.3);
     }
 
     .card-header {
@@ -1255,7 +1338,7 @@
         justify-content: space-between;
         align-items: flex-start;
         gap: 12px;
-        margin-bottom: 18px;
+        margin-bottom: 16px;
     }
 
     .header-left {
@@ -1288,7 +1371,7 @@
         margin: 0;
         font-size: 12.5px;
         font-weight: 500;
-        color: #64748b;
+        color: #475569;
     }
 
     :global(html.dark) .card-desc,
@@ -1308,7 +1391,7 @@
         font-weight: 700;
         padding: 4px 10px;
         border-radius: 100px;
-        background: #f1f5f9;
+        background: #ffffff;
         color: #334155;
         border: 1px solid #e2e8f0;
         white-space: nowrap;
@@ -1400,9 +1483,72 @@
     }
 
     .chart-canvas-wrapper {
-        height: 220px;
+        height: 200px;
         position: relative;
         width: 100%;
+    }
+
+    /* Neat, centered flex-row legends directly underneath each chart */
+    .chart-legend-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 8px 12px;
+        margin-top: 14px;
+        padding-top: 12px;
+        border-top: 1px dashed #e2e8f0;
+    }
+
+    :global(html.dark) .chart-legend-row,
+    :global([data-theme="dark"]) .chart-legend-row {
+        border-top-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .chart-legend-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11.5px;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 8px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        color: #334155;
+    }
+
+    :global(html.dark) .chart-legend-badge,
+    :global([data-theme="dark"]) .chart-legend-badge {
+        background: rgba(15, 23, 42, 0.6);
+        border-color: rgba(255, 255, 255, 0.08);
+        color: #cbd5e1;
+    }
+
+    .legend-color-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .legend-name {
+        color: #475569;
+    }
+
+    :global(html.dark) .legend-name,
+    :global([data-theme="dark"]) .legend-name {
+        color: #94a3b8;
+    }
+
+    .legend-val {
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    :global(html.dark) .legend-val,
+    :global([data-theme="dark"]) .legend-val {
+        color: #ffffff;
     }
 
     /* ==========================================================================
@@ -1419,32 +1565,33 @@
     }
 
     .category-item-card {
-        background: #f8fafc;
+        background: #ffffff;
         border: 1px solid #e2e8f0;
-        border-radius: 16px;
+        border-radius: 14px;
         padding: 14px;
         display: flex;
         flex-direction: column;
         gap: 6px;
-        transition: transform 0.2s ease, border-color 0.2s ease;
+        transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
     }
 
     .category-item-card:hover {
-        background: #ffffff;
         border-color: #cbd5e1;
         transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
     }
 
     :global(html.dark) .category-item-card,
     :global([data-theme="dark"]) .category-item-card {
-        background: rgba(15, 23, 42, 0.55);
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.07);
     }
 
     :global(html.dark) .category-item-card:hover,
     :global([data-theme="dark"]) .category-item-card:hover {
         background: rgba(30, 41, 59, 0.7);
-        border-color: rgba(255, 255, 255, 0.12);
+        border-color: rgba(255, 255, 255, 0.15);
     }
 
     .category-item-header {
@@ -1475,7 +1622,7 @@
     .category-item-name {
         font-size: 13px;
         font-weight: 700;
-        color: #1e293b;
+        color: #0f172a;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -1490,7 +1637,7 @@
         margin-left: auto;
         font-size: 11.5px;
         font-weight: 700;
-        color: #64748b;
+        color: #475569;
     }
 
     :global(html.dark) .category-pct-val,
@@ -1543,7 +1690,7 @@
         gap: 6px;
         padding: 6px 12px;
         border-radius: 12px;
-        background: #f8fafc;
+        background: #ffffff;
         border: 1px solid #e2e8f0;
     }
 
@@ -1556,7 +1703,7 @@
     .spending-label {
         font-size: 11.5px;
         font-weight: 600;
-        color: #64748b;
+        color: #475569;
     }
 
     :global(html.dark) .spending-label,
@@ -1607,7 +1754,7 @@
     .chart-sub-caption {
         font-size: 11.5px;
         font-weight: 600;
-        color: #64748b;
+        color: #475569;
         text-align: center;
     }
 
@@ -1626,34 +1773,36 @@
     }
 
     .user-stat-card {
-        background: #f8fafc;
+        background: #ffffff;
         border: 1px solid #e2e8f0;
         border-radius: 16px;
-        padding: 14px 18px;
+        padding: 16px 20px;
         display: flex;
         flex-direction: column;
         gap: 6px;
         transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
     }
 
     .user-stat-card:hover {
         background: #ffffff;
         border-color: #cbd5e1;
         box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
-        transform: translateX(2px);
+        transform: translateY(-1px);
     }
 
     :global(html.dark) .user-stat-card,
     :global([data-theme="dark"]) .user-stat-card {
-        background: rgba(15, 23, 42, 0.55);
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     }
 
     :global(html.dark) .user-stat-card:hover,
     :global([data-theme="dark"]) .user-stat-card:hover {
         background: rgba(30, 41, 59, 0.7);
-        border-color: rgba(255, 255, 255, 0.12);
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        border-color: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
     }
 
     /* 1. [Avatar] Name in one row */
@@ -1664,8 +1813,8 @@
     }
 
     .user-avatar-badge {
-        width: 28px;
-        height: 28px;
+        width: 30px;
+        height: 30px;
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -1675,7 +1824,7 @@
         color: #ffffff;
         font-weight: 800;
         font-size: 12px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
     }
 
     .user-avatar-img {
@@ -1685,40 +1834,42 @@
     }
 
     .user-stat-name {
-        font-size: 13.5px;
-        font-weight: 700;
-        color: #1e293b;
+        font-size: 14.5px;
+        font-weight: 800;
+        color: #0f172a;
         letter-spacing: -0.01em;
     }
 
     :global(html.dark) .user-stat-name,
     :global([data-theme="dark"]) .user-stat-name {
-        color: #f1f5f9;
+        color: #ffffff;
     }
 
     .user-pct-badge {
         margin-left: auto;
         font-size: 11px;
         font-weight: 700;
-        padding: 2px 8px;
+        padding: 3px 9px;
         border-radius: 100px;
-        background: #e2e8f0;
+        background: #f1f5f9;
         color: #334155;
+        border: 1px solid #e2e8f0;
     }
 
     :global(html.dark) .user-pct-badge,
     :global([data-theme="dark"]) .user-pct-badge {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.08);
         color: #cbd5e1;
+        border-color: rgba(255, 255, 255, 0.1);
     }
 
     /* 2. Massive, bold font for the total amount */
     .user-stat-amount {
-        font-size: 22px;
+        font-size: 26px;
         font-weight: 900;
         color: #0f172a;
         letter-spacing: -0.03em;
-        line-height: 1.2;
+        line-height: 1.15;
     }
 
     :global(html.dark) .user-stat-amount,
@@ -1728,14 +1879,27 @@
 
     /* 3. Subtle muted text for the transaction count */
     .user-stat-count {
-        font-size: 12.5px;
-        font-weight: 500;
-        color: #64748b;
+        font-size: 12px;
+        font-weight: 600;
+        color: #475569;
     }
 
     :global(html.dark) .user-stat-count,
     :global([data-theme="dark"]) .user-stat-count {
         color: #94a3b8;
+    }
+
+    .count-bullet {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #94a3b8;
+        display: inline-block;
+    }
+
+    :global(html.dark) .count-bullet,
+    :global([data-theme="dark"]) .count-bullet {
+        background: #64748b;
     }
 
     /* Empty state */
@@ -1747,7 +1911,7 @@
         gap: 8px;
         padding: 36px 16px;
         text-align: center;
-        color: #64748b;
+        color: #475569;
     }
 
     :global(html.dark) .empty-state-box,
@@ -1771,7 +1935,7 @@
     .section-insights {
         display: flex;
         flex-direction: column;
-        gap: 18px;
+        gap: 16px;
     }
 
     .insight-metrics-grid {
@@ -1781,27 +1945,28 @@
     }
 
     .insight-tile {
-        background: #f8fafc;
+        background: #ffffff;
         border: 1px solid #e2e8f0;
         border-radius: 16px;
         padding: 16px;
         display: flex;
         flex-direction: column;
         gap: 8px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
     }
 
     :global(html.dark) .insight-tile,
     :global([data-theme="dark"]) .insight-tile {
-        background: rgba(15, 23, 42, 0.55);
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.07);
     }
 
     .tile-label {
-        font-size: 12px;
+        font-size: 11.5px;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.04em;
-        color: #64748b;
+        color: #475569;
     }
 
     :global(html.dark) .tile-label,
@@ -1820,7 +1985,7 @@
         display: inline-flex;
         align-items: center;
         gap: 7px;
-        padding: 5px 13px;
+        padding: 5px 14px;
         border-radius: 100px;
         font-size: 13px;
         font-weight: 800;
@@ -1828,8 +1993,8 @@
     }
 
     .status-surplus {
-        background: #ecfdf5;
-        color: #047857;
+        background: #d1fae5;
+        color: #065f46;
         border: 1px solid #a7f3d0;
     }
 
@@ -1841,7 +2006,7 @@
     }
 
     .status-deficit {
-        background: #fef2f2;
+        background: #fee2e2;
         color: #b91c1c;
         border: 1px solid #fecaca;
     }
@@ -1882,16 +2047,18 @@
     }
 
     .text-savings {
-        color: #2563eb;
+        color: #6b21a8;
+        font-weight: 900;
     }
 
     :global(html.dark) .text-savings,
     :global([data-theme="dark"]) .text-savings {
-        color: #60a5fa;
+        color: #c084fc;
     }
 
     .text-income {
-        color: #059669;
+        color: #047857;
+        font-weight: 900;
     }
 
     :global(html.dark) .text-income,
@@ -1900,7 +2067,8 @@
     }
 
     .text-expense {
-        color: #e11d48;
+        color: #b91c1c;
+        font-weight: 900;
     }
 
     :global(html.dark) .text-expense,
@@ -1924,15 +2092,20 @@
 
     .progress-bar-fill {
         height: 100%;
-        background: linear-gradient(90deg, #3b82f6, #2563eb);
+        background: linear-gradient(90deg, #7c3aed, #9333ea);
         border-radius: 100px;
         transition: width 0.4s ease;
+    }
+
+    :global(html.dark) .progress-bar-fill,
+    :global([data-theme="dark"]) .progress-bar-fill {
+        background: linear-gradient(90deg, #a855f7, #c084fc);
     }
 
     .tile-subtext {
         font-size: 11.5px;
         font-weight: 500;
-        color: #64748b;
+        color: #475569;
         line-height: 1.4;
     }
 
@@ -1945,17 +2118,17 @@
     .ai-tip-box {
         background: #eff6ff;
         border: 1px solid #bfdbfe;
-        border-radius: 18px;
-        padding: 20px;
+        border-radius: 16px;
+        padding: 16px 20px;
         display: flex;
         flex-direction: column;
-        gap: 12px;
-        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.05);
+        gap: 10px;
+        box-shadow: 0 1px 3px rgba(37, 99, 235, 0.05);
     }
 
     :global(html.dark) .ai-tip-box,
     :global([data-theme="dark"]) .ai-tip-box {
-        background: rgba(30, 58, 138, 0.22);
+        background: rgba(30, 58, 138, 0.2);
         border: 1px solid rgba(59, 130, 246, 0.28);
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
     }
@@ -1967,21 +2140,21 @@
     }
 
     .ai-icon-bubble {
-        width: 38px;
-        height: 38px;
+        width: 36px;
+        height: 36px;
         border-radius: 12px;
         background: #dbeafe;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 19px;
+        font-size: 18px;
         flex-shrink: 0;
-        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.15);
+        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.12);
     }
 
     :global(html.dark) .ai-icon-bubble,
     :global([data-theme="dark"]) .ai-icon-bubble {
-        background: rgba(37, 99, 235, 0.35);
+        background: rgba(37, 99, 235, 0.3);
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     }
 
@@ -1994,7 +2167,7 @@
 
     .ai-tip-title {
         margin: 0;
-        font-size: 15.5px;
+        font-size: 15px;
         font-weight: 800;
         color: #1e3a8a;
         letter-spacing: -0.01em;
@@ -2026,15 +2199,15 @@
 
     .ai-tip-text {
         margin: 0;
-        font-size: 13.5px;
+        font-size: 13px;
         font-weight: 500;
-        line-height: 1.65;
-        color: #1e293b;
+        line-height: 1.6;
+        color: #334155;
     }
 
     :global(html.dark) .ai-tip-text,
     :global([data-theme="dark"]) .ai-tip-text {
-        color: #e2e8f0;
+        color: #cbd5e1;
     }
 
     .ai-tip-text strong {
@@ -2045,5 +2218,33 @@
     :global(html.dark) .ai-tip-text strong,
     :global([data-theme="dark"]) .ai-tip-text strong {
         color: #ffffff;
+    }
+
+    .btn-manage-budget-mini {
+        background: rgba(37, 99, 235, 0.1);
+        border: 1px solid rgba(37, 99, 235, 0.25);
+        color: #2563eb;
+        font-size: 11.5px;
+        font-weight: 700;
+        padding: 5px 12px;
+        border-radius: 100px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.2s;
+    }
+
+    :global(html.dark) .btn-manage-budget-mini,
+    :global([data-theme="dark"]) .btn-manage-budget-mini {
+        background: rgba(59, 130, 246, 0.18);
+        border-color: rgba(59, 130, 246, 0.35);
+        color: #93c5fd;
+    }
+
+    .btn-manage-budget-mini:hover {
+        background: #2563eb;
+        color: #ffffff;
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
     }
 </style>

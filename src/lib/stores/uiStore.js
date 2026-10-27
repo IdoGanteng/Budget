@@ -83,20 +83,31 @@ export function showToast(message, type = 'info', icon = '✨') {
 
 // Modal States
 export const isAddTxModalOpen = writable(false);
-export const addTxConfig = writable({ type: 'expense', category: 'makan', pocket: 'cash', title: 'Catat Pengeluaran' });
+export const addTxConfig = writable({ type: 'expense', category: 'makan', pocket: 'cash', title: 'Catat Pengeluaran', amount: null, desc: '' });
 
 export function openAddTxModal(config = {}) {
     addTxConfig.set({
         type: config.type || 'expense',
         category: config.category || 'makan',
         pocket: config.pocket || 'cash',
-        title: config.title || (config.type === 'income' ? 'Catat Pemasukan' : 'Catat Pengeluaran')
+        title: config.title || (config.type === 'income' ? 'Catat Pemasukan' : 'Catat Pengeluaran'),
+        amount: config.amount !== undefined ? config.amount : null,
+        desc: config.desc || ''
     });
     isAddTxModalOpen.set(true);
 }
 
 export function closeAddTxModal() {
     isAddTxModalOpen.set(false);
+}
+
+// Recurring Transactions Modal Store
+export const isRecurringModalOpen = writable(false);
+export function openRecurringModal() {
+    isRecurringModalOpen.set(true);
+}
+export function closeRecurringModal() {
+    isRecurringModalOpen.set(false);
 }
 
 export const isTransferModalOpen = writable(false);
@@ -117,6 +128,47 @@ export function closeAddPocketModal() {
 }
 
 export const isGoalsModalOpen = writable(false);
+
+// Offline Queue Drawer Store
+export const isOfflineDrawerOpen = writable(false);
+export function openOfflineDrawer() {
+    isOfflineDrawerOpen.set(true);
+}
+export function closeOfflineDrawer() {
+    isOfflineDrawerOpen.set(false);
+}
+
+// Debt & Receivables Modal Stores
+export const isDebtModalOpen = writable(false);
+export function openDebtModal() {
+    isDebtModalOpen.set(true);
+}
+export function closeDebtModal() {
+    isDebtModalOpen.set(false);
+}
+
+export const isDebtPaymentModalOpen = writable(false);
+export const selectedDebtForPayment = writable(null);
+export function openDebtPaymentModal(debt) {
+    selectedDebtForPayment.set({ ...debt });
+    isDebtPaymentModalOpen.set(true);
+}
+export function closeDebtPaymentModal() {
+    isDebtPaymentModalOpen.set(false);
+    selectedDebtForPayment.set(null);
+}
+
+// Category Budget Modal Store
+export const isBudgetModalOpen = writable(false);
+export const budgetModalMonth = writable(null); // specific month string or null (base/current)
+export function openBudgetModal(month = null) {
+    budgetModalMonth.set(month);
+    isBudgetModalOpen.set(true);
+}
+export function closeBudgetModal() {
+    isBudgetModalOpen.set(false);
+}
+
 export const isEditTxModalOpen = writable(false);
 export const editingTx = writable(null);
 

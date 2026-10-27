@@ -1,5 +1,5 @@
 <script>
-    import { openAddTxModal, openTransferModal, openAddPocketModal, showConfirmModal, privacyMode } from '../stores/uiStore.js';
+    import { openAddTxModal, openTransferModal, openAddPocketModal, openRecurringModal, showConfirmModal, privacyMode } from '../stores/uiStore.js';
     import { filteredData, formatRp, deleteCustomPocket } from '../stores/financeStore.js';
 
     let pocketTab = 'cards'; // 'cards' | 'analytics'
@@ -106,6 +106,14 @@
         </div>
 
         <div class="header-action-group">
+            <button
+                type="button"
+                class="ghost-action-pill"
+                on:click={openRecurringModal}
+                title="Buka Jadwal Transaksi & Tagihan Rutin"
+            >
+                <span>📅</span> Tagihan Rutin
+            </button>
             <button
                 type="button"
                 class="primary-action-pill"

@@ -19,8 +19,8 @@
         selectedCategory = $addTxConfig.category || (selectedType === 'income' ? 'gaji' : 'makan');
         selectedPocket = $addTxConfig.pocket || 'cash';
         selectedUserId = $activeUser ? $activeUser.id : 'user_rebel';
-        desc = '';
-        amountStr = '';
+        desc = $addTxConfig.desc || '';
+        amountStr = $addTxConfig.amount ? new Intl.NumberFormat('id-ID').format($addTxConfig.amount) : '';
     } else if (!$isAddTxModalOpen) {
         wasOpen = false;
     }
@@ -61,7 +61,7 @@
         }
 
         const isGram = (selectedType === 'tring' || (selectedType === 'withdraw' && withdrawSource === 'tring'));
-        const amt = isGram ? parseFloat(amountStr.replace(',', '.')) : parseInt(amountStr.replace(/\./g, ''), 10);
+        const amt = isGram ? parseFloat(amountStr.replace(',', '.')) : parseInt(amountStr.replace(/[^0-9]/g, ''), 10);
         if (!amt || isNaN(amt) || amt <= 0) {
             showToast('Masukkan nominal yang valid', 'warning', '⚠️');
             return;

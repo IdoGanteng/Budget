@@ -20,7 +20,9 @@
         exportDatabaseJSON,
         importDatabaseJSON,
         clearLocalCache,
-        filteredData
+        filteredData,
+        formatRp,
+        categoryBudgetSummary
     } from '../stores/financeStore.js';
     import {
         isGoalsModalOpen,
@@ -29,7 +31,8 @@
         showConfirmModal,
         showToast,
         theme,
-        toggleTheme
+        toggleTheme,
+        openBudgetModal
     } from '../stores/uiStore.js';
 
     $: u = $activeUser;
@@ -438,7 +441,60 @@
             </div>
         </div>
 
-        <!-- 6. CADANGAN & PEMELIHARAAN DATA -->
+        <!-- 6. BATAS ANGGARAN KATEGORI (CATEGORY BUDGET LIMITS) -->
+        <div class="settings-group">
+            <div class="settings-group-header">
+                <span class="group-title">🎯 Batas Anggaran Bulanan per Kategori</span>
+                <button
+                    type="button"
+                    on:click={() => openBudgetModal()}
+                    class="unboxed-text-link"
+                >
+                    Atur Anggaran
+                </button>
+            </div>
+
+            <div class="settings-card-list goals-card-padding">
+                <div class="flex flex-col gap-3">
+                    <div class="flex justify-between items-center text-xs text-slate-500 dark:text-slate-400">
+                        <span>Pagu Total: <strong class="text-slate-900 dark:text-white">{formatRp($categoryBudgetSummary?.totalLimit)}</strong></span>
+                        <span>Realisasi: <strong class="text-slate-900 dark:text-white">{$categoryBudgetSummary?.totalPercentage.toFixed(1)}%</strong></span>
+                        <span>Sisa: <strong class="text-emerald-600 dark:text-emerald-400">{formatRp($categoryBudgetSummary?.totalRemaining)}</strong></span>
+                    </div>
+
+                    <div class="goal-bar-track">
+                        <div
+                            class="goal-bar-fill"
+                            style="width: {Math.min($categoryBudgetSummary?.totalPercentage || 0, 100)}%; background-color: {$categoryBudgetSummary?.isOverallOverbudget || ($categoryBudgetSummary?.totalPercentage || 0) > 90 ? '#ef4444' : ($categoryBudgetSummary?.totalPercentage || 0) >= 75 ? '#f59e0b' : '#10b981'};"
+                        ></div>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
+                        {#each ($categoryBudgetSummary?.items || []).slice(0, 6) as item}
+                            <div class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 flex items-center justify-between text-xs">
+                                <span class="flex items-center gap-1.5 font-semibold text-slate-700 dark:text-slate-300">
+                                    <span>{item.icon}</span>
+                                    <span>{item.name}</span>
+                                </span>
+                                <span class="font-bold text-[11px]" style="color: {item.statusColor};">
+                                    {item.limit > 0 ? `${item.percentage.toFixed(0)}%` : 'Bebas'}
+                                </span>
+                            </div>
+                        {/each}
+                    </div>
+
+                    <button
+                        type="button"
+                        class="btn-primary mt-2 w-full py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2"
+                        on:click={() => openBudgetModal()}
+                    >
+                        <span>⚙️</span> Konfigurasi Batas Anggaran Kategori
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. CADANGAN & PEMELIHARAAN DATA -->
         <div class="settings-group">
             <div class="settings-group-header">
                 <span class="group-title">Cadangan &amp; Pemeliharaan Data</span>

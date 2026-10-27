@@ -386,7 +386,16 @@ body {
 }
 @media (max-width: 768px) {
     .nav-report-btn {
-        display: inline-flex !important; /* Shown on mobile where desktop tabs are hidden */
+        display: inline-flex !important;
+    }
+}
+@media (max-width: 640px) {
+    /* Hide long-text nav buttons on mobile (< 640px) */
+    .nav-report-btn {
+        display: none !important;
+    }
+    .user-name-label {
+        display: none !important;
     }
 }
 .nav-report-btn:hover, .nav-report-btn.active {
@@ -3373,8 +3382,10 @@ select option {
     .app-main-content,
     .dashboard-tab-view,
     .pockets-tab-view,
-    .user-settings-tab {
-        padding-bottom: calc(88px + env(safe-area-inset-bottom, 20px)) !important;
+    .user-settings-tab,
+    .analytics-view,
+    .monthly-report-view {
+        padding-bottom: calc(96px + env(safe-area-inset-bottom, 24px)) !important;
     }
 
     .desktop-nav-tabs,
@@ -3831,15 +3842,15 @@ select option {
         margin: -6px auto 14px auto !important;
     }
 
-    /* MOBILE BOTTOM NAVIGATION BAR (BALANCED 5-COLUMN LAYOUT) */
+    /* MOBILE BOTTOM NAVIGATION BAR (BALANCED 6-COLUMN LAYOUT) */
     .mobile-bottom-bar {
         display: grid !important;
-        grid-template-columns: repeat(5, 1fr) !important;
+        grid-template-columns: repeat(6, 1fr) !important;
         position: fixed !important;
         bottom: 0 !important;
         left: 0 !important;
         width: 100% !important;
-        height: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
+        height: calc(66px + env(safe-area-inset-bottom, 0px)) !important;
         background: var(--card-bg-solid) !important;
         backdrop-filter: blur(24px) !important;
         -webkit-backdrop-filter: blur(24px) !important;
@@ -3847,7 +3858,7 @@ select option {
         z-index: 1400 !important;
         align-items: center !important;
         justify-items: center !important;
-        padding: 0 !important;
+        padding: 0 4px !important;
         padding-bottom: env(safe-area-inset-bottom, 0px) !important;
         box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.25) !important;
         box-sizing: border-box !important;
@@ -3859,22 +3870,24 @@ select option {
         flex-direction: column !important;
         align-items: center !important;
         justify-content: center !important;
-        gap: 3px !important;
+        gap: 2px !important;
         color: var(--text-gray) !important;
-        font-size: 10.5px !important;
+        font-size: 10px !important;
         font-weight: 700 !important;
         cursor: pointer !important;
         width: 100% !important;
         height: 100% !important;
-        padding: 6px 0 !important;
+        padding: 4px 1px !important;
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
         -webkit-tap-highlight-color: transparent !important;
         text-align: center !important;
+        overflow: hidden !important;
     }
     .mobile-tab-btn:active { transform: scale(0.92) !important; }
-    .mobile-tab-btn svg { width: 22px !important; height: 22px !important; transition: transform 0.2s ease, stroke 0.2s ease !important; }
+    .mobile-tab-btn svg { width: 20px !important; height: 20px !important; transition: transform 0.2s ease, stroke 0.2s ease !important; flex-shrink: 0 !important; }
     .mobile-tab-btn.active { color: var(--jago-orange) !important; }
     .mobile-tab-btn.active svg { stroke: var(--jago-orange) !important; transform: translateY(-2px) !important; }
+    .mobile-tab-btn span { font-size: 9.5px !important; white-space: nowrap !important; letter-spacing: -0.2px !important; }
 
     .mobile-fab-column {
         display: flex !important;
@@ -3884,15 +3897,15 @@ select option {
         position: relative !important;
         width: 100% !important;
         height: 100% !important;
-        padding-bottom: 6px !important;
+        padding-bottom: 5px !important;
         background: none !important;
         border: none !important;
         outline: none !important;
         cursor: pointer !important;
     }
     .mobile-fab-center {
-        width: 44px !important;
-        height: 44px !important;
+        width: 42px !important;
+        height: 42px !important;
         border-radius: 50% !important;
         background: linear-gradient(135deg, #FF7A00, #FDB813) !important;
         color: white !important;
@@ -3900,7 +3913,7 @@ select option {
         align-items: center !important;
         justify-content: center !important;
         box-shadow: 0 4px 14px rgba(255, 122, 0, 0.4) !important;
-        transform: translateY(-12px) !important;
+        transform: translateY(-10px) !important;
         margin: 0 auto !important;
         border: 3px solid var(--card-bg-solid) !important;
         cursor: pointer !important;
@@ -3909,17 +3922,17 @@ select option {
     }
     .mobile-fab-center:active,
     .mobile-fab-column:active .mobile-fab-center {
-        transform: translateY(-8px) scale(0.92) !important;
+        transform: translateY(-6px) scale(0.92) !important;
         box-shadow: 0 2px 8px rgba(255, 122, 0, 0.25) !important;
     }
     .mobile-fab-plus {
-        font-size: 24px !important;
+        font-size: 22px !important;
         font-weight: 700 !important;
         line-height: 1 !important;
         margin-top: -1px !important;
     }
     .mobile-fab-text {
-        font-size: 10.5px !important;
+        font-size: 10px !important;
         font-weight: 700 !important;
         color: var(--jago-orange) !important;
         position: static !important;

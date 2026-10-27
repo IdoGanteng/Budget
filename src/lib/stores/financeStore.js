@@ -8,15 +8,15 @@ export const SHEET_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwFKHf
 export const SHEET_TOKEN = 'RebelAman2026';
 
 export const CATEGORIES = {
-    makan: { name: 'Makan & Minum', icon: '🍔', color: '#f59e0b' },
-    transport: { name: 'Transportasi', icon: '🚗', color: '#06b6d4' },
-    belanja: { name: 'Belanja', icon: '🛍️', color: '#ec4899' },
-    tagihan: { name: 'Tagihan', icon: '🏠', color: '#8b5cf6' },
-    hiburan: { name: 'Hiburan', icon: '🎮', color: '#f43f5e' },
-    kesehatan: { name: 'Kesehatan', icon: '💊', color: '#10b981' },
+    makan: { name: 'Makan & Minum', icon: '🍔', color: '#f59e0b', budgetLimit: 2500000 },
+    transport: { name: 'Transportasi', icon: '🚗', color: '#06b6d4', budgetLimit: 1000000 },
+    belanja: { name: 'Belanja', icon: '🛍️', color: '#ec4899', budgetLimit: 1500000 },
+    tagihan: { name: 'Tagihan', icon: '🏠', color: '#8b5cf6', budgetLimit: 1200000 },
+    hiburan: { name: 'Hiburan', icon: '🎮', color: '#f43f5e', budgetLimit: 600000 },
+    kesehatan: { name: 'Kesehatan', icon: '💊', color: '#10b981', budgetLimit: 500000 },
     gaji: { name: 'Gaji / Bisnis', icon: '💼', color: '#059669' },
     investasi: { name: 'Investasi / Emas', icon: '🪙', color: '#eab308' },
-    lainnya: { name: 'Lainnya', icon: '📦', color: '#64748b' }
+    lainnya: { name: 'Lainnya', icon: '📦', color: '#64748b', budgetLimit: 500000 }
 };
 
 // Default Multi-Kantong Configuration
@@ -238,6 +238,130 @@ export const financialGoals = writable(storedGoals);
 export const goldPricePerGram = writable(parseFloat(localStorage.getItem('goldPricePerGram')) || 1250000);
 export const goldApiStatus = writable('');
 
+// ============================================================================
+// BATAS ANGGARAN BULANAN PER KATEGORI (CATEGORY BUDGET LIMITS)
+// ============================================================================
+export const DEFAULT_BUDGETS = {
+    base: {
+        makan: 2500000,
+        transport: 1000000,
+        belanja: 1500000,
+        tagihan: 1200000,
+        hiburan: 600000,
+        kesehatan: 500000,
+        lainnya: 500000
+    },
+    monthly: {}
+};
+
+function getCategoryBudgetsKey() {
+    const u = get(activeUser);
+    return u ? `category_budgets_${u.id}` : 'category_budgets_default';
+}
+
+export function loadCategoryBudgetsFromLocal() {
+    try {
+        const key = getCategoryBudgetsKey();
+        const raw = (typeof localStorage !== 'undefined' && localStorage.getItem(key)) ||
+                    (typeof localStorage !== 'undefined' && localStorage.getItem('category_budgets_default'));
+        if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === 'object') {
+                if (parsed.base || parsed.monthly) {
+                    return {
+                        base: { ...DEFAULT_BUDGETS.base, ...(parsed.base || {}) },
+                        monthly: parsed.monthly || {}
+                    };
+                }
+                // Handle legacy flat object format
+                return {
+                    base: { ...DEFAULT_BUDGETS.base, ...parsed },
+                    monthly: {}
+                };
+            }
+        }
+    } catch (e) {}
+    return JSON.parse(JSON.stringify(DEFAULT_BUDGETS));
+}
+
+export const categoryBudgets = writable(loadCategoryBudgetsFromLocal());
+
+export function saveCategoryBudgets(data) {
+    categoryBudgets.set(data);
+    try {
+        const key = getCategoryBudgetsKey();
+        if (typeof localStorage !== 'undefined') {
+            localStorage.setItem(key, JSON.stringify(data));
+            localStorage.setItem('category_budgets_default', JSON.stringify(data));
+        }
+    } catch (e) {}
+}
+
+export function getCategoryBudgetLimit(catKey, month = null) {
+    const state = get(categoryBudgets) || DEFAULT_BUDGETS;
+    if (month && month !== 'all' && state.monthly && state.monthly[month] && state.monthly[month][catKey] !== undefined) {
+        return Number(state.monthly[month][catKey]) || 0;
+    }
+    if (state.base && state.base[catKey] !== undefined) {
+        return Number(state.base[catKey]) || 0;
+    }
+    return CATEGORIES[catKey]?.budgetLimit || 0;
+}
+
+export function updateCategoryBudget(catKey, amount, month = null) {
+    const num = Math.max(0, Number(amount) || 0);
+    categoryBudgets.update(state => {
+        const next = {
+            base: { ...(state?.base || DEFAULT_BUDGETS.base) },
+            monthly: { ...(state?.monthly || {}) }
+        };
+        if (month && month !== 'all') {
+            next.monthly[month] = { ...(next.monthly[month] || {}), [catKey]: num };
+        } else {
+            next.base[catKey] = num;
+        }
+        saveCategoryBudgets(next);
+        return next;
+    });
+}
+
+export function updateMonthlyBudgets(budgetMap, month = null) {
+    categoryBudgets.update(state => {
+        const next = {
+            base: { ...(state?.base || DEFAULT_BUDGETS.base) },
+            monthly: { ...(state?.monthly || {}) }
+        };
+        const sanitized = {};
+        Object.entries(budgetMap).forEach(([k, v]) => {
+            sanitized[k] = Math.max(0, Number(v) || 0);
+        });
+
+        if (month && month !== 'all') {
+            next.monthly[month] = { ...(next.monthly[month] || {}), ...sanitized };
+        } else {
+            next.base = { ...next.base, ...sanitized };
+        }
+        saveCategoryBudgets(next);
+        return next;
+    });
+    showToast('Batas anggaran bulanan berhasil disimpan!', 'success', '🎯');
+}
+
+export function resetCategoryBudgets(month = null) {
+    categoryBudgets.update(state => {
+        const next = {
+            base: { ...DEFAULT_BUDGETS.base },
+            monthly: { ...(state?.monthly || {}) }
+        };
+        if (month && month !== 'all') {
+            delete next.monthly[month];
+        }
+        saveCategoryBudgets(next);
+        return next;
+    });
+    showToast('Batas anggaran dikembalikan ke standar!', 'info', '🔄');
+}
+
 // Storage helpers
 function getUserStorageKey() {
     const u = get(activeUser);
@@ -327,7 +451,7 @@ export const transactions = writable(loadFromLocal());
 // Sync Status & Offline Queue
 export const syncStatus = writable({ text: 'Cloud Sync', dotClass: 'green', statusClass: 'online', isUploading: false });
 
-function getOfflineQueue() {
+export function getOfflineQueue() {
     try {
         const stored = localStorage.getItem(getOfflineQueueKey());
         if (stored) return JSON.parse(stored) || [];
@@ -335,17 +459,27 @@ function getOfflineQueue() {
     return [];
 }
 
-function saveOfflineQueue(queue) {
-    localStorage.setItem(getOfflineQueueKey(), JSON.stringify(queue));
+export const offlineQueue = writable(getOfflineQueue());
+
+export function refreshOfflineQueue() {
+    offlineQueue.set(getOfflineQueue());
     updateSyncIndicator();
 }
 
-function enqueueOfflineAction(action, trx) {
+export function saveOfflineQueue(queue) {
+    try {
+        localStorage.setItem(getOfflineQueueKey(), JSON.stringify(queue));
+    } catch (e) {}
+    offlineQueue.set(queue);
+    updateSyncIndicator();
+}
+
+export function enqueueOfflineAction(action, trx) {
     const queue = getOfflineQueue();
     queue.push({
         id: 'sync_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
         action,
-        trx,
+        trx: { ...trx },
         timestamp: Date.now()
     });
     saveOfflineQueue(queue);
@@ -353,8 +487,77 @@ function enqueueOfflineAction(action, trx) {
     if (navigator.onLine) {
         processOfflineQueue();
     } else {
-        showToast('💾 Disimpan di perangkat (Offline). Otomatis diunggah saat ada internet.', 'warning', '📡');
+        showToast('💾 Disimpan di antrean offline. Otomatis dikirim saat ada internet.', 'warning', '📡');
     }
+}
+
+export function deleteOfflineQueueItem(queueItemId, removeFromLocalTransactions = true) {
+    const queue = getOfflineQueue();
+    const itemToDelete = queue.find(q => q.id === queueItemId);
+    const updated = queue.filter(q => q.id !== queueItemId);
+    saveOfflineQueue(updated);
+
+    if (removeFromLocalTransactions && itemToDelete?.trx?.id && itemToDelete.action === 'add') {
+        transactions.update(list => list.filter(t => t.id !== itemToDelete.trx.id));
+    }
+    showToast('Item antrean berhasil dihapus.', 'info', '🗑️');
+    return updated;
+}
+
+export function updateOfflineQueueItem(queueItemId, updatedFields) {
+    const queue = getOfflineQueue();
+    const index = queue.findIndex(q => q.id === queueItemId);
+    if (index === -1) return false;
+
+    const currentItem = queue[index];
+    if (currentItem.trx) {
+        currentItem.trx = { ...currentItem.trx, ...updatedFields };
+        if (currentItem.trx.id) {
+            transactions.update(list => list.map(t => t.id === currentItem.trx.id ? { ...t, ...updatedFields } : t));
+        }
+    }
+    saveOfflineQueue(queue);
+    showToast('Data transaksi antrean berhasil diperbarui.', 'success', '✏️');
+    return true;
+}
+
+export async function forceSyncOfflineQueue() {
+    const queue = getOfflineQueue();
+    if (queue.length === 0) {
+        showToast('Antrean kosong, semua data telah tersinkronisasi.', 'info', '✨');
+        return { success: true, count: 0 };
+    }
+    if (!navigator.onLine) {
+        showToast('Koneksi internet tidak terdeteksi. Hubungkan ke jaringan lalu coba lagi.', 'warning', '📡');
+        return { success: false, offline: true };
+    }
+    showToast(`Memaksa sinkronisasi ${queue.length} antrean transaksi...`, 'info', '☁️');
+    await processOfflineQueue();
+    const remaining = getOfflineQueue();
+    if (remaining.length === 0) {
+        showToast('✅ Semua antrean berhasil terkirim ke spreadsheet!', 'success', '🎉');
+        return { success: true, count: queue.length };
+    } else {
+        showToast(`⚠️ Masih tersisa ${remaining.length} item antrean. Periksa koneksi atau URL Apps Script.`, 'warning', '⚠️');
+        return { success: false, remaining: remaining.length };
+    }
+}
+
+export function addTestOfflineItem() {
+    const now = new Date();
+    const dStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
+    const testTrx = {
+        id: 'test_off_' + Date.now(),
+        type: 'expense',
+        desc: 'Uji Coba Offline Queue',
+        amount: 35000,
+        category: 'makan',
+        pocket: 'cash',
+        date: dStr,
+        userProfile: 'default'
+    };
+    enqueueOfflineAction('add', testTrx);
+    showToast('Item uji coba antrean offline berhasil ditambahkan!', 'success', '🧪');
 }
 
 let isProcessingQueue = false;
@@ -859,6 +1062,118 @@ export const filteredData = derived(
     }
 );
 
+// Derived store for Category Budget calculations & alert threshold states
+export const categoryBudgetSummary = derived(
+    [filteredData, categoryBudgets, selectedMonth],
+    ([$filtered, $budgets, $month]) => {
+        const catExpenses = $filtered?.catExpensesMap || {};
+        const expenseCategories = ['makan', 'transport', 'belanja', 'tagihan', 'hiburan', 'kesehatan', 'lainnya'];
+
+        let totalLimit = 0;
+        let totalSpent = 0;
+        const items = [];
+        const overbudgetCategories = [];
+        const warningCategories = [];
+
+        expenseCategories.forEach(key => {
+            const meta = CATEGORIES[key] || { name: key, icon: '📦', color: '#64748b' };
+            const spent = Number(catExpenses[key]) || 0;
+
+            // Effective limit for this category
+            let limit = 0;
+            if ($month && $month !== 'all' && $budgets?.monthly && $budgets.monthly[$month] && $budgets.monthly[$month][key] !== undefined) {
+                limit = Number($budgets.monthly[$month][key]) || 0;
+            } else if ($budgets?.base && $budgets.base[key] !== undefined) {
+                limit = Number($budgets.base[key]) || 0;
+            } else {
+                limit = Number(meta.budgetLimit) || 0;
+            }
+
+            const hasLimit = limit > 0;
+            if (hasLimit) {
+                totalLimit += limit;
+                totalSpent += spent;
+            }
+
+            const percentage = hasLimit ? (spent / limit) * 100 : 0;
+            const remaining = hasLimit ? Math.max(0, limit - spent) : 0;
+            const isOverbudget = hasLimit && spent > limit;
+
+            // Progress bar and status colors:
+            // Hijau: < 75%
+            // Kuning: 75% - 90%
+            // Merah: > 90% atau overbudget
+            let status = 'safe';
+            let statusColor = '#10b981'; // Hijau (< 75%)
+            let statusBg = 'rgba(16, 185, 129, 0.14)';
+            let statusBadge = 'Aman';
+
+            if (!hasLimit) {
+                status = 'unlimited';
+                statusColor = '#94a3b8';
+                statusBg = 'rgba(148, 163, 184, 0.12)';
+                statusBadge = 'Bebas Pagu';
+            } else if (isOverbudget) {
+                status = 'overbudget';
+                statusColor = '#ef4444'; // Merah (>90% / overbudget)
+                statusBg = 'rgba(239, 68, 68, 0.16)';
+                statusBadge = 'Overbudget!';
+            } else if (percentage > 90) {
+                status = 'danger';
+                statusColor = '#ef4444'; // Merah (>90%)
+                statusBg = 'rgba(239, 68, 68, 0.16)';
+                statusBadge = 'Kritis (>90%)';
+            } else if (percentage >= 75) {
+                status = 'warning';
+                statusColor = '#f59e0b'; // Kuning (75%-90%)
+                statusBg = 'rgba(245, 158, 11, 0.16)';
+                statusBadge = 'Waspada (75%-90%)';
+            }
+
+            const item = {
+                key,
+                name: meta.name,
+                icon: meta.icon,
+                color: meta.color,
+                spent,
+                limit,
+                hasLimit,
+                percentage,
+                remaining,
+                isOverbudget,
+                status,
+                statusColor,
+                statusBg,
+                statusBadge
+            };
+
+            items.push(item);
+
+            if (isOverbudget) overbudgetCategories.push(item);
+            if (hasLimit && percentage >= 80) warningCategories.push(item);
+        });
+
+        // Sorted by percentage descending for priority view
+        const sortedItems = [...items].sort((a, b) => b.percentage - a.percentage);
+
+        const totalRemaining = Math.max(0, totalLimit - totalSpent);
+        const totalPercentage = totalLimit > 0 ? (totalSpent / totalLimit) * 100 : 0;
+        const isOverallOverbudget = totalLimit > 0 && totalSpent > totalLimit;
+
+        return {
+            items,
+            sortedItems,
+            totalLimit,
+            totalSpent,
+            totalRemaining,
+            totalPercentage,
+            isOverallOverbudget,
+            overbudgetCategories,
+            warningCategories
+        };
+    }
+);
+
 // Transaction CRUD actions
 export async function addTransaction(txData) {
     const active = get(activeUser);
@@ -1009,13 +1324,30 @@ export function clearLocalCache() {
 export function exportDatabaseJSON() {
     try {
         const u = get(activeUser);
+        let recurringData = [];
+        try {
+            const rawRec = (typeof localStorage !== 'undefined' && localStorage.getItem('app_recurring_' + (u ? u.id : 'default'))) ||
+                           (typeof localStorage !== 'undefined' && localStorage.getItem('app_recurring_default'));
+            if (rawRec) recurringData = JSON.parse(rawRec);
+        } catch (e) {}
+
+        let debtsData = [];
+        try {
+            const rawDebts = (typeof localStorage !== 'undefined' && localStorage.getItem('app_debts_' + (u ? u.id : 'default'))) ||
+                             (typeof localStorage !== 'undefined' && localStorage.getItem('app_debts_default'));
+            if (rawDebts) debtsData = JSON.parse(rawDebts);
+        } catch (e) {}
+
         const data = {
-            version: '1.0',
+            version: '1.3',
             exportedAt: new Date().toISOString(),
             user: u ? { id: u.id, name: u.name, email: u.email } : null,
             transactions: get(transactions) || [],
             pockets: get(pocketsList) || [],
             financialGoals: get(financialGoals) || {},
+            categoryBudgets: get(categoryBudgets) || DEFAULT_BUDGETS,
+            recurringTransactions: recurringData,
+            debts: debtsData,
             goldPrice: get(goldPricePerGram) || 1250000
         };
 
@@ -1061,6 +1393,27 @@ export function importDatabaseJSON(jsonString) {
             localStorage.setItem('financialGoals', JSON.stringify(data.financialGoals));
         }
 
+        if (data.categoryBudgets && typeof data.categoryBudgets === 'object') {
+            const parsedBudgets = (data.categoryBudgets.base || data.categoryBudgets.monthly)
+                ? data.categoryBudgets
+                : { base: data.categoryBudgets, monthly: {} };
+            saveCategoryBudgets(parsedBudgets);
+        }
+
+        if (Array.isArray(data.recurringTransactions)) {
+            const u = get(activeUser);
+            const key = u ? `app_recurring_${u.id}` : 'app_recurring_default';
+            localStorage.setItem(key, JSON.stringify(data.recurringTransactions));
+            localStorage.setItem('app_recurring_default', JSON.stringify(data.recurringTransactions));
+        }
+
+        if (Array.isArray(data.debts)) {
+            const u = get(activeUser);
+            const key = u ? `app_debts_${u.id}` : 'app_debts_default';
+            localStorage.setItem(key, JSON.stringify(data.debts));
+            localStorage.setItem('app_debts_default', JSON.stringify(data.debts));
+        }
+
         if (data.goldPrice && !isNaN(data.goldPrice)) {
             saveGoldPrice(Number(data.goldPrice));
         }
@@ -1081,12 +1434,14 @@ export function importDatabaseJSON(jsonString) {
 if (typeof window !== 'undefined') {
     window.addEventListener('active-user-changed', () => {
         transactions.set(loadFromLocal());
+        categoryBudgets.set(loadCategoryBudgetsFromLocal());
         updateSyncIndicator();
         syncTransactionsFromSheet();
     });
 
     window.addEventListener('app-logged-in', () => {
         transactions.set(loadFromLocal());
+        categoryBudgets.set(loadCategoryBudgetsFromLocal());
         fetchLiveGoldPrice();
         syncTransactionsFromSheet();
     });

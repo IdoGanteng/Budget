@@ -1,10 +1,10 @@
 <script>
-    import { activeTab, openAddTxModal, showConfirmModal, theme, toggleTheme, privacyMode, togglePrivacy } from '../stores/uiStore.js';
+    import { activeTab, openAddTxModal, showConfirmModal, theme, toggleTheme, privacyMode, togglePrivacy, openOfflineDrawer } from '../stores/uiStore.js';
     import { activeUser, handleLogout } from '../stores/authStore.js';
-    import { syncStatus, syncTransactionsFromSheet } from '../stores/financeStore.js';
+    import { syncStatus } from '../stores/financeStore.js';
 
     function handleSyncClick() {
-        syncTransactionsFromSheet(true);
+        openOfflineDrawer();
     }
 
     function confirmLogout() {
