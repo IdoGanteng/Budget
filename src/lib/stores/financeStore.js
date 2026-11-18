@@ -2,7 +2,7 @@ import { writable, derived, get } from 'svelte/store';
 import CryptoJS from 'crypto-js';
 import confetti from 'canvas-confetti';
 import { activeUser, currentSessionKey } from './authStore.js';
-import { showToast } from './uiStore.js';
+import { showToast, privacyMode } from './uiStore.js';
 
 export const SHEET_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwFKHf1Kakb71JXiZ2lB0JTN24p2kyKOwPvNx_ZwxLSRZamk3ujWtBFOqPhpx8aWZXHLA/exec';
 export const SHEET_TOKEN = 'RebelAman2026';
@@ -617,6 +617,11 @@ export async function processOfflineQueue() {
     }
 }
 
+export function clearOfflineQueue() {
+    saveOfflineQueue([]);
+    showToast('Seluruh antrean offline berhasil dibersihkan.', 'success', '🧹');
+}
+
 export function updateSyncIndicator(uploading = false) {
     const queue = getOfflineQueue();
     const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
@@ -644,7 +649,20 @@ export function updateSyncIndicator(uploading = false) {
         statusClass = 'online';
     }
 
-    syncStatus.set({ text, dotClass, statusClass, isUploading: uploading });
+    syncStatus.set({
+        text,
+        dotClass,
+        statusClass,
+        isUploading: uploading,
+        queueCount: queue.length,
+        isOnline: Boolean(isOnline),
+        isCustom: config.isCustom
+    });
+}
+
+// Initial sync indicator evaluation
+if (typeof window !== 'undefined') {
+    setTimeout(() => updateSyncIndicator(), 50);
 }
 
 export async function syncTransactionsFromSheet(manual = false) {
@@ -775,15 +793,123 @@ export function parseDateToTime(dateStr) {
     return isNaN(d.getTime()) ? 0 : d.getTime();
 }
 
-export function formatRp(angka, masked = false) {
-    if (masked) return 'Rp ***.***';
+export function formatRp(angka, masked = null) {
+    const isMasked = typeof masked === 'boolean' ? masked : Boolean(get(privacyMode));
+    if (isMasked) return 'Rp ***.***';
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka || 0);
 }
 
-export function formatGram(gram, masked = false) {
-    if (masked) return '*** Gr';
+export function formatGram(gram, masked = null) {
+    const isMasked = typeof masked === 'boolean' ? masked : Boolean(get(privacyMode));
+    if (isMasked) return '*** Gr';
     return `${(Number(gram) || 0).toFixed(2)} Gr`;
 }
+
+// Current month financial telemetry store (Strictly bulan & tahun berjalan untuk Beranda)
+export const currentMonthSummary = derived(
+    [transactions, categoryBudgets, activeUser, privacyMode],
+    ([$txs, $budgets, $activeUser, $privacy]) => {
+        const now = new Date();
+        const curM = String(now.getMonth() + 1).padStart(2, '0');
+        const curY = now.getFullYear();
+        const currentMonthKey = `${curM}/${curY}`;
+        const monthName = new Intl.DateTimeFormat('id-ID', { month: 'long' }).format(now);
+
+        let monthInc = 0;
+        let monthExp = 0;
+        const monthCatExpenses = { makan: 0, belanja: 0, transport: 0, tagihan: 0, hiburan: 0, kesehatan: 0, lainnya: 0 };
+        const monthTxs = [];
+
+        ($txs || []).forEach(trx => {
+            const amt = Number(trx.amount) || 0;
+            const cleanD = cleanDateStr(trx.date);
+            if (!cleanD || !cleanD.includes('/')) return;
+
+            const parts = cleanD.split('/');
+            if (parts.length !== 3) return;
+
+            const txMonthKey = `${parts[1]}/${parts[2]}`;
+            if (txMonthKey !== currentMonthKey) return;
+
+            monthTxs.push(trx);
+
+            if (trx.type === 'income') {
+                monthInc += amt;
+            } else if (trx.type === 'expense' || trx.type === 'jago' || trx.type === 'inv_jago') {
+                monthExp += amt;
+                const cat = (trx.category || '').toLowerCase();
+                const descLower = (trx.desc || '').toLowerCase();
+                if (cat && CATEGORIES[cat]) {
+                    monthCatExpenses[cat] = (monthCatExpenses[cat] || 0) + amt;
+                } else if (descLower.includes('makan') || descLower.includes('kopi') || descLower.includes('cafe')) {
+                    monthCatExpenses.makan += amt;
+                } else if (descLower.includes('belanja') || descLower.includes('beli')) {
+                    monthCatExpenses.belanja += amt;
+                } else if (descLower.includes('bensin') || descLower.includes('ojek') || descLower.includes('tol') || descLower.includes('parkir')) {
+                    monthCatExpenses.transport += amt;
+                } else if (descLower.includes('listrik') || descLower.includes('wifi') || descLower.includes('pulsa') || descLower.includes('pdam')) {
+                    monthCatExpenses.tagihan += amt;
+                } else if (descLower.includes('game') || descLower.includes('bioskop') || descLower.includes('nonton')) {
+                    monthCatExpenses.hiburan += amt;
+                } else if (descLower.includes('obat') || descLower.includes('dokter') || descLower.includes('klinik')) {
+                    monthCatExpenses.kesehatan += amt;
+                } else {
+                    monthCatExpenses[cat || 'lainnya'] = (monthCatExpenses[cat || 'lainnya'] || 0) + amt;
+                }
+            }
+        });
+
+        const netCashflow = monthInc - monthExp;
+        const isSurplus = monthInc >= monthExp;
+        const savingsRate = monthInc > 0 ? Math.max(0, ((monthInc - monthExp) / monthInc) * 100) : 0;
+
+        // Warning categories for current month
+        const expenseCategories = ['makan', 'transport', 'belanja', 'tagihan', 'hiburan', 'kesehatan', 'lainnya'];
+        const warningCategories = [];
+
+        expenseCategories.forEach(key => {
+            const spent = monthCatExpenses[key] || 0;
+            let limit = 0;
+            if ($budgets?.monthly && $budgets.monthly[currentMonthKey] && $budgets.monthly[currentMonthKey][key] !== undefined) {
+                limit = Number($budgets.monthly[currentMonthKey][key]) || 0;
+            } else if ($budgets?.base && $budgets.base[key] !== undefined) {
+                limit = Number($budgets.base[key]) || 0;
+            } else {
+                limit = Number(CATEGORIES[key]?.budgetLimit) || 0;
+            }
+
+            if (limit > 0) {
+                const percentage = (spent / limit) * 100;
+                const remaining = Math.max(0, limit - spent);
+                if (percentage >= 80) {
+                    const meta = CATEGORIES[key] || { name: key };
+                    warningCategories.push({
+                        key,
+                        name: meta.name,
+                        spent,
+                        limit,
+                        percentage,
+                        remaining,
+                        isOver: spent > limit
+                    });
+                }
+            }
+        });
+
+        return {
+            currentMonthKey,
+            monthName,
+            monthInc,
+            monthExp,
+            netCashflow,
+            isSurplus,
+            savingsRate,
+            monthTxs,
+            monthCatExpenses,
+            warningCategories
+        };
+    }
+);
 
 // Filter stores
 export const searchQuery = writable('');
@@ -1178,11 +1304,12 @@ export const categoryBudgetSummary = derived(
 export async function addTransaction(txData) {
     const active = get(activeUser);
     const d = new Date();
-    const dStr = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
+    const todayStr = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
+    const finalDate = txData.date ? cleanDateStr(txData.date) : todayStr;
     const pocket = txData.pocket || txData.source || 'cash';
     const newTrx = {
         id: Math.floor(100000 + Math.random() * 900000).toString(),
-        date: dStr,
+        date: finalDate,
         desc: txData.desc,
         amount: txData.amount,
         type: txData.type,

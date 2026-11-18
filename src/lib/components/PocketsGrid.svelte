@@ -412,7 +412,9 @@
                         <h3 id="pocket-detail-title" class="modal-title">{selectedPocket.name}</h3>
                     </div>
                 </div>
-                <button type="button" class="modal-close-icon-btn" on:click={closeDetail} title="Tutup">✕</button>
+                <button type="button" class="modal-close-icon-btn" on:click={closeDetail} title="Tutup" aria-label="Tutup">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
             </div>
 
             <div class="modal-body-content">
@@ -1024,9 +1026,10 @@
         gap: 12px;
     }
     .modern-metric-card {
-        background: linear-gradient(145deg, rgba(22, 31, 48, 0.75) 0%, rgba(15, 23, 42, 0.85) 100%);
+        background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
         backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         border-radius: 20px;
         padding: 16px 18px;
         display: flex;
@@ -1048,9 +1051,9 @@
         padding: 2px 8px;
         border-radius: 100px;
     }
-    .pill-cyan { background: rgba(6, 182, 212, 0.15); color: #06b6d4; border: 1px solid rgba(6, 182, 212, 0.3); }
-    .pill-purple { background: rgba(139, 92, 246, 0.15); color: #8b5cf6; border: 1px solid rgba(139, 92, 246, 0.3); }
-    .pill-gold { background: rgba(234, 179, 8, 0.15); color: #eab308; border: 1px solid rgba(234, 179, 8, 0.3); }
+    .pill-cyan { background: rgba(6, 182, 212, 0.25); color: #38bdf8; border: 1px solid rgba(6, 182, 212, 0.5); }
+    .pill-purple { background: rgba(139, 92, 246, 0.25); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.5); }
+    .pill-gold { background: rgba(234, 179, 8, 0.25); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.5); }
 
     .metric-figure {
         font-size: 26px;
@@ -1061,20 +1064,21 @@
     .metric-nominal {
         font-size: 13.5px;
         font-weight: 700;
-        color: #94a3b8;
+        color: #f1f5f9;
     }
     .metric-annotation {
         font-size: 11px;
-        color: #64748b;
+        color: #cbd5e1;
         margin: 0;
         line-height: 1.35;
     }
 
     /* RANKING MATRIX */
     .ranking-panel-card {
-        background: linear-gradient(145deg, rgba(22, 31, 48, 0.75) 0%, rgba(15, 23, 42, 0.85) 100%);
+        background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
         backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         border-radius: 20px;
         padding: 18px 20px;
     }
@@ -1094,7 +1098,7 @@
     }
     .ranking-caption {
         font-size: 11px;
-        color: #94a3b8;
+        color: #cbd5e1;
     }
 
     .ranking-items-list {
@@ -1103,8 +1107,8 @@
         gap: 10px;
     }
     .ranking-row-item {
-        background: rgba(15, 23, 42, 0.6);
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(30, 41, 59, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.12);
         border-radius: 14px;
         padding: 10px 14px;
         cursor: pointer;
@@ -1114,8 +1118,8 @@
         transition: all 0.2s ease;
     }
     .ranking-row-item:hover {
-        background: rgba(255, 255, 255, 0.06);
-        border-color: rgba(255, 255, 255, 0.15);
+        background: rgba(51, 65, 85, 0.85);
+        border-color: rgba(255, 255, 255, 0.25);
         transform: translateY(-2px);
     }
     .ranking-item-top {
@@ -1132,7 +1136,7 @@
     .rank-index {
         font-size: 12px;
         font-weight: 800;
-        color: #64748b;
+        color: #94a3b8;
         min-width: 22px;
     }
     .rank-icon-badge {
@@ -1155,7 +1159,7 @@
     }
     .rank-role {
         font-size: 10.5px;
-        color: #94a3b8;
+        color: #cbd5e1;
     }
     .ranking-right-cluster {
         display: flex;

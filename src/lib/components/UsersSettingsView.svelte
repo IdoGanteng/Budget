@@ -22,7 +22,8 @@
         clearLocalCache,
         filteredData,
         formatRp,
-        categoryBudgetSummary
+        syncStatus,
+        offlineQueue
     } from '../stores/financeStore.js';
     import {
         isGoalsModalOpen,
@@ -32,8 +33,10 @@
         showToast,
         theme,
         toggleTheme,
-        openBudgetModal
+        openOfflineDrawer
     } from '../stores/uiStore.js';
+
+    let showTokenPassword = false;
 
     $: u = $activeUser;
     $: list = $usersList;
@@ -276,9 +279,25 @@
                         ℹ️
                     </button>
                 </div>
-                <span class="badge-subtle {sheetUrl ? 'badge-success' : 'badge-neutral'}">
-                    {sheetUrl ? 'Spreadsheet Pribadi' : 'Template Standar'}
-                </span>
+                <div class="db-badge-wrap flex items-center gap-2">
+                    {#if $syncStatus.statusClass === 'online'}
+                        <span class="badge-subtle badge-success">
+                            ● {sheetUrl ? 'Spreadsheet Pribadi Terhubung' : 'Template Standar Terhubung'}
+                        </span>
+                    {:else if $syncStatus.statusClass === 'syncing'}
+                        <span class="badge-subtle badge-info">
+                            🔄 {$syncStatus.text}
+                        </span>
+                    {:else if $syncStatus.statusClass === 'pending'}
+                        <button type="button" class="badge-subtle badge-warning cursor-pointer" on:click={openOfflineDrawer} title="Lihat item antrean">
+                            🟡 {$syncStatus.text}
+                        </button>
+                    {:else}
+                        <span class="badge-subtle badge-neutral">
+                            📡 {$syncStatus.text}
+                        </span>
+                    {/if}
+                </div>
             </div>
 
             <!-- EXPANDABLE ACCORDION EXPLANATION -->
@@ -296,9 +315,15 @@
                     <div class="db-status-left">
                         <span class="db-icon">🗄️</span>
                         <div class="db-meta">
-                            <span class="db-title">Spreadsheet URL</span>
+                            <span class="db-title">Spreadsheet Database</span>
                             <span class="db-url-text truncate" title={sheetUrl || 'Template Standar'}>
-                                {sheetUrl ? sheetUrl : 'Belum dihubungkan (Penyimpanan Standar)'}
+                                {sheetUrl ? sheetUrl : 'Penyimpanan Cloud Standar (Aktif)'}
+                            </span>
+                            <span class="db-sync-detail text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                Status: <strong class="text-slate-700 dark:text-slate-300">{$syncStatus.text}</strong>
+                                {#if $offlineQueue.length > 0}
+                                    • <button type="button" class="text-amber-500 underline font-semibold cursor-pointer" on:click={openOfflineDrawer}>{$offlineQueue.length} antrean tertunda</button>
+                                {/if}
                             </span>
                         </div>
                     </div>
@@ -323,14 +348,48 @@
 
                     <div class="form-field">
                         <label for="settings-sheet-token" class="field-label">Token Akses (Opsional)</label>
-                        <input
-                            id="settings-sheet-token"
-                            type="text"
-                            bind:value={sheetToken}
-                            placeholder="Token rahasia Anda"
-                            autocomplete="off"
-                            class="minimal-input"
-                        />
+                        <div class="token-input-wrapper relative flex items-center">
+                            {#if showTokenPassword}
+                                <input
+                                    id="settings-sheet-token"
+                                    type="text"
+                                    bind:value={sheetToken}
+                                    placeholder="Token rahasia Anda"
+                                    autocomplete="off"
+                                    class="minimal-input pr-10"
+                                    style="padding-right: 42px;"
+                                />
+                            {:else}
+                                <input
+                                    id="settings-sheet-token"
+                                    type="password"
+                                    bind:value={sheetToken}
+                                    placeholder="Token rahasia Anda"
+                                    autocomplete="off"
+                                    class="minimal-input pr-10"
+                                    style="padding-right: 42px;"
+                                />
+                            {/if}
+                            <button
+                                type="button"
+                                class="token-eye-btn"
+                                on:click={() => showTokenPassword = !showTokenPassword}
+                                title={showTokenPassword ? 'Sembunyikan Token' : 'Lihat Token'}
+                                aria-label={showTokenPassword ? 'Sembunyikan Token' : 'Lihat Token'}
+                            >
+                                {#if showTokenPassword}
+                                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                                        <line x1="1" y1="1" x2="23" y2="23"/>
+                                    </svg>
+                                {:else}
+                                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                {/if}
+                            </button>
+                        </div>
                     </div>
 
                     <div class="form-actions-row">
@@ -441,60 +500,7 @@
             </div>
         </div>
 
-        <!-- 6. BATAS ANGGARAN KATEGORI (CATEGORY BUDGET LIMITS) -->
-        <div class="settings-group">
-            <div class="settings-group-header">
-                <span class="group-title">🎯 Batas Anggaran Bulanan per Kategori</span>
-                <button
-                    type="button"
-                    on:click={() => openBudgetModal()}
-                    class="unboxed-text-link"
-                >
-                    Atur Anggaran
-                </button>
-            </div>
-
-            <div class="settings-card-list goals-card-padding">
-                <div class="flex flex-col gap-3">
-                    <div class="flex justify-between items-center text-xs text-slate-500 dark:text-slate-400">
-                        <span>Pagu Total: <strong class="text-slate-900 dark:text-white">{formatRp($categoryBudgetSummary?.totalLimit)}</strong></span>
-                        <span>Realisasi: <strong class="text-slate-900 dark:text-white">{$categoryBudgetSummary?.totalPercentage.toFixed(1)}%</strong></span>
-                        <span>Sisa: <strong class="text-emerald-600 dark:text-emerald-400">{formatRp($categoryBudgetSummary?.totalRemaining)}</strong></span>
-                    </div>
-
-                    <div class="goal-bar-track">
-                        <div
-                            class="goal-bar-fill"
-                            style="width: {Math.min($categoryBudgetSummary?.totalPercentage || 0, 100)}%; background-color: {$categoryBudgetSummary?.isOverallOverbudget || ($categoryBudgetSummary?.totalPercentage || 0) > 90 ? '#ef4444' : ($categoryBudgetSummary?.totalPercentage || 0) >= 75 ? '#f59e0b' : '#10b981'};"
-                        ></div>
-                    </div>
-
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
-                        {#each ($categoryBudgetSummary?.items || []).slice(0, 6) as item}
-                            <div class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 flex items-center justify-between text-xs">
-                                <span class="flex items-center gap-1.5 font-semibold text-slate-700 dark:text-slate-300">
-                                    <span>{item.icon}</span>
-                                    <span>{item.name}</span>
-                                </span>
-                                <span class="font-bold text-[11px]" style="color: {item.statusColor};">
-                                    {item.limit > 0 ? `${item.percentage.toFixed(0)}%` : 'Bebas'}
-                                </span>
-                            </div>
-                        {/each}
-                    </div>
-
-                    <button
-                        type="button"
-                        class="btn-primary mt-2 w-full py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2"
-                        on:click={() => openBudgetModal()}
-                    >
-                        <span>⚙️</span> Konfigurasi Batas Anggaran Kategori
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 7. CADANGAN & PEMELIHARAAN DATA -->
+        <!-- 6. CADANGAN & PEMELIHARAAN DATA -->
         <div class="settings-group">
             <div class="settings-group-header">
                 <span class="group-title">Cadangan &amp; Pemeliharaan Data</span>
@@ -949,9 +955,43 @@
         background: rgba(16, 185, 129, 0.14);
         color: #10b981;
     }
+    .badge-info {
+        background: rgba(59, 130, 246, 0.16);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.25);
+    }
+    .badge-warning {
+        background: rgba(245, 158, 11, 0.16);
+        color: #f59e0b;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
     .badge-neutral {
-        background: rgba(148, 163, 184, 0.12);
+        background: rgba(100, 116, 139, 0.16);
         color: #94a3b8;
+        border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+
+    .token-input-wrapper {
+        position: relative;
+        width: 100%;
+    }
+    .token-eye-btn {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: transparent;
+        border: none;
+        color: var(--text-muted, #94a3b8);
+        cursor: pointer;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: color 0.15s ease;
+    }
+    .token-eye-btn:hover {
+        color: var(--text-dark, #ffffff);
     }
 
     .info-accordion-box {
@@ -1264,16 +1304,29 @@
        BACKUP & MAINTENANCE
        ========================================================================== */
     .backup-actions-grid {
-        display: flex;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
         gap: 10px;
-        flex-wrap: wrap;
         margin-bottom: 10px;
+        width: 100%;
     }
 
     .backup-secondary-actions {
         display: flex;
         flex-direction: column;
         gap: 8px;
+        width: 100%;
+    }
+
+    .backup-actions-grid .action-btn {
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+
+    .backup-secondary-actions .action-btn {
+        width: 100%;
+        box-sizing: border-box;
     }
 
     /* ==========================================================================
@@ -1463,5 +1516,12 @@
         background: #f8fafc !important;
         border-color: #e2e8f0 !important;
         color: #0f172a !important;
+    }
+
+    :global([data-theme="light"]) .badge-neutral {
+        background: #f1f5f9 !important;
+        color: #1e293b !important;
+        border: 1px solid #cbd5e1 !important;
+        font-weight: 700 !important;
     }
 </style>

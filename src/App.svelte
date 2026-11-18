@@ -8,7 +8,6 @@
     import LoginScreen from './lib/components/LoginScreen.svelte';
     import Navbar from './lib/components/Navbar.svelte';
     import HeroBalanceCard from './lib/components/HeroBalanceCard.svelte';
-    import CategoryBudgetCard from './lib/components/CategoryBudgetCard.svelte';
     import BillReminderWidget from './lib/components/BillReminderWidget.svelte';
     import DebtSummaryCard from './lib/components/DebtSummaryCard.svelte';
     import PocketsGrid from './lib/components/PocketsGrid.svelte';
@@ -78,7 +77,6 @@
                     <HeroBalanceCard />
                     <BillReminderWidget />
                     <DebtSummaryCard />
-                    <CategoryBudgetCard />
                     <PocketsGrid />
                     <TransactionHistory />
                 </div>

@@ -3,7 +3,7 @@
 
     function handleTabClick(tab) {
         activeTab.set(tab);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo(0, 0);
     }
 </script>
 
@@ -140,7 +140,7 @@
         width: 100%;
         height: 100%;
         padding: 4px 0;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: color 0.05s ease, transform 0.1s ease;
         -webkit-tap-highlight-color: transparent;
         text-align: center;
     }

@@ -10,7 +10,8 @@
         deleteTransaction,
         exportToCSV,
         clearLocalCache,
-        getPocketMeta
+        getPocketMeta,
+        CATEGORIES
     } from '../stores/financeStore.js';
     import { usersList } from '../stores/authStore.js';
     import { openEditTxModal, showConfirmModal, privacyMode, activeTab } from '../stores/uiStore.js';
@@ -24,7 +25,8 @@
         { key: 'hiburan', label: 'Hiburan', icon: '🎮' },
         { key: 'kesehatan', label: 'Kesehatan', icon: '💊' },
         { key: 'gaji', label: 'Gaji', icon: '💼' },
-        { key: 'investasi', label: 'Emas', icon: '🪙' }
+        { key: 'investasi', label: 'Emas', icon: '🪙' },
+        { key: 'lainnya', label: 'Lainnya', icon: '📦' }
     ];
 
     $: groupedDates = $filteredData.groupedDates;
@@ -62,7 +64,7 @@
         let typeIcon = '💸';
         let typeBg = 'var(--expense-light)';
         let typeColor = 'var(--expense)';
-        let typeLabel = 'Expense';
+        let typeLabel = 'Pengeluaran';
 
         if (trx.type === 'income') {
             tCls = 'text-inc';
@@ -70,14 +72,14 @@
             typeIcon = '💰';
             typeBg = 'var(--income-light)';
             typeColor = 'var(--income)';
-            typeLabel = 'Income';
+            typeLabel = 'Pemasukan';
         } else if (trx.type === 'expense') {
             tCls = 'text-exp';
             dAmt = isMasked ? 'Rp ***.***' : '- ' + formatRp(amt);
             typeIcon = '💸';
             typeBg = 'var(--expense-light)';
             typeColor = 'var(--expense)';
-            typeLabel = 'Expense';
+            typeLabel = 'Pengeluaran';
         } else if (trx.type === 'simpanan') {
             tCls = 'text-inc';
             dAmt = isMasked ? 'Rp ***.***' : '+ ' + formatRp(amt);
@@ -167,8 +169,9 @@
                     class="clear-search-btn"
                     on:click={() => searchQuery.set('')}
                     title="Hapus pencarian"
+                    aria-label="Hapus pencarian"
                 >
-                    ✕
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
             {/if}
         </div>
@@ -244,14 +247,14 @@
                                         <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px; flex-wrap: wrap;">
                                             {#if trx.type === 'transfer'}
                                                 <span style="font-size: 11px; color: var(--text-gray);">
-                                                    {meta.typeLabel} •
+                                                    {meta.typeLabel}
                                                 </span>
                                                 <span class="pocket-tag-badge" style="background: {transferFrom.color}18; color: {transferFrom.color}; border: 1px solid {transferFrom.color}33;">
                                                     {transferFrom.icon} {transferFrom.name} ➔ {transferTo.icon} {transferTo.name}
                                                 </span>
                                             {:else}
                                                 <span style="font-size: 11px; color: var(--text-gray); text-transform: capitalize;">
-                                                    {meta.typeLabel}{trx.category ? ` • ${trx.category}` : ''} •
+                                                    {meta.typeLabel}{trx.category ? ` • ${CATEGORIES[trx.category.toLowerCase()]?.name || trx.category}` : ''}
                                                 </span>
                                                 <span class="pocket-tag-badge" style="background: {pMeta.color}18; color: {pMeta.color}; border: 1px solid {pMeta.color}33;">
                                                     {pMeta.icon} {pMeta.name}

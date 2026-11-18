@@ -1,5 +1,5 @@
 <script>
-    import { isRecurringModalOpen, closeRecurringModal, openAddTxModal, showToast } from '../stores/uiStore.js';
+    import { isRecurringModalOpen, closeRecurringModal, openAddTxModal, showToast, privacyMode } from '../stores/uiStore.js';
     import {
         recurringList,
         upcomingBills,
@@ -168,7 +168,7 @@
                     on:click={closeRecurringModal}
                     aria-label="Tutup"
                 >
-                    ✕
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
             </div>
 
@@ -177,7 +177,7 @@
                 <div class="mini-cal-header">
                     <span class="mini-cal-caption">Kalender 7 Hari ke Depan</span>
                     <span class="mini-cal-badge">
-                        {upcoming.dueIn7Days.length} Tagihan Menanti ({formatRp(upcoming.totalDueNext7Days)})
+                        {upcoming.dueIn7Days.length} Tagihan Menanti ({formatRp(upcoming.totalDueNext7Days, $privacyMode)})
                     </span>
                 </div>
                 <div class="mini-cal-strip">
@@ -241,7 +241,7 @@
                     class:active={isAddingNew}
                     on:click={() => isAddingNew = !isAddingNew}
                 >
-                    {isAddingNew ? '✕ Tutup Form' : '＋ Tambah Jadwal'}
+                    {isAddingNew ? 'Tutup Form' : '＋ Tambah Jadwal'}
                 </button>
             </div>
 
@@ -420,7 +420,7 @@
                                 </div>
 
                                 <div class="item-amount-col">
-                                    <span class="bill-amount text-exp font-mono">{formatRp(bill.amount)}</span>
+                                    <span class="bill-amount text-exp font-mono">{formatRp(bill.amount, $privacyMode)}</span>
                                 </div>
                             </div>
 

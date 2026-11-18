@@ -78,11 +78,11 @@
                 <button
                     type="button"
                     class="action-btn"
-                    style="border-radius: 50%; width: 32px; height: 32px; font-size: 14px;"
+                    style="border-radius: 50%; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; font-size: 14px;"
                     on:click={() => isGooglePickerModalOpen.set(false)}
                     aria-label="Tutup"
                 >
-                    ✕
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
             </div>
 
@@ -232,7 +232,7 @@
                         💡 Jika belum memiliki Client ID, Anda tetap bisa masuk secara instan menggunakan tab <b>Pilih Akun</b>.
                     </div>
                     <div style="display: flex; gap: 8px; margin-top: 6px;">
-                        <button type="button" on:click={() => activeTab = 'accounts'} class="btn-danger" style="flex: 1; border-radius: 12px; padding: 11px;">Kembali</button>
+                        <button type="button" on:click={() => activeTab = 'accounts'} class="btn-secondary" style="flex: 1; border-radius: 12px; padding: 11px;">Kembali</button>
                         <button type="submit" class="btn-primary" style="flex: 1.5; border-radius: 12px; padding: 11px;">Simpan Client ID</button>
                     </div>
                 </form>

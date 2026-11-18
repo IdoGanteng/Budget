@@ -10,6 +10,7 @@
     let selectedPocket = 'cash';
     let withdrawSource = 'tabungan';
     let selectedUserId = '';
+    let txDate = new Date().toISOString().split('T')[0];
     let wasOpen = false;
 
     // Only reset form values on the initial transition from closed to open
@@ -21,6 +22,7 @@
         selectedUserId = $activeUser ? $activeUser.id : 'user_rebel';
         desc = $addTxConfig.desc || '';
         amountStr = $addTxConfig.amount ? new Intl.NumberFormat('id-ID').format($addTxConfig.amount) : '';
+        txDate = new Date().toISOString().split('T')[0];
     } else if (!$isAddTxModalOpen) {
         wasOpen = false;
     }
@@ -33,7 +35,8 @@
         { key: 'hiburan', label: 'Hiburan', icon: '🎮' },
         { key: 'kesehatan', label: 'Kesehatan', icon: '💊' },
         { key: 'gaji', label: 'Gaji', icon: '💼' },
-        { key: 'investasi', label: 'Emas', icon: '🪙' }
+        { key: 'investasi', label: 'Emas', icon: '🪙' },
+        { key: 'lainnya', label: 'Lainnya', icon: '📦' }
     ];
 
     function handleAmountInput(e) {
@@ -54,16 +57,17 @@
 
     async function handleSubmit(e) {
         if (e) e.preventDefault();
-        const d = desc.trim();
-        if (!d) {
-            showToast('Keterangan tidak boleh kosong', 'warning', '⚠️');
-            return;
-        }
 
         const isGram = (selectedType === 'tring' || (selectedType === 'withdraw' && withdrawSource === 'tring'));
         const amt = isGram ? parseFloat(amountStr.replace(',', '.')) : parseInt(amountStr.replace(/[^0-9]/g, ''), 10);
         if (!amt || isNaN(amt) || amt <= 0) {
-            showToast('Masukkan nominal yang valid', 'warning', '⚠️');
+            showToast('Nominal transaksi tidak boleh Rp 0 atau kosong. Masukkan nominal yang valid.', 'warning', '⚠️');
+            return;
+        }
+
+        const d = desc.trim();
+        if (!d) {
+            showToast('Keterangan tidak boleh kosong', 'warning', '⚠️');
             return;
         }
 
@@ -77,6 +81,7 @@
                 pocket: selectedPocket,
                 source: selectedType === 'withdraw' ? withdrawSource : selectedPocket,
                 category: selectedCategory,
+                date: txDate,
                 userId: chosenUser ? chosenUser.id : 'user_rebel',
                 userName: chosenUser ? chosenUser.name : 'Rebel'
             });
@@ -127,7 +132,7 @@
                     on:click={closeAddTxModal}
                     aria-label="Tutup Formulir"
                 >
-                    ✕
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
             </div>
 
@@ -244,6 +249,20 @@
                                 <span class="tx-select-arrow">▾</span>
                             </div>
                         {/if}
+
+                        <!-- DATE PICKER -->
+                        <div class="tx-selectors-row flex items-center justify-between gap-2">
+                            <div class="tx-inline-select full-width w-full">
+                                <span class="tx-select-label">📅 Tanggal:</span>
+                                <input
+                                    id="add-tx-date"
+                                    type="date"
+                                    bind:value={txDate}
+                                    class="tx-native-date-input"
+                                    required
+                                />
+                            </div>
+                        </div>
                     </div>
 
                     <!-- KATEGORI HORIZONTAL SCROLLING -->
@@ -607,21 +626,32 @@
         pointer-events: none !important;
     }
 
+    .tx-native-date-input {
+        background: transparent !important;
+        border: none !important;
+        outline: none !important;
+        color: #ffffff !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        cursor: pointer !important;
+        flex: 1 !important;
+        font-family: inherit !important;
+        color-scheme: dark;
+    }
+
     /* ==========================================================================
        CATEGORY HORIZONTAL SCROLLABLE PILLS (NO SCROLLBAR)
        ========================================================================== */
     .tx-categories-scroll-wrapper {
         width: 100% !important;
-        overflow: hidden !important;
+        overflow: visible !important;
     }
     .tx-categories-row {
         display: flex !important;
+        flex-wrap: wrap !important;
         align-items: center !important;
-        gap: 8px !important;
-        overflow-x: auto !important;
-        white-space: nowrap !important;
+        gap: 6px !important;
         padding: 2px 0 !important;
-        -webkit-overflow-scrolling: touch !important;
     }
     .no-scrollbar::-webkit-scrollbar {
         display: none !important;
@@ -635,9 +665,9 @@
         display: inline-flex !important;
         align-items: center !important;
         gap: 5px !important;
-        padding: 7px 14px !important;
+        padding: 6px 12px !important;
         border-radius: 100px !important;
-        font-size: 12px !important;
+        font-size: 11.5px !important;
         font-weight: 600 !important;
         background: rgba(255, 255, 255, 0.04) !important;
         border: 1px solid rgba(255, 255, 255, 0.06) !important;
@@ -832,6 +862,10 @@
         border-color: #e2e8f0 !important;
     }
     :global([data-theme="light"]) .tx-native-select { color: #0f172a !important; }
+    :global([data-theme="light"]) .tx-native-date-input {
+        color: #0f172a !important;
+        color-scheme: light;
+    }
     :global([data-theme="light"]) .tx-native-select option,
     :global([data-theme="light"]) .tx-native-select optgroup {
         background: #ffffff !important;

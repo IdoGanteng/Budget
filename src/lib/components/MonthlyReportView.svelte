@@ -390,7 +390,7 @@
 
     <!-- PRINT HELPER NOTICE (ON-SCREEN ONLY) -->
     <div class="print-instruction-banner no-print">
-        <span>💡 <strong>Tips Cetak / PDF:</strong> Klik tombol <strong>Cetak / PDF (A4)</strong> di atas. Di jendela print browser, pilih <em>"Destination: Save as PDF"</em> dan <em>"Paper Size: A4"</em> untuk menyimpan file PDF berkualitas tinggi.</span>
+        <span>💡 <strong>Tips Cetak / PDF:</strong> Klik tombol <strong>Cetak / PDF (A4)</strong> di atas. Di jendela print browser, pilih <em>"Destination: Save as PDF"</em>&nbsp;dan&nbsp;<em>"Paper Size: A4"</em> untuk menyimpan file PDF berkualitas tinggi.</span>
     </div>
 
     <!-- ======================================================== -->
@@ -881,7 +881,13 @@
         cursor: pointer;
         user-select: none;
     }
+    .checkbox-pill input[type="checkbox"],
     .checkbox-pill input {
+        width: 15px;
+        height: 15px;
+        margin: 0;
+        cursor: pointer;
+        flex-shrink: 0;
         accent-color: var(--primary, #2563eb);
     }
 

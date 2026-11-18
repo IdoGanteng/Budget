@@ -139,7 +139,7 @@
                     on:click={closeBudgetModal}
                     aria-label="Tutup"
                 >
-                    ✕
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
             </div>
 
@@ -232,7 +232,9 @@
                                 <button type="button" class="quick-chip" on:click={() => addQuick(key, 200000)}>+200rb</button>
                                 <button type="button" class="quick-chip" on:click={() => addQuick(key, 500000)}>+500rb</button>
                                 <button type="button" class="quick-chip" on:click={() => addQuick(key, 1000000)}>+1jt</button>
-                                <button type="button" class="quick-chip chip-clear" on:click={() => localLimits[key] = 0} title="Hapus Batas">✕</button>
+                                <button type="button" class="quick-chip chip-clear" on:click={() => localLimits[key] = 0} title="Hapus Batas" aria-label="Hapus Batas">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                </button>
                             </div>
                         </div>
 

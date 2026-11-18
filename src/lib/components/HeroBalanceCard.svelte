@@ -1,17 +1,20 @@
 <script>
     import { heroView, privacyMode, togglePrivacy, openAddTxModal, openTransferModal, sisaScope } from '../stores/uiStore.js';
-    import { filteredData, formatRp, categoryBudgetSummary } from '../stores/financeStore.js';
+    import { filteredData, currentMonthSummary, formatRp, categoryBudgetSummary } from '../stores/financeStore.js';
     import { activeUser } from '../stores/authStore.js';
 
     $: totals = $filteredData.totals;
-    $: filteredInc = $filteredData.filteredInc || 0;
-    $: filteredExp = $filteredData.filteredExp || 0;
-    $: isSurplus = filteredInc >= filteredExp;
     $: computedPockets = $filteredData.computedPockets || [];
     $: displaySisa = $sisaScope === 'cash' ? totals.cash : totals.totalWealth;
-    $: savingsRate = $filteredData.savingsRate || 0;
-    $: netCashflow = $filteredData.netCashflow || (filteredInc - filteredExp);
-    $: txs = $filteredData.filteredList || [];
+
+    // Monthly telemetry strictly filtered by current month & year (bulan & tahun berjalan)
+    $: monthData = $currentMonthSummary;
+    $: filteredInc = monthData.monthInc || 0;
+    $: filteredExp = monthData.monthExp || 0;
+    $: isSurplus = monthData.isSurplus;
+    $: savingsRate = monthData.savingsRate || 0;
+    $: netCashflow = monthData.netCashflow || 0;
+    $: txs = monthData.monthTxs || [];
     $: budgetSummary = $categoryBudgetSummary;
 
     // Progressive Disclosure hover states
@@ -31,11 +34,11 @@
     }
 
     function getMonthName() {
-        return new Intl.DateTimeFormat('id-ID', { month: 'long' }).format(new Date());
+        return monthData.monthName || new Intl.DateTimeFormat('id-ID', { month: 'long' }).format(new Date());
     }
 
-    // Early-warning threshold insight for categories reaching >= 80%
-    $: warningBudgetCategories = (budgetSummary?.items || []).filter(item => item.hasLimit && item.percentage >= 80);
+    // Early-warning threshold insight for categories reaching >= 80% in current month
+    $: warningBudgetCategories = monthData.warningCategories || [];
 
     $: budgetAlertInsights = (() => {
         if (!warningBudgetCategories || warningBudgetCategories.length === 0) return [];

@@ -118,7 +118,7 @@
             <button
                 type="button"
                 on:click={() => isAppsScriptModalOpen.set(false)}
-                class="btn-danger"
+                class="btn-secondary"
                 style="margin-top:10px; width:100%; border-radius:12px; padding:10px; font-size:12px;"
             >
                 Tutup

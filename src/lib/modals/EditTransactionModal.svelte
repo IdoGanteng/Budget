@@ -273,7 +273,7 @@
                     <button
                         type="button"
                         on:click={() => isEditTxModalOpen.set(false)}
-                        class="btn-danger"
+                        class="btn-secondary"
                         style="flex: 1; padding: 12px; border-radius: 14px;"
                     >
                         Batal

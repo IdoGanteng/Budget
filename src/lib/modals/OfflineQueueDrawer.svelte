@@ -12,7 +12,8 @@
         formatRp,
         CATEGORIES,
         pocketsList,
-        DEFAULT_POCKETS
+        DEFAULT_POCKETS,
+        clearOfflineQueue
     } from '../stores/financeStore.js';
 
     let isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
@@ -159,7 +160,7 @@
                     on:click={closeOfflineDrawer}
                     aria-label="Tutup Drawer"
                 >
-                    ✕
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
             </div>
 
@@ -206,6 +207,29 @@
                 >
                     <span>+ Simulasi Uji Coba</span>
                 </button>
+
+                {#if $offlineQueue.length > 0}
+                    <button
+                        type="button"
+                        class="btn-test-item"
+                        style="color: #fb7185; border-color: rgba(244, 63, 94, 0.35); background: rgba(244, 63, 94, 0.1);"
+                        on:click={() => {
+                            showConfirmModal({
+                                title: 'Bersihkan Antrean Offline?',
+                                desc: 'Apakah Anda yakin ingin menghapus seluruh item yang mengantre saat ini? Data ini tidak dapat dikembalikan.',
+                                confirmText: 'Ya, Bersihkan',
+                                isDanger: true,
+                                onConfirm: () => {
+                                    clearOfflineQueue();
+                                    showToast('Antrean offline berhasil dibersihkan', 'success', '🧹');
+                                }
+                            });
+                        }}
+                        title="Kosongkan antrean sinkronisasi"
+                    >
+                        <span>🗑️ Bersihkan Antrean</span>
+                    </button>
+                {/if}
             </div>
 
             <!-- MAIN LIST / CONTENT AREA -->

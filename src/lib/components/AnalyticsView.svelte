@@ -7,6 +7,7 @@
         formatRp,
         selectedMonth,
         selectedUserFilter,
+        selectedCategoryFilter,
         monthsList,
         CATEGORIES,
         categoryBudgetSummary
@@ -574,8 +575,30 @@
         ctx.fillText(value, x + 14, y + 52);
     }
 
+    let resizeObserver = null;
     onMount(() => {
-        setTimeout(renderCharts, 100);
+        requestAnimationFrame(() => {
+            renderCharts();
+            setTimeout(() => {
+                if (financeChart) financeChart.resize();
+                if (comparisonChart) comparisonChart.resize();
+                if (userChart) userChart.resize();
+            }, 60);
+        });
+
+        if (typeof ResizeObserver !== 'undefined') {
+            resizeObserver = new ResizeObserver(() => {
+                if (financeChart) financeChart.resize();
+                if (comparisonChart) comparisonChart.resize();
+                if (userChart) userChart.resize();
+            });
+            const wrappers = document.querySelectorAll('.chart-canvas-wrapper');
+            wrappers.forEach(w => resizeObserver.observe(w));
+        }
+
+        return () => {
+            if (resizeObserver) resizeObserver.disconnect();
+        };
     });
 
     onDestroy(() => {
@@ -617,6 +640,23 @@
                     {#each users as u}
                         <option value={u.id}>{u.name}</option>
                     {/each}
+                </select>
+            </div>
+
+            <!-- 1.3 Category Filter Selector -->
+            <div class="analytics-filter-wrapper">
+                <span class="filter-select-icon">🏷️</span>
+                <select class="analytics-filter-select" bind:value={$selectedCategoryFilter} title="Filter Kategori">
+                    <option value="all">Semua Kategori</option>
+                    <option value="makan">🍔 Makan</option>
+                    <option value="belanja">🛍️ Belanja</option>
+                    <option value="transport">🚗 Transport</option>
+                    <option value="tagihan">🏠 Tagihan</option>
+                    <option value="hiburan">🎮 Hiburan</option>
+                    <option value="kesehatan">💊 Kesehatan</option>
+                    <option value="gaji">💼 Gaji</option>
+                    <option value="investasi">🪙 Emas</option>
+                    <option value="lainnya">📦 Lainnya</option>
                 </select>
             </div>
 
@@ -811,11 +851,11 @@
                                 style="width: {cat.limit > 0 ? Math.min(cat.budgetPct, 100) : cat.percentage}%; background-color: {cat.statusColor};"
                             ></div>
                         </div>
-                        <div class="category-item-footer flex justify-between items-center text-[11px] font-medium text-slate-500 dark:text-slate-400 mt-1">
-                            <span>
+                        <div class="category-item-footer flex justify-between items-center gap-3 text-[11px] font-medium text-slate-500 dark:text-slate-400 mt-1">
+                            <span class="category-pagu-metric">
                                 {cat.limit > 0 ? `${cat.budgetPct.toFixed(0)}% pagu` : `Porsi ${cat.percentage.toFixed(1)}%`}
                             </span>
-                            <span>
+                            <span class="category-sisa-metric text-right font-semibold">
                                 {#if cat.isOver}
                                     <strong class="text-rose-600 dark:text-rose-400">Defisit {formatRp(cat.amount - cat.limit)}</strong>
                                 {:else if cat.limit > 0}

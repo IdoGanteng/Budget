@@ -35,7 +35,7 @@
             <div class="modal-actions">
                 <button
                     type="button"
-                    class="btn-danger"
+                    class="btn-secondary"
                     on:click={closeConfirmModal}
                     style="flex: 1; padding: 12px; border-radius: 14px;"
                 >

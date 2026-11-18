@@ -111,7 +111,7 @@
                     <button
                         type="button"
                         on:click={() => isManageUsersModalOpen.set(false)}
-                        class="btn-danger"
+                        class="btn-secondary"
                         style="flex: 1; border-radius: 12px;"
                     >
                         Tutup
@@ -166,7 +166,7 @@
                         <button
                             type="button"
                             on:click={() => showAddForm = false}
-                            class="btn-danger"
+                            class="btn-secondary"
                             style="flex: 1; border-radius: 12px;"
                         >
                             Kembali
