@@ -138,37 +138,6 @@ export function closeOfflineDrawer() {
     isOfflineDrawerOpen.set(false);
 }
 
-// Debt & Receivables Modal Stores
-export const isDebtModalOpen = writable(false);
-export function openDebtModal() {
-    isDebtModalOpen.set(true);
-}
-export function closeDebtModal() {
-    isDebtModalOpen.set(false);
-}
-
-export const isDebtPaymentModalOpen = writable(false);
-export const selectedDebtForPayment = writable(null);
-export function openDebtPaymentModal(debt) {
-    selectedDebtForPayment.set({ ...debt });
-    isDebtPaymentModalOpen.set(true);
-}
-export function closeDebtPaymentModal() {
-    isDebtPaymentModalOpen.set(false);
-    selectedDebtForPayment.set(null);
-}
-
-// Category Budget Modal Store
-export const isBudgetModalOpen = writable(false);
-export const budgetModalMonth = writable(null); // specific month string or null (base/current)
-export function openBudgetModal(month = null) {
-    budgetModalMonth.set(month);
-    isBudgetModalOpen.set(true);
-}
-export function closeBudgetModal() {
-    isBudgetModalOpen.set(false);
-}
-
 export const isEditTxModalOpen = writable(false);
 export const editingTx = writable(null);
 

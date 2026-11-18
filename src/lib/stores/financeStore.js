@@ -807,8 +807,8 @@ export function formatGram(gram, masked = null) {
 
 // Current month financial telemetry store (Strictly bulan & tahun berjalan untuk Beranda)
 export const currentMonthSummary = derived(
-    [transactions, categoryBudgets, activeUser, privacyMode],
-    ([$txs, $budgets, $activeUser, $privacy]) => {
+    [transactions, activeUser, privacyMode],
+    ([$txs, $activeUser, $privacy]) => {
         const now = new Date();
         const curM = String(now.getMonth() + 1).padStart(2, '0');
         const curY = now.getFullYear();
@@ -863,39 +863,6 @@ export const currentMonthSummary = derived(
         const isSurplus = monthInc >= monthExp;
         const savingsRate = monthInc > 0 ? Math.max(0, ((monthInc - monthExp) / monthInc) * 100) : 0;
 
-        // Warning categories for current month
-        const expenseCategories = ['makan', 'transport', 'belanja', 'tagihan', 'hiburan', 'kesehatan', 'lainnya'];
-        const warningCategories = [];
-
-        expenseCategories.forEach(key => {
-            const spent = monthCatExpenses[key] || 0;
-            let limit = 0;
-            if ($budgets?.monthly && $budgets.monthly[currentMonthKey] && $budgets.monthly[currentMonthKey][key] !== undefined) {
-                limit = Number($budgets.monthly[currentMonthKey][key]) || 0;
-            } else if ($budgets?.base && $budgets.base[key] !== undefined) {
-                limit = Number($budgets.base[key]) || 0;
-            } else {
-                limit = Number(CATEGORIES[key]?.budgetLimit) || 0;
-            }
-
-            if (limit > 0) {
-                const percentage = (spent / limit) * 100;
-                const remaining = Math.max(0, limit - spent);
-                if (percentage >= 80) {
-                    const meta = CATEGORIES[key] || { name: key };
-                    warningCategories.push({
-                        key,
-                        name: meta.name,
-                        spent,
-                        limit,
-                        percentage,
-                        remaining,
-                        isOver: spent > limit
-                    });
-                }
-            }
-        });
-
         return {
             currentMonthKey,
             monthName,
@@ -906,7 +873,7 @@ export const currentMonthSummary = derived(
             savingsRate,
             monthTxs,
             monthCatExpenses,
-            warningCategories
+            warningCategories: []
         };
     }
 );
@@ -1190,112 +1157,18 @@ export const filteredData = derived(
 
 // Derived store for Category Budget calculations & alert threshold states
 export const categoryBudgetSummary = derived(
-    [filteredData, categoryBudgets, selectedMonth],
-    ([$filtered, $budgets, $month]) => {
-        const catExpenses = $filtered?.catExpensesMap || {};
-        const expenseCategories = ['makan', 'transport', 'belanja', 'tagihan', 'hiburan', 'kesehatan', 'lainnya'];
-
-        let totalLimit = 0;
-        let totalSpent = 0;
-        const items = [];
-        const overbudgetCategories = [];
-        const warningCategories = [];
-
-        expenseCategories.forEach(key => {
-            const meta = CATEGORIES[key] || { name: key, icon: '📦', color: '#64748b' };
-            const spent = Number(catExpenses[key]) || 0;
-
-            // Effective limit for this category
-            let limit = 0;
-            if ($month && $month !== 'all' && $budgets?.monthly && $budgets.monthly[$month] && $budgets.monthly[$month][key] !== undefined) {
-                limit = Number($budgets.monthly[$month][key]) || 0;
-            } else if ($budgets?.base && $budgets.base[key] !== undefined) {
-                limit = Number($budgets.base[key]) || 0;
-            } else {
-                limit = Number(meta.budgetLimit) || 0;
-            }
-
-            const hasLimit = limit > 0;
-            if (hasLimit) {
-                totalLimit += limit;
-                totalSpent += spent;
-            }
-
-            const percentage = hasLimit ? (spent / limit) * 100 : 0;
-            const remaining = hasLimit ? Math.max(0, limit - spent) : 0;
-            const isOverbudget = hasLimit && spent > limit;
-
-            // Progress bar and status colors:
-            // Hijau: < 75%
-            // Kuning: 75% - 90%
-            // Merah: > 90% atau overbudget
-            let status = 'safe';
-            let statusColor = '#10b981'; // Hijau (< 75%)
-            let statusBg = 'rgba(16, 185, 129, 0.14)';
-            let statusBadge = 'Aman';
-
-            if (!hasLimit) {
-                status = 'unlimited';
-                statusColor = '#94a3b8';
-                statusBg = 'rgba(148, 163, 184, 0.12)';
-                statusBadge = 'Bebas Pagu';
-            } else if (isOverbudget) {
-                status = 'overbudget';
-                statusColor = '#ef4444'; // Merah (>90% / overbudget)
-                statusBg = 'rgba(239, 68, 68, 0.16)';
-                statusBadge = 'Overbudget!';
-            } else if (percentage > 90) {
-                status = 'danger';
-                statusColor = '#ef4444'; // Merah (>90%)
-                statusBg = 'rgba(239, 68, 68, 0.16)';
-                statusBadge = 'Kritis (>90%)';
-            } else if (percentage >= 75) {
-                status = 'warning';
-                statusColor = '#f59e0b'; // Kuning (75%-90%)
-                statusBg = 'rgba(245, 158, 11, 0.16)';
-                statusBadge = 'Waspada (75%-90%)';
-            }
-
-            const item = {
-                key,
-                name: meta.name,
-                icon: meta.icon,
-                color: meta.color,
-                spent,
-                limit,
-                hasLimit,
-                percentage,
-                remaining,
-                isOverbudget,
-                status,
-                statusColor,
-                statusBg,
-                statusBadge
-            };
-
-            items.push(item);
-
-            if (isOverbudget) overbudgetCategories.push(item);
-            if (hasLimit && percentage >= 80) warningCategories.push(item);
-        });
-
-        // Sorted by percentage descending for priority view
-        const sortedItems = [...items].sort((a, b) => b.percentage - a.percentage);
-
-        const totalRemaining = Math.max(0, totalLimit - totalSpent);
-        const totalPercentage = totalLimit > 0 ? (totalSpent / totalLimit) * 100 : 0;
-        const isOverallOverbudget = totalLimit > 0 && totalSpent > totalLimit;
-
+    [filteredData],
+    () => {
         return {
-            items,
-            sortedItems,
-            totalLimit,
-            totalSpent,
-            totalRemaining,
-            totalPercentage,
-            isOverallOverbudget,
-            overbudgetCategories,
-            warningCategories
+            items: [],
+            sortedItems: [],
+            totalLimit: 0,
+            totalSpent: 0,
+            totalRemaining: 0,
+            totalPercentage: 0,
+            isOverallOverbudget: false,
+            overbudgetCategories: [],
+            warningCategories: []
         };
     }
 );

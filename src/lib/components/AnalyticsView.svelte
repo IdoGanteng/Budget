@@ -9,11 +9,10 @@
         selectedUserFilter,
         selectedCategoryFilter,
         monthsList,
-        CATEGORIES,
-        categoryBudgetSummary
+        CATEGORIES
     } from '../stores/financeStore.js';
     import { usersList } from '../stores/authStore.js';
-    import { theme, activeTab, showToast, openBudgetModal } from '../stores/uiStore.js';
+    import { theme, activeTab, showToast } from '../stores/uiStore.js';
 
     const INDO_MONTHS = [
         '', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
@@ -119,61 +118,20 @@
         };
     })();
 
-    $: budgetSummary = $categoryBudgetSummary;
-    let categoryViewMode = 'budget'; // 'budget' | 'ranked'
-
-    // 2. Top Spending Categories with Category Budget Progress & Thresholds
+    // 2. Top Spending Categories Distribution
     $: topCategories = Object.entries($filteredData.catExpensesMap || {})
         .filter(([_, amt]) => amt > 0)
         .sort((a, b) => b[1] - a[1])
         .map(([catKey, amt]) => {
-            const meta = CATEGORIES[catKey] || { name: catKey.toUpperCase(), icon: '📦', color: '#64748b' };
+            const meta = CATEGORIES[catKey] || { name: catKey.toUpperCase(), icon: '📦', color: '#3b82f6' };
             const pct = filteredExp > 0 ? (amt / filteredExp) * 100 : 0;
-            const budgetItem = (budgetSummary?.items || []).find(b => b.key === catKey);
-            const limit = budgetItem ? budgetItem.limit : (meta.budgetLimit || 0);
-            const budgetPct = limit > 0 ? (amt / limit) * 100 : 0;
-            const isOver = limit > 0 && amt > limit;
-
-            // Thresholds:
-            // Hijau: < 75%
-            // Kuning: 75% - 90%
-            // Merah: > 90% atau overbudget
-            let statusColor = '#10b981';
-            let statusBadge = 'Aman (<75%)';
-            let statusBg = 'rgba(16, 185, 129, 0.14)';
-
-            if (limit <= 0) {
-                statusColor = '#94a3b8';
-                statusBadge = 'Bebas Pagu';
-                statusBg = 'rgba(148, 163, 184, 0.12)';
-            } else if (isOver) {
-                statusColor = '#ef4444';
-                statusBadge = 'Overbudget!';
-                statusBg = 'rgba(239, 68, 68, 0.16)';
-            } else if (budgetPct > 90) {
-                statusColor = '#ef4444';
-                statusBadge = 'Kritis (>90%)';
-                statusBg = 'rgba(239, 68, 68, 0.16)';
-            } else if (budgetPct >= 75) {
-                statusColor = '#f59e0b';
-                statusBadge = 'Waspada (75%-90%)';
-                statusBg = 'rgba(245, 158, 11, 0.16)';
-            }
-
             return {
                 key: catKey,
                 name: meta.name,
                 icon: meta.icon,
-                color: meta.color,
+                color: meta.color || '#3b82f6',
                 amount: amt,
-                percentage: pct,
-                limit,
-                budgetPct,
-                isOver,
-                statusColor,
-                statusBadge,
-                statusBg,
-                remaining: limit > 0 ? Math.max(0, limit - amt) : 0
+                percentage: pct
             };
         });
 
@@ -792,28 +750,20 @@
         </div>
     </div>
 
-    <!-- 4. TOP SPENDING CATEGORIES & BUDGET REALIZATION -->
+    <!-- 4. TOP SPENDING CATEGORIES DISTRIBUTION -->
     <div class="analytics-card section-categories bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 shadow-xs">
         <div class="card-header flex flex-wrap items-center justify-between gap-3">
             <div class="header-left">
                 <div class="title-with-badge">
-                    <h2 class="card-title text-slate-900 dark:text-white">🎯 Realisasi &amp; Batas Anggaran Kategori</h2>
-                    <span class="pill-badge">Batas Pagu</span>
+                    <h2 class="card-title text-slate-900 dark:text-white">📊 Distribusi Pengeluaran Kategori</h2>
+                    <span class="pill-badge">Pengeluaran</span>
                 </div>
-                <p class="card-desc text-slate-600 dark:text-slate-400">Realisasi konsumsi vs batas pagu bulanan periode {$selectedMonth === 'all' ? 'semua waktu' : formatMonthLabel($selectedMonth)}</p>
+                <p class="card-desc text-slate-600 dark:text-slate-400">Porsi dan sebaran pengeluaran per kategori periode {$selectedMonth === 'all' ? 'semua waktu' : formatMonthLabel($selectedMonth)}</p>
             </div>
             <div class="header-right flex items-center gap-2">
                 {#if filteredExp > 0}
                     <span class="card-tag text-slate-700 dark:text-slate-300">{topCategories.length} Kategori Aktif</span>
                 {/if}
-                <button
-                    type="button"
-                    class="btn-manage-budget-mini"
-                    on:click={() => openBudgetModal($selectedMonth)}
-                    title="Atur pagu batas anggaran kategori"
-                >
-                    <span>⚙️</span> Atur Anggaran
-                </button>
             </div>
         </div>
 
@@ -825,44 +775,33 @@
         {:else}
             <div class="top-categories-grid">
                 {#each topCategories.slice(0, 6) as cat, idx}
-                    <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
-                    <div class="category-item-card bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 shadow-xs cursor-pointer" on:click={() => openBudgetModal($selectedMonth)} role="button" tabindex="0">
+                    <div class="category-item-card bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 shadow-xs">
                         <div class="category-item-header">
                             <span class="category-rank-chip">#{idx + 1}</span>
                             <span class="category-icon-emoji">{cat.icon}</span>
                             <span class="category-item-name text-slate-900 dark:text-white">{cat.name}</span>
                             <span
                                 class="category-status-badge category-pct-val text-[10px] font-extrabold px-2 py-0.5 rounded-full"
-                                style="background-color: {cat.statusBg}; color: {cat.statusColor};"
+                                style="background-color: {cat.color}22; color: {cat.color};"
                             >
-                                {cat.statusBadge}
+                                {cat.percentage.toFixed(1)}%
                             </span>
                         </div>
                         <div class="category-amount-val flex items-baseline gap-1 text-slate-900 dark:text-white font-extrabold">
                             <span>{formatRp(cat.amount)}</span>
-                            <span class="text-xs font-normal text-slate-500 dark:text-slate-400">
-                                / {cat.limit > 0 ? formatRp(cat.limit) : 'Tanpa Limit'}
-                            </span>
                         </div>
-                        <!-- Progress bar: Hijau: <75%, Kuning: 75%-90%, Merah: >90% atau overbudget -->
                         <div class="category-progress-track">
                             <div
                                 class="category-progress-bar"
-                                style="width: {cat.limit > 0 ? Math.min(cat.budgetPct, 100) : cat.percentage}%; background-color: {cat.statusColor};"
+                                style="width: {cat.percentage}%; background-color: {cat.color};"
                             ></div>
                         </div>
                         <div class="category-item-footer flex justify-between items-center gap-3 text-[11px] font-medium text-slate-500 dark:text-slate-400 mt-1">
                             <span class="category-pagu-metric">
-                                {cat.limit > 0 ? `${cat.budgetPct.toFixed(0)}% pagu` : `Porsi ${cat.percentage.toFixed(1)}%`}
+                                Porsi {cat.percentage.toFixed(1)}%
                             </span>
                             <span class="category-sisa-metric text-right font-semibold">
-                                {#if cat.isOver}
-                                    <strong class="text-rose-600 dark:text-rose-400">Defisit {formatRp(cat.amount - cat.limit)}</strong>
-                                {:else if cat.limit > 0}
-                                    Sisa {formatRp(cat.remaining)}
-                                {:else}
-                                    Bebas Pagu
-                                {/if}
+                                dari total pengeluaran
                             </span>
                         </div>
                     </div>
@@ -2258,33 +2197,5 @@
     :global(html.dark) .ai-tip-text strong,
     :global([data-theme="dark"]) .ai-tip-text strong {
         color: #ffffff;
-    }
-
-    .btn-manage-budget-mini {
-        background: rgba(37, 99, 235, 0.1);
-        border: 1px solid rgba(37, 99, 235, 0.25);
-        color: #2563eb;
-        font-size: 11.5px;
-        font-weight: 700;
-        padding: 5px 12px;
-        border-radius: 100px;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        transition: all 0.2s;
-    }
-
-    :global(html.dark) .btn-manage-budget-mini,
-    :global([data-theme="dark"]) .btn-manage-budget-mini {
-        background: rgba(59, 130, 246, 0.18);
-        border-color: rgba(59, 130, 246, 0.35);
-        color: #93c5fd;
-    }
-
-    .btn-manage-budget-mini:hover {
-        background: #2563eb;
-        color: #ffffff;
-        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
     }
 </style>

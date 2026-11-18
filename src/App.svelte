@@ -9,7 +9,6 @@
     import Navbar from './lib/components/Navbar.svelte';
     import HeroBalanceCard from './lib/components/HeroBalanceCard.svelte';
     import BillReminderWidget from './lib/components/BillReminderWidget.svelte';
-    import DebtSummaryCard from './lib/components/DebtSummaryCard.svelte';
     import PocketsGrid from './lib/components/PocketsGrid.svelte';
     import TransactionHistory from './lib/components/TransactionHistory.svelte';
     import AnalyticsView from './lib/components/AnalyticsView.svelte';
@@ -23,10 +22,7 @@
     import PocketTransferModal from './lib/modals/PocketTransferModal.svelte';
     import AddPocketModal from './lib/modals/AddPocketModal.svelte';
     import GoalsModal from './lib/modals/GoalsModal.svelte';
-    import ManageBudgetModal from './lib/modals/ManageBudgetModal.svelte';
     import RecurringModal from './lib/modals/RecurringModal.svelte';
-    import DebtModal from './lib/modals/DebtModal.svelte';
-    import DebtPaymentModal from './lib/modals/DebtPaymentModal.svelte';
     import EditTransactionModal from './lib/modals/EditTransactionModal.svelte';
     import GooglePickerModal from './lib/modals/GooglePickerModal.svelte';
     import AppsScriptModal from './lib/modals/AppsScriptModal.svelte';
@@ -59,10 +55,7 @@
     <PocketTransferModal />
     <AddPocketModal />
     <GoalsModal />
-    <ManageBudgetModal />
     <RecurringModal />
-    <DebtModal />
-    <DebtPaymentModal />
     <EditTransactionModal />
     <AppsScriptModal />
     <ManageUsersModal />
@@ -76,7 +69,6 @@
                 <div class="dashboard-tab-view active">
                     <HeroBalanceCard />
                     <BillReminderWidget />
-                    <DebtSummaryCard />
                     <PocketsGrid />
                     <TransactionHistory />
                 </div>
